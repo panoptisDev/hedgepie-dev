@@ -1,0 +1,22 @@
+{
+  "name": "truffleboilerplate",
+  "version": "1.0.0",
+  "description": "",
+  "main": "truffle-config.js",
+  "directories": {
+    "test": "test"
+  },
+  "scripts": {
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "keywords": [],
+  "author": "",
+  "license": "ISC",
+  "dependencies": {
+    "@openzeppelin/contracts": "^4.2.0",
+    "@truffle/hdwallet-provider": "^1.4.2",
+    "chai": "^4.3.4",
+    "chai-as-promised": "^7.1.1",
+    "web3": "^1.5.0"
+  }
+}
