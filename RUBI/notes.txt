@@ -1,0 +1,11 @@
+Notes:
+I have mostly given up on building this from the ground up. So back to the fork idea!
+And when it comes to forking, I will be forking hard, not hardly forking.
+
+BunnyMinterV2 -> mints bunny as long as the caller is an approved minter. Also handles fees
+Flip2Flip -> The auto compounder, am going to let it still use cake
+zap -> handles swaps "easier"
+
+
+The goal here is to make progress by deploying contracts, and building the deployment script as I go
+
