@@ -1,0 +1,13 @@
+overwrite: true
+schema:
+  - "../../go/api-gateway/internal/graph/*.graphqls"
+documents:
+  - "src/**/*.graphql"
+generates:
+  src/js/generated/graphql.tsx:
+    plugins:
+      - "typescript"
+      - "typescript-operations"
+      - "typescript-react-apollo"
+config:
+  withHooks: true

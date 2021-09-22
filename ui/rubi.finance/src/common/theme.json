@@ -1,0 +1,21 @@
+{
+  "colors": {
+    "primary": "#685BC7",
+    "secondary": "#01c7b0"
+  },
+  "cards": {
+    "borderRadiusBase": ".375rem",
+    "shadow": "0 .125rem .25rem rgba(22,28,45,.075)"
+  },
+  "buttons": {
+    "borderWidth": "0",
+    "primary": {
+      "background-color": "#685BC7",
+      "color": "white"
+    },
+    "secondary": {
+      "background-color": "rgba(167 164 224 / .25)",
+      "color": "#685BC7"
+    }
+  }
+}
