@@ -12,5 +12,3 @@ propTypes.string = {};
 propTypes.number = {};
 jest.mock('prop-types', () => propTypes);
 jest.mock('prop-types/checkPropTypes', () => () => true);
-
-window.moment = require('moment');

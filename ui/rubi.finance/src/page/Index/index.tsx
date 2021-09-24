@@ -17,9 +17,7 @@ const IndexPage: React.FC = () => {
           content="index, follow"
         />
       </Helmet>
-      <div sx={styles.container} >
         HELLO!
-      </div>
     </>
   );
 };

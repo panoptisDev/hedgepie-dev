@@ -3,7 +3,7 @@
   "displayName": "rubi.finance",
   "version": "0.1.0",
   "scripts": {
-    "build": "npm run gql-codegen && webpack",
+    "build": "webpack",
     "dev": "webpack serve",
     "test": "jest",
     "posttest": "eslint . --ext .ts",

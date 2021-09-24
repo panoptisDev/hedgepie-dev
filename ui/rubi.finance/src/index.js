@@ -18,7 +18,6 @@ import render from './setup-react';
  * specific language governing permissions and limitations
  * under the License.
  */
-window.moment = moment;
 const app = {
   // Application Constructor
   initialize: function() {
