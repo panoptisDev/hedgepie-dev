@@ -1,5 +1,5 @@
 import { Theme, ThemeUIStyleObject } from 'theme-ui';
-import MimoblTheme from 'Common/theme.json';
+import MimoblTheme from 'common/theme.json';
 
 const cardBase: ThemeUIStyleObject = {
   display: 'flex',

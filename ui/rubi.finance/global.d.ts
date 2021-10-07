@@ -16,7 +16,13 @@ type Env = {
   FIREBASE_MEASUREMENT_ID: string;
   TEAM_MIMOBL_COM_BUGSNAG_API_KEY: string;
   COOKIE_DOMAIN: string;
+  GATEWAY_API_URL: string;
 }
 
 declare const env: Env;
+
+declare interface Window {
+  ethereum: any;
+  web3: any;
+}
 

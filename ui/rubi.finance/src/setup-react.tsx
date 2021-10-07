@@ -1,6 +1,6 @@
 import React, { useEffect, useState } from 'react';
 import ReactDOM from 'react-dom';
-import { default as LazyPages } from 'Pages/routes';
+import { default as LazyPages } from 'pages/routes';
 import {
   BrowserRouter,
   Switch,
@@ -9,7 +9,7 @@ import {
 import Bugsnag from '@bugsnag/js';
 import BugsnagPluginReact from '@bugsnag/plugin-react';
 import { Spinner, ThemeProvider } from 'theme-ui';
-import theme from 'Common/theme';
+import theme from 'common/theme';
 import {
   LocalStorageWrapper,
   persistCache
@@ -24,7 +24,9 @@ import {
 import { RetryLink } from '@apollo/client/link/retry';
 import { onError } from '@apollo/client/link/error';
 import { OperationDefinitionNode } from 'graphql';
-import useMouseflow from 'Common/hooks/useMouseflow';
+import useMouseflow from 'common/hooks/useMouseflow';
+import UseWeb3Context from 'common/hooks/UseWeb3Context';
+
 
 const {
   BUGSNAG_API_KEY,
@@ -37,7 +39,7 @@ const App: React.FC = () => {
     component: React.lazy(
       () =>
         import(
-          /* webpackChunkName: "[request]" */`./page/${lazyPage.entry}`
+          /* webpackChunkName: "[request]" */`./pages/${lazyPage.entry}`
         )
     ),
     ...lazyPage
@@ -142,20 +144,22 @@ const App: React.FC = () => {
 
   return apolloClient ? (
     <ThemeProvider theme={theme}>
-      <ApolloProvider client={apolloClient}>
-        <React.Suspense fallback={<Spinner />}>
-          <Switch>
-            {pages.map((page, i) => (
-              <Route
-                exact={typeof page.exact !== 'undefined' ? page.exact : true}
-                path={page.route as string}
-                component={page.component}
-                key={i}
-              />
-            ))}
-          </Switch>
-        </React.Suspense>
-      </ApolloProvider>
+      <UseWeb3Context>
+        <ApolloProvider client={apolloClient}>
+          <React.Suspense fallback={<Spinner />}>
+            <Switch>
+              {pages.map((page, i) => (
+                <Route
+                  exact={typeof page.exact !== 'undefined' ? page.exact : true}
+                  path={page.route as string}
+                  component={page.component}
+                  key={i}
+                />
+              ))}
+            </Switch>
+          </React.Suspense>
+        </ApolloProvider>
+      </UseWeb3Context>
     </ThemeProvider>
   ) : (
     <Spinner />

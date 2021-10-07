@@ -71,7 +71,14 @@ module.exports = {
       favicon: './src/favicon.ico',
       template: './src/template.ejs'
     }),
-    new webpack.DefinePlugin({ env }),
+    new webpack.DefinePlugin({
+      env,
+      'process.env.NODE_DEBUG': JSON.stringify(process.env.NODE_DEBUG),
+    }),
+
+    new webpack.ProvidePlugin({
+      Buffer: ['buffer', 'Buffer'],
+    }),
     new CopyPlugin({
       patterns: [
         {
@@ -195,11 +202,24 @@ module.exports = {
   resolve: {
     extensions: ['.js', '.ts', '.tsx', '.png', '.jpg', '.webp'],
     alias: {
-      Common: path.resolve(__dirname, 'src/common'),
-      Pages: path.resolve(__dirname, 'src/page'),
-      Hooks: path.resolve(__dirname, 'src/common/hooks'),
-      Generated: path.resolve(__dirname, 'src/generated'),
+      common: path.resolve(__dirname, 'src/common'),
+      pages: path.resolve(__dirname, 'src/pages'),
+      hooks: path.resolve(__dirname, 'src/common/hooks'),
+      generated: path.resolve(__dirname, 'src/generated'),
+      components: path.resolve(__dirname, 'src/components'),
+      context: path.resolve(__dirname, 'src/context'),
+    },
+    fallback: {
+      "process": require.resolve("process"),
+      "os": require.resolve("os-browserify/browser"),
+      "https": require.resolve("https-browserify"),
+      "http": require.resolve("stream-http"),
+      "crypto": require.resolve("crypto-browserify"),
+      "assert": require.resolve("assert"),
+      "stream": require.resolve("stream-browserify"),
+      "buffer": require.resolve("buffer"),
     }
+
   },
   devServer: {
     port: 9000,
@@ -210,11 +230,13 @@ module.exports = {
     historyApiFallback: {
       index: 'index.html',
     },
-    compress: true
+    compress: true,
+    writeToDisk: true
   },
   externals: {
     'react': 'React',
     'react-dom': 'ReactDOM',
-  }
+  },
+  ignoreWarnings: [/Failed to parse source map/]
 };
 
