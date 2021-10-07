@@ -3,8 +3,11 @@ import styles from './style';
 import { MimoblRoutePath, RedirectState } from 'Pages/routes';
 import { Heading, Text, Button } from 'theme-ui';
 import { Helmet } from 'react-helmet';
+import { ConnectWallet } from 'components';
+
 
 const IndexPage: React.FC = () => {
+
   return (
     <>
       <Helmet>
@@ -17,7 +20,7 @@ const IndexPage: React.FC = () => {
           content="index, follow"
         />
       </Helmet>
-        HELLO!
+      <ConnectWallet />
     </>
   );
 };

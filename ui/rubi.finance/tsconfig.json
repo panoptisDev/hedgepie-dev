@@ -12,12 +12,13 @@
     "jsx": "react-jsx",
     "jsxImportSource": "theme-ui",
     "moduleResolution": "Node",
+    "resolveJsonModule": true,
     "esModuleInterop": true,
     "allowSyntheticDefaultImports": true,
-    "baseUrl": ".",
+    "baseUrl": "./src",
     "paths": {
       "Pages/*": [
-        "src/page/*"
+        "src/pages/*"
       ],
       "Common/*": [
         "src/common/*"
