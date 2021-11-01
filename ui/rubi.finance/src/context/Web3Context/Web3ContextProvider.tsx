@@ -2,9 +2,9 @@ import React, { useCallback, useEffect, useState } from 'react'
 import { Web3Provider } from 'context'
 import Web3 from 'web3'
 
-interface IUseWeb3Context { }
+interface IWeb3ContextProvider { }
 
-const UseWeb3Context: React.FC<IUseWeb3Context> = ({
+export const Web3ContextProvider: React.FC<IWeb3ContextProvider> = ({
   children
 }) => {
   const [web3, setWeb3] = useState<Web3>()
@@ -53,5 +53,3 @@ const UseWeb3Context: React.FC<IUseWeb3Context> = ({
     </Web3Provider>
   )
 }
-
-export default UseWeb3Context

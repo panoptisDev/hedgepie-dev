@@ -25,7 +25,7 @@ import { RetryLink } from '@apollo/client/link/retry';
 import { onError } from '@apollo/client/link/error';
 import { OperationDefinitionNode } from 'graphql';
 import useMouseflow from 'common/hooks/useMouseflow';
-import UseWeb3Context from 'common/hooks/UseWeb3Context';
+import { Web3ContextProvider } from 'context';
 
 
 const {
@@ -144,7 +144,7 @@ const App: React.FC = () => {
 
   return apolloClient ? (
     <ThemeProvider theme={theme}>
-      <UseWeb3Context>
+      <Web3ContextProvider>
         <ApolloProvider client={apolloClient}>
           <React.Suspense fallback={<Spinner />}>
             <Switch>
@@ -159,7 +159,7 @@ const App: React.FC = () => {
             </Switch>
           </React.Suspense>
         </ApolloProvider>
-      </UseWeb3Context>
+      </Web3ContextProvider>
     </ThemeProvider>
   ) : (
     <Spinner />
