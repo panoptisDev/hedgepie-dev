@@ -1,6 +1,8 @@
 import React, { useCallback, useEffect, useState } from 'react'
 import { Web3Provider } from 'context'
 import Web3 from 'web3'
+import { ERC20VaultABI, VAULT_ADDRESS } from 'abi/vault'
+import { BigNumber } from 'bignumber.js'
 
 interface IWeb3ContextProvider { }
 
@@ -40,13 +42,34 @@ export const Web3ContextProvider: React.FC<IWeb3ContextProvider> = ({
     }
   }
 
+  const deposit = () => {
+    if (!web3) {
+      return
+    }
+
+    const vaultContract = new web3.eth.Contract(ERC20VaultABI, VAULT_ADDRESS)
+    const amount = new BigNumber(314)
+    vaultContract.methods.deposit(amount).send(
+      {
+        // @ts-ignore
+        from: web3?.currentProvider?.selectedAddress
+      }, (err: any, res: any) => {
+      if (err) {
+        console.log("An error occured", err)
+        return
+      }
+      console.log("Hash of the transaction: " + res)
+    })
+  }
+
   return (
     <Web3Provider
       value={{
         web3,
         hasPerm,
         setWeb3,
-        requestAccess
+        requestAccess,
+        deposit
       }}
     >
       {children}
