@@ -75,7 +75,9 @@ module.exports = {
       env,
       'process.env.NODE_DEBUG': JSON.stringify(process.env.NODE_DEBUG),
     }),
-
+    new webpack.ProvidePlugin({
+      process: 'process/browser',
+    }),
     new webpack.ProvidePlugin({
       Buffer: ['buffer', 'Buffer'],
     }),
@@ -208,6 +210,7 @@ module.exports = {
       generated: path.resolve(__dirname, 'src/generated'),
       components: path.resolve(__dirname, 'src/components'),
       context: path.resolve(__dirname, 'src/context'),
+      abi: path.resolve(__dirname, 'src/abi'),
     },
     fallback: {
       "process": require.resolve("process"),
