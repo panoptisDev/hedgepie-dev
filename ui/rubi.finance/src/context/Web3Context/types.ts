@@ -6,4 +6,5 @@ export interface IWeb3Context {
   setWeb3?: (web3: Web3) => void
   requestAccess?: () => Promise<any>
   deposit?: () => void
+  getUserBalance?: () => void
 }

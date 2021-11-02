@@ -31,7 +31,7 @@ export const Web3ContextProvider: React.FC<IWeb3ContextProvider> = ({
     if (!web3) {
       init()
     }
-
+    
     try {
       await window.ethereum.enable()
       setHasPerm(true)
@@ -62,6 +62,23 @@ export const Web3ContextProvider: React.FC<IWeb3ContextProvider> = ({
     })
   }
 
+  const getUserBalance = () => {
+    if (!web3) {
+      return
+    }
+
+    const vaultContract = new web3.eth.Contract(ERC20VaultABI, VAULT_ADDRESS)
+    // @ts-ignore
+    const bal = vaultContract.methods.balanceOf(web3?.currentProvider?.selectedAddress).call(function (err, res) {
+      if (err) {
+        console.log("An error occured", err)
+        return
+      }
+      console.log("The balance is: ", res)
+    })
+    console.log('=============', bal)
+  }
+
   return (
     <Web3Provider
       value={{
@@ -69,7 +86,8 @@ export const Web3ContextProvider: React.FC<IWeb3ContextProvider> = ({
         hasPerm,
         setWeb3,
         requestAccess,
-        deposit
+        deposit,
+        getUserBalance
       }}
     >
       {children}
