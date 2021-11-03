@@ -1,6 +1,6 @@
 import { AbiItem } from 'web3-utils'
 
-export const VAULT_ADDRESS = '0x87bbe9689B32cB4bBd070476E4113A2569640501'
+export const { VAULT_ADDRESS } = process.env
 
 export const ERC20VaultABI: AbiItem[] = [
   {

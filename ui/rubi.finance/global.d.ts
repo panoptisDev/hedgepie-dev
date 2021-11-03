@@ -17,6 +17,7 @@ type Env = {
   TEAM_MIMOBL_COM_BUGSNAG_API_KEY: string;
   COOKIE_DOMAIN: string;
   GATEWAY_API_URL: string;
+  VAULT_ADDRESS: string;
 }
 
 declare const env: Env;
