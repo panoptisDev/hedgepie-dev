@@ -5,12 +5,6 @@ import { Web3Context } from 'context';
 const DemoSectionProps: React.FC<IDemoSectionProps> = () => {
   const { web3, requestAccess, hasPerm } = useContext(Web3Context)
 
-  useEffect(() => {
-    if (web3 && hasPerm) {
-      web3?.eth.getAccounts().then((data) => console.log('========= acc', data))
-    }
-  }, [web3, hasPerm])
-
   return (
     <div>
       <h1>Hello, Rubi!</h1>
