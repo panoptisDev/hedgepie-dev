@@ -1,6 +1,5 @@
 import React, { useEffect } from 'react';
 import styles from './style';
-import { MimoblRoutePath, RedirectState } from 'Pages/routes';
 import { Heading, Text, Button } from 'theme-ui';
 import { Helmet } from 'react-helmet';
 import { ConnectWallet } from 'components';

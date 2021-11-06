@@ -71,12 +71,11 @@ export const Web3ContextProvider: React.FC<IWeb3ContextProvider> = ({
     // @ts-ignore
     const bal = vaultContract.methods.balanceOf(web3?.currentProvider?.selectedAddress).call(function (err, res) {
       if (err) {
-        console.log("An error occured", err)
+        console.log("An error occurred", err)
         return
       }
       console.log("The balance is: ", res)
     })
-    console.log('=============', bal)
   }
 
   return (
