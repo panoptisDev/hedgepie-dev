@@ -37,45 +37,32 @@ export const Web3ContextProvider: React.FC<IWeb3ContextProvider> = ({
       setHasPerm(true)
       return Promise.resolve()
     } catch (error: any) {
-      alert(error?.message)
       return Promise.reject(error)
     }
   }
 
-  const deposit = () => {
+  const deposit = async (): Promise<any> => {
     if (!web3) {
       return
     }
 
     const vaultContract = new web3.eth.Contract(ERC20VaultABI, VAULT_ADDRESS)
-    const amount = new BigNumber(314)
-    vaultContract.methods.deposit(amount).send(
-      {
-        // @ts-ignore
-        from: web3?.currentProvider?.selectedAddress
-      }, (err: any, res: any) => {
-      if (err) {
-        console.log("An error occured", err)
-        return
-      }
-      console.log("Hash of the transaction: " + res)
+    const amount = Web3.utils.toWei((0.1).toString(), 'ether')
+    return vaultContract.methods.deposit(amount).send({
+      // @ts-ignore
+      from: web3.currentProvider.selectedAddress,
+      value: amount
     })
   }
 
-  const getUserBalance = () => {
+  const getUserBalance = async (): Promise<any> => {
     if (!web3) {
       return
     }
 
     const vaultContract = new web3.eth.Contract(ERC20VaultABI, VAULT_ADDRESS)
     // @ts-ignore
-    const bal = vaultContract.methods.balanceOf(web3?.currentProvider?.selectedAddress).call(function (err, res) {
-      if (err) {
-        console.log("An error occurred", err)
-        return
-      }
-      console.log("The balance is: ", res)
-    })
+    return vaultContract.methods.balanceOf(web3?.currentProvider?.selectedAddress).call()
   }
 
   return (
