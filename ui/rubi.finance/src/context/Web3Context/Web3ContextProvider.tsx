@@ -41,17 +41,17 @@ export const Web3ContextProvider: React.FC<IWeb3ContextProvider> = ({
     }
   }
 
-  const deposit = async (): Promise<any> => {
+  const deposit = async (value: string): Promise<any> => {
     if (!web3) {
       return
     }
 
     const vaultContract = new web3.eth.Contract(ERC20VaultABI, VAULT_ADDRESS)
-    const amount = Web3.utils.toWei((0.1).toString(), 'ether')
+    const amount = Web3.utils.toWei(value, 'ether')
     return vaultContract.methods.deposit(amount).send({
       // @ts-ignore
       from: web3.currentProvider.selectedAddress,
-      value: amount
+      gas: '99000'
     })
   }
 

@@ -5,6 +5,6 @@ export interface IWeb3Context {
   hasPerm?: boolean
   setWeb3?: (web3: Web3) => void
   requestAccess?: () => Promise<any>
-  deposit?: () => Promise<any>
+  deposit?: (value: string) => Promise<any>
   getUserBalance?: () => Promise<any>
 }
