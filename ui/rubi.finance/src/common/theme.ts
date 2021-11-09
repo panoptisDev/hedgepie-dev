@@ -15,6 +15,10 @@ const cardBase: ThemeUIStyleObject = {
 
 const buttonBase: ThemeUIStyleObject = {
   cursor: 'pointer',
+  borderRadius: '20px',
+  background: 'none',
+  color: 'black',
+  border: '1px solid black',
   transition: 'box-shadow .25s ease,transform .25s ease',
   ':hover': {
     opacity: '0.7',
@@ -43,20 +47,24 @@ const theme: Theme = {
   buttons: {
     primary: {
       ...buttonBase,
+      border: 'none',
       color: MimoblTheme.buttons.primary.color,
-      bg: MimoblTheme.buttons.primary['background-color'],
+      background: MimoblTheme.buttons.primary['background-color'],
     },
     secondary: {
       ...buttonBase,
+      border: 'none',
       color: MimoblTheme.buttons.secondary.color,
       bg: MimoblTheme.buttons.secondary['background-color'],
     },
     highlight: {
       ...buttonBase,
+      border: 'none',
       background: '#00C7B1',
     },
     danger: {
       ...buttonBase,
+      border: 'none',
       background: '#ff4d4f',
     },
     default: buttonBase,

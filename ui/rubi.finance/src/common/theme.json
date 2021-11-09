@@ -10,7 +10,7 @@
   "buttons": {
     "borderWidth": "0",
     "primary": {
-      "background-color": "#685BC7",
+      "background-color": "transparent linear-gradient(94deg, #0ABA65 0%, #15EB83 100%) 0% 0% no-repeat padding-box",
       "color": "white"
     },
     "secondary": {
