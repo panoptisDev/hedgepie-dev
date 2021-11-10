@@ -82,10 +82,10 @@ const theme: Theme = {
       lineHeight: '1.35',
     },
     default: {
-      color: '#888888',
+      color: '#7d7d7d',
     },
     block: {
-      color: '#888888',
+      color: '#7d7d7d',
       display: 'block'
     },
     softPurple: {
