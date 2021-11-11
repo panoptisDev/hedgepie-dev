@@ -2,7 +2,7 @@ import React, { useEffect } from 'react';
 import styles from './style';
 import { Heading, Text, Button } from 'theme-ui';
 import { Helmet } from 'react-helmet';
-import { ConnectWallet } from 'components';
+import { ConnectWallet, VaultTable } from 'components';
 
 
 const IndexPage: React.FC = () => {
@@ -20,6 +20,7 @@ const IndexPage: React.FC = () => {
         />
       </Helmet>
       <ConnectWallet />
+      <VaultTable />
     </>
   );
 };

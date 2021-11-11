@@ -27,7 +27,7 @@ const styles: Record<string, ThemeUIStyleObject> = {
     borderStyle: 'solid none',
     height: '5em',
 
-    ':first-child': {
+    ':first-of-type': {
       borderLeftStyle: 'solid',
       borderTopLeftRadius: '10px', 
       borderBottomLeftRadius: '10px',
