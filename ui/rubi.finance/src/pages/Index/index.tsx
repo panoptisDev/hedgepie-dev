@@ -2,8 +2,7 @@ import React, { useEffect } from 'react';
 import styles from './style';
 import { Heading, Text, Button } from 'theme-ui';
 import { Helmet } from 'react-helmet';
-import { ConnectWallet } from 'components';
-
+import { ConnectWallet, StepView, Header, StakeSection, FooterSection, MultiConnect, NFTView } from 'components';
 
 const IndexPage: React.FC = () => {
 
@@ -19,7 +18,10 @@ const IndexPage: React.FC = () => {
           content="index, follow"
         />
       </Helmet>
-      <ConnectWallet />
+      <Header />
+
+      <FooterSection />
+      {/* <ConnectWallet /> */}
     </>
   );
 };
