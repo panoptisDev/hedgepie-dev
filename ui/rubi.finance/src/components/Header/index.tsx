@@ -1,17 +1,39 @@
 import React, { useState, useEffect } from 'react'
 import style from './style'
+import { NavLinks } from './types'
 import { Button, Container, Link, Card, Box, Flex, MenuButton } from 'theme-ui';
 
 const HeaderSection: React.FC<any> = () => {
+
+  const navLink: NavLinks[] = [
+    {
+      name: 'Vaults',
+      link: 'vaults'
+    },
+    {
+      name: 'View History',
+      link: 'history'
+    },
+    {
+      name: 'How IT Works',
+      link: 'how-it-works'
+    },
+    {
+      name: 'My Collections',
+      link: 'my-collections'
+    },
+    {
+      name: 'MORE',
+      link: 'more'
+    }
+  ]
   return (
     <section sx={style.section} >
       <Container sx={style.container}>
         <Flex>
-          <Link sx={style.link} href="#!">Vaults</Link>
-          <Link sx={style.link} href="#!">View History</Link>
-          <Link sx={style.link} href="#!">How IT Works</Link>
-          <Link sx={style.link} href="#!">My Collections</Link>
-          <Link sx={style.link} href="#!">More</Link>
+          {navLink.map(item => {
+            return <Link sx={style.link} href={item.link}>{item.name}</Link>
+          })}
         </Flex>
       </Container>
       <Flex sx={style.flexContainer}>
