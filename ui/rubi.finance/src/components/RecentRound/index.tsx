@@ -1,10 +1,11 @@
 import React from 'react';
 import styles from './style';
-import { Heading, Text, Button, Card, Box, Flex } from 'theme-ui';
+import { Heading, Text, Card, Flex } from 'theme-ui';
+import { Round } from './types'
 
 const RecentRound: React.FC = () => {
 
-  const round = {
+  const round: Round = {
     no: 256,
     ticket: 123456,
     potSize: '$123,456',

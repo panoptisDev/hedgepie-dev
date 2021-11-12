@@ -1,7 +1,6 @@
-export type View = {
-  id: string
-  name: string
-  product: string
-  rarity: number
-  tier: number
+export type Round = {
+  no: number
+  ticket: number
+  potSize: string
+  totalPlayers: number
 }
