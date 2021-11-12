@@ -6,7 +6,8 @@ const styles: Record<string, ThemeUIStyleObject> = {
     flexDirection: 'column',
     justifyContent: 'center',
     alignItems: 'center',
-    margin: '100px 0px'
+    margin: '100px 0px',
+    padding: '6% 0px',
   },
   textTitle: {
     fontWeight: 'bold',

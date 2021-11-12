@@ -2,7 +2,7 @@ import { ThemeUIStyleObject } from 'theme-ui';
 
 const styles: Record<string, ThemeUIStyleObject> = {
   container: {
-    width: '25%',
+    width: '35%',
     padding: '0px 50px 50px 50px'
   },
   flexContainer: {
@@ -21,7 +21,7 @@ const styles: Record<string, ThemeUIStyleObject> = {
     fontWeight: 'bold',
     textAlign: 'center',
     backgroundColor: '#e6ffe6',
-    padding: '40px 0px 10px 0px',
+    padding: '40px 0px 30px 0px',
     textTransform: 'capitalize',
     fontSize: '15px',
     borderRadius: '5%',

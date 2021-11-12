@@ -15,7 +15,7 @@ const PreviousRounds: React.FC = () => {
   return (
     <>
       <Box sx={styles.container}>
-        <Box sx={{background: 'black'}}>
+        <Box sx={{ background: 'black' }}>
           <Heading sx={styles.title}>PREVIOUS ROUNDS</Heading>
         </Box>
         <ul sx={styles.list}>
@@ -30,7 +30,7 @@ const PreviousRounds: React.FC = () => {
         </ul>
       </Box>
       <Flex sx={styles.cta}>
-        <Heading sx={styles.ctaText}>PREVIOUS ROUNDS</Heading>
+        <Heading sx={styles.ctaText}>VIEW ALL PREVIOUS ROUNDS</Heading>
         <FontAwesomeIcon sx={styles.caret} icon={faCaretRight} />
       </Flex>
     </>

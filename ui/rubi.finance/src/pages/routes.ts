@@ -1,6 +1,10 @@
 export enum RubiRoutePath {
   INDEX = '/',
-  SIGNIN = '/signin'
+  SIGNIN = '/signin',
+  CONNECTWALLET = '/connectwallet',
+  MyCOLLECTION = '/collection',
+  VAULTS = '/vaults',
+
 }
 
 export type RubiRoute = {
@@ -20,6 +24,22 @@ const routes: RubiRoute[] = [
     route: RubiRoutePath.SIGNIN,
     exact: true
   },
+  {
+    entry: 'ConnectWallet/index',
+    route: RubiRoutePath.CONNECTWALLET,
+    exact: true
+  },
+  {
+    entry: 'MyCollection/index',
+    route: RubiRoutePath.MyCOLLECTION,
+    exact: true
+  },
+  {
+    entry: 'Vaults/index',
+    route: RubiRoutePath.VAULTS,
+    exact: true
+  },
+
 ];
 
 export default routes;

@@ -30,12 +30,12 @@ const VaultTable: React.FC<IVaultTable> = ({ view }) => {
     apy: 63,
     symbol: 'TAKO'
   }
-  
+
   return (
     <div>
-      <Box sx={{background: '#7c6de1', borderRadius: '10px'}}>
+      <Box sx={{ background: '#7c6de1', borderRadius: '10px' }}>
         <Flex sx={styles.topHeader}>
-          <Flex sx={{alignItems: 'center', columnGap: '1em'}}>
+          <Flex sx={{ alignItems: 'center', columnGap: '1em' }}>
             <Label htmlFor='search' sx={styles.searchLabel}>SEARCH</Label>
             <Input
               ref={ref}
@@ -45,7 +45,7 @@ const VaultTable: React.FC<IVaultTable> = ({ view }) => {
               placeholder='Search by name, symbol or address'
             />
           </Flex>
-          {active !== 'MY COLLECTION' && 
+          {active !== 'MY COLLECTION' &&
             <Button variant='default' sx={styles.topButton}>
               COMPOUND ALL
             </Button>
@@ -53,7 +53,7 @@ const VaultTable: React.FC<IVaultTable> = ({ view }) => {
         </Flex>
         <Tab view={view} setActiveTab={setActive} />
       </Box>
-      {isSignedIn ? 
+      {isSignedIn ?
         <table sx={styles.table}>
           <thead>
             <tr>
@@ -81,7 +81,7 @@ const VaultTable: React.FC<IVaultTable> = ({ view }) => {
             <Row active={active} data={[data, data, data]} />
           </tbody>
         </table>
-      : <ErrorPage />}
+        : <ErrorPage />}
     </div>
   );
 };

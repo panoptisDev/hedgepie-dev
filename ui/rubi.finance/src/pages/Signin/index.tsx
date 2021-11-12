@@ -1,6 +1,10 @@
 import React from 'react';
 import styles from './style';
 import { Heading, Button, Card, Input, Flex } from 'theme-ui';
+import {
+  Header,
+  FooterSection,
+} from 'components';
 import { Helmet } from 'react-helmet';
 
 
@@ -18,6 +22,7 @@ const SigninPage: React.FC = () => {
           content="index, follow"
         />
       </Helmet>
+      <Header />
       <Flex sx={styles.wrapper}>
         <Card sx={styles.container}>
           <Heading sx={styles.title}>
@@ -40,6 +45,7 @@ const SigninPage: React.FC = () => {
           </div>
         </Card>
       </Flex>
+      <FooterSection />
     </>
   );
 };
