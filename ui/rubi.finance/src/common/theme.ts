@@ -33,7 +33,7 @@ const buttonBase: ThemeUIStyleObject = {
 const theme: Theme = {
   breakpoints: ['600px', '900px', '1400px'],
   fonts: {
-    body: 'Lark',
+    body: '"Avenir Next", "Lark"',
     heading: '"Avenir Next", sans-serif',
     monospace: 'Menlo, monospace',
   },
