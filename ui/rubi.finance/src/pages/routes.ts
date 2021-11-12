@@ -1,5 +1,6 @@
 export enum RubiRoutePath {
   INDEX = '/',
+  SIGNIN = '/signin'
 }
 
 export type RubiRoute = {
@@ -12,6 +13,11 @@ const routes: RubiRoute[] = [
   {
     entry: 'Index/index',
     route: RubiRoutePath.INDEX,
+    exact: true
+  },
+  {
+    entry: 'Signin/index',
+    route: RubiRoutePath.SIGNIN,
     exact: true
   },
 ];
