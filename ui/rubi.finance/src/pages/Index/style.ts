@@ -7,6 +7,15 @@ const styles: Record<string, ThemeUIStyleObject> = {
     alignItems: 'center',
     flexDirection: 'column',
   },
+  stepView: {
+
+  },
+  NftView: {
+
+  },
+  stakeSection: {
+
+  }
 };
 
 export default styles;
