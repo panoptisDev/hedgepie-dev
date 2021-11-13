@@ -15,7 +15,9 @@ const NFTView: React.FC = () => {
 
   return (
     <Card variant='noPadding'>
-      <div sx={styles.headerSection}>01:02:03 UNTIL NEXT DRAW</div>
+      <div sx={styles.headerSection}>
+        <Heading sx={styles.title}>01:02:03 UNTIL NEXT DRAW</Heading>
+      </div>
       <Box p={4}>
         <Flex sx={styles.contentSection}>
           <div sx={{ flexBasis: ['100%', '60%'] }}>

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import style from './style'
 import { NavLinks } from './types'
-import { Button, Container, Link, Card, Box, Flex, MenuButton } from 'theme-ui';
+import { Button, Container, Link, Card, Box, Flex, MenuButton, Heading } from 'theme-ui';
 
 const HeaderSection: React.FC<any> = () => {
 
@@ -30,9 +30,11 @@ const HeaderSection: React.FC<any> = () => {
   return (
     <section sx={style.section} >
       <Container sx={style.container}>
-        <Flex>
+        <Flex sx={style.linkContainer}>
           {navLink.map(item => {
-            return <Link sx={style.link} href={item.link}>{item.name}</Link>
+            return <Link sx={style.link} href={item.link}>
+              <Heading sx={style.linkTitle}>{item.name}</Heading>
+            </Link>
           })}
         </Flex>
       </Container>

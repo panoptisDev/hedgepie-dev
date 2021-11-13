@@ -6,12 +6,16 @@ const styles: Record<string, ThemeUIStyleObject> = {
   },
   headerSection: {
     background: '#685BC7',
-    color: 'white',
     width: '100%',
     borderTopLeftRadius: '0.375rem',
     borderTopRightRadius: '0.375rem',
     textAlign: 'center',
     paddingY: '5px'
+  },
+  title: {
+    color: 'white',
+    fontSize: '1em',
+    fontWeight: 500
   },
   contentSection: { 
     flexWrap: 'wrap',

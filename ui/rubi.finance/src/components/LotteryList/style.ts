@@ -7,16 +7,20 @@ const styles: Record<string, ThemeUIStyleObject> = {
   table: {
     textAlign: 'left',
     borderSpacing: '0 .5em',
-    borderCollapse: 'separate'
+    borderCollapse: 'separate',
+    width: '100%'
   },
   tableHeadingCell: {
+    whiteSpace: 'nowrap',
+    paddingRight: '1em',
     ':first-child': {
-      paddingLeft: '5em'
+      paddingLeft: ['.5em', '5em']
     },
   },
   tableHeading: {
     fontSize: '12px',
     color: 'black',
+    fontWeight: 500
   },
   row: {
     
@@ -26,24 +30,28 @@ const styles: Record<string, ThemeUIStyleObject> = {
     border: 'solid 1px #FFF',
     borderStyle: 'solid none',
     height: '5em',
+    whiteSpace: 'nowrap',
+    paddingRight: '1em',
 
     ':first-of-type': {
       borderLeftStyle: 'solid',
       borderTopLeftRadius: '10px', 
       borderBottomLeftRadius: '10px',
-      paddingLeft: '5em'
+      paddingLeft: ['.5em', '5em']
     },
 
     ':last-child': {
       borderRightStyle: 'solid',
       borderBottomRightRadius: '10px', 
-      borderTopRightRadius: '10px'
+      borderTopRightRadius: '10px',
+      paddingRight: 0,
     }
   },
   buttonCell: {
     height: '100%',
     alignItems: 'center',
-    justifyContent: 'space-between'
+    justifyContent: 'space-between',
+    columnGap: '1em'
   },
   buttonContainer: {
     background: '#6551da',

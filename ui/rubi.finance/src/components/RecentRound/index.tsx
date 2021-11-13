@@ -15,9 +15,7 @@ const RecentRound: React.FC = () => {
   return (
     <Card variant='noPadding' sx={styles.container}>
       <Flex>
-        <div sx={styles.borderClip}>
-          {round.no}
-        </div>
+        <Text sx={styles.borderClip}>{round.no}</Text>
         <Text sx={styles.title}>RECENT WINNING ROUND</Text>
       </Flex>
       <Flex sx={styles.row}>

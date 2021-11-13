@@ -10,7 +10,7 @@ const styles: Record<string, ThemeUIStyleObject> = {
     padding: '6% 0px',
   },
   textTitle: {
-    fontWeight: 'bold',
+    fontWeight: 600,
     fontSize: '70px',
     color: '#000',
     padding: '30px 0px',

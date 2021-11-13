@@ -26,7 +26,7 @@ const MyCollectionPage: React.FC = () => {
 
       <Header />
       <Container sx={styles.flexContainer}>
-        <VaultTable view={true} />
+        <VaultTable view='MY COLLECTION' />
       </Container>
       <FooterSection />
     </>

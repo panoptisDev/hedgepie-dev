@@ -54,33 +54,35 @@ const VaultTable: React.FC<IVaultTable> = ({ view }) => {
         <Tab view={view} setActiveTab={setActive} />
       </Box>
       {isSignedIn ?
-        <table sx={styles.table}>
-          <thead>
-            <tr>
-              <th sx={styles.tableHeadingCell}>
-                <Heading sx={styles.tableHeading}>INSTRUMENTS</Heading>
-              </th>
-              <th sx={styles.tableHeadingCell}>
-                <Heading sx={styles.tableHeading}>PLATFORM</Heading>
-              </th>
-              <th sx={styles.tableHeadingCell}>
-                <Heading sx={styles.tableHeading}>TVL</Heading>
-              </th>
-              <th sx={styles.tableHeadingCell}>
-                <Heading sx={styles.tableHeading}>MARKET STAKED</Heading>
-              </th>
-              <th sx={styles.tableHeadingCell}>
-                <Heading sx={styles.tableHeading}>DAILY</Heading>
-              </th>
-              <th sx={styles.tableHeadingCell}>
-                <Heading sx={styles.tableHeading}>APY</Heading>
-              </th>
-            </tr>
-          </thead>
-          <tbody>
-            <Row active={active} data={[data, data, data]} />
-          </tbody>
-        </table>
+        <div sx={{overflowX: 'auto'}}>
+          <table sx={styles.table}>
+            <thead>
+              <tr>
+                <th sx={styles.tableHeadingCell}>
+                  <Heading sx={styles.tableHeading}>INSTRUMENTS</Heading>
+                </th>
+                <th sx={styles.tableHeadingCell}>
+                  <Heading sx={styles.tableHeading}>PLATFORM</Heading>
+                </th>
+                <th sx={styles.tableHeadingCell}>
+                  <Heading sx={styles.tableHeading}>TVL</Heading>
+                </th>
+                <th sx={styles.tableHeadingCell}>
+                  <Heading sx={styles.tableHeading}>MARKET STAKED</Heading>
+                </th>
+                <th sx={styles.tableHeadingCell}>
+                  <Heading sx={styles.tableHeading}>DAILY</Heading>
+                </th>
+                <th sx={styles.tableHeadingCell}>
+                  <Heading sx={styles.tableHeading}>APY</Heading>
+                </th>
+              </tr>
+            </thead>
+            <tbody>
+              <Row active={active} data={[data, data, data]} />
+            </tbody>
+          </table>
+        </div>
         : <ErrorPage />}
     </div>
   );

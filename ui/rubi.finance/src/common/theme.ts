@@ -80,21 +80,26 @@ const theme: Theme = {
     heading: {
       color: MimoblTheme.colors.primary,
       lineHeight: '1.35',
+      fontFamily: '"Avenir Next", "Lark"'
     },
     default: {
       color: '#7d7d7d',
+      fontFamily: '"Avenir Next", "Lark"'
     },
     block: {
       color: '#7d7d7d',
-      display: 'block'
+      display: 'block',
+      fontFamily: '"Avenir Next", "Lark"'
     },
     softPurple: {
       color: '#b4b0f1',
       fontWeight: 400,
       lineHeight: '1.6',
+      fontFamily: '"Avenir Next", "Lark"'
     },
     primary: {
       color: MimoblTheme.colors.primary,
+      fontFamily: '"Avenir Next", "Lark"'
     }
   },
   messages: {

@@ -11,7 +11,7 @@ const styles: Record<string, ThemeUIStyleObject> = {
   },
   container: {
     backgroundColor: '#000',
-    padding: '10px 25%',
+    paddingY: '10px'
   },
   flexContainer: {
     columnGap: '.5em',
@@ -32,15 +32,22 @@ const styles: Record<string, ThemeUIStyleObject> = {
     color: '#000',
     border: '1px solid #000',
   },
+  linkContainer: {
+    columnGap: '2.5em',
+    justifyContent: 'center'
+  },
   link: {
-    flexBasis: '25%',
+    textDecoration: 'none',
+  },
+  linkTitle: {
+    fontSize: '.8em',
+    fontWeight: 500,
     textTransform: 'uppercase',
     color: 'white',
-    textDecoration: 'none',
     ':hover': {
       color: '#FFF',
     },
-  },
+  }
 };
 
 export default styles;
