@@ -16,6 +16,7 @@ const cardBase: ThemeUIStyleObject = {
 const buttonBase: ThemeUIStyleObject = {
   cursor: 'pointer',
   borderRadius: '20px',
+  whiteSpace: 'nowrap',
   background: 'none',
   color: 'black',
   border: '1px solid black',
