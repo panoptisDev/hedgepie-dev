@@ -29,7 +29,8 @@ const styles: Record<string, ThemeUIStyleObject> = {
   },
   rowTitle: {
     color: 'black',
-    fontSize: '1em'
+    fontSize: '1em',
+    fontWeight: 600
   },
   viewBox: {
     flexBasis: '60%',

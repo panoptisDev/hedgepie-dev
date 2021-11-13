@@ -28,6 +28,9 @@ const styles: Record<string, ThemeUIStyleObject> = {
     width: '100%'
   },
   tableHeadingCell: {
+    whiteSpace: 'nowrap',
+    paddingRight: '1em',
+    
     ':first-of-type': {
       paddingLeft: '1em'
     },
@@ -54,6 +57,8 @@ const styles: Record<string, ThemeUIStyleObject> = {
   },
   cell: {
     height: '3em',
+    whiteSpace: 'nowrap',
+    paddingRight: '1em',
 
     '&&:first-of-type': {
       borderLeftStyle: 'solid',

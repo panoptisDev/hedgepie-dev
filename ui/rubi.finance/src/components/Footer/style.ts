@@ -2,22 +2,22 @@ import { ThemeUIStyleObject } from 'theme-ui';
 
 const styles: Record<string, ThemeUIStyleObject> = {
   footerContainer: {
-    // justifyContent: 'center',
-    // alignItems: 'center',
-    padding: '6% 25%',
-    backgroundColor: '#000'
-
+    justifyContent: 'center',
+    paddingY: '6%',
+    backgroundColor: '#000',
+    columnGap: '2em'
   },
-
   links: {
-    color: '#fff',
-    padding: '0px 30px',
-    textDecoration: 'none',
+    textDecoration: 'none'
+  },
+  linkTitle: {
+    fontSize: '.8em',
+    fontWeight: 500,
     textTransform: 'uppercase',
+    color: 'white',
     ':hover': {
       color: '#FFF',
     },
-
   }
 }
 

@@ -1,7 +1,7 @@
 import React, { useState, useEffect } from 'react'
 import style from './style'
 import { NavLinks } from './types'
-import { Flex, Link } from 'theme-ui';
+import { Flex, Link, Heading } from 'theme-ui';
 
 const FooterSection: React.FC<any> = () => {
   const navLink: NavLinks[] = [
@@ -30,7 +30,9 @@ const FooterSection: React.FC<any> = () => {
   return (
     <Flex sx={style.footerContainer}>
       {navLink.map(item => {
-        return <Link sx={style.links} href={item.link}>{item.name}</Link>
+        return <Link sx={style.links} href={item.link}>
+          <Heading sx={style.linkTitle}>{item.name}</Heading>
+        </Link>
       })}
     </Flex>
   )
