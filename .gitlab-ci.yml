@@ -1,0 +1,8 @@
+stages:
+  - prepare
+  - test
+  - build
+  - deploy
+
+include:
+  - local: '/ui/rubi.finance/.gitlab-ci.yml'

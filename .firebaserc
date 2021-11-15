@@ -1,0 +1,14 @@
+{
+  "projects": {
+    "default": "staging-rubix-innovation"
+  },
+  "targets": {
+    "staging-rubix-innovation": {
+      "hosting": {
+        "rubi": [
+          "staging-rubi-finance"
+        ]
+      }
+    }
+  }
+}

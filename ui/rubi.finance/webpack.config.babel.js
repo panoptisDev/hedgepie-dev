@@ -8,7 +8,7 @@ const { version: APP_VERSION } = require('./package.json');
 import MimoblTheme from './src/common/theme.json'
 import CopyPlugin from 'copy-webpack-plugin'
 
-const { NODE_ENV, CI, BUGSNAG_API_KEY, CI_COMMIT_BRANCH } = process.env;
+const { NODE_ENV, CI, BUGSNAG_API_KEY, CI_COMMIT_BRANCH, APP_DOMAIN } = process.env;
 const env = {
   APP_VERSION: `'${APP_VERSION}'`
 };
@@ -21,7 +21,7 @@ Object.entries(process.env).forEach(([key, value]) => {
 const isDev = NODE_ENV !== 'production';
 const isDeployPipeline = CI_COMMIT_BRANCH === 'master' || CI_COMMIT_BRANCH === 'production'
 const releaseStage = CI_COMMIT_BRANCH === 'production' ? 'production' : 'staging'
-let publicPath = releaseStage === 'production' ? 'https://rubi.finance' : 'https://staging.rubi.finance'
+let publicPath = APP_DOMAIN
 if (isDev) {
   publicPath = ''
 }

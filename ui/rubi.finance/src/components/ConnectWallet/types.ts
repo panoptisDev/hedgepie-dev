@@ -1,3 +1,1 @@
-export interface IDemoSectionProps {
-  
-}
+export interface IDemoSectionProps {}

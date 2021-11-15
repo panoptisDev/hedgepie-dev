@@ -1,0 +1,105 @@
+{
+  "env": {
+    "browser": true,
+    "node": true,  
+    "es6": true
+  },
+  "extends": [
+    "eslint:recommended",
+    "plugin:react/recommended"
+  ],
+  "globals": {
+    "process": "readonly",
+    "Buffer": "readonly"
+  },
+  "rules": {
+    "unicorn/filename-case": "off",
+    "no-unused-vars": [ "warn", {
+      "caughtErrors": "all",
+      "caughtErrorsIgnorePattern": "^unused($|[A-Z].*$)",
+      "argsIgnorePattern": "^unused($|[A-Z].*$)",
+      "varsIgnorePattern": "^unused($|[A-Z].*$)"
+      }
+    ],
+    "no-use-before-define":         ["error", {"functions":false}],
+    "one-var":                      ["warn", "never"],
+    "prefer-arrow-callback":        ["warn", {"allowNamedFunctions":true}],
+    "quotes":                       ["warn", "single", {"avoidEscape":false, "allowTemplateLiterals":true}],
+    "semi":                         ["warn", "never"],
+    "semi-spacing":                 ["warn", {"before":false, "after":true}],
+    "semi-style":                   ["warn", "last"],
+    "block-scoped-var":             ["error"],
+    "callback-return":              ["error", ["done", "proceed", "next", "onwards", "callback", "cb"]],
+    "camelcase":                    ["warn", { "properties":"always" }],
+    "comma-style":                  ["warn", "last"],
+    "curly":                        ["warn"],
+    "eqeqeq":                       ["warn"],
+    "eol-last":                     ["warn"],
+    "handle-callback-err":          ["error"],
+    "linebreak-style":              ["error", "unix"],
+    "no-dupe-keys":                 ["error"],
+    "no-duplicate-case":            ["error"],
+    "no-extra-semi":                ["warn"],
+    "no-labels":                    ["error"],
+    "no-mixed-spaces-and-tabs":     [2, "smart-tabs"],
+    "no-redeclare":                 ["warn"],
+    "no-return-assign":             "off",
+    "no-sequences":                 ["error"],
+    "no-trailing-spaces":           ["warn"],
+    "no-undef":                     ["error"],
+    "no-unexpected-multiline":      ["warn"],
+    "no-unreachable":               ["warn"],
+    "indent": ["warn", 2],
+    "comma-dangle": "off",
+    "new-parens": "off",
+    "lines-between-class-members": "off",
+    "object-curly-spacing": ["warn", "always"],
+    "array-bracket-spacing": "off",
+    "no-console": "off",
+    "max-params": "off",
+    "no-process-exit": "off",
+    "unicorn/no-process-exit": "off",
+    "no-else-return": "warn"
+  },
+  "overrides": [
+    {
+      "files": ["*.ts", "*.tsx"],
+      "extends": [
+        "plugin:@typescript-eslint/eslint-recommended",
+        "plugin:@typescript-eslint/recommended",
+        "plugin:@typescript-eslint/recommended-requiring-type-checking"
+      ],
+      "rules": {
+        "camelcase": "off",
+        "@typescript-eslint/camelcase": "warn",
+        "unicorn/no-abusive-eslint-disable": "off",
+        "@typescript-eslint/no-unused-vars": [ "warn", {
+          "caughtErrors": "all",
+          "caughtErrorsIgnorePattern": "^unused($|[A-Z].*$)",
+          "argsIgnorePattern": "^unused($|[A-Z].*$)",
+          "varsIgnorePattern": "^unused($|[A-Z].*$)"
+          }
+        ],
+        "no-unused-vars": "off",
+        "react/prop-types": "off",
+        "@typescript-eslint/interface-name-prefix": "off",
+        "@typescript-eslint/no-empty-interface": "off",
+        "@typescript-eslint/member-delimiter-style": ["warn", {
+          "multiline": {
+            "delimiter": "none"
+          }
+        }]
+      }
+    }
+  ],
+  "plugins": ["@typescript-eslint"],
+  "parser": "@typescript-eslint/parser",
+  "parserOptions": {
+    "ecmaFeatures": {
+      "jsx": true
+    },
+    "ecmaVersion": 2020,
+    "sourceType": "module",
+    "project": "tsconfig.json"
+  }
+}

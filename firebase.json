@@ -1,0 +1,17 @@
+{
+  "hosting": [{
+    "target": "rubi",
+    "public": "ui/rubi.finance/www",
+    "ignore": [
+      "firebase.json",
+      "**/.*",
+      "**/node_modules/**"
+    ],
+    "rewrites": [
+      {
+        "source": "**",
+        "destination": "/index.html"
+      }
+    ]
+  }]
+}
