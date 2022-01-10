@@ -1,16 +1,12 @@
-.DS_Store
+node_modules
 .env
-tilt_modules/*
-generated.go
-k8s/config-map/dev-env.yaml
-bazel-*
-*-debug.log
-nohup.out
-.firebase
-ui/*/node_modules/*
-ui/*/www/*
-*.log
-.eslintcache
-ui/*/src/generated/*
-tilt_config.json
+coverage
+coverage.json
+typechain
 
+#Hardhat files
+cache
+artifacts
+
+config/config.json
+config/deploy.js
