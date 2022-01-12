@@ -1,119 +1,156 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.7.5;
+pragma abicoder v2;
 
 import "./interfaces/IRNG.sol";
 import "./interfaces/IBEP20.sol";
-import "./interfaces/IPancakeswapV2Router.sol";
 import "./libraries/Ownable.sol";
 import "./libraries/SafeMath.sol";
 import "./libraries/SafeBEP20.sol";
 import "./type/BEP721.sol";
 
 contract YBNFT is BEP721, Ownable {
-    using SafeMath for uint16;
-    using SafeMath for uint256;
+    using SafeMath for uint;
     using SafeBEP20 for IBEP20;
 
     address public immutable Lottery;
     address public immutable Treasury;
-    address public immutable RubiToken;
+    address public immutable Investor;
+    address public OneInch;
 
-    mapping(uint => NFTFund[]) public fundList;
-    struct NFTFund {
-        address funder;
-        address token;
-        uint amount;
+    mapping(uint => Strategy[]) private NFTStrategy;
+    struct Strategy {
+        uint percent;
+        address swapToken;
+        address swapAddress;
     }
 
-    event Fund(uint256 _tokenId, address indexed _funder, address _token, uint _amount);
     event Mint(uint256 _tokenId, address indexed _to);
 
-    constructor(address _lottery, address _treasury, address _rubiToken)
-    BEP721("YBNFT", "RubiYB") {
+    constructor(
+        address _lottery,
+        address _treasury,
+        address _investor
+    ) BEP721("YBNFT", "RubiYB") {
         require(_lottery != address(0));
         require(_treasury != address(0));
-        require(_rubiToken != address(0));
+        require(_investor != address(0));
 
         Lottery = _lottery;
         Treasury = _treasury;
-        RubiToken = _rubiToken;
+        Investor = _investor;
     }
 
-    function _fund(uint _tokenId, address _token, uint _amount) private {
-        NFTFund[] memory fundArr = fundList[_tokenId];
-    }
-
-    function _setStrategy(
-        int _tokenId, 
-        uint _rubiAmount, 
-        address[] memory _routerAddress, 
-        address[] memory _swapAddress, 
-        uint16[] memory _swapPercent
-    ) private {
-        IBEP20(RubiToken).safeTransferFrom(msg.sender, address(this), _rubiAmount);
-        for(uint8 ii = 0; ii < _swapAddress.length; ii++) {
-            address routeItem = _routerAddress[ii];
-            uint inAmount = _rubiAmount.mul(_swapPercent[ii]).div(1e4);
-
-            address[] memory path;
-            path[0] = RubiToken;
-            path[1] = _swapAddress[ii];
-
-            IBEP20(RubiToken).safeApprove(routeItem, inAmount);
-            IPancakeswapV2Router(routeItem).swapExactTokensForTokens(
-                inAmount, 
-                0, 
-                path,
-                address(this),
-                block.timestamp
-            );
-
-            
-        }
-    }
-
-    function _checkPercent(uint16[] memory _swapPercent) private pure returns(bool) {
-        uint16 totalPercent;
-        for(uint8 ii = 0; ii < _swapPercent.length; ii++) {
+    function _checkPercent(
+        uint[] calldata _swapPercent
+    ) private pure returns(bool) {
+        uint totalPercent;
+        for(uint ii = 0; ii < _swapPercent.length; ii++) {
             totalPercent = totalPercent.add(_swapPercent[ii]);
         }
 
         return totalPercent.sub(1e4) == 0;
     }
 
-    function fund(uint256 _tokenId, address _token, uint _amount) public returns(bool) {
-        require(_amount > 0);
+    function _setStrategy(
+        uint _tokenId,
+        uint[] calldata _swapPercent,
+        address[] calldata _swapToken,
+        address[] calldata _swapAddress
+    ) private {
+        for(uint8 ii = 0; ii < _swapToken.length; ii++) {
+            NFTStrategy[_tokenId].push(Strategy({
+                percent: _swapPercent[ii],
+                swapToken: _swapToken[ii],
+                swapAddress: _swapAddress[ii]
+            }));
+        }
+    }
 
-        _fund(_tokenId, _token, _amount);
+    function _swapOnOneInch(
+        address fromToken,
+        address toToken,
+        uint256 originAmount,
+        uint256[] memory exchangeDistribution
+    ) private {
+        bytes memory _data = abi.encodeWithSignature(
+            "swap(address,address,uint256,uint256,uint256[],uint256)",
+            fromToken,
+            toToken,
+            originAmount,
+            0,
+            exchangeDistribution,
+            0
+        );
 
-        emit Fund(_tokenId, msg.sender, _token, _amount);
-        return true;
+        invoke(_data);
+    }
+
+    function setOneInch(address _1inch) public onlyOwner {
+        require(_1inch != address(0));
+        OneInch = _1inch;
+    }
+
+    function invoke(bytes memory _data) internal returns (bytes memory) {
+        bool success;
+        bytes memory _res;
+        
+        (success, _res) = OneInch.call(_data);
+        if (!success && _res.length > 0) {
+        // solhint-disable-next-line no-inline-assembly
+        assembly {
+            returndatacopy(0, 0, returndatasize())
+            revert(0, returndatasize())
+        }
+        } else if (!success) {
+            revert("VM: wallet invoke reverted");
+        }
+
+        return _res;
     }
 
     function mint(
         uint tokenId,
-        uint rubiAmount,
-        address[] memory routerAddress,
-        address[] memory swapAddress,
-        uint16[] memory swapPercent
+        uint[] calldata swapPercent,
+        address[] calldata swapToken,
+        address[] calldata swapAddress
     ) external onlyOwner returns(bool) {
         require(tokenId > 0);
-        require(swapAddress.length > 0);
-        require(swapAddress.length == swapPercent.length && swapAddress.length == routerAddress.length);
+        require(swapToken.length > 0 && swapToken.length == swapPercent.length && swapToken.length == swapAddress.length);
         require(_checkPercent(swapPercent));
+
+        _safeMint(address(this), tokenId);
 
         // set strategy
         _setStrategy(
-            tokenId, 
-            rubiAmount, 
-            routerAddress,
-            swapAddress, 
-            swapPercent
+            tokenId,
+            swapPercent,
+            swapToken,
+            swapAddress
         );
-
-        _mint(address(this), tokenId);
 
         emit Mint(tokenId, address(this));
         return true;
+    }
+
+    function deposit(
+        uint tokenId, 
+        uint amount, 
+        address token
+    ) external {
+        require(msg.sender == Investor);
+        require(_exists(tokenId), "BEP721: token not exist");
+
+        IBEP20( token ).safeTransferFrom(msg.sender, address(this), amount);
+        IBEP20( token ).safeApprove(OneInch, amount);
+
+        Strategy[] memory info = NFTStrategy[tokenId];
+        for(uint8 ii = 0; ii < info.length; ii++) {
+            Strategy memory infoItem = info[ii];
+
+            uint swapAmount = amount.mul(infoItem.percent).div(1e4);
+            uint256[] memory distribute = new uint256[](0);
+            _swapOnOneInch(token, infoItem.swapToken, swapAmount, distribute);
+        }
     }
 }
