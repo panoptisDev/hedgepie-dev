@@ -2,8 +2,7 @@
 pragma solidity ^0.7.5;
 pragma abicoder v2;
 
-import "./interfaces/IRNG.sol";
-import "./interfaces/IBEP20.sol";
+import "./interfaces/IPancakeRouter.sol";
 import "./libraries/Ownable.sol";
 import "./libraries/SafeMath.sol";
 import "./libraries/SafeBEP20.sol";
@@ -15,30 +14,48 @@ contract YBNFT is BEP721, Ownable {
 
     address public immutable Lottery;
     address public immutable Treasury;
-    address public immutable Investor;
-    address public OneInch;
+    // these addresses are for testing
+    address public constant WBNB = 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd;
+    address public constant PCSRouter = 0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3;
 
+    mapping(address => bool) public AllowedToken;
+    mapping(uint => NFTFund[]) public NFTFunds;
     mapping(uint => Strategy[]) private NFTStrategy;
+    struct NFTFund {
+        address funder;
+        address token;
+        uint amount;
+    }
+
     struct Strategy {
         uint percent;
         address swapToken;
-        address swapAddress;
+        address stakeAddress;
     }
 
     event Mint(uint256 _tokenId, address indexed _to);
+    event Deposit(uint256 _tokenId, address indexed _funder, address _token, uint _amount);
 
     constructor(
         address _lottery,
-        address _treasury,
-        address _investor
-    ) BEP721("YBNFT", "RubiYB") {
+        address _treasury
+    ) BEP721("RUBI YBNFT", "YBNFT") {
         require(_lottery != address(0));
         require(_treasury != address(0));
-        require(_investor != address(0));
 
         Lottery = _lottery;
         Treasury = _treasury;
-        Investor = _investor;
+    }
+
+    function manageToken(
+        address[] calldata tokens, 
+        bool flag
+    ) public onlyOwner {
+        require(tokens.length > 0);
+
+        for (uint8 i = 0; i < tokens.length; i++) {
+            AllowedToken[tokens[i]] = flag;
+        }
     }
 
     function _checkPercent(
@@ -56,67 +73,71 @@ contract YBNFT is BEP721, Ownable {
         uint _tokenId,
         uint[] calldata _swapPercent,
         address[] calldata _swapToken,
-        address[] calldata _swapAddress
+        address[] calldata _stakeAddress
     ) private {
         for(uint8 ii = 0; ii < _swapToken.length; ii++) {
             NFTStrategy[_tokenId].push(Strategy({
                 percent: _swapPercent[ii],
                 swapToken: _swapToken[ii],
-                swapAddress: _swapAddress[ii]
+                stakeAddress: _stakeAddress[ii]
             }));
         }
     }
 
-    function _swapOnOneInch(
-        address fromToken,
-        address toToken,
-        uint256 originAmount,
-        uint256[] memory exchangeDistribution
-    ) private {
-        bytes memory _data = abi.encodeWithSignature(
-            "swap(address,address,uint256,uint256,uint256[],uint256)",
-            fromToken,
-            toToken,
-            originAmount,
-            0,
-            exchangeDistribution,
-            0
-        );
+    function _swapOnPCS(
+        uint _amountIn, 
+        address _inToken, 
+        address _outToken
+    ) private returns(uint _amountOut) {
+        address[] memory path;
+        if (_outToken == WBNB || _inToken == WBNB) {
+            path = new address[](2);
+            path[0] = _inToken;
+            path[1] = _outToken;
+        } else {
+            path = new address[](3);
+            path[0] = _inToken;
+            path[1] = WBNB;
+            path[2] = _outToken;
+        }
 
-        invoke(_data);
+        uint[] memory amounts = IPancakeRouter( PCSRouter ).swapExactTokensForTokens(_amountIn, 0, path, address(this), 0);
+        _amountOut = amounts[amounts.length - 1];
     }
 
-    function setOneInch(address _1inch) public onlyOwner {
-        require(_1inch != address(0));
-        OneInch = _1inch;
-    }
-
-    function invoke(bytes memory _data) internal returns (bytes memory) {
-        bool success;
-        bytes memory _res;
+    function _deposit(uint _tokenId, uint _amount, address _token) private {
+        IBEP20( _token ).safeTransferFrom(msg.sender, address(this), _amount);
         
-        (success, _res) = OneInch.call(_data);
-        if (!success && _res.length > 0) {
-        // solhint-disable-next-line no-inline-assembly
-        assembly {
-            returndatacopy(0, 0, returndatasize())
-            revert(0, returndatasize())
-        }
-        } else if (!success) {
-            revert("VM: wallet invoke reverted");
+        // for token swap
+        IBEP20( _token ).safeApprove(PCSRouter, _amount);
+
+        Strategy[] memory info = NFTStrategy[_tokenId];
+        for(uint8 ii = 0; ii < info.length; ii++) {
+            Strategy memory infoItem = info[ii];
+
+            // swapping
+            uint amountIn = _amount.mul(infoItem.percent).div(1e4);
+            uint amountOut = _swapOnPCS(amountIn, _token, infoItem.swapToken);
+
+            // staking
+
         }
 
-        return _res;
+        NFTFunds[_tokenId].push(NFTFund({
+            funder: msg.sender,
+            token: _token,
+            amount: _amount
+        }));
     }
 
     function mint(
         uint tokenId,
         uint[] calldata swapPercent,
         address[] calldata swapToken,
-        address[] calldata swapAddress
+        address[] calldata stakeAddress
     ) external onlyOwner returns(bool) {
         require(tokenId > 0);
-        require(swapToken.length > 0 && swapToken.length == swapPercent.length && swapToken.length == swapAddress.length);
+        require(swapToken.length > 0 && swapToken.length == swapPercent.length && swapToken.length == stakeAddress.length);
         require(_checkPercent(swapPercent));
 
         _safeMint(address(this), tokenId);
@@ -126,7 +147,7 @@ contract YBNFT is BEP721, Ownable {
             tokenId,
             swapPercent,
             swapToken,
-            swapAddress
+            stakeAddress
         );
 
         emit Mint(tokenId, address(this));
@@ -134,23 +155,17 @@ contract YBNFT is BEP721, Ownable {
     }
 
     function deposit(
-        uint tokenId, 
-        uint amount, 
+        uint tokenId,
+        uint amount,
         address token
-    ) external {
-        require(msg.sender == Investor);
-        require(_exists(tokenId), "BEP721: token not exist");
+    ) external returns(bool) {
+        require(_exists(tokenId), "BEP721: NFT not exist");
+        require(amount > 0);
+        require(AllowedToken[token], "Not allowed token");
 
-        IBEP20( token ).safeTransferFrom(msg.sender, address(this), amount);
-        IBEP20( token ).safeApprove(OneInch, amount);
+        _deposit(tokenId, amount, token);
 
-        Strategy[] memory info = NFTStrategy[tokenId];
-        for(uint8 ii = 0; ii < info.length; ii++) {
-            Strategy memory infoItem = info[ii];
-
-            uint swapAmount = amount.mul(infoItem.percent).div(1e4);
-            uint256[] memory distribute = new uint256[](0);
-            _swapOnOneInch(token, infoItem.swapToken, swapAmount, distribute);
-        }
+        emit Deposit(tokenId, msg.sender, token, amount);
+        return true;
     }
 }
