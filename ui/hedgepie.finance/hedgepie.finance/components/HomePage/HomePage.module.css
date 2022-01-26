@@ -1,0 +1,7 @@
+.container {
+  flex-direction: column;
+  width: 100%;
+  gap: 1rem;
+  align-items: center;
+}
+

@@ -1,9 +1,10 @@
-import type { NextPage } from "next";
-import Head from "next/head";
-import Image from "next/image";
+/* eslint-disable no-use-before-define */
+import React from "react"
+import type { NextPage } from "next"
+import Head from "next/head"
 
 // Components
-import HomePage from "../components/HomePage";
+import { HomePage } from "../components/HomePage"
 
 const Home: NextPage = () => {
   return (
@@ -18,7 +19,7 @@ const Home: NextPage = () => {
         <HomePage />
       </main>
     </div>
-  );
-};
+  )
+}
 
-export default Home;
+export default Home
