@@ -6,8 +6,8 @@ import { useState, useEffect } from "react"
 import { ThemeProvider, Spinner, Text, Button, Flex, jsx } from "theme-ui"
 import { ethers } from "ethers"
 
-import { theme } from "../../themes/theme"
-import * as commonConstants from "../../constants/common"
+import { theme } from "@themes/theme"
+import * as commonConstants from "@constants/common"
 
 import themeStyles from "./themeStyles"
 import styles from "./HomePage.module.css"
