@@ -14,6 +14,7 @@ contract YBNFT is BEP721, Ownable {
 
     address public immutable Lottery;
     address public immutable Treasury;
+
     // these addresses are for testing
     address public constant WBNB = 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd;
     address public constant PCSRouter = 0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3;
@@ -39,7 +40,7 @@ contract YBNFT is BEP721, Ownable {
     constructor(
         address _lottery,
         address _treasury
-    ) BEP721("RUBI YBNFT", "YBNFT") {
+    ) BEP721("Hedgepie YBNFT", "YBNFT") {
         require(_lottery != address(0));
         require(_treasury != address(0));
 
@@ -56,6 +57,10 @@ contract YBNFT is BEP721, Ownable {
         for (uint8 i = 0; i < tokens.length; i++) {
             AllowedToken[tokens[i]] = flag;
         }
+    }
+
+    function chkToken(uint tokenId) external view returns(bool) {
+        return _exists(tokenId);
     }
 
     function _checkPercent(

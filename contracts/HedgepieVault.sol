@@ -7,12 +7,12 @@ import "./libraries/SafeMath.sol";
 import "./libraries/FixedPoint.sol";
 import "./interfaces/IPancakePair.sol";
 
-contract RubiVault {
+contract HedgepieVault {
     using FixedPoint for *;
     using SafeMath for uint256;
     using SafeBEP20 for IBEP20;
 
-    address public immutable RubiToken;
+    address public immutable HedgepieToken;
     uint8 public constant blockEmission = 5;
     uint public totalStake;
     mapping(address => mapping(address => UserStake)) public userStake;
@@ -26,10 +26,10 @@ contract RubiVault {
     event Unstake(address indexed _unStaker, address _token, uint _amount);
     event rewardClaim(address indexed _claimer, address _token, uint _amount);
 
-    constructor(address _rubi) {
-        require(_rubi != address(0));
+    constructor(address _hedgepie) {
+        require(_hedgepie != address(0));
 
-        RubiToken = _rubi;
+        HedgepieToken = _hedgepie;
     }
 
     function _getReward(address _token) private view returns(uint _reward) {
@@ -95,15 +95,15 @@ contract RubiVault {
     function stake(uint amount) public returns(bool) {
         require(amount > 0);
 
-        _stake(RubiToken, amount);
+        _stake(HedgepieToken, amount);
 
-        emit Stake(msg.sender, RubiToken, amount);
+        emit Stake(msg.sender, HedgepieToken, amount);
         return true;
     }
 
     function stakeLP(address token, uint amount) public returns(bool) {
         require(amount > 0);
-        require(IPancakePair( token ).token0() == RubiToken || IPancakePair( token ).token1() == RubiToken, "Not LP token");
+        require(IPancakePair( token ).token0() == HedgepieToken || IPancakePair( token ).token1() == HedgepieToken, "Not LP token");
 
         _stake(token, amount);
 

@@ -5,7 +5,7 @@ import "./libraries/SafeMath.sol";
 import "./type/BEP20.sol";
 import "./type/AdminAccessRoles.sol";
 
-contract RUBIToken is AdminAccessRoles(msg.sender), BEP20('RUBI Token', 'RUBI') {
+contract HedgepieToken is AdminAccessRoles(msg.sender), BEP20('Hedgepie Token', 'HPIE') {
     using SafeMath for uint256;
     uint private _cap;
 
