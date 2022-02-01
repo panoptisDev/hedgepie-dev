@@ -4,9 +4,9 @@ import type { NextPage } from "next"
 import Head from "next/head"
 
 // Components
-import { Home } from "components/Home"
+// import { HomePage } from "components/Home"
 
-const HomePage: NextPage = () => {
+const FinishedLotteries: NextPage = () => {
   return (
     <div>
       <Head>
@@ -15,11 +15,9 @@ const HomePage: NextPage = () => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
 
-      <main>
-        <Home />
-      </main>
+      <main>FINISHED LOTTERIES</main>
     </div>
   )
 }
 
-export default HomePage
+export default FinishedLotteries

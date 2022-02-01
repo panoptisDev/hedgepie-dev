@@ -1,0 +1,22 @@
+.connect_wallet_btn {
+    appearance: none;
+    display: inline-block;
+    text-align: center;
+    line-height: inherit;
+    text-decoration: none;
+    font-size: inherit;
+    border: 2px solidwhite;
+    border-color: #1799DE;
+    border-width: 3px;
+    background-color: #16103A;
+    color: #1799DE;
+    border-radius: 40;
+    width: 200;
+    height: 50;
+}
+
+.connect_wallet_btn:hover { 
+    cursor: "pointer"; 
+    color: "#fff"; 
+    border-color: "#fff"; 
+}

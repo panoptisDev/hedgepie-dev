@@ -3,10 +3,10 @@ import React from "react"
 import type { NextPage } from "next"
 import Head from "next/head"
 
-// Components
-import { Home } from "components/Home"
+import { Vault } from "components/Vault"
+import { HedgePieFinance } from "components/HedgePieFinance"
 
-const HomePage: NextPage = () => {
+const VaultPage: NextPage = () => {
   return (
     <div>
       <Head>
@@ -16,10 +16,12 @@ const HomePage: NextPage = () => {
       </Head>
 
       <main>
-        <Home />
+        <HedgePieFinance title="Vault">
+          <Vault />
+        </HedgePieFinance>
       </main>
     </div>
   )
 }
 
-export default HomePage
+export default VaultPage
