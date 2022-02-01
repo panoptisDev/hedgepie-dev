@@ -2,7 +2,7 @@ import React from "react"
 
 import { theme } from "themes/theme"
 
-import { Box, Flex, Link, Text, ThemeProvider } from "theme-ui"
+import { Box, Flex, Text, ThemeProvider } from "theme-ui"
 
 type Props = {}
 

@@ -3,7 +3,6 @@ import React from "react"
 import { Button, Flex, NavLink } from "theme-ui"
 import { useRouter } from "next/router"
 
-import styles from "./NavBar.module.css"
 import themeStyles from "./themeStyles"
 
 type Props = {}
