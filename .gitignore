@@ -10,3 +10,5 @@ artifacts
 
 config/config.json
 config/deploy.js
+
+.vscode
