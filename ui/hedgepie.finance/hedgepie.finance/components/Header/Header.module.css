@@ -1,0 +1,9 @@
+.header_wrapper {
+    height: 5rem;
+    align-items: center;
+}
+
+.logo {
+    width: 4rem;
+    margin-left: 15rem;
+}
