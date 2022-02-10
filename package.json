@@ -4,7 +4,8 @@
   "description": "",
   "main": "index.js",
   "scripts": {
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "build": "npx hardhat compile",
+    "test:all": "npx hardhat test --network hardhat"
   },
   "repository": {
     "type": "git",
@@ -17,6 +18,16 @@
     "url": "https://github.com/abe-sinjiro/rubi-token/issues"
   },
   "homepage": "https://github.com/abe-sinjiro/rubi-token#readme",
+  "dependencies": {
+    "@nomiclabs/hardhat-etherscan": "^3.0.0",
+    "@openzeppelin/contracts": "^4.5.0",
+    "@openzeppelin/hardhat-upgrades": "^1.14.0",
+    "dotenv-extended": "^2.9.0",
+    "fs": "^0.0.1-security",
+    "hardhat-contract-sizer": "^2.4.0",
+    "ts-node": "^10.5.0",
+    "tslog": "^3.3.2"
+  },
   "devDependencies": {
     "@nomiclabs/hardhat-ethers": "^2.0.3",
     "@nomiclabs/hardhat-waffle": "^2.0.1",
@@ -27,9 +38,5 @@
     "ethers": "^5.5.2",
     "hardhat": "^2.8.0",
     "typechain": "^6.1.0"
-  },
-  "dependencies": {
-    "@openzeppelin/contracts": "3.1.0-solc-0.7",
-    "fs": "^0.0.1-security"
   }
 }
