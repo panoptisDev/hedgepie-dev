@@ -1,44 +1,67 @@
+require("@nomiclabs/hardhat-etherscan");
+require("@openzeppelin/hardhat-upgrades");
+require("hardhat-contract-sizer");
 require("@nomiclabs/hardhat-waffle");
 require("@typechain/hardhat");
-const keyConfig = require('./config/config.json');
+require("dotenv-extended").load();
 
-// This is a sample Hardhat task. To learn how to create your own go to
-// https://hardhat.org/guides/create-task.html
-task("accounts", "Prints the list of accounts", async (taskArgs, hre) => {
-  const accounts = await hre.ethers.getSigners();
 
-  for (const account of accounts) {
-    console.log(account.address);
-  }
-});
 
-// You need to export an object to set up your config
-// Go to https://hardhat.org/config/ to learn more
+if (!process.env.TESTNET_PRIVKEY)
+  throw new Error("TESTNET_PRIVKEY missing from .env file");
+if (!process.env.MAINNET_PRIVKEY)
+  throw new Error("MAINNET_PRIVKEY missing from .env file");
 
-/**
- * @type import('hardhat/config').HardhatUserConfig
- */
+
 module.exports = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
       chainId: 31337,
+      forking: {
+        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
+        blockNumber: 10207859,
+      },
     },
     local: {
       url: "http://localhost:7545",
       chainId: 1337,
       gasPrice: 20000000000,
       gas: 2100000,
-      accounts: [keyConfig.ganache, keyConfig.acc1, keyConfig.acc2]
-    }
+      accounts: [process.env.LOCAL_PRIVKEY],
+    },
+    mainnet: {
+      chainId: 1,
+      url: `https://mainnet.infura.io/v3/${process.env.INFURA_MAINNET_KEY}`,
+      accounts: [process.env.MAINNET_PRIVKEY],
+    },
+    rinkeby: {
+      chainId: 3,
+      url: `https://rinkeby.infura.io/v3/${process.env.INFURA_TESTNET_KEY}`,
+      gasPrice: 200000000000,
+      accounts: [process.env.TESTNET_PRIVKEY],
+    },
+  },
+  etherscan: {
+    apiKey: process.env.ETHERSCAN_API,
   },
   typechain: {
     outDir: "typechain",
     target: "ethers-v5",
   },
   solidity: {
-    compilers: [{
-      version: "0.7.5",
-    }]
+    compilers: [
+      {
+        version: "0.7.5",
+      }, {
+        version: "0.8.4",
+        settings: {
+          optimizer: {
+            enabled: true,
+            runs: 200,
+          },
+        },
+      }
+    ]
   }
 };
