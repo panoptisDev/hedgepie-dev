@@ -7,7 +7,7 @@ import { HedgePieFinance } from "components/HedgePieFinance"
 
 const VaultPage: NextPage = () => {
   return (
-    <HedgePieFinance title="Vault">
+    <HedgePieFinance title="Farms">
       <Vault />
     </HedgePieFinance>
   )

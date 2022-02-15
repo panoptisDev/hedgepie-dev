@@ -1,6 +1,6 @@
-import { ConnectWallet } from "components/ConnectWallet"
 import React from "react"
-import { Button, Flex, NavLink } from "theme-ui"
+import { ConnectWallet } from "components/ConnectWallet"
+import { Flex, NavLink } from "theme-ui"
 import { useRouter } from "next/router"
 
 import themeStyles from "./themeStyles"
@@ -35,29 +35,7 @@ const NavBar = (props: Props) => {
       >
         Collections
       </NavLink>
-      <ConnectWallet>
-        <Button
-          sx={{
-            appearance: "none",
-            display: "inline-block",
-            textAlign: "center",
-            lineHeight: "inherit",
-            textDecoration: "none",
-            fontSize: "inherit",
-            border: "2px solid white",
-            borderColor: "wallet_button_border",
-            borderWidth: "3px",
-            backgroundColor: "header",
-            color: "wallet_button_text",
-            ":hover": { cursor: "pointer", color: "#fff", borderColor: "#fff" },
-            borderRadius: 40,
-            width: 200,
-            height: 50
-          }}
-        >
-          Connect Wallet →
-        </Button>
-      </ConnectWallet>
+      <ConnectWallet />
     </Flex>
   )
 }

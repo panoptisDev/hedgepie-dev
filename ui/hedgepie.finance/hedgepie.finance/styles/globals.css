@@ -5,12 +5,72 @@ body {
   font-family: -apple-system, BlinkMacSystemFont, Segoe UI, Roboto, Oxygen,
     Ubuntu, Cantarell, Fira Sans, Droid Sans, Helvetica Neue, sans-serif;
 }
-
 a {
   color: inherit;
   text-decoration: none;
 }
-
 * {
   box-sizing: border-box;
+}
+.header_wrapper {
+  height: 5rem;
+  align-items: center;
+}
+.logo {
+  width: 4rem;
+  margin-left: 15rem !important;
+}
+.container {
+  flex-direction: column;
+  width: 100%;
+  gap: 1rem;
+  align-items: center;
+}
+.banner-box {
+  border: 1px solid black;
+  padding-top: 4rem;
+  padding-bottom: 6rem;
+}
+.banner-container {
+  padding: 3rem 10rem;
+  justify-content: center;
+}
+.banner-flex {
+  flex-direction: column;  
+}
+.banner-text {
+  flex-direction: "column";
+  font-size: 6rem;
+  font-family: "Noto Sans";
+  font-weight: 800;
+  line-height: 106px;
+}
+.banner-desc {
+  color: #8E8DA0;
+  font-family: "Noto Sans";
+  font-weight: 600;
+  font-size: 25px;
+  line-height: 40px;
+  padding-bottom: 30px;
+}
+.banner-img {
+  align-items: "center";
+  justify-content: "center";
+}
+.connect-wallet-btn {
+  width: 240px;
+  height: 60px;
+  border-radius: 40px;
+  padding: 0px 20px;
+  line-height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  background-color: #1799DE;
+  color: #fff;
+  cursor: pointer;
+}
+.connect-wallet-btn:hover {
+  cursor: pointer;
+  border: 2px solid rgb(157 83 182);
+  color: rgb(157 83 182);
 }

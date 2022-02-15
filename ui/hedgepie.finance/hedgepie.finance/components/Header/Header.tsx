@@ -1,26 +1,27 @@
 import React from "react"
-
-import { theme } from "themes/theme"
-
-import { Box, Flex, ThemeProvider, Image } from "theme-ui"
-
-import styles from "./Header.module.css"
-// import themeStyles from "./themeStyles"
+import { useRouter } from "next/router"
+import { Box, Flex, Image, NavLink } from "theme-ui"
 
 import NavBar from "./NavBar"
 
 type Props = {}
 
 const Header = (props: Props) => {
+  const router = useRouter()
+
   return (
-    <ThemeProvider theme={theme}>
-      <Box bg="header">
-        <Flex className={styles.header_wrapper}>
-          <Image src={"./images/logo.png"} css={{ width: "4rem", marginLeft: "15rem" }} />
-          <NavBar />
-        </Flex>
-      </Box>
-    </ThemeProvider>
+    <Box bg="header">
+      <Flex className="header_wrapper">
+        <NavLink
+          onClick={() => {
+            router.push("/")
+          }}
+        >
+          <Image src="./images/logo.png" className="logo" />
+        </NavLink>
+        <NavBar />
+      </Flex>
+    </Box>
   )
 }
 
