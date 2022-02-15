@@ -1,4 +1,5 @@
 import React, { ReactNode } from "react"
+import Head from "next/head"
 
 import { theme } from "themes/theme"
 
@@ -16,6 +17,11 @@ const HedgePieFinance = (props: Props) => {
     <ThemeProvider theme={theme}>
       <Header />
       {title && <TitleMast title={title} />}
+      <Head>
+        <title>Hedge Pie</title>
+        <meta name="description" content="Hedge Pie Finance" />
+        <link rel="icon" href="/favicon.ico" />
+      </Head>
       {children}
       {/* <Footer /> */}
     </ThemeProvider>
