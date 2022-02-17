@@ -1,6 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.7.5;
-pragma abicoder v2;
+// pragma solidity ^0.7.5;
+pragma solidity ^0.8.4;
 
 import "./interfaces/IPancakeRouter.sol";
 import "./libraries/Ownable.sol";
@@ -9,91 +9,129 @@ import "./libraries/SafeBEP20.sol";
 import "./type/BEP721.sol";
 
 contract YBNFT is BEP721, Ownable {
-    using SafeMath for uint;
+    using SafeMath for uint256;
     using SafeBEP20 for IBEP20;
 
-    address public immutable Lottery;
-    address public immutable Treasury;
-
-    // these addresses are for testing
-    address public constant WBNB = 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd;
-    address public constant PCSRouter = 0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3;
-
-    mapping(address => bool) public AllowedToken;
-    mapping(uint => NFTFund[]) public NFTFunds;
-    mapping(uint => Strategy[]) private NFTStrategy;
-    struct NFTFund {
-        address funder;
-        address token;
-        uint amount;
-    }
-
     struct Strategy {
-        uint percent;
+        uint256 percent;
         address swapToken;
         address stakeAddress;
     }
 
-    event Mint(uint256 _tokenId, address indexed _to);
-    event Deposit(uint256 _tokenId, address indexed _funder, address _token, uint _amount);
+    struct NFTFund {
+        address funder;
+        address token;
+        uint256 amount;
+    }
 
-    constructor(
-        address _lottery,
-        address _treasury
-    ) BEP721("Hedgepie YBNFT", "YBNFT") {
+    address public immutable lottery;
+    address public immutable treasury;
+
+    // these addresses are for testing
+    address public constant WBNB = 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd;
+    address public constant PCSRouter =
+        0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3;
+
+    mapping(address => bool) public allowedToken;
+    mapping(uint256 => Strategy[]) private nftStrategy;
+    mapping(uint256 => NFTFund[]) public NFTFunds;
+
+    // ===== events =====
+    event Mint(uint256 indexed tokenId, address indexed user);
+    event Deposit(
+        uint256 indexed tokenId,
+        address indexed user,
+        address token,
+        uint256 amount
+    );
+
+    // ===== modifiers =====
+    modifier onlyAllowedToken(address token) {
+        require(allowedToken[token], "Error: token is not allowed");
+        _;
+    }
+
+    constructor(address _lottery, address _treasury)
+        BEP721("Hedgepie YBNFT", "YBNFT")
+    {
         require(_lottery != address(0));
         require(_treasury != address(0));
 
-        Lottery = _lottery;
-        Treasury = _treasury;
+        lottery = _lottery;
+        treasury = _treasury;
     }
 
-    function manageToken(
-        address[] calldata tokens, 
-        bool flag
-    ) public onlyOwner {
-        require(tokens.length > 0);
-
-        for (uint8 i = 0; i < tokens.length; i++) {
-            AllowedToken[tokens[i]] = flag;
-        }
-    }
-
-    function chkToken(uint tokenId) external view returns(bool) {
+    // ===== view functions =====
+    function chkToken(uint256 tokenId) external view returns (bool) {
         return _exists(tokenId);
     }
 
-    function _checkPercent(
-        uint[] calldata _swapPercent
-    ) private pure returns(bool) {
-        uint totalPercent;
-        for(uint ii = 0; ii < _swapPercent.length; ii++) {
-            totalPercent = totalPercent.add(_swapPercent[ii]);
+    // ===== internal functions =====
+    function _setStrategy(
+        uint256 _tokenId,
+        uint256[] calldata _swapPercent,
+        address[] calldata _swapToken,
+        address[] calldata _stakeAddress
+    ) private {
+        for (uint8 idx = 0; idx < _swapToken.length; idx++) {
+            nftStrategy[_tokenId].push(
+                Strategy({
+                    percent: _swapPercent[idx],
+                    swapToken: _swapToken[idx],
+                    stakeAddress: _stakeAddress[idx]
+                })
+            );
+        }
+    }
+
+    function _deposit(
+        uint256 _tokenId,
+        address _token,
+        uint256 _amount
+    ) internal {
+        IBEP20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+
+        // for token swap
+        IBEP20(_token).safeApprove(PCSRouter, _amount);
+
+        Strategy[] memory info = nftStrategy[_tokenId];
+        for (uint8 idx = 0; idx < info.length; idx++) {
+            Strategy memory infoItem = info[idx];
+
+            // swapping
+            uint256 amountIn = _amount.mul(infoItem.percent).div(1e4);
+            uint256 amountOut = _swapOnPCS(
+                amountIn,
+                _token,
+                infoItem.swapToken
+            );
+
+            // staking
+        }
+
+        NFTFunds[_tokenId].push(
+            NFTFund({funder: msg.sender, token: _token, amount: _amount})
+        );
+    }
+
+    function _checkPercent(uint256[] calldata _swapPercent)
+        internal
+        pure
+        returns (bool)
+    {
+        uint256 totalPercent;
+        for (uint256 idx = 0; idx < _swapPercent.length; idx++) {
+            totalPercent = totalPercent.add(_swapPercent[idx]);
         }
 
         return totalPercent.sub(1e4) == 0;
     }
 
-    function _setStrategy(
-        uint _tokenId,
-        uint[] calldata _swapPercent,
-        address[] calldata _swapToken,
-        address[] calldata _stakeAddress
-    ) private {
-        for(uint8 ii = 0; ii < _swapToken.length; ii++) {
-            NFTStrategy[_tokenId].push(Strategy({
-                percent: _swapPercent[ii],
-                swapToken: _swapToken[ii],
-                stakeAddress: _stakeAddress[ii]
-            }));
-        }
-    }
-
     function _swapOnPCS(
-        uint _amountIn, 
-        address _inToken, 
+        uint256 _amountIn,
+        address _inToken,
         address _outToken
-    ) private returns(uint _amountOut) {
+    ) internal returns (uint256 amountOut) {
         address[] memory path;
         if (_outToken == WBNB || _inToken == WBNB) {
             path = new address[](2);
@@ -106,71 +144,58 @@ contract YBNFT is BEP721, Ownable {
             path[2] = _outToken;
         }
 
-        uint[] memory amounts = IPancakeRouter( PCSRouter ).swapExactTokensForTokens(_amountIn, 0, path, address(this), 0);
-        _amountOut = amounts[amounts.length - 1];
+        uint256[] memory amounts = IPancakeRouter(PCSRouter)
+            .swapExactTokensForTokens(_amountIn, 0, path, address(this), 0);
+        amountOut = amounts[amounts.length - 1];
     }
 
-    function _deposit(uint _tokenId, uint _amount, address _token) private {
-        IBEP20( _token ).safeTransferFrom(msg.sender, address(this), _amount);
-        
-        // for token swap
-        IBEP20( _token ).safeApprove(PCSRouter, _amount);
-
-        Strategy[] memory info = NFTStrategy[_tokenId];
-        for(uint8 ii = 0; ii < info.length; ii++) {
-            Strategy memory infoItem = info[ii];
-
-            // swapping
-            uint amountIn = _amount.mul(infoItem.percent).div(1e4);
-            uint amountOut = _swapOnPCS(amountIn, _token, infoItem.swapToken);
-
-            // staking
-
-        }
-
-        NFTFunds[_tokenId].push(NFTFund({
-            funder: msg.sender,
-            token: _token,
-            amount: _amount
-        }));
-    }
-
+    // external functions
     function mint(
-        uint tokenId,
-        uint[] calldata swapPercent,
-        address[] calldata swapToken,
-        address[] calldata stakeAddress
-    ) external onlyOwner returns(bool) {
-        require(tokenId > 0);
-        require(swapToken.length > 0 && swapToken.length == swapPercent.length && swapToken.length == stakeAddress.length);
-        require(_checkPercent(swapPercent));
+        uint256 _tokenId,
+        uint256[] calldata _swapPercent,
+        address[] calldata _swapToken,
+        address[] calldata _stakeAddress
+    ) external onlyOwner {
+        // TODO: tokenId should be increased automatically, no need to check _tokenId here!
+        require(_tokenId > 0);
+        require(
+            _swapToken.length > 0 &&
+                _swapToken.length == _swapPercent.length &&
+                _swapToken.length == _stakeAddress.length,
+            "Error: strategy data is incorrect"
+        );
+        require(_checkPercent(_swapPercent));
 
-        _safeMint(address(this), tokenId);
+        // mint token
+        _safeMint(address(this), _tokenId);
 
         // set strategy
-        _setStrategy(
-            tokenId,
-            swapPercent,
-            swapToken,
-            stakeAddress
-        );
+        _setStrategy(_tokenId, _swapPercent, _swapToken, _stakeAddress);
 
-        emit Mint(tokenId, address(this));
-        return true;
+        emit Mint(_tokenId, address(this));
+    }
+
+    function manageToken(address[] calldata _tokens, bool _flag)
+        public
+        onlyOwner
+    {
+        require(_tokens.length > 0);
+
+        for (uint8 idx = 0; idx < _tokens.length; idx++) {
+            allowedToken[_tokens[idx]] = _flag;
+        }
     }
 
     function deposit(
-        uint tokenId,
-        uint amount,
-        address token
-    ) external returns(bool) {
-        require(_exists(tokenId), "BEP721: NFT not exist");
-        require(amount > 0);
-        require(AllowedToken[token], "Not allowed token");
+        uint256 _tokenId,
+        uint256 _amount,
+        address _token
+    ) external onlyAllowedToken(_token) {
+        require(_exists(_tokenId), "BEP721: NFT not exist");
+        require(_amount > 0);
 
-        _deposit(tokenId, amount, token);
+        _deposit(_tokenId, _token, _amount);
 
-        emit Deposit(tokenId, msg.sender, token, amount);
-        return true;
+        emit Deposit(_tokenId, msg.sender, _token, _amount);
     }
 }
