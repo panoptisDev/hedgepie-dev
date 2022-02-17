@@ -1,22 +1,28 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.7.5;
+pragma solidity ^0.8.4;
 
 import "./libraries/SafeMath.sol";
 import "./type/BEP20.sol";
 import "./type/AdminAccessRoles.sol";
 
-contract HedgepieToken is AdminAccessRoles(msg.sender), BEP20('Hedgepie Token', 'HPIE') {
+contract HedgepieToken is
+    AdminAccessRoles(msg.sender),
+    BEP20("Hedgepie Token", "HPIE")
+{
     using SafeMath for uint256;
-    uint private _cap;
+    uint256 private _cap;
 
-    constructor(uint cap_) {
+    constructor(uint256 cap_) {
         require(cap_ > 0, "BEP20Capped: cap is 0");
         _cap = cap_;
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
-    function mint(address _to, uint _amount) external onlyMintUser {
-        require(totalSupply().add(_amount) <= _cap, "BEP20Capped: cap exceeded");
+    function mint(address _to, uint256 _amount) external onlyMintUser {
+        require(
+            totalSupply().add(_amount) <= _cap,
+            "BEP20Capped: cap exceeded"
+        );
         _mint(_to, _amount);
     }
 
@@ -24,7 +30,7 @@ contract HedgepieToken is AdminAccessRoles(msg.sender), BEP20('Hedgepie Token', 
         return totalSupply() == _cap;
     }
 
-    function maxCap() external view returns (uint) {
+    function maxCap() external view returns (uint256) {
         return _cap;
     }
 }

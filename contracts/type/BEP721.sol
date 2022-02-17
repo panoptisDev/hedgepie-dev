@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.7.5;
+pragma solidity ^0.8.4;
 
 import "../interfaces/IBEP721.sol";
 import "../interfaces/IBEP721Metadata.sol";
@@ -41,7 +41,13 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
     /**
      * @dev See {IBEP165-supportsInterface}.
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(BEP165, IBEP165) returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override(BEP165, IBEP165)
+        returns (bool)
+    {
         return
             interfaceId == type(IBEP721).interfaceId ||
             interfaceId == type(IBEP721Metadata).interfaceId ||
@@ -51,17 +57,35 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
     /**
      * @dev See {IBEP721-balanceOf}.
      */
-    function balanceOf(address owner) public view virtual override returns (uint256) {
-        require(owner != address(0), "BEP721: balance query for the zero address");
+    function balanceOf(address owner)
+        public
+        view
+        virtual
+        override
+        returns (uint256)
+    {
+        require(
+            owner != address(0),
+            "BEP721: balance query for the zero address"
+        );
         return _balances[owner];
     }
 
     /**
      * @dev See {IBEP721-ownerOf}.
      */
-    function ownerOf(uint256 tokenId) public view virtual override returns (address) {
+    function ownerOf(uint256 tokenId)
+        public
+        view
+        virtual
+        override
+        returns (address)
+    {
         address owner = _owners[tokenId];
-        require(owner != address(0), "BEP721: owner query for nonexistent token");
+        require(
+            owner != address(0),
+            "BEP721: owner query for nonexistent token"
+        );
         return owner;
     }
 
@@ -82,11 +106,23 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
     /**
      * @dev See {IBEP721Metadata-tokenURI}.
      */
-    function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        require(_exists(tokenId), "BEP721Metadata: URI query for nonexistent token");
+    function tokenURI(uint256 tokenId)
+        public
+        view
+        virtual
+        override
+        returns (string memory)
+    {
+        require(
+            _exists(tokenId),
+            "BEP721Metadata: URI query for nonexistent token"
+        );
 
         string memory baseURI = _baseURI();
-        return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : "";
+        return
+            bytes(baseURI).length > 0
+                ? string(abi.encodePacked(baseURI, tokenId.toString()))
+                : "";
     }
 
     /**
@@ -116,8 +152,17 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
     /**
      * @dev See {IBEP721-getApproved}.
      */
-    function getApproved(uint256 tokenId) public view virtual override returns (address) {
-        require(_exists(tokenId), "BEP721: approved query for nonexistent token");
+    function getApproved(uint256 tokenId)
+        public
+        view
+        virtual
+        override
+        returns (address)
+    {
+        require(
+            _exists(tokenId),
+            "BEP721: approved query for nonexistent token"
+        );
 
         return _tokenApprovals[tokenId];
     }
@@ -125,14 +170,24 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
     /**
      * @dev See {IBEP721-setApprovalForAll}.
      */
-    function setApprovalForAll(address operator, bool approved) public virtual override {
+    function setApprovalForAll(address operator, bool approved)
+        public
+        virtual
+        override
+    {
         _setApprovalForAll(_msgSender(), operator, approved);
     }
 
     /**
      * @dev See {IBEP721-isApprovedForAll}.
      */
-    function isApprovedForAll(address owner, address operator) public view virtual override returns (bool) {
+    function isApprovedForAll(address owner, address operator)
+        public
+        view
+        virtual
+        override
+        returns (bool)
+    {
         return _operatorApprovals[owner][operator];
     }
 
@@ -145,7 +200,10 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
         uint256 tokenId
     ) public virtual override {
         //solhint-disable-next-line max-line-length
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "BEP721: transfer caller is not owner nor approved");
+        require(
+            _isApprovedOrOwner(_msgSender(), tokenId),
+            "BEP721: transfer caller is not owner nor approved"
+        );
 
         _transfer(from, to, tokenId);
     }
@@ -170,7 +228,10 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
         uint256 tokenId,
         bytes memory _data
     ) public virtual override {
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "BEP721: transfer caller is not owner nor approved");
+        require(
+            _isApprovedOrOwner(_msgSender(), tokenId),
+            "BEP721: transfer caller is not owner nor approved"
+        );
         _safeTransfer(from, to, tokenId, _data);
     }
 
@@ -199,7 +260,10 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
         bytes memory _data
     ) internal virtual {
         _transfer(from, to, tokenId);
-        require(_checkOnBEP721Received(from, to, tokenId, _data), "BEP721: transfer to non BEP721Receiver implementer");
+        require(
+            _checkOnBEP721Received(from, to, tokenId, _data),
+            "BEP721: transfer to non BEP721Receiver implementer"
+        );
     }
 
     /**
@@ -221,10 +285,20 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
      *
      * - `tokenId` must exist.
      */
-    function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
-        require(_exists(tokenId), "BEP721: operator query for nonexistent token");
+    function _isApprovedOrOwner(address spender, uint256 tokenId)
+        internal
+        view
+        virtual
+        returns (bool)
+    {
+        require(
+            _exists(tokenId),
+            "BEP721: operator query for nonexistent token"
+        );
         address owner = BEP721.ownerOf(tokenId);
-        return (spender == owner || getApproved(tokenId) == spender || isApprovedForAll(owner, spender));
+        return (spender == owner ||
+            getApproved(tokenId) == spender ||
+            isApprovedForAll(owner, spender));
     }
 
     /**
@@ -325,7 +399,10 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
         address to,
         uint256 tokenId
     ) internal virtual {
-        require(BEP721.ownerOf(tokenId) == from, "BEP721: transfer from incorrect owner");
+        require(
+            BEP721.ownerOf(tokenId) == from,
+            "BEP721: transfer from incorrect owner"
+        );
         require(to != address(0), "BEP721: transfer to the zero address");
 
         _beforeTokenTransfer(from, to, tokenId);
@@ -384,11 +461,20 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
         bytes memory _data
     ) private returns (bool) {
         if (to.isContract()) {
-            try IBEP721Receiver(to).onBEP721Received(_msgSender(), from, tokenId, _data) returns (bytes4 retval) {
+            try
+                IBEP721Receiver(to).onBEP721Received(
+                    _msgSender(),
+                    from,
+                    tokenId,
+                    _data
+                )
+            returns (bytes4 retval) {
                 return retval == IBEP721Receiver.onBEP721Received.selector;
             } catch (bytes memory reason) {
                 if (reason.length == 0) {
-                    revert("BEP721: transfer to non BEP721Receiver implementer");
+                    revert(
+                        "BEP721: transfer to non BEP721Receiver implementer"
+                    );
                 } else {
                     assembly {
                         revert(add(32, reason), mload(reason))

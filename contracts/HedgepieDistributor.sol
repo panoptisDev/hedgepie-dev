@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.7.5;
+pragma solidity ^0.8.4;
 
 import "./libraries/SafeBEP20.sol";
 import "./libraries/SafeMath.sol";
@@ -14,11 +14,15 @@ contract HedgepieDistributor is Ownable {
     address public immutable HedgepieVault;
     address public immutable HedgepieYBNFT;
 
-    uint public globalPercent;
-    uint public boostPercent;
-    uint public vaultPercent;
+    uint256 public globalPercent;
+    uint256 public boostPercent;
+    uint256 public vaultPercent;
 
-    enum PercentType { GLOBAL, BOOST, VAULT }
+    enum PercentType {
+        GLOBAL,
+        BOOST,
+        VAULT
+    }
 
     event Distribute();
 
@@ -39,20 +43,21 @@ contract HedgepieDistributor is Ownable {
         HedgepieYBNFT = _ybNFT;
     }
 
-    function setPercent(PercentType percentType, uint percent) public onlyOwner {
-        if(percentType == PercentType.GLOBAL) {
+    function setPercent(PercentType percentType, uint256 percent)
+        public
+        onlyOwner
+    {
+        if (percentType == PercentType.GLOBAL) {
             globalPercent = percent;
-        } else if(percentType == PercentType.BOOST) {
+        } else if (percentType == PercentType.BOOST) {
             boostPercent = percent;
-        } else if(percentType == PercentType.VAULT) {
+        } else if (percentType == PercentType.VAULT) {
             vaultPercent = percent;
         }
     }
 
-    function distribute() external returns(bool) {
+    function distribute() external returns (bool) {
         require(msg.sender == HedgepieYBNFT);
-
-        
 
         return true;
     }

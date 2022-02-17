@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.7.5;
+pragma solidity ^0.8.4;
 
 import "../interfaces/IBEP165.sol";
 
@@ -21,7 +21,13 @@ abstract contract BEP165 is IBEP165 {
     /**
      * @dev See {IBEP165-supportsInterface}.
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
+    function supportsInterface(bytes4 interfaceId)
+        public
+        view
+        virtual
+        override
+        returns (bool)
+    {
         return interfaceId == type(IBEP165).interfaceId;
     }
 }

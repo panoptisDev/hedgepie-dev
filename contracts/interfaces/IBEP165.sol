@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: None
-pragma solidity ^0.7.5;
+pragma solidity ^0.8.4;
 
 interface IBEP165 {
     /**
