@@ -16,6 +16,9 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
     using SafeMath for uint256;
     using SafeBEP20 for IBEP20;
 
+    // current max tokenId
+    uint256 public tokenIdPointer;
+
     // lottery address
     address public lottery;
     // treasury address
@@ -58,19 +61,12 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         return nftStrategy[_tokenId];
     }
 
-    function chkToken(uint256 _tokenId) external view returns (bool) {
-        return _exists(_tokenId);
-    }
-
     // external functions
     function mint(
-        uint256 _tokenId,
         uint256[] calldata _swapPercent,
         address[] calldata _swapToken,
         address[] calldata _stakeAddress
     ) external onlyOwner {
-        // TODO: tokenId should be increased automatically, no need to check _tokenId here!
-        require(_tokenId > 0);
         require(
             _swapToken.length > 0 &&
                 _swapToken.length == _swapPercent.length &&
@@ -78,14 +74,15 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
             "Error: strategy data is incorrect"
         );
         require(_checkPercent(_swapPercent));
+        tokenIdPointer = tokenIdPointer + 1;
 
         // mint token
-        _safeMint(address(this), _tokenId);
+        _safeMint(address(this), tokenIdPointer);
 
         // set strategy
-        _setStrategy(_tokenId, _swapPercent, _swapToken, _stakeAddress);
+        _setStrategy(tokenIdPointer, _swapPercent, _swapToken, _stakeAddress);
 
-        emit Mint(_tokenId, address(this));
+        emit Mint(tokenIdPointer, address(this));
     }
 
     // TODO: ===== public functions =====
