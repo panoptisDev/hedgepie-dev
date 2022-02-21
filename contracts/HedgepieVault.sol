@@ -12,8 +12,8 @@ contract HedgepieVault {
     using SafeMath for uint256;
     using SafeBEP20 for IBEP20;
 
-    address public immutable HedgepieToken;
-    uint8 public constant blockEmission = 5;
+    address public immutable hedgepieToken;
+    uint8 public blockEmission = 5;
     uint256 public totalStake;
     mapping(address => mapping(address => UserStake)) public userStake;
     struct UserStake {
@@ -22,18 +22,14 @@ contract HedgepieVault {
         uint256 amount;
     }
 
-    event Stake(address indexed _staker, address _token, uint256 _amount);
-    event Unstake(address indexed _unStaker, address _token, uint256 _amount);
-    event rewardClaim(
-        address indexed _claimer,
-        address _token,
-        uint256 _amount
-    );
+    event Stake(address indexed user, address token, uint256 amount);
+    event Unstake(address indexed unSusertaker, address token, uint256 amount);
+    event RewardClaim(address indexed user, address token, uint256 amount);
 
     constructor(address _hedgepie) {
-        require(_hedgepie != address(0));
+        require(_hedgepie != address(0), "Hedgepie is zero address");
 
-        HedgepieToken = _hedgepie;
+        hedgepieToken = _hedgepie;
     }
 
     function _getReward(address _token) private view returns (uint256 _reward) {
@@ -113,19 +109,19 @@ contract HedgepieVault {
     }
 
     function stake(uint256 amount) public returns (bool) {
-        require(amount > 0);
+        require(amount > 0, "Amount is 0");
 
-        _stake(HedgepieToken, amount);
+        _stake(hedgepieToken, amount);
 
-        emit Stake(msg.sender, HedgepieToken, amount);
+        emit Stake(msg.sender, hedgepieToken, amount);
         return true;
     }
 
     function stakeLP(address token, uint256 amount) public returns (bool) {
-        require(amount > 0);
+        require(amount > 0, "Amount is 0");
         require(
-            IPancakePair(token).token0() == HedgepieToken ||
-                IPancakePair(token).token1() == HedgepieToken,
+            IPancakePair(token).token0() == hedgepieToken ||
+                IPancakePair(token).token1() == hedgepieToken,
             "Not LP token"
         );
 
@@ -136,7 +132,7 @@ contract HedgepieVault {
     }
 
     function unstake(address token, uint256 amount) public returns (bool) {
-        require(amount > 0);
+        require(amount > 0, "Amount is 0");
         require(_checkUnstake(token, amount), "Insufficient amount");
 
         _unstake(token, amount);
@@ -146,12 +142,12 @@ contract HedgepieVault {
     }
 
     function claimReward(address token, uint256 amount) public returns (bool) {
-        require(amount > 0);
+        require(amount > 0, "Amount is 0");
         require(_checkReward(token, amount), "Insufficient amount");
 
         _claimReward(token, amount);
 
-        emit rewardClaim(msg.sender, token, amount);
+        emit RewardClaim(msg.sender, token, amount);
         return true;
     }
 }

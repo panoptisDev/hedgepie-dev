@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 contract HedgepieTreasury {
     constructor() {}
 
-    function restake() public returns (bool) {}
-
     receive() external payable {}
+
+    function restake() public returns (bool) {}
 }

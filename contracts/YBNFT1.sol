@@ -7,21 +7,21 @@ import "./libraries/SafeMath.sol";
 import "./libraries/SafeBEP20.sol";
 import "./type/BEP721.sol";
 
-contract YBNFT is BEP721, Ownable {
+contract YBNFT1 is BEP721, Ownable {
     using SafeMath for uint256;
     using SafeBEP20 for IBEP20;
 
-    address public immutable Lottery;
-    address public immutable Treasury;
+    address public immutable lottery;
+    address public immutable treasury;
 
     // these addresses are for testing
     address public constant WBNB = 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd;
-    address public constant PCSRouter =
+    address public constant PCS_ROUTER =
         0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3;
 
-    mapping(address => bool) public AllowedToken;
-    mapping(uint256 => NFTFund[]) public NFTFunds;
-    mapping(uint256 => Strategy[]) private NFTStrategy;
+    mapping(address => bool) public allowedToken;
+    mapping(uint256 => NFTFund[]) public nftFunds;
+    mapping(uint256 => Strategy[]) private nftStrategy;
     struct NFTFund {
         address funder;
         address token;
@@ -45,21 +45,21 @@ contract YBNFT is BEP721, Ownable {
     constructor(address _lottery, address _treasury)
         BEP721("Hedgepie YBNFT", "YBNFT")
     {
-        require(_lottery != address(0));
-        require(_treasury != address(0));
+        require(_lottery != address(0), "Missing lottery");
+        require(_treasury != address(0), "Missing treasury");
 
-        Lottery = _lottery;
-        Treasury = _treasury;
+        lottery = _lottery;
+        treasury = _treasury;
     }
 
     function manageToken(address[] calldata tokens, bool flag)
         public
         onlyOwner
     {
-        require(tokens.length > 0);
+        require(tokens.length > 0, "Missing tokens");
 
         for (uint8 i = 0; i < tokens.length; i++) {
-            AllowedToken[tokens[i]] = flag;
+            allowedToken[tokens[i]] = flag;
         }
     }
 
@@ -87,7 +87,7 @@ contract YBNFT is BEP721, Ownable {
         address[] calldata _stakeAddress
     ) private {
         for (uint8 ii = 0; ii < _swapToken.length; ii++) {
-            NFTStrategy[_tokenId].push(
+            nftStrategy[_tokenId].push(
                 Strategy({
                     percent: _swapPercent[ii],
                     swapToken: _swapToken[ii],
@@ -114,7 +114,7 @@ contract YBNFT is BEP721, Ownable {
             path[2] = _outToken;
         }
 
-        uint256[] memory amounts = IPancakeRouter(PCSRouter)
+        uint256[] memory amounts = IPancakeRouter(PCS_ROUTER)
             .swapExactTokensForTokens(_amountIn, 0, path, address(this), 0);
         _amountOut = amounts[amounts.length - 1];
     }
@@ -127,9 +127,9 @@ contract YBNFT is BEP721, Ownable {
         IBEP20(_token).safeTransferFrom(msg.sender, address(this), _amount);
 
         // for token swap
-        IBEP20(_token).safeApprove(PCSRouter, _amount);
+        IBEP20(_token).safeApprove(PCS_ROUTER, _amount);
 
-        Strategy[] memory info = NFTStrategy[_tokenId];
+        Strategy[] memory info = nftStrategy[_tokenId];
         for (uint8 ii = 0; ii < info.length; ii++) {
             Strategy memory infoItem = info[ii];
 
@@ -144,7 +144,7 @@ contract YBNFT is BEP721, Ownable {
             // staking
         }
 
-        NFTFunds[_tokenId].push(
+        nftFunds[_tokenId].push(
             NFTFund({funder: msg.sender, token: _token, amount: _amount})
         );
     }
@@ -155,13 +155,14 @@ contract YBNFT is BEP721, Ownable {
         address[] calldata swapToken,
         address[] calldata stakeAddress
     ) external onlyOwner returns (bool) {
-        require(tokenId > 0);
+        require(tokenId > 0, "Invalid tokenId");
         require(
             swapToken.length > 0 &&
                 swapToken.length == swapPercent.length &&
-                swapToken.length == stakeAddress.length
+                swapToken.length == stakeAddress.length,
+            "Mismatched strategies"
         );
-        require(_checkPercent(swapPercent));
+        require(_checkPercent(swapPercent), "Incorrect percent");
 
         _safeMint(address(this), tokenId);
 
@@ -178,8 +179,8 @@ contract YBNFT is BEP721, Ownable {
         address token
     ) external returns (bool) {
         require(_exists(tokenId), "BEP721: NFT not exist");
-        require(amount > 0);
-        require(AllowedToken[token], "Not allowed token");
+        require(amount > 0, "Amount is 0");
+        require(allowedToken[token], "Not allowed token");
 
         _deposit(tokenId, amount, token);
 

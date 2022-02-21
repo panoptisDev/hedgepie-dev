@@ -47,8 +47,8 @@ contract HedgepieInvestor is Ownable {
      * @param _wbnb  Wrapped BNB address (0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd // on bsc testnet)
      */
     constructor(address _pancakeswapRouter, address _wbnb) {
-        require(_pancakeswapRouter != address(0));
-        require(_wbnb != address(0));
+        require(_pancakeswapRouter != address(0), "pancake router missing");
+        require(_wbnb != address(0), "wbnb missing");
 
         pancakeswapRouter = _pancakeswapRouter;
         wbnb = _wbnb;

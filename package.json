@@ -5,6 +5,7 @@
   "main": "index.js",
   "scripts": {
     "build": "npx hardhat compile",
+    "lint": "npx solhint contracts/*.sol",
     "test:all": "npx hardhat test --network hardhat"
   },
   "repository": {
@@ -25,6 +26,10 @@
     "dotenv-extended": "^2.9.0",
     "fs": "^0.0.1-security",
     "hardhat-contract-sizer": "^2.4.0",
+    "prettier": "^2.5.1",
+    "prettier-plugin-solidity": "^1.0.0-beta.19",
+    "solhint": "^3.3.7",
+    "solhint-plugin-prettier": "^0.0.5",
     "ts-node": "^10.5.0",
     "tslog": "^3.3.2"
   },

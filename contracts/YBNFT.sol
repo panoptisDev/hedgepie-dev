@@ -1,5 +1,4 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-// pragma solidity ^0.7.5;
 pragma solidity ^0.8.4;
 
 import "./interfaces/IPancakeRouter.sol";
@@ -28,7 +27,7 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
     // token => status
     mapping(address => bool) public allowedToken;
     // tokenId => strategy[]
-    mapping(uint256 => Strategy[]) nftStrategy;
+    mapping(uint256 => Strategy[]) public nftStrategy;
 
     event Mint(uint256 indexed tokenId, address indexed user);
 
@@ -37,9 +36,9 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         address _lottery,
         address _treasury
     ) BEP721("Hedgepie YBNFT", "YBNFT") {
-        require(_investor != address(0));
-        require(_lottery != address(0));
-        require(_treasury != address(0));
+        require(_investor != address(0), "Missing investor");
+        require(_lottery != address(0), "Missing lottery");
+        require(_treasury != address(0), "Missing treasury");
         investor = _investor;
         lottery = _lottery;
         treasury = _treasury;
@@ -71,9 +70,9 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
             _swapToken.length > 0 &&
                 _swapToken.length == _swapPercent.length &&
                 _swapToken.length == _stakeAddress.length,
-            "Error: strategy data is incorrect"
+            "Mismatched strategies"
         );
-        require(_checkPercent(_swapPercent));
+        require(_checkPercent(_swapPercent), "Incorrect percent");
         tokenIdPointer = tokenIdPointer + 1;
 
         // mint token
@@ -90,7 +89,7 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         public
         onlyOwner
     {
-        require(_tokens.length > 0);
+        require(_tokens.length > 0, "Error: token is empty");
 
         for (uint8 idx = 0; idx < _tokens.length; idx++) {
             allowedToken[_tokens[idx]] = _flag;
@@ -103,7 +102,7 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         uint256 _amount
     ) external onlyAllowedToken(_token) {
         require(_exists(_tokenId), "BEP721: NFT not exist");
-        require(_amount > 0);
+        require(_amount > 0, "Amount: can't be 0");
 
         _deposit(_tokenId, _token, _amount);
     }
@@ -114,7 +113,7 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         uint256 _amount
     ) external onlyAllowedToken(_token) {
         require(_exists(_tokenId), "BEP721: NFT not exist");
-        require(_amount > 0);
+        require(_amount > 0, "Amount: can't be 0");
 
         _withdraw(_tokenId, _token, _amount);
     }
