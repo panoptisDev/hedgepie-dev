@@ -3,12 +3,13 @@ pragma solidity ^0.8.4;
 
 import "../interfaces/IBEP721.sol";
 import "../interfaces/IBEP721Metadata.sol";
+import "../interfaces/IBEP721Receiver.sol";
 import "../libraries/Context.sol";
 import "../libraries/Strings.sol";
 import "../libraries/Address.sol";
 import "./BEP165.sol";
 
-contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
+contract BEP721 is Context, BEP165, IBEP721, IBEP721Receiver, IBEP721Metadata {
     using Address for address;
     using Strings for uint256;
 
@@ -233,6 +234,18 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
             "BEP721: transfer caller is not owner nor approved"
         );
         _safeTransfer(from, to, tokenId, _data);
+    }
+
+    /**
+     * Always returns `IBEP721Receiver.onBEP721Received.selector`.
+     */
+    function onBEP721Received(
+        address,
+        address,
+        uint256,
+        bytes memory
+    ) public virtual override returns (bytes4) {
+        return this.onBEP721Received.selector;
     }
 
     /**
