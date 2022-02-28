@@ -29,20 +29,9 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
     // tokenId => strategy[]
     mapping(uint256 => Strategy[]) public nftStrategy;
 
-    event Mint(uint256 indexed tokenId, address indexed user);
+    event Mint(address indexed user, uint256 indexed tokenId);
 
-    constructor(
-        address _investor,
-        address _lottery,
-        address _treasury
-    ) BEP721("Hedgepie YBNFT", "YBNFT") {
-        require(_investor != address(0), "Missing investor");
-        require(_lottery != address(0), "Missing lottery");
-        require(_treasury != address(0), "Missing treasury");
-        investor = _investor;
-        lottery = _lottery;
-        treasury = _treasury;
-    }
+    constructor() BEP721("Hedgepie YBNFT", "YBNFT") {}
 
     // ===== modifiers =====
     modifier onlyAllowedToken(address token) {
@@ -60,7 +49,21 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         return nftStrategy[_tokenId];
     }
 
-    // external functions
+    function setInvestor(address _investor) external onlyOwner {
+        require(_investor != address(0), "Missing investor");
+        investor = _investor;
+    }
+
+    function setLottery(address _lottery) external onlyOwner {
+        require(_lottery != address(0), "Missing lottery");
+        lottery = _lottery;
+    }
+
+    function setTreasury(address _treasury) external onlyOwner {
+        require(_treasury != address(0), "Missing treasury");
+        treasury = _treasury;
+    }
+
     function mint(
         uint256[] calldata _swapPercent,
         address[] calldata _swapToken,
@@ -72,16 +75,16 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
                 _swapToken.length == _stakeAddress.length,
             "Mismatched strategies"
         );
-        require(_checkPercent(_swapPercent), "Incorrect percent");
+        require(_checkPercent(_swapPercent), "Incorrect swap percent");
         tokenIdPointer = tokenIdPointer + 1;
 
         // mint token
-        _safeMint(address(this), tokenIdPointer);
+        _safeMint(msg.sender, tokenIdPointer);
 
         // set strategy
         _setStrategy(tokenIdPointer, _swapPercent, _swapToken, _stakeAddress);
 
-        emit Mint(tokenIdPointer, address(this));
+        emit Mint(address(this), tokenIdPointer);
     }
 
     // TODO: ===== public functions =====
@@ -89,8 +92,6 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         public
         onlyOwner
     {
-        require(_tokens.length > 0, "Error: token is empty");
-
         for (uint8 idx = 0; idx < _tokens.length; idx++) {
             allowedToken[_tokens[idx]] = _flag;
         }
@@ -187,9 +188,9 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
     {
         uint256 totalPercent;
         for (uint256 idx = 0; idx < _swapPercent.length; idx++) {
-            totalPercent = totalPercent.add(_swapPercent[idx]);
+            totalPercent = totalPercent + _swapPercent[idx];
         }
 
-        return totalPercent.sub(1e4) == 0;
+        return 1e4 - totalPercent == 0;
     }
 }
