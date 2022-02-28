@@ -79,8 +79,8 @@ describe('YBNFT contract test:', () => {
       );
     });
 
-    it('should be failed when swapPercent is incorrect', async () => {
-      await expect(ybNft.connect(owner).mint([8500], swapToken, stakeAddress)).to.be.revertedWith(
+    it('should be failed when swapPercent is incorrect (over 10000)', async () => {
+      await expect(ybNft.connect(owner).mint([10500], swapToken, stakeAddress)).to.be.revertedWith(
         'Incorrect swap percent'
       );
     });
