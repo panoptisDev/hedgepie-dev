@@ -6,6 +6,7 @@ import "./libraries/Ownable.sol";
 
 import "./interfaces/IYBNFT.sol";
 import "./interfaces/IPancakeRouter.sol";
+import "./interfaces/IStrategy.sol";
 
 contract HedgepieInvestor is Ownable {
     using SafeBEP20 for IBEP20;
@@ -15,9 +16,18 @@ contract HedgepieInvestor is Ownable {
         uint256 rewardDebt;
     }
 
+    struct UserStrategyInfo {
+        uint256 amount;
+        uint256 rewardDebt;
+    }
+
     // user => nft address => nft id =>  UserInfo
     mapping(address => mapping(address => mapping(uint256 => UserInfo)))
         public userInfo;
+
+    // user => strategy address => amount
+    mapping(address => mapping(address => uint256)) public userStrategyInfo;
+
     // nft => listed status
     mapping(address => bool) public nftWhiteList; // whitelisted nfts
 
@@ -68,6 +78,7 @@ contract HedgepieInvestor is Ownable {
      * @param _amount  token amount
      */
     function deposit(
+        address _user,
         address _nft,
         uint256 _tokenId,
         address _token,
@@ -93,13 +104,15 @@ contract HedgepieInvestor is Ownable {
                 infoItem.swapToken
             );
 
-            // staking
+            // staking into strategy
+            IStrategy(infoItem.stakeAddress).stake(amountOut);
+            userStrategyInfo[_user][infoItem.stakeAddress] = amountOut;
         }
 
-        UserInfo storage user = userInfo[msg.sender][_nft][_tokenId];
+        UserInfo storage user = userInfo[_user][_nft][_tokenId];
         user.amount = user.amount + _amount;
 
-        emit Deposit(msg.sender, _nft, _tokenId, _amount);
+        emit Deposit(_user, _nft, _tokenId, _amount);
     }
 
     /**
@@ -110,6 +123,7 @@ contract HedgepieInvestor is Ownable {
      * @param _amount  token amount
      */
     function withdraw(
+        address _user,
         address _nft,
         uint256 _tokenId,
         address _token,
@@ -117,14 +131,14 @@ contract HedgepieInvestor is Ownable {
     ) external onlyWhiteListedNft(msg.sender) {
         require(_amount > 0, "Amount can not be 0");
 
-        UserInfo storage user = userInfo[msg.sender][_nft][_tokenId];
+        UserInfo storage user = userInfo[_user][_nft][_tokenId];
         require(user.amount > _amount, "Withdraw: exceeded amount");
 
         IBEP20(_token).safeTransfer(msg.sender, _amount);
 
         user.amount = user.amount - _amount;
 
-        emit Withdraw(msg.sender, _nft, _tokenId, _amount);
+        emit Withdraw(_user, _nft, _tokenId, _amount);
     }
 
     /**
@@ -134,11 +148,12 @@ contract HedgepieInvestor is Ownable {
      * @param _token  token address
      */
     function withdrawAll(
+        address _user,
         address _nft,
         uint256 _tokenId,
         address _token
     ) external onlyWhiteListedNft(msg.sender) {
-        UserInfo storage user = userInfo[msg.sender][_nft][_tokenId];
+        UserInfo storage user = userInfo[_user][_nft][_tokenId];
         require(user.amount > 0, "Withdraw: amount is 0");
 
         IBEP20(_token).safeTransfer(msg.sender, user.amount);
@@ -146,7 +161,7 @@ contract HedgepieInvestor is Ownable {
         uint256 amount = user.amount;
         user.amount = 0;
 
-        emit Withdraw(msg.sender, _nft, _tokenId, amount);
+        emit Withdraw(_user, _nft, _tokenId, amount);
     }
 
     // ===== Owner functions =====
