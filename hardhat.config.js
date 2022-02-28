@@ -49,6 +49,12 @@ module.exports = {
     outDir: "typechain",
     target: "ethers-v5",
   },
+  paths: {
+    artifacts: "./artifacts",
+    cache: "./cache",
+    sources: "./contracts",
+    tests: "./test",
+  },
   solidity: {
     compilers: [
       {
