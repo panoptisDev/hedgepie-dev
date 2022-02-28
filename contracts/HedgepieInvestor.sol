@@ -62,6 +62,7 @@ contract HedgepieInvestor is Ownable {
 
     /**
      * @notice deposit fund
+     * @param _user  user address
      * @param _nft  YBNft address
      * @param _tokenId  YBNft token id
      * @param _token  token address
@@ -77,7 +78,6 @@ contract HedgepieInvestor is Ownable {
         require(_amount > 0, "Amount can not be 0");
 
         IBEP20(_token).safeTransferFrom(msg.sender, address(this), _amount);
-        // for token swap
         IBEP20(_token).safeApprove(pancakeswapRouter, _amount);
 
         IYBNFT.Strategy[] memory info = IYBNFT(_nft).getNftStrategy(_tokenId);
@@ -104,6 +104,7 @@ contract HedgepieInvestor is Ownable {
 
     /**
      * @notice withdraw fund
+     * @param _user  user address
      * @param _nft  YBNft address
      * @param _tokenId  YBNft token id
      * @param _token  token address
@@ -151,6 +152,7 @@ contract HedgepieInvestor is Ownable {
 
     /**
      * @notice withdraw fund
+     * @param _user  user address
      * @param _nft  YBNft address
      * @param _tokenId  YBNft token id
      * @param _token  token address
@@ -192,7 +194,7 @@ contract HedgepieInvestor is Ownable {
         emit NftDeListed(msg.sender, _nft);
     }
 
-    // TODO: ===== internal functions =====
+    // ===== internal functions =====
     function _getPaths(address _inToken, address _outToken)
         internal
         view
