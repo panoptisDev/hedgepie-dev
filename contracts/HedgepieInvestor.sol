@@ -11,18 +11,8 @@ import "./interfaces/IStrategy.sol";
 contract HedgepieInvestor is Ownable {
     using SafeBEP20 for IBEP20;
 
-    struct UserInfo {
-        uint256 amount;
-        uint256 rewardDebt;
-    }
-
-    struct UserStrategyInfo {
-        uint256 amount;
-        uint256 rewardDebt;
-    }
-
-    // user => nft address => nft id =>  UserInfo
-    mapping(address => mapping(address => mapping(uint256 => UserInfo)))
+    // user => nft address => nft id => amount
+    mapping(address => mapping(address => mapping(uint256 => uint256)))
         public userInfo;
 
     // user => strategy address => amount
@@ -87,11 +77,9 @@ contract HedgepieInvestor is Ownable {
         require(_amount > 0, "Amount can not be 0");
 
         IBEP20(_token).safeTransferFrom(msg.sender, address(this), _amount);
-
         // for token swap
         IBEP20(_token).safeApprove(pancakeswapRouter, _amount);
 
-        // TODO: strategy handling // should think more
         IYBNFT.Strategy[] memory info = IYBNFT(_nft).getNftStrategy(_tokenId);
         for (uint8 idx = 0; idx < info.length; idx++) {
             IYBNFT.Strategy memory infoItem = info[idx];
@@ -106,11 +94,10 @@ contract HedgepieInvestor is Ownable {
 
             // staking into strategy
             IStrategy(infoItem.stakeAddress).stake(amountOut);
-            userStrategyInfo[_user][infoItem.stakeAddress] = amountOut;
+            userStrategyInfo[_user][infoItem.stakeAddress] += amountOut;
         }
 
-        UserInfo storage user = userInfo[_user][_nft][_tokenId];
-        user.amount = user.amount + _amount;
+        userInfo[_user][_nft][_tokenId] += _amount;
 
         emit Deposit(_user, _nft, _tokenId, _amount);
     }
@@ -128,15 +115,36 @@ contract HedgepieInvestor is Ownable {
         uint256 _tokenId,
         address _token,
         uint256 _amount
-    ) external onlyWhiteListedNft(msg.sender) {
+    ) public onlyWhiteListedNft(msg.sender) {
+        uint256 userAmount = userInfo[_user][_nft][_tokenId];
         require(_amount > 0, "Amount can not be 0");
+        require(userAmount > _amount, "Withdraw: exceeded amount");
 
-        UserInfo storage user = userInfo[_user][_nft][_tokenId];
-        require(user.amount > _amount, "Withdraw: exceeded amount");
+        IYBNFT.Strategy[] memory info = IYBNFT(_nft).getNftStrategy(_tokenId);
+        uint256 amountOut;
+        for (uint8 idx = 0; idx < info.length; idx++) {
+            IYBNFT.Strategy memory infoItem = info[idx];
 
-        IBEP20(_token).safeTransfer(msg.sender, _amount);
+            // get the amount of strategy token to be withdrawn from strategy
+            uint256[] memory amounts = IPancakeRouter(infoItem.stakeAddress)
+                .getAmountsIn(
+                    (_amount * infoItem.percent) / 1e4,
+                    _getPaths(infoItem.swapToken, _token)
+                );
 
-        user.amount = user.amount - _amount;
+            // unstaking into strategy
+            IStrategy(infoItem.stakeAddress).unstake(amounts[0]);
+            userStrategyInfo[_user][infoItem.stakeAddress] -= amounts[0];
+
+            // swapping
+            IBEP20(infoItem.swapToken).safeApprove(
+                pancakeswapRouter,
+                amounts[0]
+            );
+            amountOut += _swapOnPCS(amounts[0], infoItem.swapToken, _token);
+        }
+        IBEP20(_token).safeTransfer(_user, amountOut);
+        userAmount -= _amount;
 
         emit Withdraw(_user, _nft, _tokenId, _amount);
     }
@@ -153,15 +161,10 @@ contract HedgepieInvestor is Ownable {
         uint256 _tokenId,
         address _token
     ) external onlyWhiteListedNft(msg.sender) {
-        UserInfo storage user = userInfo[_user][_nft][_tokenId];
-        require(user.amount > 0, "Withdraw: amount is 0");
+        uint256 userAmount = userInfo[_user][_nft][_tokenId];
+        require(userAmount > 0, "Withdraw: amount is 0");
 
-        IBEP20(_token).safeTransfer(msg.sender, user.amount);
-
-        uint256 amount = user.amount;
-        user.amount = 0;
-
-        emit Withdraw(_user, _nft, _tokenId, amount);
+        withdraw(_user, _nft, _tokenId, _token, userAmount);
     }
 
     // ===== Owner functions =====
@@ -190,12 +193,11 @@ contract HedgepieInvestor is Ownable {
     }
 
     // TODO: ===== internal functions =====
-    function _swapOnPCS(
-        uint256 _amountIn,
-        address _inToken,
-        address _outToken
-    ) internal returns (uint256 amountOut) {
-        address[] memory path;
+    function _getPaths(address _inToken, address _outToken)
+        internal
+        view
+        returns (address[] memory path)
+    {
         if (_outToken == wbnb || _inToken == wbnb) {
             path = new address[](2);
             path[0] = _inToken;
@@ -206,9 +208,17 @@ contract HedgepieInvestor is Ownable {
             path[1] = wbnb;
             path[2] = _outToken;
         }
+    }
 
+    function _swapOnPCS(
+        uint256 _amountIn,
+        address _inToken,
+        address _outToken
+    ) internal returns (uint256 amountOut) {
+        address[] memory path = _getPaths(_inToken, _outToken);
         uint256[] memory amounts = IPancakeRouter(pancakeswapRouter)
             .swapExactTokensForTokens(_amountIn, 0, path, address(this), 1200);
+
         amountOut = amounts[amounts.length - 1];
     }
 }
