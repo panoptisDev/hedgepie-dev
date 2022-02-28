@@ -4,12 +4,11 @@ pragma solidity ^0.8.4;
 import "./interfaces/IPancakeRouter.sol";
 import "./interfaces/IYBNFT.sol";
 import "./interfaces/IHedgepieInvestor.sol";
-
 import "./libraries/Ownable.sol";
 import "./libraries/SafeMath.sol";
 import "./libraries/SafeBEP20.sol";
-
 import "./type/BEP721.sol";
+
 
 contract YBNFT is BEP721, IYBNFT, Ownable {
     using SafeMath for uint256;
@@ -28,6 +27,8 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
     mapping(address => bool) public allowedToken;
     // tokenId => strategy[]
     mapping(uint256 => Strategy[]) public nftStrategy;
+    // tokenId => performanceFee
+    mapping(uint256 => uint256) public performanceFee;
 
     event Mint(address indexed user, uint256 indexed tokenId);
 
@@ -67,7 +68,8 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
     function mint(
         uint256[] calldata _swapPercent,
         address[] calldata _swapToken,
-        address[] calldata _stakeAddress
+        address[] calldata _stakeAddress,
+        uint256 _performanceFee
     ) external onlyOwner {
         require(
             _swapToken.length > 0 &&
@@ -83,6 +85,9 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
 
         // set strategy
         _setStrategy(tokenIdPointer, _swapPercent, _swapToken, _stakeAddress);
+
+        // set performance fee
+        performanceFee[tokenIdPointer] = _performanceFee;
 
         emit Mint(address(this), tokenIdPointer);
     }
@@ -191,6 +196,6 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
             totalPercent = totalPercent + _swapPercent[idx];
         }
 
-        return 1e4 - totalPercent == 0;
+        return totalPercent <= 1e4;
     }
 }
