@@ -9,7 +9,6 @@ import "./libraries/SafeMath.sol";
 import "./libraries/SafeBEP20.sol";
 import "./type/BEP721.sol";
 
-
 contract YBNFT is BEP721, IYBNFT, Ownable {
     using SafeMath for uint256;
     using SafeBEP20 for IBEP20;
@@ -158,6 +157,7 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
     ) internal {
         IBEP20(_token).safeTransferFrom(msg.sender, address(this), _amount);
         IHedgepieInvestor(investor).deposit(
+            msg.sender,
             address(this),
             _tokenId,
             _token,
@@ -171,6 +171,7 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         uint256 _amount
     ) internal {
         IHedgepieInvestor(investor).withdraw(
+            msg.sender,
             address(this),
             _tokenId,
             _token,
@@ -180,6 +181,7 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
 
     function _withdrawAll(uint256 _tokenId, address _token) internal {
         IHedgepieInvestor(investor).withdrawAll(
+            msg.sender,
             address(this),
             _tokenId,
             _token
