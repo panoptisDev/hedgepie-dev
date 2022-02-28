@@ -208,7 +208,7 @@ contract HedgepieInvestor is Ownable {
         }
 
         uint256[] memory amounts = IPancakeRouter(pancakeswapRouter)
-            .swapExactTokensForTokens(_amountIn, 0, path, address(this), 0);
+            .swapExactTokensForTokens(_amountIn, 0, path, address(this), 1200);
         amountOut = amounts[amounts.length - 1];
     }
 }
