@@ -1,14 +1,14 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.7.5;
 
-import "../interfaces/IBEP721.sol";
-import "../interfaces/IBEP721Metadata.sol";
+import "../interfaces/IERC721.sol";
+import "../interfaces/IERC721Metadata.sol";
 import "../libraries/Context.sol";
 import "../libraries/Strings.sol";
 import "../libraries/Address.sol";
-import "./BEP165.sol";
+import "./ERC165.sol";
 
-contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
+contract ERC721 is Context, ERC165, IERC721, IERC721Metadata {
     using Address for address;
     using Strings for uint256;
 
@@ -39,51 +39,51 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
     }
 
     /**
-     * @dev See {IBEP165-supportsInterface}.
+     * @dev See {IERC165-supportsInterface}.
      */
-    function supportsInterface(bytes4 interfaceId) public view virtual override(BEP165, IBEP165) returns (bool) {
+    function supportsInterface(bytes4 interfaceId) public view virtual override(ERC165, IERC165) returns (bool) {
         return
-            interfaceId == type(IBEP721).interfaceId ||
-            interfaceId == type(IBEP721Metadata).interfaceId ||
+            interfaceId == type(IERC721).interfaceId ||
+            interfaceId == type(IERC721Metadata).interfaceId ||
             super.supportsInterface(interfaceId);
     }
 
     /**
-     * @dev See {IBEP721-balanceOf}.
+     * @dev See {IERC721-balanceOf}.
      */
     function balanceOf(address owner) public view virtual override returns (uint256) {
-        require(owner != address(0), "BEP721: balance query for the zero address");
+        require(owner != address(0), "ERC721: balance query for the zero address");
         return _balances[owner];
     }
 
     /**
-     * @dev See {IBEP721-ownerOf}.
+     * @dev See {IERC721-ownerOf}.
      */
     function ownerOf(uint256 tokenId) public view virtual override returns (address) {
         address owner = _owners[tokenId];
-        require(owner != address(0), "BEP721: owner query for nonexistent token");
+        require(owner != address(0), "ERC721: owner query for nonexistent token");
         return owner;
     }
 
     /**
-     * @dev See {IBEP721Metadata-name}.
+     * @dev See {IERC721Metadata-name}.
      */
     function name() public view virtual override returns (string memory) {
         return _name;
     }
 
     /**
-     * @dev See {IBEP721Metadata-symbol}.
+     * @dev See {IERC721Metadata-symbol}.
      */
     function symbol() public view virtual override returns (string memory) {
         return _symbol;
     }
 
     /**
-     * @dev See {IBEP721Metadata-tokenURI}.
+     * @dev See {IERC721Metadata-tokenURI}.
      */
     function tokenURI(uint256 tokenId) public view virtual override returns (string memory) {
-        require(_exists(tokenId), "BEP721Metadata: URI query for nonexistent token");
+        require(_exists(tokenId), "ERC721Metadata: URI query for nonexistent token");
 
         string memory baseURI = _baseURI();
         return bytes(baseURI).length > 0 ? string(abi.encodePacked(baseURI, tokenId.toString())) : "";
@@ -99,45 +99,45 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
     }
 
     /**
-     * @dev See {IBEP721-approve}.
+     * @dev See {IERC721-approve}.
      */
     function approve(address to, uint256 tokenId) public virtual override {
-        address owner = BEP721.ownerOf(tokenId);
-        require(to != owner, "BEP721: approval to current owner");
+        address owner = ERC721.ownerOf(tokenId);
+        require(to != owner, "ERC721: approval to current owner");
 
         require(
             _msgSender() == owner || isApprovedForAll(owner, _msgSender()),
-            "BEP721: approve caller is not owner nor approved for all"
+            "ERC721: approve caller is not owner nor approved for all"
         );
 
         _approve(to, tokenId);
     }
 
     /**
-     * @dev See {IBEP721-getApproved}.
+     * @dev See {IERC721-getApproved}.
      */
     function getApproved(uint256 tokenId) public view virtual override returns (address) {
-        require(_exists(tokenId), "BEP721: approved query for nonexistent token");
+        require(_exists(tokenId), "ERC721: approved query for nonexistent token");
 
         return _tokenApprovals[tokenId];
     }
 
     /**
-     * @dev See {IBEP721-setApprovalForAll}.
+     * @dev See {IERC721-setApprovalForAll}.
      */
     function setApprovalForAll(address operator, bool approved) public virtual override {
         _setApprovalForAll(_msgSender(), operator, approved);
     }
 
     /**
-     * @dev See {IBEP721-isApprovedForAll}.
+     * @dev See {IERC721-isApprovedForAll}.
      */
     function isApprovedForAll(address owner, address operator) public view virtual override returns (bool) {
         return _operatorApprovals[owner][operator];
     }
 
     /**
-     * @dev See {IBEP721-transferFrom}.
+     * @dev See {IERC721-transferFrom}.
      */
     function transferFrom(
         address from,
@@ -145,13 +145,13 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
         uint256 tokenId
     ) public virtual override {
         //solhint-disable-next-line max-line-length
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "BEP721: transfer caller is not owner nor approved");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
 
         _transfer(from, to, tokenId);
     }
 
     /**
-     * @dev See {IBEP721-safeTransferFrom}.
+     * @dev See {IERC721-safeTransferFrom}.
      */
     function safeTransferFrom(
         address from,
@@ -162,7 +162,7 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
     }
 
     /**
-     * @dev See {IBEP721-safeTransferFrom}.
+     * @dev See {IERC721-safeTransferFrom}.
      */
     function safeTransferFrom(
         address from,
@@ -170,13 +170,13 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
         uint256 tokenId,
         bytes memory _data
     ) public virtual override {
-        require(_isApprovedOrOwner(_msgSender(), tokenId), "BEP721: transfer caller is not owner nor approved");
+        require(_isApprovedOrOwner(_msgSender(), tokenId), "ERC721: transfer caller is not owner nor approved");
         _safeTransfer(from, to, tokenId, _data);
     }
 
     /**
      * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
-     * are aware of the BEP721 protocol to prevent tokens from being forever locked.
+     * are aware of the ERC721 protocol to prevent tokens from being forever locked.
      *
      * `_data` is additional data, it has no specified format and it is sent in call to `to`.
      *
@@ -188,7 +188,7 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
      * - `from` cannot be the zero address.
      * - `to` cannot be the zero address.
      * - `tokenId` token must exist and be owned by `from`.
-     * - If `to` refers to a smart contract, it must implement {IBEP721Receiver-onBEP721Received}, which is called upon a safe transfer.
+     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
      *
      * Emits a {Transfer} event.
      */
@@ -199,7 +199,7 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
         bytes memory _data
     ) internal virtual {
         _transfer(from, to, tokenId);
-        require(_checkOnBEP721Received(from, to, tokenId, _data), "BEP721: transfer to non BEP721Receiver implementer");
+        require(_checkOnERC721Received(from, to, tokenId, _data), "ERC721: transfer to non ERC721Receiver implementer");
     }
 
     /**
@@ -222,8 +222,8 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
      * - `tokenId` must exist.
      */
     function _isApprovedOrOwner(address spender, uint256 tokenId) internal view virtual returns (bool) {
-        require(_exists(tokenId), "BEP721: operator query for nonexistent token");
-        address owner = BEP721.ownerOf(tokenId);
+        require(_exists(tokenId), "ERC721: operator query for nonexistent token");
+        address owner = ERC721.ownerOf(tokenId);
         return (spender == owner || getApproved(tokenId) == spender || isApprovedForAll(owner, spender));
     }
 
@@ -233,7 +233,7 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
      * Requirements:
      *
      * - `tokenId` must not exist.
-     * - If `to` refers to a smart contract, it must implement {IBEP721Receiver-onBEP721Received}, which is called upon a safe transfer.
+     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
      *
      * Emits a {Transfer} event.
      */
@@ -242,8 +242,8 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
     }
 
     /**
-     * @dev Same as {xref-BEP721-_safeMint-address-uint256-}[`_safeMint`], with an additional `data` parameter which is
-     * forwarded in {IBEP721Receiver-onBEP721Received} to contract recipients.
+     * @dev Same as {xref-ERC721-_safeMint-address-uint256-}[`_safeMint`], with an additional `data` parameter which is
+     * forwarded in {IERC721Receiver-onERC721Received} to contract recipients.
      */
     function _safeMint(
         address to,
@@ -252,8 +252,8 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
     ) internal virtual {
         _mint(to, tokenId);
         require(
-            _checkOnBEP721Received(address(0), to, tokenId, _data),
-            "BEP721: transfer to non BEP721Receiver implementer"
+            _checkOnERC721Received(address(0), to, tokenId, _data),
+            "ERC721: transfer to non ERC721Receiver implementer"
         );
     }
 
@@ -270,8 +270,8 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
      * Emits a {Transfer} event.
      */
     function _mint(address to, uint256 tokenId) internal virtual {
-        require(to != address(0), "BEP721: mint to the zero address");
-        require(!_exists(tokenId), "BEP721: token already minted");
+        require(to != address(0), "ERC721: mint to the zero address");
+        require(!_exists(tokenId), "ERC721: token already minted");
 
         _beforeTokenTransfer(address(0), to, tokenId);
 
@@ -294,7 +294,7 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
      * Emits a {Transfer} event.
      */
     function _burn(uint256 tokenId) internal virtual {
-        address owner = BEP721.ownerOf(tokenId);
+        address owner = ERC721.ownerOf(tokenId);
 
         _beforeTokenTransfer(owner, address(0), tokenId);
 
@@ -325,8 +325,8 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
         address to,
         uint256 tokenId
     ) internal virtual {
-        require(BEP721.ownerOf(tokenId) == from, "BEP721: transfer from incorrect owner");
-        require(to != address(0), "BEP721: transfer to the zero address");
+        require(ERC721.ownerOf(tokenId) == from, "ERC721: transfer from incorrect owner");
+        require(to != address(0), "ERC721: transfer to the zero address");
 
         _beforeTokenTransfer(from, to, tokenId);
 
@@ -349,7 +349,7 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
      */
     function _approve(address to, uint256 tokenId) internal virtual {
         _tokenApprovals[tokenId] = to;
-        emit Approval(BEP721.ownerOf(tokenId), to, tokenId);
+        emit Approval(ERC721.ownerOf(tokenId), to, tokenId);
     }
 
     /**
@@ -362,13 +362,13 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
         address operator,
         bool approved
     ) internal virtual {
-        require(owner != operator, "BEP721: approve to caller");
+        require(owner != operator, "ERC721: approve to caller");
         _operatorApprovals[owner][operator] = approved;
         emit ApprovalForAll(owner, operator, approved);
     }
 
     /**
-     * @dev Internal function to invoke {IBEP721Receiver-onBEP721Received} on a target address.
+     * @dev Internal function to invoke {IERC721Receiver-onERC721Received} on a target address.
      * The call is not executed if the target address is not a contract.
      *
      * @param from address representing the previous owner of the given token ID
@@ -377,18 +377,18 @@ contract BEP721 is Context, BEP165, IBEP721, IBEP721Metadata {
      * @param _data bytes optional data to send along with the call
      * @return bool whether the call correctly returned the expected magic value
      */
-    function _checkOnBEP721Received(
+    function _checkOnERC721Received(
         address from,
         address to,
         uint256 tokenId,
         bytes memory _data
     ) private returns (bool) {
         if (to.isContract()) {
-            try IBEP721Receiver(to).onBEP721Received(_msgSender(), from, tokenId, _data) returns (bytes4 retval) {
-                return retval == IBEP721Receiver.onBEP721Received.selector;
+            try IERC721Receiver(to).onERC721Received(_msgSender(), from, tokenId, _data) returns (bytes4 retval) {
+                return retval == IERC721Receiver.onERC721Received.selector;
             } catch (bytes memory reason) {
                 if (reason.length == 0) {
-                    revert("BEP721: transfer to non BEP721Receiver implementer");
+                    revert("ERC721: transfer to non ERC721Receiver implementer");
                 } else {
                     assembly {
                         revert(add(32, reason), mload(reason))

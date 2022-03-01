@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: None
 pragma solidity ^0.7.5;
 
-import "./IBEP165.sol";
+import "./IERC165.sol";
 
 /**
- * @dev Required interface of an BEP721 compliant contract.
+ * @dev Required interface of an ERC721 compliant contract.
  */
-interface IBEP721 is IBEP165 {
+interface IERC721 is IERC165 {
     /**
      * @dev Emitted when `tokenId` token is transferred from `from` to `to`.
      */
@@ -38,7 +38,7 @@ interface IBEP721 is IBEP165 {
 
     /**
      * @dev Safely transfers `tokenId` token from `from` to `to`, checking first that contract recipients
-     * are aware of the BEP721 protocol to prevent tokens from being forever locked.
+     * are aware of the ERC721 protocol to prevent tokens from being forever locked.
      *
      * Requirements:
      *
@@ -46,7 +46,7 @@ interface IBEP721 is IBEP165 {
      * - `to` cannot be the zero address.
      * - `tokenId` token must exist and be owned by `from`.
      * - If the caller is not `from`, it must be have been allowed to move this token by either {approve} or {setApprovalForAll}.
-     * - If `to` refers to a smart contract, it must implement {IBEP721Receiver-onBEP721Received}, which is called upon a safe transfer.
+     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
      *
      * Emits a {Transfer} event.
      */
@@ -128,7 +128,7 @@ interface IBEP721 is IBEP165 {
      * - `to` cannot be the zero address.
      * - `tokenId` token must exist and be owned by `from`.
      * - If the caller is not `from`, it must be approved to move this token by either {approve} or {setApprovalForAll}.
-     * - If `to` refers to a smart contract, it must implement {IBEP721Receiver-onBEP721Received}, which is called upon a safe transfer.
+     * - If `to` refers to a smart contract, it must implement {IERC721Receiver-onERC721Received}, which is called upon a safe transfer.
      *
      * Emits a {Transfer} event.
      */

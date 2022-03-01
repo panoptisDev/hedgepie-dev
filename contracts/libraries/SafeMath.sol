@@ -45,6 +45,19 @@ library SafeMath {
         return c;
     }
 
+    function mod(uint256 a, uint256 b) internal pure returns (uint256) {
+        return mod(a, b, "SafeMath: mod by zero");
+    }
+
+    function mod(
+        uint256 a,
+        uint256 b,
+        string memory errorMessage
+    ) internal pure returns (uint256) {
+        require(b > 0, errorMessage);
+        return a % b;
+    }
+
     // Only used in the  BondingCalculator.sol
     function sqrrt(uint256 a) internal pure returns (uint c) {
         if (a > 3) {

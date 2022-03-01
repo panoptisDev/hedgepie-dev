@@ -6,14 +6,15 @@ import "./interfaces/IPancakeRouter.sol";
 import "./libraries/Ownable.sol";
 import "./libraries/SafeMath.sol";
 import "./libraries/SafeBEP20.sol";
-import "./type/BEP721.sol";
+import "./type/ERC721.sol";
 
-contract YBNFT is BEP721, Ownable {
+contract YBNFT is ERC721, Ownable {
     using SafeMath for uint;
     using SafeBEP20 for IBEP20;
 
     address public immutable Lottery;
     address public immutable Treasury;
+    address public immutable Distributor;
 
     // these addresses are for testing
     address public constant WBNB = 0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd;
@@ -39,13 +40,16 @@ contract YBNFT is BEP721, Ownable {
 
     constructor(
         address _lottery,
-        address _treasury
-    ) BEP721("Hedgepie YBNFT", "YBNFT") {
+        address _treasury,
+        address _distributor
+    ) ERC721("Hedgepie YBNFT", "YBNFT") {
         require(_lottery != address(0));
         require(_treasury != address(0));
+        require(_distributor != address(0));
 
         Lottery = _lottery;
         Treasury = _treasury;
+        Distributor = _distributor;
     }
 
     function manageToken(
@@ -164,7 +168,7 @@ contract YBNFT is BEP721, Ownable {
         uint amount,
         address token
     ) external returns(bool) {
-        require(_exists(tokenId), "BEP721: NFT not exist");
+        require(_exists(tokenId), "ERC721: NFT not exist");
         require(amount > 0);
         require(AllowedToken[token], "Not allowed token");
 

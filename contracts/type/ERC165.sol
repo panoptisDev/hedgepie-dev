@@ -1,12 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.7.5;
 
-import "../interfaces/IBEP165.sol";
+import "../interfaces/IERC165.sol";
 
 /**
- * @dev Implementation of the {IBEP165} interface.
+ * @dev Implementation of the {IERC165} interface.
  *
- * Contracts that want to implement BEP165 should inherit from this contract and override {supportsInterface} to check
+ * Contracts that want to implement ERC165 should inherit from this contract and override {supportsInterface} to check
  * for the additional interface id that will be supported. For example:
  *
  * ```solidity
@@ -15,13 +15,13 @@ import "../interfaces/IBEP165.sol";
  * }
  * ```
  *
- * Alternatively, {BEP165Storage} provides an easier to use but more expensive implementation.
+ * Alternatively, {ERC165Storage} provides an easier to use but more expensive implementation.
  */
-abstract contract BEP165 is IBEP165 {
+abstract contract ERC165 is IERC165 {
     /**
-     * @dev See {IBEP165-supportsInterface}.
+     * @dev See {IERC165-supportsInterface}.
      */
     function supportsInterface(bytes4 interfaceId) public view virtual override returns (bool) {
-        return interfaceId == type(IBEP165).interfaceId;
+        return interfaceId == type(IERC165).interfaceId;
     }
 }
