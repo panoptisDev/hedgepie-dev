@@ -8,7 +8,7 @@ import "./libraries/SafeMath.sol";
 import "./libraries/SafeBEP20.sol";
 import "./type/ERC721.sol";
 
-contract YBNFT is ERC721, Ownable {
+contract HedgepieYBNFT is ERC721, Ownable {
     using SafeMath for uint;
     using SafeBEP20 for IBEP20;
 
