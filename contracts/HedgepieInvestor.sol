@@ -7,6 +7,7 @@ import "./libraries/Ownable.sol";
 import "./interfaces/IYBNFT.sol";
 import "./interfaces/IPancakeRouter.sol";
 import "./interfaces/IStrategy.sol";
+import "./interfaces/IStrategyManager.sol";
 
 contract HedgepieInvestor is Ownable {
     using SafeBEP20 for IBEP20;
@@ -26,6 +27,9 @@ contract HedgepieInvestor is Ownable {
     // pancakeswap router address
     address public pancakeswapRouter;
 
+    // strategy manager
+    address public strategyManager;
+
     event Deposit(
         address indexed user,
         address nft,
@@ -40,6 +44,7 @@ contract HedgepieInvestor is Ownable {
     );
     event NftListed(address indexed user, address nft);
     event NftDeListed(address indexed user, address nft);
+    event StrategyManagerChanged(address indexed user, address strategyManager);
 
     /**
      * @notice construct
@@ -93,8 +98,13 @@ contract HedgepieInvestor is Ownable {
             );
 
             // staking into strategy
-            IStrategy(infoItem.stakeAddress).stake(amountOut);
-            userStrategyInfo[_user][infoItem.stakeAddress] += amountOut;
+            IBEP20(_token).safeApprove(infoItem.strategyAddress, _amount);
+            IStrategyManager(strategyManager).deposit(
+                infoItem.strategyAddress,
+                amountOut
+            );
+
+            userStrategyInfo[_user][infoItem.strategyAddress] += amountOut;
         }
 
         userInfo[_user][_nft][_tokenId] += _amount;
@@ -110,6 +120,7 @@ contract HedgepieInvestor is Ownable {
      * @param _token  token address
      * @param _amount  token amount
      */
+
     function withdraw(
         address _user,
         address _nft,
@@ -127,15 +138,15 @@ contract HedgepieInvestor is Ownable {
             IYBNFT.Strategy memory infoItem = info[idx];
 
             // get the amount of strategy token to be withdrawn from strategy
-            uint256[] memory amounts = IPancakeRouter(infoItem.stakeAddress)
+            uint256[] memory amounts = IPancakeRouter(infoItem.strategyAddress)
                 .getAmountsIn(
                     (_amount * infoItem.percent) / 1e4,
                     _getPaths(infoItem.swapToken, _token)
                 );
 
             // unstaking into strategy
-            IStrategy(infoItem.stakeAddress).unstake(amounts[0]);
-            userStrategyInfo[_user][infoItem.stakeAddress] -= amounts[0];
+            IStrategy(infoItem.strategyAddress).withdraw(amounts[0]);
+            userStrategyInfo[_user][infoItem.strategyAddress] -= amounts[0];
 
             // swapping
             IBEP20(infoItem.swapToken).safeApprove(
@@ -192,6 +203,18 @@ contract HedgepieInvestor is Ownable {
         nftWhiteList[_nft] = false;
 
         emit NftDeListed(msg.sender, _nft);
+    }
+
+    /**
+     * @notice Set strategy manager contract
+     * @param _strategyManager  nft address
+     */
+    function setStrategyManager(address _strategyManager) external onlyOwner {
+        require(_strategyManager != address(0), "Invalid NFT address");
+
+        strategyManager = _strategyManager;
+
+        emit StrategyManagerChanged(msg.sender, _strategyManager);
     }
 
     // ===== internal functions =====

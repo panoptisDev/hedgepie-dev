@@ -5,7 +5,7 @@ interface IYBNFT {
     struct Strategy {
         uint256 percent;
         address swapToken;
-        address stakeAddress;
+        address strategyAddress;
     }
 
     function getNftStrategy(uint256) external returns (Strategy[] memory);

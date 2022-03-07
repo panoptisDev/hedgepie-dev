@@ -25,7 +25,7 @@ describe('YBNFT contract test:', () => {
   let swapPercent;
   // TODO: should be changed to token address
   let swapToken;
-  let stakeAddress;
+  let strategyAddress;
 
   let availableTokens = [wbnb];
 
@@ -50,7 +50,7 @@ describe('YBNFT contract test:', () => {
     swapPercent = [10000];
     // TODO: should be changed to token address
     swapToken = [investor.address];
-    stakeAddress = [investor.address];
+    strategyAddress = [investor.address];
   });
 
   describe('setInvestor function test', () => {
@@ -74,23 +74,23 @@ describe('YBNFT contract test:', () => {
 
   describe('mint function test', () => {
     it('should be failed when caller is not owner', async () => {
-      await expect(ybNft.connect(account1).mint(swapPercent, swapToken, stakeAddress)).to.be.revertedWith(
+      await expect(ybNft.connect(account1).mint(swapPercent, swapToken, strategyAddress)).to.be.revertedWith(
         'Ownable: caller is not the owner'
       );
     });
 
     it('should be failed when swapPercent is incorrect (over 10000)', async () => {
-      await expect(ybNft.connect(owner).mint([10500], swapToken, stakeAddress)).to.be.revertedWith(
+      await expect(ybNft.connect(owner).mint([10500], swapToken, strategyAddress)).to.be.revertedWith(
         'Incorrect swap percent'
       );
     });
 
     it('should be succeeded when caller is owner', async () => {
-      await ybNft.connect(owner).mint(swapPercent, swapToken, stakeAddress);
+      await ybNft.connect(owner).mint(swapPercent, swapToken, strategyAddress);
     });
 
     it('should have Mint event when succeeded', async () => {
-      const tx = await ybNft.connect(owner).mint(swapPercent, swapToken, stakeAddress);
+      const tx = await ybNft.connect(owner).mint(swapPercent, swapToken, strategyAddress);
       const { events } = await tx.wait()
 
       const mintEvent = events.find((x) => { return x.event == "Mint" });
@@ -99,7 +99,7 @@ describe('YBNFT contract test:', () => {
     });
 
     it('should mint to owner', async () => {
-      const tx = await ybNft.connect(owner).mint(swapPercent, swapToken, stakeAddress);
+      const tx = await ybNft.connect(owner).mint(swapPercent, swapToken, strategyAddress);
       const { events } = await tx.wait()
       const { args } = events.find((x) => { return x.event == "Mint" });
       const tokenId = String(args[1])
@@ -109,7 +109,7 @@ describe('YBNFT contract test:', () => {
     });
 
     it('should set nftStrategy data', async () => {
-      const tx = await ybNft.connect(owner).mint(swapPercent, swapToken, stakeAddress);
+      const tx = await ybNft.connect(owner).mint(swapPercent, swapToken, strategyAddress);
       const { events } = await tx.wait()
       const { args } = events.find((x) => { return x.event == "Mint" });
 
@@ -121,7 +121,7 @@ describe('YBNFT contract test:', () => {
 
         expect(String(nftStrategy[0])).to.be.equal(String(swapPercent[index]))
         expect(nftStrategy[1]).to.be.equal(swapToken[index])
-        expect(nftStrategy[2]).to.be.equal(stakeAddress[index])
+        expect(nftStrategy[2]).to.be.equal(strategyAddress[index])
       }
     });
   });

@@ -67,13 +67,13 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
     function mint(
         uint256[] calldata _swapPercent,
         address[] calldata _swapToken,
-        address[] calldata _stakeAddress,
+        address[] calldata _strategyAddress,
         uint256 _performanceFee
     ) external onlyOwner {
         require(
             _swapToken.length > 0 &&
                 _swapToken.length == _swapPercent.length &&
-                _swapToken.length == _stakeAddress.length,
+                _swapToken.length == _strategyAddress.length,
             "Mismatched strategies"
         );
         require(_checkPercent(_swapPercent), "Incorrect swap percent");
@@ -83,7 +83,12 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         _safeMint(msg.sender, tokenIdPointer);
 
         // set strategy
-        _setStrategy(tokenIdPointer, _swapPercent, _swapToken, _stakeAddress);
+        _setStrategy(
+            tokenIdPointer,
+            _swapPercent,
+            _swapToken,
+            _strategyAddress
+        );
 
         // set performance fee
         performanceFee[tokenIdPointer] = _performanceFee;
@@ -137,14 +142,14 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         uint256 _tokenId,
         uint256[] calldata _swapPercent,
         address[] calldata _swapToken,
-        address[] calldata _stakeAddress
+        address[] calldata _strategyAddress
     ) internal {
         for (uint8 idx = 0; idx < _swapToken.length; idx++) {
             nftStrategy[_tokenId].push(
                 Strategy({
                     percent: _swapPercent[idx],
                     swapToken: _swapToken[idx],
-                    stakeAddress: _stakeAddress[idx]
+                    strategyAddress: _strategyAddress[idx]
                 })
             );
         }
