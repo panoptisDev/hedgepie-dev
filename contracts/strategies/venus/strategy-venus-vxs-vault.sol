@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import "../strategy-venus-vault-base.sol";
 
-contract StrategyVenusVXSVault is StrategyVenusVaultBase {
+contract StrategyVenusXVSVault is StrategyVenusVaultBase {
     constructor(
         address _stakingToken,
         address _rewardToken,
