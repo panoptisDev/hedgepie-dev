@@ -1,6 +1,5 @@
 import React from "react"
 import { Box, Button, Card, Flex, Text } from "theme-ui"
-import { HPConnectWalletButton } from "widgets/HPConnectWalletButton"
 
 type Props = {}
 
@@ -10,30 +9,45 @@ const Leaderboard = (props: Props) => {
       <Flex css={{ alignItems: "center", justifyContent: "center" }}>
         <Card
           css={{
-            backgroundColor: "#FFFFFF",
+            backgroundColor: "#F2F9FE",
+            background:
+              "linear-gradient(132deg, rgba(249,216,230,1) 0%, #F2F9FE 17%, #F2F9FE 87%, rgba(181,228,237,1) 100%)",
             width: "70rem",
-            borderRadius: "50px",
-            border: "1px solid blue"
+            borderRadius: "50px"
           }}
         >
           <Box p={4}>
-            <Flex css={{ alignItems: "center", justifyContent: "center", width: "100%" }}>
+            <Flex css={{ flexDirection: "column", width: "100%", gap: "10px" }}>
+              <Text
+                css={{
+                  fontFamily: "Noto Sans",
+                  fontStyle: "bold",
+                  fontWeight: "800",
+                  fontSize: "60px",
+                  lineHeight: "75px",
+                  color: "#16103A",
+                  marginLeft: "50px"
+                }}
+              >
+                Hedge Pie Leaderboard.
+              </Text>
               <Text
                 css={{
                   fontFamily: "Noto Sans",
                   fontStyle: "normal",
                   fontWeight: "bold",
-                  fontSize: "42px",
-                  lineHeight: "100%",
-                  color: "#16103A",
-                  marginLeft: "50px"
+                  fontSize: "20px",
+                  lineHeight: "10px",
+                  color: "#8E8DA0",
+                  marginLeft: "50px",
+                  letterSpacing: "10px"
                 }}
               >
-                Hedge Pie Leaderboard
+                YOU DESERVE THE BEST
               </Text>
-              <div style={{ marginLeft: "auto" }}>
+              {/* <div style={{ marginLeft: "auto" }}>
                 <HPConnectWalletButton />
-              </div>
+              </div> */}
             </Flex>
             <Flex css={{ alignItems: "center", justifyContent: "center" }}>
               <table

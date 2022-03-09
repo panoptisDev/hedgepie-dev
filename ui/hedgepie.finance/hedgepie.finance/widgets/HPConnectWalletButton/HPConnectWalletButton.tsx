@@ -27,7 +27,8 @@ const HPConnectWalletButton = (props: Props) => {
             ":hover": {
               border: "2px solid rgb(157 83 182)",
               color: "rgb(157 83 182)"
-            }
+            },
+            boxShadow: "0px 20px 40px 0px rgba(23, 153, 222, 0.2)"
           }}
         >
           Connect Wallet →

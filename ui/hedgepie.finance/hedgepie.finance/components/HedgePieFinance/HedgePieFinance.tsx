@@ -7,7 +7,7 @@ import { ThemeProvider } from "theme-ui"
 
 import { Header } from "components/Header"
 import { TitleMast } from "components/TitleMast"
-// import { Footer } from "components/Footer"
+import { Footer } from "components/Footer"
 
 type Props = { title?: string; children?: ReactNode }
 
@@ -23,7 +23,7 @@ const HedgePieFinance = (props: Props) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       {children}
-      {/* <Footer /> */}
+      <Footer />
     </ThemeProvider>
   )
 }

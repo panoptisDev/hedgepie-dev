@@ -12,7 +12,7 @@ const providerOptions = {
   }
 }
 
-type Props = { children: ReactNode }
+type Props = { children?: ReactNode }
 
 export const ConnectWallet = (props: Props) => {
   const { children } = props

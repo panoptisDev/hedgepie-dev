@@ -1,5 +1,5 @@
 import React from "react"
-import { ConnectWallet } from "components/ConnectWallet"
+import { HPConnectWalletButton } from "widgets/HPConnectWalletButton"
 import { Flex, NavLink } from "theme-ui"
 import { useRouter } from "next/router"
 
@@ -10,7 +10,7 @@ type Props = {}
 const NavBar = (props: Props) => {
   const router = useRouter()
   return (
-    <Flex as="nav" sx={themeStyles.nav_wrapper}>
+    <Flex as="nav" sx={themeStyles.nav_wrapper} css={{ alignItems: "center" }}>
       <NavLink
         onClick={() => {
           router.push("/vault")
@@ -25,7 +25,7 @@ const NavBar = (props: Props) => {
         }}
         sx={themeStyles.nav}
       >
-        View History
+        Leaderboard
       </NavLink>
       <NavLink
         onClick={() => {
@@ -33,9 +33,17 @@ const NavBar = (props: Props) => {
         }}
         sx={themeStyles.nav}
       >
-        Collections
+        Lottery
       </NavLink>
-      <ConnectWallet />
+      <NavLink
+        onClick={() => {
+          router.push("/details")
+        }}
+        sx={themeStyles.nav}
+      >
+        Mint
+      </NavLink>
+      <HPConnectWalletButton />
     </Flex>
   )
 }

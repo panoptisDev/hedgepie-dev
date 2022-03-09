@@ -34,31 +34,55 @@ const DrawCountdown = (props: Props) => {
     } else {
       // Render a countdown
       return (
-        <Flex css={{ gap: "1rem" }}>
+        <Flex
+          css={{
+            flexDirection: "column",
+            gap: "30px",
+            alignItems: "center",
+            justifyContent: "center"
+          }}
+        >
+          <Flex css={{ gap: "1rem" }}>
+            <Text
+              css={{
+                fontFamily: "Noto Sans",
+                fontStyle: "normal",
+                fontWeight: "bold",
+                fontSize: "40px",
+                lineHeight: "150%",
+                textAlign: "center",
+                color: "#DF4886"
+              }}
+            >
+              {displayString}
+            </Text>
+            <Text
+              css={{
+                fontFamily: "Noto Sans",
+                fontStyle: "normal",
+                fontWeight: "bold",
+                fontSize: "40px",
+                lineHeight: "150%",
+                textAlign: "center"
+              }}
+            >
+              Until Next Draw
+            </Text>
+          </Flex>
           <Text
             css={{
               fontFamily: "Noto Sans",
               fontStyle: "normal",
               fontWeight: "bold",
-              fontSize: "40px",
-              lineHeight: "150%",
-              textAlign: "center",
-              color: "#DF4886"
+              fontSize: "16px",
+              lineHeight: "10px",
+              color: "#8E8DA0",
+              marginLeft: "50px",
+              letterSpacing: "10px",
+              marginTop: "-20px"
             }}
           >
-            {displayString}
-          </Text>
-          <Text
-            css={{
-              fontFamily: "Noto Sans",
-              fontStyle: "normal",
-              fontWeight: "bold",
-              fontSize: "40px",
-              lineHeight: "150%",
-              textAlign: "center"
-            }}
-          >
-            Until Next Draw
+            THERE&apos;S STILL TIME
           </Text>
         </Flex>
       )

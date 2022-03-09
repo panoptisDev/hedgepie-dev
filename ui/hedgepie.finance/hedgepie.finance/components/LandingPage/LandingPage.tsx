@@ -7,6 +7,7 @@ import { theme } from "themes/theme"
 import Banner from "./Banner"
 import Steps from "./Steps"
 import DrawCountdown from "./DrawCountdown"
+import YBNFTDescription from "./YBNFTDescription"
 import Leaderboard from "./Leaderboard"
 import FinishedRounds from "./FinishedRounds"
 import StakeToWin from "./StakeToWin"
@@ -19,8 +20,9 @@ const LandingPage = (props: Props) => {
     <ThemeProvider theme={theme}>
       <Banner />
       <Steps />
-      <DrawCountdown />
       <Leaderboard />
+      <DrawCountdown />
+      <YBNFTDescription />
       <FinishedRounds />
       <StakeToWin />
       <CollectWinnings />

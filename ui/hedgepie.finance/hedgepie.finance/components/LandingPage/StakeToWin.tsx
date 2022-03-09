@@ -7,7 +7,15 @@ type Props = {}
 const StakeToWin = (props: Props) => {
   return (
     <Box p={3} css={{ border: "1px solid black", paddingTop: "4rem", paddingBottom: "6rem" }}>
-      <Flex css={{ paddingLeft: "10rem", paddingRight: "10rem", alignItems: "center" }}>
+      <Flex
+        css={{
+          paddingLeft: "10rem",
+          paddingRight: "10rem",
+          alignItems: "center",
+          width: "90%",
+          gap: "50px"
+        }}
+      >
         <Flex css={{ alignItems: "center", justifyContent: "center", width: "150rem" }}>
           <Image src="images/piebear.png" />
         </Flex>
@@ -21,7 +29,7 @@ const StakeToWin = (props: Props) => {
               lineHeight: "150%"
             }}
           >
-            <Text>Stake To Win</Text>
+            <Text>Choose Your Path</Text>
           </Flex>
           <Text
             css={{

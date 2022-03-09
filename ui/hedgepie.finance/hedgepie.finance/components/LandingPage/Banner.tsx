@@ -11,14 +11,14 @@ const Banner = (props: Props) => {
         <Flex className="banner-flex">
           <Flex className="banner-text">
             <Text>Stake.</Text>
-            <Text>Earn. Win</Text>
+            <Text>Earn. Win.</Text>
           </Flex>
           <Text className="banner-desc">
             Stake to earn rewards while entering for a chance to win the Jackpot!
           </Text>
           <HPConnectWalletButton />
         </Flex>
-        <Flex className="banner-imge">
+        <Flex className="banner-imge" css={{ width: "600px" }}>
           <Image src="images/pie.png" />
         </Flex>
       </Flex>

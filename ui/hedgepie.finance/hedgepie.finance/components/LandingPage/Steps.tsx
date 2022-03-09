@@ -1,11 +1,11 @@
 import React from "react"
-import { Box, Card, Flex, Text } from "theme-ui"
+import { Box, Card, Flex, Image, Text } from "theme-ui"
 
 type Props = {}
 
 const Steps = (props: Props) => {
   return (
-    <Box p={3} css={{ border: "1px solid black", paddingTop: "4rem", paddingBottom: "6rem" }}>
+    <Box p={3} css={{ border: "2px solid black", paddingTop: "4rem", paddingBottom: "6rem" }}>
       <Flex css={{ alignItems: "center", justifyContent: "center", gap: "2rem" }}>
         <Card
           css={{
@@ -21,13 +21,13 @@ const Steps = (props: Props) => {
               css={{
                 alignItems: "center",
                 justifyContent: "center",
-                border: "1px solid #1799DE",
+                // border: "2px solid #1799DE",
                 width: "5rem",
                 height: "5rem",
                 borderRadius: "60px"
               }}
             >
-              <Text
+              {/* <Text
                 css={{
                   color: "#16103A",
                   fontFamily: "Noto Sans",
@@ -39,11 +39,12 @@ const Steps = (props: Props) => {
                 }}
               >
                 1
-              </Text>
+              </Text> */}
+              <Image src="images/step1.svg" />
             </Flex>
             <Text
               css={{
-                color: "#16103A",
+                color: "#1782DE",
                 fontFamily: "Poppins",
                 fontStyle: "normal",
                 fontWeight: 600,
@@ -52,7 +53,7 @@ const Steps = (props: Props) => {
                 textAlign: "center"
               }}
             >
-              Stake With Pie
+              Earn Up to XX% APY
             </Text>
             <Text
               css={{
@@ -84,13 +85,13 @@ const Steps = (props: Props) => {
               css={{
                 alignItems: "center",
                 justifyContent: "center",
-                border: "1px solid #EFA906",
+                // border: "2px solid #EFA906",
                 width: "5rem",
                 height: "5rem",
                 borderRadius: "60px"
               }}
             >
-              <Text
+              {/* <Text
                 css={{
                   color: "#16103A",
                   fontFamily: "Noto Sans",
@@ -102,11 +103,12 @@ const Steps = (props: Props) => {
                 }}
               >
                 2
-              </Text>
+              </Text> */}
+              <Image src="images/step2.svg" />
             </Flex>
             <Text
               css={{
-                color: "#16103A",
+                color: "#EFA906",
                 fontFamily: "Poppins",
                 fontStyle: "normal",
                 fontWeight: 600,
@@ -115,7 +117,7 @@ const Steps = (props: Props) => {
                 textAlign: "center"
               }}
             >
-              Wait For The Draw
+              Create Your Own Fund
             </Text>
             <Text
               css={{
@@ -147,13 +149,13 @@ const Steps = (props: Props) => {
               css={{
                 alignItems: "center",
                 justifyContent: "center",
-                border: "1px solid #DF4886",
+                // border: "2px solid #DF4886",
                 width: "5rem",
                 height: "5rem",
                 borderRadius: "60px"
               }}
             >
-              <Text
+              {/* <Text
                 css={{
                   color: "#16103A",
                   fontFamily: "Noto Sans",
@@ -165,11 +167,12 @@ const Steps = (props: Props) => {
                 }}
               >
                 3
-              </Text>
+              </Text> */}
+              <Image src="images/step3.svg" />
             </Flex>
             <Text
               css={{
-                color: "#16103A",
+                color: "#DF4886",
                 fontFamily: "Poppins",
                 fontStyle: "normal",
                 fontWeight: 600,
@@ -178,7 +181,7 @@ const Steps = (props: Props) => {
                 textAlign: "center"
               }}
             >
-              Claim Rewards
+              Enter the Lottery
             </Text>
             <Text
               css={{
@@ -192,7 +195,8 @@ const Steps = (props: Props) => {
               }}
             >
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec volutpat turpis mauris
-              nunc sit placerat ullamcorper v
+              nunc sit placerat ullamcorper v consectetur adipiscing elit. Donec volutpat turpis
+              mauris nunc sit
             </Text>
           </Flex>
         </Card>

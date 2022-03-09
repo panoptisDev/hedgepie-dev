@@ -39,11 +39,13 @@ a {
   flex-direction: column;  
 }
 .banner-text {
-  flex-direction: "column";
-  font-size: 6rem;
+  display:flex;
+  flex-direction: column;
+  font-size: 110px;
   font-family: "Noto Sans";
   font-weight: 800;
   line-height: 106px;
+  gap:10px;
 }
 .banner-desc {
   color: #8E8DA0;
@@ -54,6 +56,7 @@ a {
   padding-bottom: 30px;
 }
 .banner-img {
+  width: 600px;
   align-items: "center";
   justify-content: "center";
 }
