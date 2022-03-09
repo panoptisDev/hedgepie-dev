@@ -14,7 +14,7 @@ const Footer = (props: Props) => {
         bg="header"
         css={{ clear: "both", position: "relative", bottom: 0, width: "100%" }}
       >
-        <Flex>
+        <Flex css={{ paddingLeft: "100px", paddingRight: "100px" }}>
           <Flex css={{ flexDirection: "column", gap: "40px", width: "400px" }}>
             <Image src="images/logo.png" css={{ width: "50px", height: "50px" }} />
             <Text css={{ color: "#8E8DA0" }}>
