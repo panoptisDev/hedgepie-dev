@@ -1,5 +1,5 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
-pragma solidity ^0.7.5;
+pragma solidity ^0.8.4;
 
 import "./libraries/SafeBEP20.sol";
 import "./libraries/SafeMath.sol";
@@ -9,19 +9,27 @@ contract HedgepieDistributor is Ownable {
     using SafeMath for uint256;
     using SafeBEP20 for IBEP20;
 
-    address public immutable GlobalTreasury;
-    address public immutable BoostTreasury;
-    address public immutable HedgepieVault;
-    address public immutable HedgepieYBNFT;
-    address public immutable HedgepieToken;
+    address public immutable globalTreasury;
+    address public immutable boostTreasury;
+    address public immutable hedgepieVault;
+    address public immutable hedgepieYBNFT;
 
-    uint public globalPercent;
-    uint public boostPercent;
-    uint public vaultPercent;
+    uint256 public globalPercent;
+    uint256 public boostPercent;
+    uint256 public vaultPercent;
 
-    enum PercentType { GLOBAL, BOOST, VAULT }
+    enum PercentType {
+        GLOBAL,
+        BOOST,
+        VAULT
+    }
 
-    event Distribute(uint amount, uint vault, uint boost, uint global);
+    event Distribute(
+        uint256 amount,
+        uint256 vault,
+        uint256 boost,
+        uint256 global
+    );
 
     constructor(
         address _globalTreasury,
@@ -30,48 +38,32 @@ contract HedgepieDistributor is Ownable {
         address _ybNFT,
         address _hpieToken
     ) {
-        require(_globalTreasury != address(0));
-        require(_boostTreasury != address(0));
-        require(_vault != address(0));
-        require(_ybNFT != address(0));
-        require(_hpieToken != address(0));
+        require(_globalTreasury != address(0), "Global treasury missing");
+        require(_boostTreasury != address(0), "Boost treasury missing");
+        require(_vault != address(0), "Vault missing");
+        require(_ybNFT != address(0), "YBNFT missing");
 
-        HedgepieVault = _vault;
-        BoostTreasury = _boostTreasury;
-        GlobalTreasury = _globalTreasury;
-        HedgepieYBNFT = _ybNFT;
-        HedgepieToken = _hpieToken;
+        globalTreasury = _globalTreasury;
+        boostTreasury = _boostTreasury;
+        hedgepieVault = _vault;
+        hedgepieYBNFT = _ybNFT;
     }
 
-    function setPercent(PercentType percentType, uint percent) public onlyOwner {
-        if(percentType == PercentType.GLOBAL) {
+    function setPercent(PercentType percentType, uint256 percent)
+        public
+        onlyOwner
+    {
+        if (percentType == PercentType.GLOBAL) {
             globalPercent = percent;
-        } else if(percentType == PercentType.BOOST) {
+        } else if (percentType == PercentType.BOOST) {
             boostPercent = percent;
-        } else if(percentType == PercentType.VAULT) {
+        } else if (percentType == PercentType.VAULT) {
             vaultPercent = percent;
         }
     }
 
-    function distribute(uint amount) external returns(bool) {
-        require(msg.sender == HedgepieYBNFT);
-
-        IBEP20( HedgepieToken ).safeTransferFrom(msg.sender, address(this), amount);
-
-        // send to VAULT
-        uint vaultAmount = amount.mul(vaultPercent).div(1e4);
-        IBEP20( HedgepieToken ).safeTransfer(HedgepieVault, vaultAmount);
-
-        // send to global treasury
-        uint globalAmount = amount.mul(globalPercent).div(1e4);
-        IBEP20( HedgepieToken ).safeTransfer(GlobalTreasury, globalAmount);
-
-        // send to boost treasury
-        uint boostAmount = amount.mul(boostPercent).div(1e4);
-        IBEP20( HedgepieToken ).safeTransfer(BoostTreasury, boostAmount);
-
-        emit Distribute(amount, vaultAmount, boostAmount, globalAmount);
-
+    function distribute() external returns (bool) {
+        require(msg.sender == hedgepieYBNFT, "Only from YBNFT");
         return true;
     }
 }
