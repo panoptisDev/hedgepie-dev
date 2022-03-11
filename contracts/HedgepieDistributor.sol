@@ -13,6 +13,7 @@ contract HedgepieDistributor is Ownable {
     address public immutable boostTreasury;
     address public immutable hedgepieVault;
     address public immutable hedgepieYBNFT;
+    address public immutable hedgepieToken;
 
     uint256 public globalPercent;
     uint256 public boostPercent;
@@ -47,6 +48,7 @@ contract HedgepieDistributor is Ownable {
         boostTreasury = _boostTreasury;
         hedgepieVault = _vault;
         hedgepieYBNFT = _ybNFT;
+        hedgepieToken = _hpieToken;
     }
 
     function setPercent(PercentType percentType, uint256 percent)
@@ -62,8 +64,29 @@ contract HedgepieDistributor is Ownable {
         }
     }
 
-    function distribute() external returns (bool) {
-        require(msg.sender == hedgepieYBNFT, "Only from YBNFT");
+    function distribute(uint256 amount) external returns (bool) {
+        require(msg.sender == hedgepieYBNFT);
+
+        IBEP20(hedgepieToken).safeTransferFrom(
+            msg.sender,
+            address(this),
+            amount
+        );
+
+        // send to VAULT
+        uint256 vaultAmount = amount.mul(vaultPercent).div(1e4);
+        IBEP20(hedgepieToken).safeTransfer(hedgepieVault, vaultAmount);
+
+        // send to global treasury
+        uint256 globalAmount = amount.mul(globalPercent).div(1e4);
+        IBEP20(hedgepieToken).safeTransfer(globalTreasury, globalAmount);
+
+        // send to boost treasury
+        uint256 boostAmount = amount.mul(boostPercent).div(1e4);
+        IBEP20(hedgepieToken).safeTransfer(boostTreasury, boostAmount);
+
+        emit Distribute(amount, vaultAmount, boostAmount, globalAmount);
+
         return true;
     }
 }
