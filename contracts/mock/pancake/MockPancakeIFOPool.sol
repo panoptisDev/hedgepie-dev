@@ -2,13 +2,12 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "@openzeppelin/contracts/utils/math/SafeMath.sol";
-import "@openzeppelin/contracts/token/ERC20/utils/SafeERC20.sol";
 import "@openzeppelin/contracts/security/Pausable.sol";
 import "../../interfaces/mock/IPancakeFarmMasterChef.sol";
+import "../../libraries/SafeBEP20.sol";
 
 contract MockPancakeIFOPool is Ownable, Pausable {
-    using SafeERC20 for IERC20;
+    using SafeBEP20 for IBEP20;
     using SafeMath for uint256;
 
     struct UserInfo {
@@ -32,8 +31,8 @@ contract MockPancakeIFOPool is Ownable, Pausable {
         Withdraw
     }
 
-    IERC20 public immutable token; // Cake token
-    IERC20 public immutable receiptToken; // Syrup token
+    IBEP20 public immutable token; // Cake token
+    IBEP20 public immutable receiptToken; // Syrup token
 
     IPancakeFarmMasterChef public immutable masterchef;
 
@@ -96,8 +95,8 @@ contract MockPancakeIFOPool is Ownable, Pausable {
      * @param _endBlock: IFO end block height
      */
     constructor(
-        IERC20 _token,
-        IERC20 _receiptToken,
+        IBEP20 _token,
+        IBEP20 _receiptToken,
         IPancakeFarmMasterChef _masterchef,
         address _admin,
         address _treasury,
@@ -119,7 +118,7 @@ contract MockPancakeIFOPool is Ownable, Pausable {
         endBlock = _endBlock;
 
         // Infinite approve
-        IERC20(_token).safeApprove(address(_masterchef), type(uint256).max);
+        IBEP20(_token).safeApprove(address(_masterchef), type(uint256).max);
     }
 
     /**
@@ -597,8 +596,8 @@ contract MockPancakeIFOPool is Ownable, Pausable {
             "Token cannot be same as receipt token"
         );
 
-        uint256 amount = IERC20(_token).balanceOf(address(this));
-        IERC20(_token).safeTransfer(msg.sender, amount);
+        uint256 amount = IBEP20(_token).balanceOf(address(this));
+        IBEP20(_token).safeTransfer(msg.sender, amount);
     }
 
     /**

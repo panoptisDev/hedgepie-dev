@@ -24,13 +24,19 @@ contract HedgepieDistributor is Ownable {
         VAULT
     }
 
-    event Distribute();
+    event Distribute(
+        uint256 amount,
+        uint256 vault,
+        uint256 boost,
+        uint256 global
+    );
 
     constructor(
         address _globalTreasury,
         address _boostTreasury,
         address _vault,
-        address _ybNFT
+        address _ybNFT,
+        address _hpieToken
     ) {
         require(_globalTreasury != address(0), "Global treasury missing");
         require(_boostTreasury != address(0), "Boost treasury missing");

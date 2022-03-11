@@ -8,8 +8,8 @@ describe("Investor contract test:", () => {
   let deployer;
   let account1;
 
-  let mockERC20; // mock erc20 token
-  let hardhatMockERC20;
+  let mockBEP20; // mock erc20 token
+  let hardhatMockBEP20;
 
   beforeEach(async () => {
     [deployer, account1] = await ethers.getSigners();
