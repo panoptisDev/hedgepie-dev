@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: None
-pragma solidity ^0.7.5;
+pragma solidity ^0.8.4;
 
-interface IERC165 {
+interface IBEP165 {
     /**
      * @dev Returns true if this contract implements the interface defined by
      * `interfaceId`. See the corresponding
