@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from "react";
+import { ethers } from "ethers";
 import { ThemeProvider, Box, Flex } from "theme-ui"
 
 import { useWeb3Context } from "../../hooks/web3Context";
@@ -10,7 +11,7 @@ import { HPInstrumentSelect } from "widgets/HPInstrumentSelect"
 import { HPStakeWithdrawSwitch } from "widgets/HPStakeWithdrawSwitch"
 import { HPVaultSummary } from "widgets/HPVaultSummary"
 
-import { getInfo } from "../../helpers/vault";
+import { getInfo, vaultAction } from "../../helpers/vault";
 
 import styles from "./Vault.module.css"
 
@@ -26,7 +27,7 @@ const Vault = (props: Props) => {
 
   useEffect(() => {
     async function getData() {
-      const {tvl, apy, profit, staked} = await getInfo(provider);
+      const {tvl, apy, profit, staked} = await getInfo(provider, address);
       setApy(apy.toString());
       setProfit(profit.toString());
       setTVL(tvl.toString());
@@ -35,6 +36,10 @@ const Vault = (props: Props) => {
     
     getData();
   }, [provider, address]);
+
+  const doAction = async(action: string, token: string) => {
+    await vaultAction(provider, token, ethers.utils.parseUnits("10"), action);
+  }
 
   return (
     <ThemeProvider theme={theme}>
