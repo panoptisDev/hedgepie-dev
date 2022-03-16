@@ -4,11 +4,14 @@ import type { NextPage } from "next"
 
 // Components
 import { HedgePieFinance } from "components/HedgePieFinance"
+import LeaderboardHero from "components/pages/finished-lotteries/LeaderboardHero"
+import LeaderboardMain from "components/pages/finished-lotteries/LeaderboardMain"
 
 const FinishedLotteries: NextPage = () => {
   return (
     <HedgePieFinance>
-      <main>FINISHED LOTTERIES</main>
+      <LeaderboardHero />
+      <LeaderboardMain />
     </HedgePieFinance>
   )
 }
