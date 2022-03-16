@@ -38,5 +38,15 @@ export const theme: Theme = {
   buttons: {
     primary: {},
     connect_wallet: {},
-  },
+    info: {
+      color: '#1799DE',
+      bg: 'transparent',
+      '&:hover': {
+        bg: '#1799DE11',
+      },
+      '&:active': {
+        bg: 'transparent',
+      },
+    }
+  }
 }
