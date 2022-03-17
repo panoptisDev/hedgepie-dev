@@ -15,7 +15,7 @@ import CollectWinnings from './CollectWinnings'
 
 type Props = {}
 
-const LandingPage = (props: Props) => {
+const Home = (props: Props) => {
   return (
     <ThemeProvider theme={theme}>
       <Banner />
@@ -30,4 +30,4 @@ const LandingPage = (props: Props) => {
   )
 }
 
-export default LandingPage
+export default Home

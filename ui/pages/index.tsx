@@ -4,12 +4,12 @@ import type { NextPage } from 'next'
 
 // Components
 import { HedgePieFinance } from 'components/HedgePieFinance'
-import { LandingPage } from 'components/LandingPage'
+import { Home } from 'views/home'
 
 const HomePage: NextPage = () => {
   return (
     <HedgePieFinance>
-      <LandingPage />
+      <Home />
     </HedgePieFinance>
   )
 }
