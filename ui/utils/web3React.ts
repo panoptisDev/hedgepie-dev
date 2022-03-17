@@ -46,7 +46,7 @@ const BSC_TESTNET_PARAMS = {
 const walletlink = new WalletLinkConnector({
   url: BSC_TESTNET_PARAMS.rpcUrls[0],
   appName: 'Hedgepie Finance',
-  appLogoUrl: '/images/penguin-logo.png',
+  appLogoUrl: '/images/hpie-logo.png',
 })
 
 const bscConnector = new BscConnector({ supportedChainIds: [chainId] })
