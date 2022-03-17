@@ -1,8 +1,7 @@
 import { ethers } from 'ethers'
-import { addresses } from '../constants/address'
 import { JsonRpcSigner, StaticJsonRpcProvider } from '@ethersproject/providers'
-
-import { abi as YBNFTAbi } from '../abi/HedgepieYBNFT.json'
+import { addresses } from '../constants/address'
+import YBNFTAbi from '../abi/HedgepieYBNFT.json'
 
 export const createToken = async (
   networkID: number,

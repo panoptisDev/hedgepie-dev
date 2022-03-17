@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box, Button, Flex, Image, Text } from 'theme-ui'
-import { HPConnectWalletButton } from 'widgets/HPConnectWalletButton'
+import { ConnectWallet } from 'components/ConnectWallet'
 
 type Props = { drawTime?: number }
 
@@ -234,7 +234,7 @@ const YBNFTDescription = (props: Props) => {
             </Flex>
           </Flex>
           <Flex css={{ alignItems: 'center', justifyContent: 'center', padding: '20px' }}>
-            <HPConnectWalletButton />
+            <ConnectWallet />
           </Flex>
         </Flex>
       </Flex>

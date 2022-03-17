@@ -46,18 +46,4 @@ export const NETWORKS: { [key: number]: INetwork } = {
     imageAltText: 'BSC Logo',
     uri: () => 'https://speedy-nodes-nyc.moralis.io/1c8d8856c017266c637672dd/bsc/testnet',
   },
-  1337: {
-    chainName: 'Ganache network',
-    chainId: 1337,
-    nativeCurrency: {
-      name: 'ETH',
-      symbol: 'ETH',
-      decimals: 18,
-    },
-    rpcUrls: ['http://localhost:7545'],
-    blockExplorerUrls: ['http://localhost:7545'],
-    image: ethereum,
-    imageAltText: 'Ganache Logo',
-    uri: () => '',
-  },
 }

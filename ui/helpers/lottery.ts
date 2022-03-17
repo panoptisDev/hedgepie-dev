@@ -1,8 +1,7 @@
 import { ethers } from 'ethers'
-import { addresses } from '../constants/address'
 import { JsonRpcSigner, StaticJsonRpcProvider } from '@ethersproject/providers'
-
-import { abi as LotteryAbi } from '../abi/HedgepieLottery.json'
+import { addresses } from '../constants/address'
+import LotteryAbi from '../abi/HedgepieLottery.json'
 
 export const createLottery = async (
   networkID: number,

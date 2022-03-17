@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box, Flex, Image, Text } from 'theme-ui'
-import { HPConnectWalletButton } from 'widgets/HPConnectWalletButton'
+import { ConnectWallet } from 'components/ConnectWallet'
 
 type Props = {}
 
@@ -47,7 +47,7 @@ const StakeToWin = (props: Props) => {
             search for `lorem ipsum` will uncover many web sites
           </Text>
           <div style={{ marginTop: '30px' }}>
-            <HPConnectWalletButton />
+            <ConnectWallet />
           </div>
         </Flex>
       </Flex>

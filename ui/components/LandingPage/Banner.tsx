@@ -1,6 +1,6 @@
 import React from 'react'
 import { Box, Flex, Image, Text } from 'theme-ui'
-import { HPConnectWalletButton } from 'widgets/HPConnectWalletButton'
+import { ConnectWallet } from 'components/ConnectWallet'
 
 type Props = {}
 
@@ -14,7 +14,7 @@ const Banner = (props: Props) => {
             <Text>Earn. Win.</Text>
           </Flex>
           <Text className="banner-desc">Stake to earn rewards while entering for a chance to win the Jackpot!</Text>
-          <HPConnectWalletButton />
+          <ConnectWallet />
         </Flex>
         <Flex className="banner-imge" css={{ width: '600px' }}>
           <Image src="images/pie.png" />

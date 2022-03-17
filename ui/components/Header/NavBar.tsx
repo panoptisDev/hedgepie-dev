@@ -1,51 +1,74 @@
 import React from 'react'
-import { HPConnectWalletButton } from 'widgets/HPConnectWalletButton'
-import { Flex, NavLink } from 'theme-ui'
+import { NavLink } from 'theme-ui'
 import { useRouter } from 'next/router'
-
-import themeStyles from './themeStyles'
+import { ConnectWallet } from 'components/ConnectWallet'
+import styled from 'styled-components'
 
 type Props = {}
 
 const NavBar = (props: Props) => {
   const router = useRouter()
+
   return (
-    <Flex as="nav" sx={themeStyles.nav_wrapper} css={{ alignItems: 'center' }}>
-      <NavLink
-        onClick={() => {
-          router.push('/vault')
-        }}
-        sx={themeStyles.nav}
-      >
-        Vaults
-      </NavLink>
-      <NavLink
-        onClick={() => {
-          router.push('/finished-lotteries')
-        }}
-        sx={themeStyles.nav}
-      >
-        Leaderboard
-      </NavLink>
-      <NavLink
-        onClick={() => {
-          router.push('/details')
-        }}
-        sx={themeStyles.nav}
-      >
-        Lottery
-      </NavLink>
-      <NavLink
-        onClick={() => {
-          router.push('/details')
-        }}
-        sx={themeStyles.nav}
-      >
-        Mint
-      </NavLink>
-      <HPConnectWalletButton />
-    </Flex>
+    <NavWrapper as="nav" css={{ alignItems: 'center' }}>
+      <LinkWrapper>
+        <StyledNavLink
+          onClick={() => {
+            router.push('/vault')
+          }}
+        >
+          Vaults
+        </StyledNavLink>
+        <StyledNavLink
+          onClick={() => {
+            router.push('/nft-leaderboard')
+          }}
+        >
+          Leaderboard
+        </StyledNavLink>
+        <StyledNavLink
+          onClick={() => {
+            router.push('/details')
+          }}
+        >
+          Lottery
+        </StyledNavLink>
+        <StyledNavLink
+          onClick={() => {
+            router.push('/mint')
+          }}
+        >
+          Mint
+        </StyledNavLink>
+      </LinkWrapper>
+      <ConnectWalletWrapper>
+        <ConnectWallet />
+      </ConnectWalletWrapper>
+    </NavWrapper>
   )
 }
+
+const NavWrapper = styled.div`
+  display: flex;
+  align-items: center;
+`
+
+const LinkWrapper = styled.div`
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 28px;
+`
+
+const StyledNavLink = styled(NavLink)`
+  font-style: normal;
+  font-weight: 600;
+  font-size: 16px;
+  line-height: 28px;
+  color: #ffffff;
+  margin-right: 40px;
+`
+
+const ConnectWalletWrapper = styled.div``
 
 export default NavBar
