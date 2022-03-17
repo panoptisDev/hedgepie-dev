@@ -1,85 +1,43 @@
-import React, { useState, useEffect, ReactNode } from 'react'
-import { ethers } from 'ethers'
-import Web3Modal from 'web3modal'
-import WalletConnectProvider from '@walletconnect/web3-provider'
-import { useWeb3Context } from '../../hooks/web3Context'
+import React from 'react'
+import styled from 'styled-components'
+import useWalletModal from 'widgets/WalletModal/useWalletModal'
+import useAuth from 'hooks/useAuth'
 
-const providerOptions = {
-  walletconnect: {
-    package: WalletConnectProvider, // required
-    options: {
-      infuraId: '28bcee6173ee4dfdb2ad077b026627c5', // required
-    },
-  },
+const ConnectWallet = (props) => {
+  const { login, logout } = useAuth()
+  const { onPresentConnectModal } = useWalletModal(login, logout)
+
+  return (
+    <StyledButton type="button" onClick={onPresentConnectModal} {...props}>
+      {'Connect Wallet'}
+    </StyledButton>
+  )
 }
 
-type Props = { children?: ReactNode }
+interface StyledButtonProps {
+  width?: number
+  height?: number
+  borderRadius?: number
+  color?: string
+  fontSize?: number
+}
 
-export const ConnectWallet = (props: Props) => {
-  const { children } = props
-  const [instance, setInstance] = useState<any | undefined>()
-  const [provider, setProvider] = useState<any | undefined>()
-  // const [signer, setSigner] = useState<any | undefined>()
-  const [web3Modal, setWeb3Modal] = useState<any | undefined>()
-
-  const { connect } = useWeb3Context()
-
-  const getInstance = async () => {
-    setInstance(await web3Modal.connect())
+const StyledButton = styled.button<StyledButtonProps>`
+  width: ${({ width }) => (width ? `${width}px` : '240px')};
+  height: ${({ height }) => (height ? `${height}px` : '60px')};
+  border-radius: ${({ borderRadius }) => (borderRadius ? `${borderRadius}px` : '35px')};
+  padding: 0px 20px;
+  line-height: 48px;
+  font-size: 16px;
+  font-weight: 600;
+  background-color: #1799de;
+  color: #fff;
+  cursor: pointer;
+  &:hover {
+    border: 2px solid rgb(157 83 182);
+    color: rgb(157 83 182);
   }
+  box-shadow: 0px 20px 40px 0px rgba(23, 153, 222, 0.2);
+`
 
-  useEffect(() => {
-    console.log('web3Modal:' + JSON.stringify(web3Modal))
-    if (web3Modal) getInstance()
-  }, [web3Modal])
-
-  // useEffect(() => {
-  //   console.log("SD")
-  //   setWeb3Modal(
-  //     new Web3Modal({
-  //       network: "mainnet", // optional
-  //       cacheProvider: true, // optional
-  //       providerOptions // required
-  //     })
-  //   )
-  // }, [])
-
-  useEffect(() => {
-    if (instance) {
-      setProvider(new ethers.providers.Web3Provider(instance))
-    }
-  }, [instance])
-
-  // useEffect(() => {
-  //   if (provider?.getSigner) {
-  //     setSigner(provider.getSigner())
-  //   }
-  // }, [provider])
-
-  useEffect(() => {
-    if (provider) {
-      console.log(provider)
-      // Subscribe to accounts change
-      provider.on('accountsChanged', (accounts: string[]) => {
-        console.log(accounts)
-      })
-
-      // Subscribe to chainId change
-      provider.on('chainChanged', (chainId: number) => {
-        console.log(chainId)
-      })
-
-      // Subscribe to provider connection
-      provider.on('connect', (info: { chainId: number }) => {
-        console.log(info)
-      })
-
-      // Subscribe to provider disconnection
-      provider.on('disconnect', (error: { code: number; message: string }) => {
-        console.log(error)
-      })
-    }
-  }, [provider])
-
-  return <div onClick={connect}>{children}</div>
-}
+export { ConnectWallet }

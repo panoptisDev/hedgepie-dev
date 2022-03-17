@@ -1,7 +1,6 @@
 import { BigNumber, ethers } from 'ethers'
-import { addresses } from '../constants/address'
 import { JsonRpcSigner, JsonRpcProvider } from '@ethersproject/providers'
-
+import { addresses } from '../constants/address'
 import VaultABI from '../abi/HedgepieVault.json'
 import MockABI from '../abi/MockupToken.json'
 

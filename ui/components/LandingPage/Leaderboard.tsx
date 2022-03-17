@@ -45,9 +45,6 @@ const Leaderboard = (props: Props) => {
               >
                 YOU DESERVE THE BEST
               </Text>
-              {/* <div style={{ marginLeft: "auto" }}>
-                <HPConnectWalletButton />
-              </div> */}
             </Flex>
             <Flex css={{ alignItems: 'center', justifyContent: 'center' }}>
               <table

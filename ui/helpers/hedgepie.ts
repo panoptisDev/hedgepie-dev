@@ -1,8 +1,7 @@
 import { ethers } from 'ethers'
-import { addresses } from '../constants/address'
 import { JsonRpcSigner, StaticJsonRpcProvider } from '@ethersproject/providers'
-
-import { abi as HedgepieAbi } from '../abi/HedgepieToken.json'
+import { addresses } from '../constants/address'
+import HedgepieAbi from '../abi/HedgepieToken.json'
 
 export const approveTransfer = async (
   networkID: number,
