@@ -8,9 +8,9 @@ import { Home } from 'views/home'
 
 const HomePage: NextPage = () => {
   return (
-    <HedgePieFinance>
-      <Home />
-    </HedgePieFinance>
+    // <HedgePieFinance>
+    <Home />
+    // </HedgePieFinance>
   )
 }
 
