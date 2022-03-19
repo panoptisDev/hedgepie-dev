@@ -5,6 +5,7 @@ import { ThemeProvider, jsx } from 'theme-ui'
 
 import { theme } from 'themes/theme'
 import Banner from './Banner'
+import ChoosePath from './ChoosePath'
 import Steps from './Steps'
 import DrawCountdown from './DrawCountdown'
 import YBNFTDescription from './YBNFTDescription'
@@ -19,6 +20,7 @@ const Home = (props: Props) => {
   return (
     <ThemeProvider theme={theme}>
       <Banner />
+      <ChoosePath />
       <Steps />
       <Leaderboard />
       <DrawCountdown />
