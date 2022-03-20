@@ -31,7 +31,8 @@ const ChoosePath = () => {
             textTransform: 'uppercase',
             textAlign: 'center',
             color: '#8E8DA0',
-            letterSpacing: 2
+            letterSpacing: 2,
+            fontFamily: 'Poppins'
           }}
         >
           get your piece of the pie
@@ -68,7 +69,8 @@ const ChoosePath = () => {
                 marginTop: 19,
                 textAlign: 'center',
                 fontSize: 30,
-                fontWeight: 700
+                fontWeight: 700,
+                fontFamily: 'Poppins'
               }}
             >
               <Box>
@@ -110,7 +112,8 @@ const ChoosePath = () => {
                 marginTop: 19,
                 textAlign: 'center',
                 fontSize: 30,
-                fontWeight: 700
+                fontWeight: 700,
+                fontFamily: 'Poppins'
               }}
             >
               <Box>
@@ -152,7 +155,8 @@ const ChoosePath = () => {
                 marginTop: 19,
                 textAlign: 'center',
                 fontSize: 30,
-                fontWeight: 700
+                fontWeight: 700,
+                fontFamily: 'Poppins'
               }}
             >
               <Box>

@@ -21,7 +21,7 @@ const Home = (props: Props) => {
     <ThemeProvider theme={theme}>
       <Banner />
       <ChoosePath />
-      <Steps />
+      {/* <Steps /> */}
       <Leaderboard />
       <DrawCountdown />
       <YBNFTDescription />
