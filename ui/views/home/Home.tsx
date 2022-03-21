@@ -26,7 +26,7 @@ const Home = (props: Props) => {
       <DrawCountdown />
       <YBNFTDescription />
       <FinishedRounds />
-      <StakeToWin />
+      {/* <StakeToWin /> */}
       <CollectWinnings />
     </ThemeProvider>
   )
