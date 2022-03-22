@@ -1,22 +1,21 @@
 /* eslint-disable no-use-before-define */
 import React from 'react'
 import type { NextPage } from 'next'
-import Head from 'next/head'
-
-// // Components
-// import { HomePage } from "components/Home"
+import { HedgePieFinance } from 'components/HedgePieFinance'
+import { Box } from 'theme-ui'
 
 const Details: NextPage = () => {
   return (
-    <div>
-      <Head>
-        <title>Hedge Pie</title>
-        <meta name="description" content="Hedge Pie Finance" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main>DETAILS</main>
-    </div>
+    <HedgePieFinance>
+      <Box
+        sx={{
+          minHeight: 600,
+          padding: 90
+        }}
+      >
+        Coming Soon
+      </Box>
+    </HedgePieFinance>
   )
 }
 

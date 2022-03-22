@@ -1,79 +1,139 @@
 import React from 'react'
-
+import Link from 'next/link'
 import { theme } from 'themes/theme'
-
-import { Box, Flex, Text, ThemeProvider, Image } from 'theme-ui'
+import { Box, Flex, Text, ThemeProvider, Image, Link as ThemeLink, Divider } from 'theme-ui'
+import SocialButton from './SocialButton'
 
 type Props = {}
 
 const Footer = (props: Props) => {
   return (
-    <ThemeProvider theme={theme}>
-      <Box p={4} bg="header" css={{ clear: 'both', position: 'relative', bottom: 0, width: '100%' }}>
-        <Flex css={{ paddingLeft: '100px', paddingRight: '100px' }}>
-          <Flex css={{ flexDirection: 'column', gap: '40px', width: '400px' }}>
-            <Image src="images/logo.png" css={{ width: '50px', height: '50px' }} />
-            <Text css={{ color: '#8E8DA0' }}>
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lectus molestie eu purus vel massa tristique diam
-              cursus. Ut nunc consectetur penatib.
-            </Text>
-            <Flex css={{ flexDirection: 'row', gap: '10px' }}>
-              <Flex
-                css={{
-                  width: '40px',
-                  height: '40px',
-                  backgroundColor: '#fff',
-                  borderRadius: '30px',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Image src="images/fb.png" />
-              </Flex>
-              <Flex
-                css={{
-                  width: '40px',
-                  height: '40px',
-                  backgroundColor: '#fff',
-                  borderRadius: '30px',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Image src="images/twitter.png" />
-              </Flex>
-              <Flex
-                css={{
-                  width: '40px',
-                  height: '40px',
-                  backgroundColor: '#fff',
-                  borderRadius: '30px',
-                  alignItems: 'center',
-                  justifyContent: 'center',
-                }}
-              >
-                <Image src="images/linkedin.png" />
-              </Flex>
-            </Flex>
-            <Text css={{ color: '#8E8DA0' }}>© 2022 HedgePie</Text>
-          </Flex>
-          <Flex css={{ marginLeft: 'auto', flexDirection: 'column', gap: '40px' }}>
-            <Text css={{ fontWeight: '600', fontSize: '20px', color: '#fff' }}>HedgePie</Text>
-            <Flex css={{ flexDirection: 'column', color: '#8E8DA0', gap: '10px' }}>
-              <Text>Vault</Text>
-              <Text>Leaderboard</Text>
-              <Text>Finished Lotteries</Text>
-              <Text>Current Lottery</Text>
-              <Text>Mint</Text>
-            </Flex>
-            <Flex css={{ flexDirection: 'row', gap: '30px', color: '#8E8DA0' }}>
-              <Text>Privacy policy</Text>
-              <Text>Terms & Conditions</Text>
-            </Flex>
-          </Flex>
+    <Box
+      sx={{
+        bg: 'header',
+        color: '#fff',
+        backgroundImage: 'url(/images/foot-mask.png)',
+        backgroundSize: 'cover',
+        backgroundPosition: 'center top'
+      }}
+    >
+      <Box
+        py={90}
+        px={60}
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between'
+        }}
+      >
+        <Box>
+          <Image src="images/logo.png" />
+          <Box
+            sx={{
+              maxWidth: 420,
+              marginTop: 30,
+              color: '#8E8DA0'
+            }}
+          >
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lectus molestie eu purus vel massa tristique diam cursus. Ut nunc consectetur penatib.
+          </Box>
+          <Box
+            sx={{
+              marginTop: 50,
+              display: 'flex',
+              '& > *': {
+                marginRight: 30
+              }
+            }}
+          >
+            <SocialButton>
+              <Image src="images/fb.png" />
+            </SocialButton>
+            <SocialButton>
+              <Image src="images/twitter.png" />
+            </SocialButton>
+            <SocialButton>
+              <Image src="images/linkedin.png" />
+            </SocialButton>
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            width: 200
+          }}
+        >
+          <Box sx={{}}>
+            HedgePie
+          </Box>
+          <Box
+            mt={54}
+            sx={{
+              color: '#8E8DA0',
+              '& > *': {
+                display: 'block',
+                marginBottom: 10
+              }
+            }}
+          >
+            <Link href="/vault" passHref>
+              <ThemeLink>
+                Vault
+              </ThemeLink>
+            </Link>
+            <Link href="/nft-leaderboard" passHref>
+              <ThemeLink>
+                Leaderboard
+              </ThemeLink>
+            </Link>
+            <Link href="/details" passHref>
+              <ThemeLink>
+                Finished Lotteries
+              </ThemeLink>
+            </Link>
+            <Link href="/" passHref>
+              <ThemeLink>
+                Current Lottery
+              </ThemeLink>
+            </Link>
+            <Link href="/mint" passHref>
+              <ThemeLink>
+                Mint
+              </ThemeLink>
+            </Link>
+          </Box>
+        </Box>
+      </Box>
+      <Divider
+        sx={{
+          backgroundColor: '#C6D6E2',
+          opacity: .2
+        }}
+      />
+      <Box
+        py={30}
+        px={60}
+        sx={{
+          display: 'flex',
+          justifyContent: 'space-between',
+          color: '#8E8DA0',
+        }}
+      >
+        <Box>
+          &copy; 2022 HedgePie
+        </Box>
+        <Flex>
+          <Link href="/" passHref>
+            <ThemeLink>
+              Privacy policy
+            </ThemeLink>
+          </Link>
+          <Link href="/" passHref>
+            <ThemeLink ml={4}>
+              Terms &amp; Conditions
+            </ThemeLink>
+          </Link>
         </Flex>
       </Box>
-    </ThemeProvider>
+    </Box>
   )
 }
 

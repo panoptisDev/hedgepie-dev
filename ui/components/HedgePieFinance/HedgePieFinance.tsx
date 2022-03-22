@@ -9,13 +9,18 @@ import { Header } from 'components/Header'
 import { TitleMast } from 'components/TitleMast'
 import { Footer } from 'components/Footer'
 
-type Props = { title?: string; children?: ReactNode }
+type Props = {
+  title?: string;
+  children?: ReactNode
+  dark?: boolean
+  overlayHeader?: boolean
+}
 
 const HedgePieFinance = (props: Props) => {
   const { title, children } = props
   return (
     <ThemeProvider theme={theme}>
-      <Header />
+      <Header dark={props.dark} overlay={props.overlayHeader} />
       {title && <TitleMast title={title} />}
       <Head>
         <title>Hedge Pie</title>
