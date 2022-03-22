@@ -3,9 +3,7 @@
 
 import { useState, useEffect } from 'react'
 import { ThemeProvider, jsx, Box, Flex, Button, Text, Image, Input, ThemeUICSSObject, Badge } from 'theme-ui'
-
 import { theme } from 'themes/theme'
-
 import { styles } from './styles'
 
 // TODO : Define the props type to get the NFT details in setState and useEffect and display in the UI
