@@ -10,10 +10,9 @@ import { Home } from 'views/home'
 const HomePage: NextPage = () => {
   return (
     <>
-      {/* <HedgePieFinance> */}
-      <Home />
-      <Footer />
-      {/* </HedgePieFinance> */}
+      <HedgePieFinance overlayHeader={true} dark={false}>
+        <Home />
+      </HedgePieFinance>
     </>
   )
 }

@@ -12,76 +12,13 @@ const Banner = (props: Props) => {
         height: 1000,
         marginBottom: 60,
         background: 'url(/images/home-banner.jpg)',
-        backgroundPosition: 'center',
+        backgroundPosition: 'center bottom',
         backgroundSize: 'cover'
       }}
     >
-      <Box pt={4}>
-        <Box
-          sx={{
-            margin: '0 auto',
-            width: 1200,
-            display: 'flex',
-            alignItems: 'center'
-          }}
-        >
-          <Image
-            src="/images/logo.png"
-            sx={{
-              height: 70
-            }}
-          />
-          <Box sx={{ flex: 1 }} />
-          <Box
-            sx={{
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            <Link href="/vault" passHref>
-              <ThemeLink mr={4}>
-                Vault
-              </ThemeLink>
-            </Link>
-            <Link href="/nft-leaderboard" passHref>
-              <ThemeLink mr={4}>
-                Leaderboard
-              </ThemeLink>
-            </Link>
-            <Link href="/details" passHref>
-              <ThemeLink mr={4}>
-                Lottery
-              </ThemeLink>
-            </Link>
-            <Link href="/mint" passHref>
-              <ThemeLink mr={4}>
-                Mint
-              </ThemeLink>
-            </Link>
-            <Button
-              variant="info"
-              sx={{
-                border: '1px solid #1799DE',
-                borderRadius: 40,
-                height: 64,
-                padding: '0 24px',
-                cursor: 'pointer',
-                transition: 'all .2s',
-                display: 'flex',
-                alignItems: 'center'
-              }}
-            >
-              <Box mr={2}>
-                Connect Wallet
-              </Box>
-              <ArrowRight />
-            </Button>
-          </Box>
-        </Box>
-      </Box>
       <Box
         sx={{
-          marginTop: 250
+          paddingTop: 360
         }}
       >
         <Box
