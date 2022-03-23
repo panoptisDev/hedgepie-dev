@@ -3,21 +3,15 @@ import React from 'react'
 import type { NextPage } from 'next'
 import Head from 'next/head'
 
-// Components
-// import { HomePage } from "components/Home"
+import { Lottery } from 'views/lottery'
+import { HedgePieFinance } from 'components/HedgePieFinance'
 
-const Lottery: NextPage = () => {
+const LotteryPage: NextPage = () => {
   return (
-    <div>
-      <Head>
-        <title>Hedge Pie</title>
-        <meta name="description" content="Hedge Pie Finance" />
-        <link rel="icon" href="/favicon.ico" />
-      </Head>
-
-      <main>LOTTERY</main>
-    </div>
+    <HedgePieFinance title="Lottery">
+      <Lottery />
+    </HedgePieFinance>
   )
 }
 
-export default Lottery
+export default LotteryPage
