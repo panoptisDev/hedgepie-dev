@@ -1,7 +1,8 @@
 import React from 'react'
-import { Box, Button, Flex, Text } from 'theme-ui'
+import { Box, Button, Flex, Text, ThemeUICSSObject } from 'theme-ui'
 
 import Countdown from 'react-countdown'
+import { styles } from './styles'
 
 type Props = { drawTime?: number }
 
@@ -34,41 +35,10 @@ const TimeRemaining = (props: Props) => {
     } else {
       // Render a countdown
       return (
-        <Flex
-          css={{
-            flexDirection: 'column',
-            gap: '30px',
-            alignItems: 'center',
-            justifyContent: 'center',
-          }}
-        >
-          <Flex css={{ gap: '1rem' }}>
-            <Text
-              css={{
-                fontFamily: 'Noto Sans',
-                fontStyle: 'normal',
-                fontWeight: 'bold',
-                fontSize: '30px',
-                lineHeight: '150%',
-                textAlign: 'center',
-                color: '#DF4886',
-              }}
-            >
-              {displayString}
-            </Text>
-            <Text
-              css={{
-                fontFamily: 'Noto Sans',
-                fontStyle: 'normal',
-                fontWeight: 'bold',
-                fontSize: '30px',
-                lineHeight: '150%',
-                textAlign: 'center',
-                color: '#8E8DA0',
-              }}
-            >
-              Until Next Draw
-            </Text>
+        <Flex sx={styles.time_remaining_container as ThemeUICSSObject}>
+          <Flex sx={styles.time_remaining_text_container as ThemeUICSSObject}>
+            <Text sx={styles.time_remaining_time_display_text as ThemeUICSSObject}>{displayString}</Text>
+            <Text sx={styles.time_remaining_comment_text as ThemeUICSSObject}>Until Next Draw</Text>
           </Flex>
         </Flex>
       )
@@ -76,8 +46,9 @@ const TimeRemaining = (props: Props) => {
   }
 
   return (
-    <Box p={3} css={{}}>
-      <Flex css={{ alignItems: 'center', justifyContent: 'center' }}>
+    <Box p={3}>
+      <Flex sx={styles.time_remaining_outer_container as ThemeUICSSObject}>
+        {/* 5000000 should be updated as per the actual time left */}
         <Countdown date={Date.now() + 5000000} renderer={renderer} />
       </Flex>
     </Box>

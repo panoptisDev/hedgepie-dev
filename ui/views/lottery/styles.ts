@@ -132,4 +132,35 @@ export const styles = {
   stake_details_title: { fontWeight: '700', fontSize: '20px' },
   stake_details_value: { fontWeight: '700', fontSize: '30px', color: '#EFA906' },
   stake_details_comment: { color: '#8E8DA0', fontSize: '16px' },
+
+  // Time Remaining Styles
+  time_remaining_container: {
+    flexDirection: 'column',
+    gap: '30px',
+    alignItems: 'center',
+    justifyContent: 'center',
+  },
+  time_remaining_text_container: { gap: '1rem' },
+  time_remaining_time_display_text: {
+    fontFamily: 'Noto Sans',
+    fontStyle: 'normal',
+    fontWeight: 'bold',
+    fontSize: '30px',
+    lineHeight: '150%',
+    textAlign: 'center',
+    color: '#DF4886',
+  },
+  time_remaining_comment_text: {
+    fontFamily: 'Noto Sans',
+    fontStyle: 'normal',
+    fontWeight: 'bold',
+    fontSize: '30px',
+    lineHeight: '150%',
+    textAlign: 'center',
+    color: '#8E8DA0',
+  },
+  time_remaining_outer_container: {
+    justifyContent: 'center',
+    alignItems: 'center',
+  },
 }
