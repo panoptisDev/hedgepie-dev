@@ -1,15 +1,16 @@
 /* eslint-disable no-use-before-define */
 import React from 'react'
 import type { NextPage } from 'next'
-import { HedgePieFinance } from 'components/HedgePieFinance'
-import { Mint } from 'views/nft-mint'
 
-const VaultPage: NextPage = () => {
+import { ViewContents } from 'views/view-contents'
+import { HedgePieFinance } from 'components/HedgePieFinance'
+
+const ViewContentsPage: NextPage = () => {
   return (
-    <HedgePieFinance title="Mint">
-      <Mint />
+    <HedgePieFinance title="View Contents">
+      <ViewContents />
     </HedgePieFinance>
   )
 }
 
-export default VaultPage
+export default ViewContentsPage
