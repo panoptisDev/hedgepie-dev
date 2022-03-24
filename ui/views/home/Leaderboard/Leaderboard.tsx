@@ -50,10 +50,10 @@ const Leaderboard = () => {
           margin: '0 auto',
           width: 1200,
           minHeight: 500,
-          padding: 48,
           backgroundColor: '#F6FAFD',
           borderRadius: 32,
-          position: 'relative'
+          position: 'relative',
+          overflow: 'hidden'
         }}
       >
         <Box
@@ -66,32 +66,34 @@ const Leaderboard = () => {
             background: 'linear-gradient(135deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 60%, rgba(235,203,228,1) 100%)',
           }}
         />
+
         <Box sx={{ position: 'relative' }} >
-          <Box
-            sx={{
-              color: '#16103A',
-              fontSize: 50,
-              fontWeight: 700,
-            }}
-          >
-            Hedge Pie Leaderboard
+          <Box sx={{ padding: 48 }}>
+            <Box
+              sx={{
+                color: '#16103A',
+                fontSize: 50,
+                fontWeight: 700,
+              }}
+            >
+              Hedge Pie Leaderboard
+            </Box>
+            <Box
+              sx={{
+                fontSize: 18,
+                fontWeight: 500,
+                color: '#8E8DA0',
+                marginTop: 26
+              }}
+            >
+              YOU DESERVE THE BEST
+            </Box>
           </Box>
           <Box
             sx={{
-              fontSize: 18,
-              fontWeight: 500,
-              color: '#8E8DA0',
-              marginTop: 26
-            }}
-          >
-            YOU DESERVE THE BEST
-          </Box>
-          <Box
-            sx={{
-              marginTop: 50,
               overflow: 'auto',
               maxHeight: 800,
-              padding: '0 8px'
+              padding: '0 48px'
             }}
           >
             <Box
@@ -175,10 +177,10 @@ const Leaderboard = () => {
           </Box>
           <Box
             sx={{
-              marginTop: 60,
               display: 'flex',
+              alignItems: 'center',
               justifyContent: 'center',
-              height: 60
+              height: 200
             }}
           >
             {loading ?
