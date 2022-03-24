@@ -1,7 +1,7 @@
 import { Box } from 'theme-ui'
 import { ChevronDown } from 'react-feather';
 
-const TableHeadSortable = ({ label, ...props }) => (
+const TableHeadSortable = ({ label, active, ...props }) => (
   <Box as="th">
     <Box
       sx={{
@@ -9,6 +9,7 @@ const TableHeadSortable = ({ label, ...props }) => (
         alignItems: 'center',
         cursor: 'pointer',
         userSelect: 'none',
+        color: active ? '#DF4886' : '#000'
       }}
       {...props}
     >
