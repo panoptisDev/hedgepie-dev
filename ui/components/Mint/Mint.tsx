@@ -2,17 +2,7 @@
 /** @jsxRuntime classic */
 
 import { useState, useEffect } from 'react'
-import {
-  ThemeProvider,
-  jsx,
-  Box,
-  Flex,
-  Button,
-  Text,
-  Image,
-  Input,
-  Select,
-} from 'theme-ui'
+import { ThemeProvider, jsx, Box, Flex, Button, Text, Image, Input, Select } from 'theme-ui'
 
 import { theme } from 'themes/theme'
 
@@ -35,9 +25,7 @@ const Mint = (props: Props) => {
 
   const onWeightChange = (event: any) => {
     var newPositions = [...positions]
-    newPositions[event.target.dataset.index].posWeight = Number(
-      event.target.value,
-    )
+    newPositions[event.target.dataset.index].posWeight = Number(event.target.value)
     setPositions(newPositions)
   }
 
@@ -49,9 +37,7 @@ const Mint = (props: Props) => {
 
   const onQuantityChange = (event: any) => {
     var newPositions = [...positions]
-    newPositions[event.target.dataset.index].posQuantity = Number(
-      event.target.value,
-    )
+    newPositions[event.target.dataset.index].posQuantity = Number(event.target.value)
     setPositions(newPositions)
   }
 
@@ -126,9 +112,7 @@ const Mint = (props: Props) => {
                   gap: '1rem',
                 }}
               >
-                <Text css={{ fontFamily: 'Noto Sans' }}>
-                  Choose Positions and Weights
-                </Text>
+                <Text css={{ fontFamily: 'Noto Sans' }}>Choose Positions and Weights</Text>
                 <Button
                   css={{ cursor: 'pointer' }}
                   onClick={() => {
@@ -146,9 +130,7 @@ const Mint = (props: Props) => {
                   gap: '1rem',
                 }}
               >
-                <Text css={{ fontFamily: 'Noto Sans' }}>
-                  Set Performance Fee
-                </Text>
+                <Text css={{ fontFamily: 'Noto Sans' }}>Set Performance Fee</Text>
                 <Button
                   css={{ cursor: 'pointer' }}
                   onClick={() => {
@@ -166,9 +148,7 @@ const Mint = (props: Props) => {
                   gap: '1rem',
                 }}
               >
-                <Text css={{ fontFamily: 'Noto Sans' }}>
-                  Optional Art and Name
-                </Text>
+                <Text css={{ fontFamily: 'Noto Sans' }}>Optional Art and Name</Text>
                 <Button
                   css={{ cursor: 'pointer' }}
                   onClick={() => {
@@ -249,11 +229,7 @@ const Mint = (props: Props) => {
                           <option>Option 3</option>
                           <option>Option 4</option>
                         </Select>
-                        <Input
-                          defaultValue={'Quantity (eg. 1.9)'}
-                          data-index={index}
-                          onChange={onQuantityChange}
-                        />
+                        <Input defaultValue={'Quantity (eg. 1.9)'} data-index={index} onChange={onQuantityChange} />
                         <Input
                           defaultValue={'Weight (%)'}
                           data-index={index}
@@ -312,12 +288,10 @@ const Mint = (props: Props) => {
                         color: '#8E8DA0',
                       }}
                     >
-                      It is a long established fact that a reader will be
-                      distracted by the readable content of a page when looking
-                      at its layout. The point of using Lorem Ipsum is that it
-                      has a more-or-less normal distribution of letters, as
-                      opposed to using 'Content here, content here', making it
-                      look like readable English.{' '}
+                      It is a long established fact that a reader will be distracted by the readable content of a page
+                      when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal
+                      distribution of letters, as opposed to using 'Content here, content here', making it look like
+                      readable English.{' '}
                     </Text>
                     <Input
                       css={{ marginLeft: '1rem', width: '20rem' }}
@@ -357,12 +331,10 @@ const Mint = (props: Props) => {
                           color: '#8E8DA0',
                         }}
                       >
-                        It is a long established fact that a reader will be
-                        distracted by the readable content of a page when
-                        looking at its layout. The point of using Lorem Ipsum is
-                        that it has a more-or-less normal distribution of
-                        letters, as opposed to using 'Content here, content
-                        here', making it look like readable English.{' '}
+                        It is a long established fact that a reader will be distracted by the readable content of a page
+                        when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal
+                        distribution of letters, as opposed to using 'Content here, content here', making it look like
+                        readable English.{' '}
                       </Text>
                       <Input
                         css={{
@@ -429,10 +401,7 @@ const Mint = (props: Props) => {
                   </Button>
                 )}
                 {step === 3 && (
-                  <Button
-                    css={{ margin: '1rem', cursor: 'pointer' }}
-                    onClick={mintYBNFT}
-                  >
+                  <Button css={{ margin: '1rem', cursor: 'pointer' }} onClick={mintYBNFT}>
                     MINT YB NFT
                   </Button>
                 )}
@@ -466,13 +435,8 @@ const Mint = (props: Props) => {
                   >
                     YB NFT Summary
                   </Text>
-                  <Image
-                    src={'images/artwork-dummy.png'}
-                    css={{ margin: '0.5rem' }}
-                  />
-                  <Flex
-                    css={{ flexDirection: 'column', alignItems: 'self-start' }}
-                  >
+                  <Image src={'images/artwork-dummy.png'} css={{ margin: '0.5rem' }} />
+                  <Flex css={{ flexDirection: 'column', alignItems: 'self-start' }}>
                     <Flex css={{ gap: '1rem' }}>
                       <Text
                         css={{

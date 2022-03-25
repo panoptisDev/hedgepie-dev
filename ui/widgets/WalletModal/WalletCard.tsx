@@ -1,6 +1,8 @@
 import React from 'react'
 import { connectorLocalStorageKey } from './config'
 import { Login, Config } from './types'
+import { Button, Flex, Text, Image, ThemeUICSSObject } from 'theme-ui'
+import { styles } from './styles'
 
 interface Props {
   walletConfig: Config
@@ -10,21 +12,24 @@ interface Props {
 }
 
 const WalletCard: React.FC<Props> = ({ login, walletConfig, onDismiss, mb }) => {
-  const { title, icon: Icon } = walletConfig
+  const { title, icon, bgColor } = walletConfig
+
   return (
-    <button
+    <Button
       type="button"
       onClick={() => {
         login(walletConfig.connectorId)
         window.localStorage.setItem(connectorLocalStorageKey, walletConfig.connectorId)
         onDismiss()
       }}
-      style={{ justifyContent: 'space-between' }}
+      sx={{ borderRadius: '30px', backgroundColor: bgColor, cursor: 'pointer', margin: '0.7rem' }}
       id={`wallet-connect-${title.toLocaleLowerCase()}`}
     >
-      <div>{title}</div>
-      <Icon width="32px" />
-    </button>
+      <Flex sx={styles.flex_wallet_card as ThemeUICSSObject}>
+        <Image src={icon} sx={styles.icon_wallet_card as ThemeUICSSObject} />
+        <Text sx={styles.wallet_card_text as ThemeUICSSObject}>{title}</Text>
+      </Flex>
+    </Button>
   )
 }
 
