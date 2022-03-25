@@ -1,6 +1,5 @@
 import React from 'react'
-import Link from 'next/link'
-import { Box, Image, Button, Link as ThemeLink } from 'theme-ui'
+import { Box, Image, Button } from 'theme-ui'
 import { ArrowRight } from 'react-feather'
 
 type Props = {}
