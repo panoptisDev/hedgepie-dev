@@ -13,41 +13,49 @@ const connectors: Config[] = [
     title: 'Metamask',
     icon: Metamask,
     connectorId: ConnectorNames.Injected,
+    bgColor: '#E6F6FF',
+  },
+  {
+    title: 'Wallet Connect',
+    icon: WalletConnect,
+    connectorId: ConnectorNames.WalletConnect,
+    bgColor: '#FFF7E6',
+  },
+  {
+    title: 'Trust Wallet',
+    icon: TrustWallet,
+    connectorId: ConnectorNames.Injected,
+    bgColor: '#FFE6F0',
   },
   {
     title: 'Coinbase',
     icon: CoinbaseWallet,
     connectorId: ConnectorNames.Coinbase,
+    bgColor: '#E6F6FF',
   },
   {
-    title: 'TrustWallet',
-    icon: TrustWallet,
-    connectorId: ConnectorNames.Injected,
-  },
-  {
-    title: 'MathWallet',
+    title: 'Math Wallet',
     icon: MathWallet,
     connectorId: ConnectorNames.Injected,
+    bgColor: '#E6F6FF',
   },
   {
-    title: 'TokenPocket',
+    title: 'Token Pocket',
     icon: TokenPocket,
     connectorId: ConnectorNames.Injected,
-  },
-  {
-    title: 'WalletConnect',
-    icon: WalletConnect,
-    connectorId: ConnectorNames.WalletConnect,
+    bgColor: '#E6F6FF',
   },
   {
     title: 'Binance Chain Wallet',
     icon: BinanceChain,
     connectorId: ConnectorNames.BSC,
+    bgColor: '#E6F6FF',
   },
   {
     title: 'SafePal Wallet',
     icon: SafePalWallet,
     connectorId: ConnectorNames.Injected,
+    bgColor: '#E6F6FF',
   },
 ]
 
