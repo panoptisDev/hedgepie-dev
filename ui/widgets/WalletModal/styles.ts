@@ -2,6 +2,7 @@ export const styles = {
   flex_wallet_card: {
     flexDirection: 'column',
     gap: '0.4rem',
+    padding: '0.2rem',
     justifyContent: 'center',
     alignItems: 'center',
     width: '200px',
