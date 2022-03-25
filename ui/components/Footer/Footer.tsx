@@ -14,7 +14,7 @@ const Footer = (props: Props) => {
         color: '#fff',
         backgroundImage: 'url(/images/foot-mask.png)',
         backgroundSize: 'cover',
-        backgroundPosition: 'center top'
+        backgroundPosition: 'center top',
       }}
     >
       <Box
@@ -22,7 +22,7 @@ const Footer = (props: Props) => {
         px={60}
         sx={{
           display: 'flex',
-          justifyContent: 'space-between'
+          justifyContent: 'space-between',
         }}
       >
         <Box>
@@ -31,18 +31,19 @@ const Footer = (props: Props) => {
             sx={{
               maxWidth: 420,
               marginTop: 30,
-              color: '#8E8DA0'
+              color: '#8E8DA0',
             }}
           >
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lectus molestie eu purus vel massa tristique diam cursus. Ut nunc consectetur penatib.
+            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lectus molestie eu purus vel massa tristique diam
+            cursus. Ut nunc consectetur penatib.
           </Box>
           <Box
             sx={{
               marginTop: 50,
               display: 'flex',
               '& > *': {
-                marginRight: 30
-              }
+                marginRight: 30,
+              },
             }}
           >
             <SocialButton>
@@ -58,46 +59,34 @@ const Footer = (props: Props) => {
         </Box>
         <Box
           sx={{
-            width: 200
+            width: 200,
           }}
         >
-          <Box sx={{}}>
-            HedgePie
-          </Box>
+          <Box sx={{}}>HedgePie</Box>
           <Box
             mt={54}
             sx={{
               color: '#8E8DA0',
               '& > *': {
                 display: 'block',
-                marginBottom: 10
-              }
+                marginBottom: 10,
+              },
             }}
           >
             <Link href="/vault" passHref>
-              <ThemeLink>
-                Vault
-              </ThemeLink>
+              <ThemeLink>Vault</ThemeLink>
             </Link>
             <Link href="/nft-leaderboard" passHref>
-              <ThemeLink>
-                Leaderboard
-              </ThemeLink>
+              <ThemeLink>Leaderboard</ThemeLink>
             </Link>
             <Link href="/details" passHref>
-              <ThemeLink>
-                Finished Lotteries
-              </ThemeLink>
+              <ThemeLink>Finished Lotteries</ThemeLink>
             </Link>
             <Link href="/" passHref>
-              <ThemeLink>
-                Current Lottery
-              </ThemeLink>
+              <ThemeLink>Current Lottery</ThemeLink>
             </Link>
             <Link href="/mint" passHref>
-              <ThemeLink>
-                Mint
-              </ThemeLink>
+              <ThemeLink>Mint</ThemeLink>
             </Link>
           </Box>
         </Box>
@@ -105,7 +94,7 @@ const Footer = (props: Props) => {
       <Divider
         sx={{
           backgroundColor: '#C6D6E2',
-          opacity: .2
+          opacity: 0.2,
         }}
       />
       <Box
@@ -117,19 +106,13 @@ const Footer = (props: Props) => {
           color: '#8E8DA0',
         }}
       >
-        <Box>
-          &copy; 2022 HedgePie
-        </Box>
+        <Box>&copy; 2022 HedgePie</Box>
         <Flex>
           <Link href="/" passHref>
-            <ThemeLink>
-              Privacy policy
-            </ThemeLink>
+            <ThemeLink>Privacy policy</ThemeLink>
           </Link>
           <Link href="/" passHref>
-            <ThemeLink ml={4}>
-              Terms &amp; Conditions
-            </ThemeLink>
+            <ThemeLink ml={4}>Terms &amp; Conditions</ThemeLink>
           </Link>
         </Flex>
       </Box>
