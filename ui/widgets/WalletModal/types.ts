@@ -12,7 +12,7 @@ export type Login = (connectorId: ConnectorNames) => void
 
 export interface Config {
   title: string
-  icon: FC<SvgProps>
+  icon: string
   connectorId: ConnectorNames
   bgColor?: string
 }

@@ -11,52 +11,58 @@ import { Config, ConnectorNames } from './types'
 const connectors: Config[] = [
   {
     title: 'Metamask',
-    icon: Metamask,
+    icon: 'images/wallet-logos/metamask.png',
     connectorId: ConnectorNames.Injected,
     bgColor: '#E6F6FF',
   },
   {
     title: 'Wallet Connect',
-    icon: WalletConnect,
+    icon: 'images/wallet-logos/wallet-connect.png',
     connectorId: ConnectorNames.WalletConnect,
     bgColor: '#FFF7E6',
   },
   {
     title: 'Trust Wallet',
-    icon: TrustWallet,
+    icon: 'images/wallet-logos/trust-wallet.png',
     connectorId: ConnectorNames.Injected,
     bgColor: '#FFE6F0',
   },
   {
-    title: 'Coinbase',
-    icon: CoinbaseWallet,
-    connectorId: ConnectorNames.Coinbase,
-    bgColor: '#E6F6FF',
-  },
-  {
-    title: 'Math Wallet',
-    icon: MathWallet,
+    title: 'More',
+    icon: 'images/wallet-logos/more.png',
     connectorId: ConnectorNames.Injected,
     bgColor: '#E6F6FF',
   },
-  {
-    title: 'Token Pocket',
-    icon: TokenPocket,
-    connectorId: ConnectorNames.Injected,
-    bgColor: '#E6F6FF',
-  },
-  {
-    title: 'Binance Chain Wallet',
-    icon: BinanceChain,
-    connectorId: ConnectorNames.BSC,
-    bgColor: '#E6F6FF',
-  },
-  {
-    title: 'SafePal Wallet',
-    icon: SafePalWallet,
-    connectorId: ConnectorNames.Injected,
-    bgColor: '#E6F6FF',
-  },
+  // {
+  //   title: 'Coinbase',
+  //   icon: CoinbaseWallet,
+  //   connectorId: ConnectorNames.Coinbase,
+  //   bgColor: '#E6F6FF',
+  // },
+  // {
+  //   title: 'Math Wallet',
+  //   icon: MathWallet,
+  //   connectorId: ConnectorNames.Injected,
+  //   bgColor: '#E6F6FF',
+  // },
+  // {
+  //   title: 'Token Pocket',
+  //   icon: TokenPocket,
+  //   connectorId: ConnectorNames.Injected,
+  //   bgColor: '#E6F6FF',
+  // },
+  // {
+  //   title: 'Binance Chain Wallet',
+  //   icon: BinanceChain,
+  //   connectorId: ConnectorNames.BSC,
+  //   bgColor: '#E6F6FF',
+  // },
+  // {
+  //   title: 'SafePal Wallet',
+  //   icon: SafePalWallet,
+  //   connectorId: ConnectorNames.Injected,
+  //   bgColor: '#E6F6FF',
+  // },
 ]
 
 export default connectors
