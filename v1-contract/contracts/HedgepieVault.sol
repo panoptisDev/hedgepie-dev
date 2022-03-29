@@ -18,8 +18,8 @@ contract HedgepieVault {
         uint256 amount;
     }
 
-    address public immutable hedgepieToken;
-    uint8 public blockEmission = 5;
+    address public hedgepieToken;
+    uint256 public rewardPerBlock = 5;
     uint256 public totalStake;
     mapping(address => mapping(address => UserStake)) public userStake;
 
@@ -36,7 +36,9 @@ contract HedgepieVault {
     function _getReward(address _token) private view returns (uint256 _reward) {
         UserStake memory info = userStake[msg.sender][_token];
         if (info.start > 0) {
-            uint256 blockDiff = block.number.sub(info.start).div(blockEmission);
+            uint256 blockDiff = block.number.sub(info.start).div(
+                rewardPerBlock
+            );
             _reward = totalStake > 0
                 ? FixedPoint
                     .fraction(blockDiff.mul(info.amount), totalStake)

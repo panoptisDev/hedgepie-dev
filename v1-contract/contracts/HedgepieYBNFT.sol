@@ -22,6 +22,8 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
     address public treasury;
     // investor address
     address public investor;
+    // protocol fee
+    uint256 public protocolFee;
     // token => status
     mapping(address => bool) public allowedToken;
     // tokenId => strategy[]
@@ -49,6 +51,14 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         return nftStrategy[_tokenId];
     }
 
+    function getPerformanceFee(uint256 _tokenId)
+        external
+        view
+        returns (uint256)
+    {
+        return performanceFee[_tokenId];
+    }
+
     function setInvestor(address _investor) external onlyOwner {
         require(_investor != address(0), "Missing investor");
         investor = _investor;
@@ -62,6 +72,11 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
     function setTreasury(address _treasury) external onlyOwner {
         require(_treasury != address(0), "Missing treasury");
         treasury = _treasury;
+    }
+
+    function setProtocolFee(uint256 _protocolFee) external onlyOwner {
+        require(_protocolFee < 1000, "Protocol fee should be less than 10%");
+        protocolFee = _protocolFee;
     }
 
     function mint(
@@ -96,7 +111,7 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         emit Mint(address(this), tokenIdPointer);
     }
 
-    // TODO: ===== public functions =====
+    // ===== public functions =====
     function manageToken(address[] calldata _tokens, bool _flag)
         public
         onlyOwner
@@ -137,7 +152,7 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         _withdrawAll(_tokenId, _token);
     }
 
-    // TODO: ===== internal functions =====
+    // ===== internal functions =====
     function _setStrategy(
         uint256 _tokenId,
         uint256[] calldata _swapPercent,

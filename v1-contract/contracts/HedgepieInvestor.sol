@@ -24,8 +24,8 @@ contract HedgepieInvestor is Ownable {
 
     // wrapped bnb address
     address public wbnb;
-    // pancakeswap router address
-    address public pancakeswapRouter;
+    // swap router address
+    address public swapRouter;
 
     // strategy manager
     address public strategyManager;
@@ -48,14 +48,14 @@ contract HedgepieInvestor is Ownable {
 
     /**
      * @notice construct
-     * @param _pancakeswapRouter  Pancakeswap router address (0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3 // on bsc testnet)
+     * @param _swapRouter  Pancakeswap router address (0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3 // on bsc testnet)
      * @param _wbnb  Wrapped BNB address (0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd // on bsc testnet)
      */
-    constructor(address _pancakeswapRouter, address _wbnb) {
-        require(_pancakeswapRouter != address(0), "pancake router missing");
+    constructor(address _swapRouter, address _wbnb) {
+        require(_swapRouter != address(0), "Error: swap router missing");
         require(_wbnb != address(0), "wbnb missing");
 
-        pancakeswapRouter = _pancakeswapRouter;
+        swapRouter = _swapRouter;
         wbnb = _wbnb;
     }
 
@@ -83,7 +83,7 @@ contract HedgepieInvestor is Ownable {
         require(_amount > 0, "Amount can not be 0");
 
         IBEP20(_token).safeTransferFrom(msg.sender, address(this), _amount);
-        IBEP20(_token).safeApprove(pancakeswapRouter, _amount);
+        IBEP20(_token).safeApprove(swapRouter, _amount);
 
         IYBNFT.Strategy[] memory info = IYBNFT(_nft).getNftStrategy(_tokenId);
         for (uint8 idx = 0; idx < info.length; idx++) {
@@ -149,10 +149,7 @@ contract HedgepieInvestor is Ownable {
             userStrategyInfo[_user][infoItem.strategyAddress] -= amounts[0];
 
             // swapping
-            IBEP20(infoItem.swapToken).safeApprove(
-                pancakeswapRouter,
-                amounts[0]
-            );
+            IBEP20(infoItem.swapToken).safeApprove(swapRouter, amounts[0]);
             amountOut += _swapOnPCS(amounts[0], infoItem.swapToken, _token);
         }
         IBEP20(_token).safeTransfer(_user, amountOut);
@@ -241,7 +238,7 @@ contract HedgepieInvestor is Ownable {
         address _outToken
     ) internal returns (uint256 amountOut) {
         address[] memory path = _getPaths(_inToken, _outToken);
-        uint256[] memory amounts = IPancakeRouter(pancakeswapRouter)
+        uint256[] memory amounts = IPancakeRouter(swapRouter)
             .swapExactTokensForTokens(_amountIn, 0, path, address(this), 1200);
 
         amountOut = amounts[amounts.length - 1];
