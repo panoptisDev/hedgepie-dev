@@ -20,7 +20,7 @@ const Home = (props: Props) => {
       <ChoosePath />
       <Leaderboard />
       <YBNFTInfo />
-      <FinishedRounds />
+      {/* <FinishedRounds /> */}
       <CollectWinnings />
     </ThemeProvider>
   )

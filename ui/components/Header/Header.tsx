@@ -59,11 +59,6 @@ const Header = ({ overlay = false, dark = true }: Props) => {
               Leaderboard
             </ThemeLink>
           </Link>
-          <Link href="/details" passHref>
-            <ThemeLink mr={4}>
-              Lottery
-            </ThemeLink>
-          </Link>
           <Link href="/mint" passHref>
             <ThemeLink mr={4}>
               Mint
