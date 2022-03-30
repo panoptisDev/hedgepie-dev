@@ -59,21 +59,6 @@ const Header = ({ overlay = false, dark = true }: Props) => {
           <Link href="/mint" passHref>
             <ThemeLink mr={4}>Mint</ThemeLink>
           </Link>
-          {/* <Button
-            variant="info"
-            sx={{
-              border: '1px solid #1799DE',
-              borderRadius: 40,
-              height: 64,
-              padding: '0 24px',
-              cursor: 'pointer',
-              transition: 'all .2s',
-              display: 'flex',
-              alignItems: 'center',
-            }}
-          >
-            <ArrowRight />
-          </Button> */}
           <Box
             sx={{
               border: '1px solid #1799DE',

@@ -24,8 +24,11 @@ const Vault = (props: Props) => {
   return (
     <ThemeProvider theme={theme}>
       <Box p={3}>
-        <Flex css={{ alignItems: 'center', justifyContent: 'center' }}>
-          <Box p={3} className={styles.vault_wrapper}>
+        <Flex sx={{ alignItems: 'center', justifyContent: 'center' }}>
+          <Box
+            p={3}
+            sx={{ backgroundColor: '#E5F6FF', borderRadius: '11px', width: 'fit-content', height: 'fit-content' }}
+          >
             <HPStakeWithdrawSwitch />
             <HPInstrumentSelect />
             <HPInput label="STAKED" placeholder={stakedVal} />
