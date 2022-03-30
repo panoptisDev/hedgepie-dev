@@ -13,4 +13,4 @@ export const getHpieAddress = () => {
 
 export const getMasterChefAddress = () => {
   return getAddress(addresses.masterChef)
-}
+} 
