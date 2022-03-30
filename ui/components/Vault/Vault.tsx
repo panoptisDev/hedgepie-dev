@@ -31,7 +31,7 @@ const Vault = (props: Props) => {
             <HPInput label="STAKED" placeholder={stakedVal} />
             <HPInput label="APY" placeholder={apyVal + '%'} />
             <HPInput label="Profit" placeholder={profitVal} />
-            <HPButtonInput label="Connect Wallet" placeholder="0.00" />
+            <HPButtonInput placeholder="0.00" />
             <HPVaultSummary platform={'Venus'} tvl={'$' + tvlVal} />
           </Box>
         </Flex>

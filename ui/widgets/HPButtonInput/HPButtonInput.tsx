@@ -1,17 +1,16 @@
 /** @jsx jsx */
 /** @jsxRuntime classic */
 
-import { ConnectWallet } from 'components/ConnectWallet'
 import { useEffect } from 'react'
 import { ThemeProvider, jsx, Box, Input, Button, Badge, Flex } from 'theme-ui'
-
 import { theme } from 'themes/theme'
+import { ConnectWallet } from 'components/ConnectWallet'
 
-type Props = { label: string; placeholder?: string }
+type Props = { placeholder?: string }
 
 const HPButtonInput = (props: Props) => {
   useEffect(() => {}, [])
-  const { label, placeholder } = props
+  const { placeholder } = props
   return (
     <ThemeProvider theme={theme}>
       <Box
@@ -25,30 +24,7 @@ const HPButtonInput = (props: Props) => {
         }}
       >
         <Flex css={{ position: 'absolute', marginTop: 0, height: '100%', gap: '10px', zIndex: '1' }}>
-          <ConnectWallet>
-            <Button
-              css={{
-                position: 'relative',
-                height: '100%',
-                borderRadius: '40px',
-                width: '200px',
-                padding: '0px 20px',
-                lineHeight: '48px',
-                fontSize: '18px',
-                fontWeight: '600',
-                opacity: '0.8',
-                backgroundColor: '#1799DE',
-                color: '#fff',
-                cursor: 'pointer',
-                ':hover': {
-                  border: '2px solid rgb(157 83 182)',
-                  color: 'rgb(157 83 182)',
-                },
-              }}
-            >
-              {label}
-            </Button>
-          </ConnectWallet>
+          <ConnectWallet />
           <Badge
             css={{
               width: 'fit-content',

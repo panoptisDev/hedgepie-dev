@@ -3,6 +3,7 @@ import Link from 'next/link'
 import { useRouter } from 'next/router'
 import { Box, Image, Link as ThemeLink, Button } from 'theme-ui'
 import { ArrowRight } from 'react-feather'
+import { ConnectWallet } from 'components/ConnectWallet'
 
 type Props = {
   overlay?: boolean
@@ -20,7 +21,7 @@ const Header = ({ overlay = false, dark = true }: Props) => {
         left: 0,
         width: '100%',
         backgroundColor: dark ? '#16103A' : 'transparent',
-        color: dark ? '#FFF' : '#000'
+        color: dark ? '#FFF' : '#000',
       }}
     >
       <Box
@@ -29,7 +30,7 @@ const Header = ({ overlay = false, dark = true }: Props) => {
           width: 1200,
           height: 120,
           display: 'flex',
-          alignItems: 'center'
+          alignItems: 'center',
         }}
       >
         <Link href="/" passHref>
@@ -37,7 +38,7 @@ const Header = ({ overlay = false, dark = true }: Props) => {
             <Image
               src="/images/logo.png"
               sx={{
-                height: 70
+                height: 70,
               }}
             />
           </ThemeLink>
@@ -50,21 +51,15 @@ const Header = ({ overlay = false, dark = true }: Props) => {
           }}
         >
           <Link href="/vault" passHref>
-            <ThemeLink mr={4}>
-              Vault
-            </ThemeLink>
+            <ThemeLink mr={4}>Vault</ThemeLink>
           </Link>
           <Link href="/nft-leaderboard" passHref>
-            <ThemeLink mr={4}>
-              Leaderboard
-            </ThemeLink>
+            <ThemeLink mr={4}>Leaderboard</ThemeLink>
           </Link>
           <Link href="/mint" passHref>
-            <ThemeLink mr={4}>
-              Mint
-            </ThemeLink>
+            <ThemeLink mr={4}>Mint</ThemeLink>
           </Link>
-          <Button
+          {/* <Button
             variant="info"
             sx={{
               border: '1px solid #1799DE',
@@ -74,14 +69,24 @@ const Header = ({ overlay = false, dark = true }: Props) => {
               cursor: 'pointer',
               transition: 'all .2s',
               display: 'flex',
-              alignItems: 'center'
+              alignItems: 'center',
             }}
           >
-            <Box mr={2}>
-              Connect Wallet
-            </Box>
             <ArrowRight />
-          </Button>
+          </Button> */}
+          <Box
+            sx={{
+              border: '1px solid #1799DE',
+              borderRadius: 40,
+              height: 64,
+              cursor: 'pointer',
+              transition: 'all .2s',
+              display: 'flex',
+              alignItems: 'center',
+            }}
+          >
+            <ConnectWallet isHeaderBtn />
+          </Box>
         </Box>
       </Box>
     </Box>
