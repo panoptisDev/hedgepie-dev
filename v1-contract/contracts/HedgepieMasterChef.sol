@@ -37,7 +37,7 @@ contract HedgepieMasterChef is Ownable {
     // Info of each pool.
     PoolInfo[] public poolInfo;
     // Info of each user that stakes LP tokens.
-    mapping(address => UserInfo) public userInfo;
+    mapping(uint256 => mapping(address => UserInfo)) public userInfo;
     // Total allocation poitns. Must be the sum of all allocation points in all pools.
     uint256 public totalAllocPoint = 0;
 
@@ -107,7 +107,7 @@ contract HedgepieMasterChef is Ownable {
         returns (uint256)
     {
         PoolInfo storage pool = poolInfo[_pid];
-        UserInfo storage user = userInfo[_user];
+        UserInfo storage user = userInfo[_pid][_user];
         uint256 accHpiePerShare = pool.accHpiePerShare;
         uint256 lpSupply = pool.lpToken.balanceOf(address(this));
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
@@ -237,7 +237,7 @@ contract HedgepieMasterChef is Ownable {
      */
     function deposit(uint256 _pid, uint256 _amount) public {
         PoolInfo storage pool = poolInfo[_pid];
-        UserInfo storage user = userInfo[msg.sender];
+        UserInfo storage user = userInfo[_pid][msg.sender];
 
         updatePool(_pid);
         if (user.amount > 0) {
@@ -270,7 +270,7 @@ contract HedgepieMasterChef is Ownable {
      */
     function withdraw(uint256 _pid, uint256 _amount) public {
         PoolInfo storage pool = poolInfo[_pid];
-        UserInfo storage user = userInfo[msg.sender];
+        UserInfo storage user = userInfo[_pid][msg.sender];
 
         require(user.amount >= _amount, "withdraw: not good");
 
@@ -296,8 +296,8 @@ contract HedgepieMasterChef is Ownable {
      * @param _pid  pool id
      */
     function emergencyWithdraw(uint256 _pid) public {
-        PoolInfo storage pool = poolInfo[0];
-        UserInfo storage user = userInfo[msg.sender];
+        PoolInfo storage pool = poolInfo[_pid];
+        UserInfo storage user = userInfo[_pid][msg.sender];
 
         pool.lpToken.safeTransfer(address(msg.sender), user.amount);
         emit EmergencyWithdraw(msg.sender, _pid, user.amount);

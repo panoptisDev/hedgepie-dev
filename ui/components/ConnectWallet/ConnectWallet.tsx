@@ -1,43 +1,66 @@
 import React from 'react'
-import styled from 'styled-components'
+import { Button, Box } from 'theme-ui'
+import { ArrowRight } from 'react-feather'
+import { useWeb3React } from '@web3-react/core'
 import useWalletModal from 'widgets/WalletModal/useWalletModal'
 import useAuth from 'hooks/useAuth'
 
 const ConnectWallet = (props) => {
+  const { isHeaderBtn } = props
   const { login, logout } = useAuth()
+  const { account } = useWeb3React()
   const { onPresentConnectModal } = useWalletModal(login, logout)
 
+  const accountEllipsis = account ? `${account.substring(0, 4)}...${account.substring(account.length - 4)}` : null
+
   return (
-    <StyledButton type="button" onClick={onPresentConnectModal} {...props}>
-      {'Connect Wallet'}
-    </StyledButton>
+    <>
+      {isHeaderBtn ? (
+        <Button
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            padding: '0 24px',
+            cursor: 'pointer',
+            color: '#1799DE',
+            height: '100%',
+            background: 'transparent',
+            '&:hover': {
+              background: 'transparent',
+            },
+          }}
+          onClick={() => {
+            if (account) return
+            onPresentConnectModal()
+          }}
+          {...props}
+        >
+          {account ? (
+            <>{accountEllipsis}</>
+          ) : (
+            <>
+              <Box
+                sx={{
+                  marginRight: '9px',
+                }}
+              >
+                {'Connect Wallet'}
+              </Box>
+              <ArrowRight />
+            </>
+          )}
+        </Button>
+      ) : (
+        <Button
+          sx={{ background: '#1799DE', borderRadius: '50px', padding: '0px 48.5px', cursor: 'pointer' }}
+          onClick={onPresentConnectModal}
+          {...props}
+        >
+          {'Connect Wallet'}
+        </Button>
+      )}
+    </>
   )
 }
-
-interface StyledButtonProps {
-  width?: number
-  height?: number
-  borderRadius?: number
-  color?: string
-  fontSize?: number
-}
-
-const StyledButton = styled.button<StyledButtonProps>`
-  width: ${({ width }) => (width ? `${width}px` : '240px')};
-  height: ${({ height }) => (height ? `${height}px` : '60px')};
-  border-radius: ${({ borderRadius }) => (borderRadius ? `${borderRadius}px` : '35px')};
-  padding: 0px 20px;
-  line-height: 48px;
-  font-size: 16px;
-  font-weight: 600;
-  background-color: #1799de;
-  color: #fff;
-  cursor: pointer;
-  &:hover {
-    border: 2px solid rgb(157 83 182);
-    color: rgb(157 83 182);
-  }
-  box-shadow: 0px 20px 40px 0px rgba(23, 153, 222, 0.2);
-`
 
 export { ConnectWallet }

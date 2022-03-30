@@ -1,9 +1,12 @@
 import { configureStore } from '@reduxjs/toolkit'
 import { useDispatch } from 'react-redux'
+import vaultReducer from './vault'
 
 const store = configureStore({
   devTools: process.env.NODE_ENV !== 'production',
-  reducer: {}
+  reducer: {
+    vault: vaultReducer,
+  }
 })
 
 export type AppDispatch = typeof store.dispatch

@@ -7,7 +7,6 @@ import { getLibrary } from 'utils/web3React'
 import { Provider } from 'react-redux'
 import store from 'state'
 import { ModalProvider } from 'widgets/Modal'
-
 import '../styles/globals.css'
 
 function MyApp({ Component, pageProps }: AppProps) {

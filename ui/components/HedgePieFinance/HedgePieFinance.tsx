@@ -1,16 +1,13 @@
 import React, { ReactNode } from 'react'
 import Head from 'next/head'
-
 import { theme } from 'themes/theme'
-
 import { ThemeProvider } from 'theme-ui'
-
 import { Header } from 'components/Header'
 import { TitleMast } from 'components/TitleMast'
 import { Footer } from 'components/Footer'
 
 type Props = {
-  title?: string;
+  title?: string
   children?: ReactNode
   dark?: boolean
   overlayHeader?: boolean
