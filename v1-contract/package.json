@@ -11,7 +11,8 @@
     "deploy:mockBEP20": "npx hardhat run deploy/mockBEP20.ts --network bscTestnet",
     "deploy:vault": "npx hardhat run deploy/vault.ts --network bscTestnet",
     "deploy:masterChef": "npx hardhat run deploy/masterChef.ts --network bscTestnet",
-    "deploy:ybnft": "npx hardhat run deploy/ybnft.ts --network bscTestnet"
+    "deploy:ybnft": "npx hardhat run deploy/ybnft.ts --network bscTestnet",
+    "deploy:multicall": "npx hardhat run deploy/multicall.ts --network bscTestnet"
   },
   "repository": {
     "type": "git",
