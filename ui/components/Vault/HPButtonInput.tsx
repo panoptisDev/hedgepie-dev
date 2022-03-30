@@ -2,7 +2,6 @@ import React, { useEffect } from 'react'
 import { ThemeProvider, Box, Input, Button, Badge, Flex } from 'theme-ui'
 import { theme } from 'themes/theme'
 import { useWeb3React } from '@web3-react/core'
-
 import { ConnectWallet } from 'components/ConnectWallet'
 
 type Props = { placeholder?: string }
@@ -26,7 +25,27 @@ const HPButtonInput = (props: Props) => {
         }}
       >
         <Flex sx={{ position: 'absolute', marginTop: 0, height: '100%', gap: '10px', zIndex: '1' }}>
-          {account ? <>Stake</> : <ConnectWallet />}
+          {account ? (
+            <Button
+              {...props}
+              sx={{
+                background: '#1799DE',
+                borderRadius: '50px',
+                padding: '0px 48.5px',
+                cursor: 'pointer',
+                '&:disabled': {
+                  // background: '#ffff00',
+                },
+              }}
+              onClick={() => {
+                alert('stake')
+              }}
+            >
+              Stake
+            </Button>
+          ) : (
+            <ConnectWallet />
+          )}
           <Badge
             sx={{
               width: 'fit-content',

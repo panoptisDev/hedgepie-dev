@@ -1,7 +1,7 @@
 import React from 'react'
 import { Flex, Text } from 'theme-ui'
 
-type Props = { platform: string; tvl: string }
+type Props = { tvl: string }
 
 const HPVaultSummary = (props: Props) => {
   const { tvl } = props

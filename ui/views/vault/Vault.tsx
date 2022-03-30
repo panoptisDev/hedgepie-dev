@@ -1,25 +1,14 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { ThemeProvider, Box, Flex } from 'theme-ui'
 import { theme } from 'themes/theme'
-import { HPButtonInput } from 'widgets/HPButtonInput'
-import { HPInput } from 'widgets/HPInput'
-import { HPInstrumentSelect } from 'widgets/HPInstrumentSelect'
 import { HPStakeWithdrawSwitch } from 'widgets/HPStakeWithdrawSwitch'
-import { HPVaultSummary } from 'widgets/HPVaultSummary'
-import { useWeb3React } from '@web3-react/core'
-import styles from './Vault.module.css'
+import DepositCard from './DepositCard'
+import WithdrawCard from './WithdrawCard'
 
 type Props = {}
 
 const Vault = (props: Props) => {
-  const [apyVal, setApy] = useState('')
-  const [profitVal, setProfit] = useState('')
-  const [stakedVal, setStaked] = useState('')
-  const [tvlVal, setTVL] = useState('')
-
-  const { account } = useWeb3React()
-
-  useEffect(() => {}, [account])
+  const [formType, setFormType] = useState('deposit')
 
   return (
     <ThemeProvider theme={theme}>
@@ -30,12 +19,8 @@ const Vault = (props: Props) => {
             sx={{ backgroundColor: '#E5F6FF', borderRadius: '11px', width: 'fit-content', height: 'fit-content' }}
           >
             <HPStakeWithdrawSwitch />
-            <HPInstrumentSelect />
-            <HPInput label="STAKED" placeholder={stakedVal} />
-            <HPInput label="APY" placeholder={apyVal + '%'} />
-            <HPInput label="Profit" placeholder={profitVal} />
-            <HPButtonInput placeholder="0.00" />
-            <HPVaultSummary platform={'Venus'} tvl={'$' + tvlVal} />
+            {formType === 'deposit' && <DepositCard />}
+            {formType === 'withdraw' && <WithdrawCard />}
           </Box>
         </Flex>
       </Box>
