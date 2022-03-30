@@ -1,37 +1,32 @@
 import { useCallback } from 'react'
 import { useWeb3React } from '@web3-react/core'
 import { useDispatch } from 'react-redux'
-import { useKittyLaunchPad, useKittyBoosterRocket } from 'hooks/useContract'
-import { fetchLaunchpadKittyUserDataAsync, fetchKittyBoosterRocketUserDataAsync } from 'state/actions'
-import { kittyLaunchpadRegister, kittyBoosterRocketPurchaseTokens } from 'utils/callHelpers'
+import { useMasterchef } from 'hooks/useContract'
+import { fetchVaultUserDataAsync } from 'state/actions'
+import { stakeOnMasterChef, unstakeOnMasterChef } from 'utils/callHelpers'
 
-export const useKittyLaunchpadRegister = () => {
+export const useMasterChef = () => {
   const dispatch = useDispatch()
   const { account } = useWeb3React()
-  const kittyLaunchpadContract = useKittyLaunchPad()
+  const masterChefContract = useMasterchef()
 
-  const handleRegister = useCallback(async () => {
-    const txHash = await kittyLaunchpadRegister(kittyLaunchpadContract, account)
-    dispatch(fetchLaunchpadKittyUserDataAsync(account))
+  const handleStake = useCallback(async (pid, amount) => {
+    const txHash = await stakeOnMasterChef(masterChefContract, pid, amount, account)
+    dispatch(fetchVaultUserDataAsync(account))
     console.info(txHash)
-  }, [account, dispatch, kittyLaunchpadContract])
+  }, [account, dispatch, masterChefContract])
 
-  return { onRegister: handleRegister }
-}
+  const handleUnStake = useCallback(async (pid, amount) => {
+    const txHash = await unstakeOnMasterChef(masterChefContract, pid, amount, account)
+    dispatch(fetchVaultUserDataAsync(account))
+    console.info(txHash)
+  }, [account, dispatch, masterChefContract])
 
-export const useKittyLaunchpadBoosterRocket = () => {
-  const dispatch = useDispatch()
-  const { account } = useWeb3React()
-  const kittyBoosterRocketContract = useKittyBoosterRocket()
+  const handleClaim = useCallback(async (pid) => {
+    const txHash = await unstakeOnMasterChef(masterChefContract, pid, 0, account)
+    dispatch(fetchVaultUserDataAsync(account))
+    console.info(txHash)
+  }, [account, dispatch, masterChefContract])
 
-  const handlePurchase = useCallback(
-    async (amount) => {
-      const txHash = await kittyBoosterRocketPurchaseTokens(kittyBoosterRocketContract, amount, account)
-      dispatch(fetchKittyBoosterRocketUserDataAsync(account))
-      console.info(txHash)
-    },
-    [account, dispatch, kittyBoosterRocketContract],
-  )
-
-  return { onPurchase: handlePurchase }
+  return { onStake: handleStake, onUnstake: handleUnStake, onClaim: handleClaim }
 }

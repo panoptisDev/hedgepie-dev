@@ -1,7 +1,10 @@
-import React, { useState } from 'react'
+import React, { useState, useEffect } from 'react'
 import { ThemeProvider, Box, Flex } from 'theme-ui'
+import { useWeb3React } from '@web3-react/core'
+import { useDispatch } from 'react-redux'
 import { theme } from 'themes/theme'
 import { HPStakeWithdrawSwitch } from 'widgets/HPStakeWithdrawSwitch'
+import { fetchVaultUserDataAsync } from 'state/actions'
 import DepositCard from './DepositCard'
 import WithdrawCard from './WithdrawCard'
 
@@ -9,6 +12,15 @@ type Props = {}
 
 const Vault = (props: Props) => {
   const [formType, setFormType] = useState('deposit')
+
+  const dispatch = useDispatch()
+  const { account } = useWeb3React()
+
+  useEffect(() => {
+    if (account) {
+      dispatch(fetchVaultUserDataAsync(account))
+    }
+  }, [account, dispatch])
 
   return (
     <ThemeProvider theme={theme}>
