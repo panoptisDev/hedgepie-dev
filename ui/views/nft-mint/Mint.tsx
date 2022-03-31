@@ -69,9 +69,9 @@ const Mint = (props: Props) => {
             {/* Banner */}
             <Flex sx={styles.banner_text as ThemeUICSSObject}>
               YB NFT Minting
-              <ConnectWallet>
+              {/* <ConnectWallet>
                 <Button sx={styles.connect_wallet_button as ThemeUICSSObject}>Connect Wallet</Button>
-              </ConnectWallet>
+              </ConnectWallet> */}
             </Flex>
             {/* Steps */}
             <Steps step={step} setStep={setStep} />
