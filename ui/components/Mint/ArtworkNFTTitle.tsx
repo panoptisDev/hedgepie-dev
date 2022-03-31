@@ -19,7 +19,7 @@ const ArtworkNFTTitle = (props) => {
         </Text>
         <Input
           sx={{
-            width: '20rem',
+            width: ['', '', '20rem'],
           }}
           type="file"
           onChange={(e) => {

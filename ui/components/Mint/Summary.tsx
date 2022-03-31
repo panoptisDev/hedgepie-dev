@@ -9,16 +9,20 @@ const Summary = (props) => {
       <Flex sx={styles.summary_container as ThemeUICSSObject}>
         <Text sx={styles.summary_title as ThemeUICSSObject}>YB NFT Summary</Text>
         {/* Pie Chart */}
-        <div style={styles.piechart_outer}>
-          <div style={styles.piechart_inner}>
-            <div
-              style={{
-                ...styles.piechart_allocated,
-                background: `conic-gradient(#A11D2B 0.00% ${allocated}%,#C92144 ${allocated}%)`,
-              }}
-            ></div>
-          </div>
-        </div>
+        <Flex sx={styles.piechart_container as ThemeUICSSObject}>
+          <Flex sx={styles.piechart_outer as ThemeUICSSObject}>
+            <Flex sx={styles.piechart_inner as ThemeUICSSObject}>
+              <Flex
+                sx={
+                  {
+                    ...styles.piechart_allocated,
+                    background: `conic-gradient(#A11D2B 0.00% ${allocated}%,#C92144 ${allocated}%)`,
+                  } as ThemeUICSSObject
+                }
+              ></Flex>
+            </Flex>
+          </Flex>
+        </Flex>
         <Flex sx={styles.summary_details_container as ThemeUICSSObject}>
           <Flex sx={styles.summary_details_inner_flex as ThemeUICSSObject}>
             <Text sx={styles.summary_details_inner_value as ThemeUICSSObject}>{allocated}%</Text>
