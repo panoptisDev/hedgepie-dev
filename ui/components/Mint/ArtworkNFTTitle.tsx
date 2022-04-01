@@ -29,9 +29,11 @@ const ArtworkNFTTitle = (props) => {
             }
           }}
         />
-        <Button sx={styles.step_three_upload_button as ThemeUICSSObject} onClick={uploadFile}>
-          UPLOAD
-        </Button>
+        <Flex sx={styles.flex_centered as ThemeUICSSObject}>
+          <Button sx={styles.step_three_upload_button as ThemeUICSSObject} onClick={uploadFile}>
+            UPLOAD
+          </Button>
+        </Flex>
       </Flex>
       <Flex sx={styles.step_three_nft_name_container as ThemeUICSSObject}>
         <Flex sx={styles.step_three_nft_name_inner_container as ThemeUICSSObject}>
