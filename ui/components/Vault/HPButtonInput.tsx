@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { ThemeProvider, Box, Input, Button, Badge, Flex } from 'theme-ui'
 import { theme } from 'themes/theme'
 import { useWeb3React } from '@web3-react/core'
@@ -7,13 +7,12 @@ import { useVaultPools } from 'state/hooks'
 import { useERC20Contract } from 'hooks/useContract'
 import { useVault } from 'hooks/useVault'
 
-type Props = { placeholder?: string }
+type Props = {}
 
 const HPButtonInput = (props: Props) => {
   const [isPending, setPending] = useState(false)
   const [amount, setAmount] = useState('')
 
-  const { placeholder } = props
   const { account } = useWeb3React()
   const pools = useVaultPools()
   const { onApprove, onStake, onUnstake, onClaim } = useVault()
@@ -75,9 +74,7 @@ const HPButtonInput = (props: Props) => {
                 borderRadius: '50px',
                 padding: '0px 48.5px',
                 cursor: 'pointer',
-                '&:disabled': {
-                  // background: '#ffff00',
-                },
+                '&:disabled': {},
               }}
               disabled={isPending || !account}
               onClick={onApproveOrStake}
@@ -117,7 +114,7 @@ const HPButtonInput = (props: Props) => {
             color: '#8E8DA0',
           }}
           maxLength={6}
-          placeholder={placeholder}
+          placeholder="0.0"
           value={amount}
           onChange={onChangeAmount}
         />

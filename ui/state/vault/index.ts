@@ -9,6 +9,7 @@ import { VaultState, Pool } from 'state/types'
 const initialState: VaultState = {
   poolLength: 0,
   totalAllocPoint: 0,
+  rewardToken: "",
   rewardPerBlock: 0,
   data: [] as Pool[]
 }
@@ -19,6 +20,7 @@ export const VaultSlice = createSlice({
   reducers: {
     setVaultGlobalData: (state, action) => {
       state.poolLength = action.payload.poolLength;
+      state.rewardToken = action.payload.rewardToken;
       state.rewardPerBlock = action.payload.rewardPerBlock;
       state.totalAllocPoint = action.payload.totalAllocPoint;
     },
@@ -46,11 +48,13 @@ export const {
 
 export const fetchVaultGlobalDataAsync = () => async (dispatch) => {
   const { poolLength,
+    rewardToken,
     rewardPerBlock,
     totalAllocPoint } = await fetchGlobalData()
   dispatch(
     setVaultGlobalData({
       poolLength,
+      rewardToken,
       rewardPerBlock,
       totalAllocPoint
     }),

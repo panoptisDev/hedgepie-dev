@@ -22,7 +22,7 @@ export interface Pool {
   pid: number
   lpToken: string
   allocPoint?: number
-  totalStaked?: BigNumber
+  totalStaked?: number
   dailyApr?: number
   apy?: BigNumber
   userData?: {
@@ -37,6 +37,7 @@ export interface Pool {
 export interface VaultState {
   poolLength?: number
   totalAllocPoint?: number
+  rewardToken?: string
   rewardPerBlock?: number
   data: Pool[]
 }

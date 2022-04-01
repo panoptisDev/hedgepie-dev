@@ -21,12 +21,18 @@ export const fetchVaultUserData = async (account) => {
   const data = [] as any[];
 
   for (let pid = 0; pid < poolLength; pid++) {
-    const [userVaultInfo, poolInfo] = await multicall(
+    const [userVaultInfo, userPendingReward, poolInfo] = await multicall(
       masterChefAbi,
       [
         {
           address: getMasterChefAddress(),
           name: 'userInfo',
+          params: [pid, account],
+
+        },
+        {
+          address: getMasterChefAddress(),
+          name: 'pendingReward',
           params: [pid, account],
 
         },
@@ -60,7 +66,7 @@ export const fetchVaultUserData = async (account) => {
       allowance: new BigNumber(userTokenAllowance).div(new BigNumber(10).pow(18)).toNumber(),
       stakingTokenBalance: new BigNumber(userTokenBalance).div(new BigNumber(10).pow(18)).toNumber(),
       stakedBalance: new BigNumber(userVaultInfo.amount._hex).div(new BigNumber(10).pow(18)).toNumber(),
-      pendingReward: new BigNumber(userVaultInfo.rewardDebt._hex).div(new BigNumber(10).pow(18)).toNumber()
+      pendingReward: new BigNumber(userPendingReward).div(new BigNumber(10).pow(18)).toNumber()
     })
   }
   return data;
