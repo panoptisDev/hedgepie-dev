@@ -59,8 +59,8 @@ export const fetchVaultUserData = async (account) => {
       pid,
       allowance: new BigNumber(userTokenAllowance).div(new BigNumber(10).pow(18)).toNumber(),
       stakingTokenBalance: new BigNumber(userTokenBalance).div(new BigNumber(10).pow(18)).toNumber(),
-      stakedBalance: new BigNumber(userVaultInfo.amount._hex).toNumber(),
-      pendingReward: new BigNumber(userVaultInfo.rewardDebt._hex).toNumber()
+      stakedBalance: new BigNumber(userVaultInfo.amount._hex).div(new BigNumber(10).pow(18)).toNumber(),
+      pendingReward: new BigNumber(userVaultInfo.rewardDebt._hex).div(new BigNumber(10).pow(18)).toNumber()
     })
   }
   return data;

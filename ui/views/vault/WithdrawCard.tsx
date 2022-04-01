@@ -15,7 +15,6 @@ const WithdrawCard = (props: Props) => {
 
   return (
     <>
-      Withdraw Form
       <HPInstrumentSelect />
       <HPInput label="STAKED" placeholder={stakedVal} />
       <HPInput label="APY" placeholder={apyVal + '%'} />
