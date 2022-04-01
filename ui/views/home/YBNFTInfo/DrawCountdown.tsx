@@ -21,21 +21,27 @@ const DrawCountdown = () => (
             <Box
               sx={{
                 display: 'flex',
+                flexDirection: ['column', 'row'],
                 alignItems: 'center',
                 justifyContent: 'center',
-                fontSize: 50,
-                fontWeight: 700
+                fontSize: [30, 30, 50],
+                fontWeight: 700,
+                gap: [12, 24]
               }}
             >
               <Box
                 sx={{
-                  color: '#DF4886',
-                  marginRight: 4
+                  color: '#DF4886'
                 }}
               >
                 {hours.toString().padStart(2, '0')}:{minutes.toString().padStart(2, '0')}:{seconds.toString().padStart(2, '0')}
               </Box>
-              <Box sx={{ color: '#16103A' }}>
+              <Box
+                sx={{
+                  color: '#16103A',
+                  textAlign: 'center'
+                }}
+              >
                 Until Next Draw
               </Box>
             </Box>

@@ -44,14 +44,17 @@ const Leaderboard = () => {
   })
 
   return (
-    <Box py={120} px={16}>
+    <Box
+      py={[20, 120]}
+      px={16}
+    >
       <Box
         sx={{
           margin: '0 auto',
-          width: 1200,
+          maxWidth: 1200,
           minHeight: 500,
           backgroundColor: '#F6FAFD',
-          borderRadius: 32,
+          borderRadius: [12, 32],
           position: 'relative',
           overflow: 'hidden'
         }}
@@ -66,13 +69,12 @@ const Leaderboard = () => {
             background: 'linear-gradient(135deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 60%, rgba(235,203,228,1) 100%)',
           }}
         />
-
         <Box sx={{ position: 'relative' }} >
-          <Box sx={{ padding: 48 }}>
+          <Box sx={{ padding: [12, 48] }}>
             <Box
               sx={{
                 color: '#16103A',
-                fontSize: 50,
+                fontSize: [30, 50],
                 fontWeight: 700,
               }}
             >
@@ -93,7 +95,7 @@ const Leaderboard = () => {
             sx={{
               overflow: 'auto',
               maxHeight: 800,
-              padding: '0 48px'
+              padding: ['0 12px', '0 48px']
             }}
           >
             <Box

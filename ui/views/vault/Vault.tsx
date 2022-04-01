@@ -5,13 +5,12 @@ import { useDispatch } from 'react-redux'
 import { theme } from 'themes/theme'
 import { HPStakeWithdrawSwitch } from 'widgets/HPStakeWithdrawSwitch'
 import { fetchVaultUserDataAsync } from 'state/actions'
-import DepositCard from './DepositCard'
-import WithdrawCard from './WithdrawCard'
+import VaultCard from './VaultCard'
 
 type Props = {}
 
 const Vault = (props: Props) => {
-  const [formType, setFormType] = useState('deposit')
+  const [formType, setFormType] = useState('DEPOSIT')
 
   const dispatch = useDispatch()
   const { account } = useWeb3React()
@@ -31,8 +30,7 @@ const Vault = (props: Props) => {
             sx={{ backgroundColor: '#E5F6FF', borderRadius: '11px', width: 'fit-content', height: 'fit-content' }}
           >
             <HPStakeWithdrawSwitch />
-            {formType === 'deposit' && <DepositCard />}
-            {formType === 'withdraw' && <WithdrawCard />}
+            {formType === 'DEPOSIT' && <VaultCard />}
           </Box>
         </Flex>
       </Box>

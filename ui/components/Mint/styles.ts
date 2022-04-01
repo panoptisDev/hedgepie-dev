@@ -5,7 +5,6 @@ export const styles = {
   },
   inner_container: {
     width: ['99%', '', '70%'],
-    // border: '2px solid black',
     boxShadow: '0px 25px 55px rgba(209, 208, 219, 0.4)',
     flexDirection: 'column',
   },
@@ -48,6 +47,7 @@ export const styles = {
     justifyContent: 'center',
     alignItems: 'center',
     gap: '1rem',
+    width: ['25%', '', 'fit-content'],
   },
   step_title: {
     display: 'flex',
@@ -90,6 +90,7 @@ export const styles = {
     alignItems: 'center',
     gap: '1rem',
     marginLeft: ['', '', '-100px'],
+    width: ['25%', '', 'fit-content'],
   },
   step_line_two: {
     width: ['', '', '250px'],
@@ -104,6 +105,7 @@ export const styles = {
     alignItems: 'center',
     gap: '1rem',
     marginLeft: ['', '', '-100px'],
+    width: ['25%', '', 'fit-content'],
   },
   content_container: { flexDirection: ['column', '', 'row'], width: '100%' },
   left_content_container: {
@@ -111,13 +113,13 @@ export const styles = {
     gap: '2rem',
     width: ['90%', '', '70%'],
     height: 'max-content',
-    //   border: '1px solid #D8D8D8',
     margin: '1rem',
   },
   step_one_container: {
     flexDirection: 'column',
     backgroundColor: '#E5F6FF',
     borderRadius: '6px',
+    paddingTop: '0.5rem',
   },
   labels_container: {
     flexDirection: 'row',
@@ -128,8 +130,8 @@ export const styles = {
     flexDirection: 'column',
     gap: '0.2rem',
     marginBottom: '1rem',
-    justifyContent: 'flex-start',
-    width: ['100%', '', '100%'],
+    marginRight: ['auto', '', 'auto'],
+    width: ['100%', '', '40rem'],
   },
   label_text: {
     fontFamily: 'Noto Sans',
@@ -144,12 +146,9 @@ export const styles = {
   },
   positions_container: {
     flexDirection: 'row',
-    // margin: '0rem 1rem',
     gap: '1.5rem',
     alignItems: 'center',
     justifyContent: 'center',
-    // paddingLeft: ['5%', '', ''],
-    // paddingRight: ['5%', '', ''],
   },
   strategy_select: {
     borderRadius: '10rem',
@@ -157,7 +156,6 @@ export const styles = {
     border: 0,
     height: ['40px', '', '50px'],
     paddingInlineEnd: '24px',
-    // marginInline: '5px',
     flex: 1,
     width: ['60%', '', '6rem'],
     fontSize: ['16px', '', '20px'],
@@ -168,7 +166,6 @@ export const styles = {
     WebkitAppearance: 'none',
     marginTop: '5px',
     paddingLeft: '10px',
-    // marginLeft: ['5px', '', ''],
   },
   position_input: {
     height: ['40px', '', '50px'],
@@ -378,8 +375,6 @@ export const styles = {
   },
   summary_container: {
     flexDirection: 'column',
-    // alignItems: 'center',
-    // justifyContent: 'center',
     padding: '1rem',
     gap: '2rem',
   },
@@ -440,16 +435,15 @@ export const styles = {
   // Positions
   positions_outer_container: {
     flexDirection: ['column', '', 'row'],
-    // margin: '0rem 1rem',
     gap: '1.5rem',
-    alignItems: 'center',
-    justifyContent: 'center',
   },
   positions_sub_container: {
     flexDirection: 'column',
+    marginLeft: '10px',
   },
   positions_sub_container_one: {
     flexDirection: 'column',
     marginLeft: '10px',
   },
+  flex_centered: { justifyContent: 'center', alignItems: 'center' },
 }

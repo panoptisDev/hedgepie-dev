@@ -8,7 +8,7 @@ import { getTokenName } from 'utils/addressHelpers'
 
 type Props = {}
 
-const DepositCard = (props: Props) => {
+const VaultCard = (props: Props) => {
   const [activePoolIdx, setActivePoolIdx] = useState(0)
   const vault = useVault()
   const pools = useVaultPools()
@@ -24,7 +24,7 @@ const DepositCard = (props: Props) => {
   const userStatkedBalance = userData ? userData.stakedBalance : 0.0
   const tvl = getTvl(activePool?.lpToken, activePool?.totalStaked)
   const poolApy = getApy(vault.rewardToken, vault.rewardPerBlock, activePoolRewardAllocation, tvl)
-  const userProfit = userData ? userData.pendingReward.toFixed(3) : 0.0
+  const userProfit = userData ? userData.pendingReward : 0.0
 
   const items = pools.map((pool, idx) => {
     return {
@@ -36,13 +36,13 @@ const DepositCard = (props: Props) => {
   return (
     <>
       <HPSelect items={items} onChangePoolIdx={onChangePoolIdx} />
-      <HPInfo label="STAKED" value={String(userStatkedBalance)} />
-      <HPInfo label="APY" value={`${poolApy}%`} />
-      <HPInfo label="Profit" value={String(userProfit)} />
+      <HPInfo label="STAKED" value={String(userStatkedBalance.toFixed(2))} />
+      <HPInfo label="APY" value={`${poolApy.toFixed(2)}%`} />
+      <HPInfo label="Profit" value={String(userProfit.toFixed(2))} />
       <HPButtonInput activePoolIdx={activePoolIdx} />
-      <HPVaultSummary tvl={`$${tvl}`} />
+      <HPVaultSummary tvl={`$${tvl.toFixed(2)}`} />
     </>
   )
 }
 
-export default DepositCard
+export default VaultCard
