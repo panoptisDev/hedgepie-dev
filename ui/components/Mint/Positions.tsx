@@ -132,22 +132,24 @@ const Positions = (props) => {
         </Flex>
       </Flex>
 
-      <Button
-        sx={styles.add_position_button as ThemeUICSSObject}
-        onClick={() => {
-          setPositions((prevState) => [
-            ...prevState,
-            {
-              posWeight: 0,
-              posQuantity: 0,
-              posType: 'Tako',
-            } as Position,
-          ])
-          setLocked((prevState) => [...prevState, false])
-        }}
-      >
-        Add Position
-      </Button>
+      <Flex sx={{ justifyContent: 'center', alignItems: 'center' }}>
+        <Button
+          sx={styles.add_position_button as ThemeUICSSObject}
+          onClick={() => {
+            setPositions((prevState) => [
+              ...prevState,
+              {
+                posWeight: 0,
+                posQuantity: 0,
+                posType: 'Tako',
+              } as Position,
+            ])
+            setLocked((prevState) => [...prevState, false])
+          }}
+        >
+          Add Position
+        </Button>
+      </Flex>
     </Flex>
   )
 }
