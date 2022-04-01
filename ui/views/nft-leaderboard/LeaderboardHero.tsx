@@ -21,11 +21,16 @@ const LeaderboardHero = () => {
           left: 0,
           width: '100%',
           height: '100%',
-          objectFit: 'cover'
+          objectFit: 'cover',
+          objectPosition: 'right'
         }}
       />
       <Box
-        sx={{ fontSize: 40, fontWeight: 'bold' }}
+        sx={{
+          fontSize: 40,
+          fontWeight: 'bold',
+          textAlign: 'center'
+        }}
       >
         YB NFT leaderboard
       </Box>

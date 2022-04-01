@@ -11,9 +11,9 @@ const LotterySearch = ({ onSearch }: any) => {
     <Box
       sx={{
         bg: 'details',
-        height: 120,
-        padding: 30,
+        padding: [12, 30],
         display: 'flex',
+        flexDirection: ['column-reverse', 'row'],
         justifyContent: 'space-between',
         alignItems: 'center',
       }}
@@ -28,7 +28,8 @@ const LotterySearch = ({ onSearch }: any) => {
           borderRadius: 30,
           paddingLeft: 24,
           paddingRight: 24,
-          fontSize: 14
+          fontSize: 14,
+          marginTop: [12, 0]
         }}
         placeholder="Search by name, symbol, address ..."
         onChange={handleChange}
@@ -36,7 +37,7 @@ const LotterySearch = ({ onSearch }: any) => {
       <Box
         sx={{
           fontSize: 24,
-          color: '#fff'
+          color: '#fff',
         }}
       >
         Finished Rounds

@@ -51,7 +51,7 @@ const LeaderboardMain = () => {
   return (
     <Box
       sx={{
-        padding: 100,
+        padding: '100px 16px',
         display: 'flex',
         justifyContent: 'center'
       }}
