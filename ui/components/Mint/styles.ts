@@ -445,4 +445,5 @@ export const styles = {
     flexDirection: 'column',
     marginLeft: '10px',
   },
+  flex_centered: { justifyContent: 'center', alignItems: 'center' },
 }

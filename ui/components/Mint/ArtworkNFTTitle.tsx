@@ -29,7 +29,7 @@ const ArtworkNFTTitle = (props) => {
             }
           }}
         />
-        <Flex sx={{ justifyContent: 'center', alignItems: 'center' }}>
+        <Flex sx={styles.flex_centered as ThemeUICSSObject}>
           <Button sx={styles.step_three_upload_button as ThemeUICSSObject} onClick={uploadFile}>
             UPLOAD
           </Button>

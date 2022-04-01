@@ -132,7 +132,7 @@ const Positions = (props) => {
         </Flex>
       </Flex>
 
-      <Flex sx={{ justifyContent: 'center', alignItems: 'center' }}>
+      <Flex sx={styles.flex_centered as ThemeUICSSObject}>
         <Button
           sx={styles.add_position_button as ThemeUICSSObject}
           onClick={() => {
