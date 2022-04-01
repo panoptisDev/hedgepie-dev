@@ -23,7 +23,7 @@ const StrategyComposition = ({ ...props }) => {
       <Flex
         sx={{
           marginTop: 20,
-          gap: 10,
+          gap: 12,
           flexWrap: 'wrap',
         }}
       >

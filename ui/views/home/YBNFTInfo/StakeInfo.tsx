@@ -5,20 +5,25 @@ const StackInfo = () => {
   return (
     <Box
       sx={{
-        width: 320,
-        flexShrink: 0
+        maxWidth: 320,
+        flexShrink: 0,
+        margin: ['0 auto']
       }}
     >
       <Box
         sx={{
-          height: 320,
+          paddingBottom: '100%',
           borderRadius: 8,
-          overflow: 'hidden'
+          overflow: 'hidden',
+          position: 'relative'
         }}
       >
         <Image
           src="/images/nft.png"
           sx={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
             width: '100%',
             height: '100%',
             objectFit: 'cover'
@@ -27,8 +32,9 @@ const StackInfo = () => {
       </Box>
       <Box
         sx={{
-          marginTop: 36,
-          padding: 36,
+          marginTop: [16, 36],
+          marginBottom: 16,
+          padding: [16, 36],
           backgroundColor: '#FFFBF4',
           border: '1px solid #EFA906',
           borderRadius: 8

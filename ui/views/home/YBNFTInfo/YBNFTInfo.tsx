@@ -10,7 +10,7 @@ const YBNFTInfo = () => {
   return (
     <Box
       sx={{
-        height: 1300,
+        padding: '80px 16px',
         background: 'linear-gradient(180deg, rgba(255,255,255,1) 0%, rgba(223,72,134,0.15) 25%, rgba(25,158,230,0.15) 75%, rgba(255,255,255,1) 100%)',
       }}
     >
@@ -18,7 +18,7 @@ const YBNFTInfo = () => {
       <Box
         sx={{
           margin: '0 auto',
-          width: 1200,
+          maxWidth: 1200,
           position: 'relative'
         }}
       >
@@ -36,17 +36,25 @@ const YBNFTInfo = () => {
             marginTop: 32,
             position: 'relative',
             backgroundColor: '#fff',
-            borderRadius: 50,
-            padding: 64
+            borderRadius: [20, 20, 50],
+            padding: [16, 16, 64],
           }}
         >
-          <Flex>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: ['column', 'column', 'column', 'row']
+            }}
+          >
             <StakeInfo />
-            <Box pl={3} sx={{ flexGrow: 1 }}>
+            <Box
+              pl={[0, 3]}
+              sx={{ flexGrow: 1 }}
+            >
               <NftInfo />
               <StrategyComposition mt={40} />
             </Box>
-          </Flex>
+          </Box>
           <Box
             sx={{
               marginTop: 52,

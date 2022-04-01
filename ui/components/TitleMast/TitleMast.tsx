@@ -25,9 +25,18 @@ const TitleMast = (props: Props) => {
           width: '100%',
           height: '100%',
           objectFit: 'cover',
+          objectPosition: 'right'
         }}
       />
-      <Box sx={{ fontSize: 40, fontWeight: 'bold' }}>{title}</Box>
+      <Box
+        sx={{
+          fontSize: 40,
+          fontWeight: 'bold',
+          textAlign: 'center'
+        }}
+      >
+        {title}
+      </Box>
     </Box>
   )
 }

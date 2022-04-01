@@ -19,13 +19,14 @@ const Footer = (props: Props) => {
     >
       <Box
         py={90}
-        px={60}
+        px={[16, 60]}
         sx={{
           display: 'flex',
           justifyContent: 'space-between',
+          flexDirection: ['column', 'row']
         }}
       >
-        <Box>
+        <Box mr={4}>
           <Image src="images/logo.png" />
           <Box
             sx={{
@@ -58,6 +59,7 @@ const Footer = (props: Props) => {
           </Box>
         </Box>
         <Box
+          mt={[5, 0]}
           sx={{
             width: 200,
           }}
@@ -99,20 +101,28 @@ const Footer = (props: Props) => {
       />
       <Box
         py={30}
-        px={60}
+        px={[16, 60]}
         sx={{
           display: 'flex',
+          flexDirection: ['column', 'row'],
+          alignItems: 'center',
           justifyContent: 'space-between',
           color: '#8E8DA0',
         }}
       >
         <Box>&copy; 2022 HedgePie</Box>
-        <Flex>
+        <Flex
+          mt={[4, 0]}
+          sx={{
+            flexDirection: ['column', 'row'],
+            gap: [12, 24]
+          }}
+        >
           <Link href="/" passHref>
             <ThemeLink>Privacy policy</ThemeLink>
           </Link>
           <Link href="/" passHref>
-            <ThemeLink ml={4}>Terms &amp; Conditions</ThemeLink>
+            <ThemeLink>Terms &amp; Conditions</ThemeLink>
           </Link>
         </Flex>
       </Box>
