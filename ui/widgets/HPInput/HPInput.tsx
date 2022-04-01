@@ -1,8 +1,5 @@
-/** @jsx jsx */
-/** @jsxRuntime classic */
-
-import { ThemeProvider, jsx, Box, Label, Input } from 'theme-ui'
-
+import React from 'react'
+import { ThemeProvider, Box, Label, Input } from 'theme-ui'
 import { theme } from 'themes/theme'
 
 type Props = { label: string; placeholder?: string }
@@ -36,6 +33,7 @@ const HPInput = (props: Props) => {
         >
           {label}
         </Label>
+
         <Input
           css={{
             position: 'relative',
