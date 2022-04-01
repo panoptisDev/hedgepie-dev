@@ -5,13 +5,20 @@ const StrategyComposition = ({ symbolSrc, title, description, ...props }) => {
   return (
     <Box
       sx={{
-        width: 220,
+        width: '100%',
         height: 112,
         backgroundColor: '#E5F6FF',
         borderRadius: 8,
         display: 'flex',
         alignItems: 'center',
-        justifyContent: 'center'
+        justifyContent: 'start',
+        padding: '0 24px',
+        [`@media screen and (min-width: 720px)`]: {
+          width: 'calc(50% - 6px)'
+        },
+        [`@media screen and (min-width: 1220px)`]: {
+          width: 'calc(33.33% - 8px)'
+        },
       }}
       {...props}
     >
