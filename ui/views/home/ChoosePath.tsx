@@ -4,15 +4,16 @@ import { Box, Image } from 'theme-ui'
 const ChoosePath = () => {
   return (
     <Box
+      px={3}
       sx={{
         marginTop: 60,
-        marginBottom: 150
+        marginBottom: [50, 150]
       }}
     >
       <Box
         sx={{
           margin: '0 auto',
-          width: 1200,
+          maxWidth: 1200,
         }}
       >
         <Box
@@ -40,20 +41,23 @@ const ChoosePath = () => {
         <Box
           sx={{
             display: 'flex',
-            gap: 24,
+            justifyContent: 'center',
+            flexWrap: 'wrap',
             marginTop: 60,
             '& > *': {
-              flex: 1
+              maxWidth: 380,
             }
           }}
         >
           <Box
+            my={3}
+            mx={[0, 2]}
             sx={{
               backgroundColor: '#F6FAFD',
               color: '#1799DE',
-              padding: 40,
-              borderRadius: 60,
-              boxShadow: '0px 15px 0px #1799DE',
+              padding: [12, 40],
+              borderRadius: [30, 60],
+              boxShadow: ['0px 6px 0px #1799DE', '0px 16px 0px #1799DE'],
             }}
           >
             <Box
@@ -68,7 +72,7 @@ const ChoosePath = () => {
               sx={{
                 marginTop: 19,
                 textAlign: 'center',
-                fontSize: 30,
+                fontSize: [18, 30],
                 fontWeight: 700,
                 fontFamily: 'Poppins'
               }}
@@ -91,12 +95,14 @@ const ChoosePath = () => {
             </Box>
           </Box>
           <Box
+            my={3}
+            mx={[0, 2]}
             sx={{
               backgroundColor: '#F6FAFD',
               color: '#EFA906',
-              padding: 40,
-              borderRadius: 60,
-              boxShadow: '0px 15px 0px #EFA906',
+              padding: [12, 40],
+              borderRadius: [30, 60],
+              boxShadow: ['0px 6px 0px #EFA906', '0px 16px 0px #EFA906'],
             }}
           >
             <Box
@@ -111,7 +117,7 @@ const ChoosePath = () => {
               sx={{
                 marginTop: 19,
                 textAlign: 'center',
-                fontSize: 30,
+                fontSize: [18, 30],
                 fontWeight: 700,
                 fontFamily: 'Poppins'
               }}
@@ -134,12 +140,14 @@ const ChoosePath = () => {
             </Box>
           </Box>
           <Box
+            my={3}
+            mx={[0, 2]}
             sx={{
               backgroundColor: '#F6FAFD',
               color: '#DF4886',
-              padding: 40,
-              borderRadius: 60,
-              boxShadow: '0px 15px 0px #DF4886',
+              padding: [12, 40],
+              borderRadius: [30, 60],
+              boxShadow: ['0px 6px 0px #DF4886', '0px 16px 0px #DF4886'],
             }}
           >
             <Box
@@ -154,7 +162,7 @@ const ChoosePath = () => {
               sx={{
                 marginTop: 19,
                 textAlign: 'center',
-                fontSize: 30,
+                fontSize: [18, 30],
                 fontWeight: 700,
                 fontFamily: 'Poppins'
               }}

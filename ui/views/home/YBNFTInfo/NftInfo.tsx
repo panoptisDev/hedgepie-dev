@@ -5,7 +5,12 @@ import Tag from './Tag'
 const NftInfo = ({ ...props }) => {
   return (
     <Box {...props}>
-      <Flex>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: ['column-reverse', 'column-reverse', 'column-reverse', 'column-reverse', 'row']
+        }}
+      >
         <Box>
           <Box
             sx={{
@@ -17,14 +22,21 @@ const NftInfo = ({ ...props }) => {
           </Box>
           <Box
             sx={{
-              fontSize: 30,
+              fontSize: [20, 30],
               fontWeight: 700,
               color: '#16103A'
             }}
           >
             Yield Bearing NFT Name #7090
           </Box>
-          <Box mt={3}>
+          <Box
+            mt={3}
+            sx={{
+              display: 'flex',
+              flexWrap: 'wrap',
+              gap: '8px'
+            }}
+          >
             <Tag
               label="TLV:"
               value="$5,000"
@@ -32,39 +44,47 @@ const NftInfo = ({ ...props }) => {
             <Tag
               label="TLV:"
               value="$5,000"
-              ml={2}
             />
           </Box>
         </Box>
         <Box sx={{ flexGrow: 1 }} />
-        <Flex sx={{ alignItems: 'center' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            justifyContent: 'end',
+            alignItems: 'center',
+            flexShrink: 0
+          }}
+        >
           <Box
             sx={{
               color: '#ABABAB',
-              fontSize: 20,
+              fontSize: [16, 20],
               fontWeight: 900,
-              marginRight: 24
+              marginRight: [12, 24]
             }}
           >
             OWNER
           </Box>
           <Box
             sx={{
-              width: 100,
-              height: 100,
-              borderRadius: '50%'
+              width: [50, 100],
+              height: [50, 100],
+              borderRadius: '50%',
+              flexShrink: 0
             }}
           >
             <Image src="/images/owner.png" />
           </Box>
-        </Flex>
-      </Flex>
+        </Box>
+      </Box>
       <Flex
         sx={{
           marginTop: 24,
-          gap: 24,
+          gap: 12,
+          flexWrap: 'wrap',
           '& > *': {
-            flex: 1
+            width: ['100%', 'calc(50% - 6px)']
           }
         }}
       >
@@ -73,14 +93,11 @@ const NftInfo = ({ ...props }) => {
           sx={{
             borderRadius: 40,
             height: 64,
-            padding: '0 40px',
             cursor: 'pointer',
             transition: 'all .2s',
           }}
         >
-          <Box mr={2}>
-            STAKE
-          </Box>
+          STAKE
         </Button>
         <Button
           variant="info"
@@ -88,14 +105,11 @@ const NftInfo = ({ ...props }) => {
             borderRadius: 40,
             border: '1px solid #1799DE',
             height: 64,
-            padding: '0 40px',
             cursor: 'pointer',
             transition: 'all .2s',
           }}
         >
-          <Box mr={2}>
-            VIEW CONTENTS
-          </Box>
+          VIEW CONTENTS
         </Button>
       </Flex>
     </Box>

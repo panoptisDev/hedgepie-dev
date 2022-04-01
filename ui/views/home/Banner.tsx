@@ -7,23 +7,25 @@ type Props = {}
 const Banner = (props: Props) => {
   return (
     <Box
+      px={3}
       sx={{
         height: 1000,
         marginBottom: 60,
         background: 'url(/images/home-banner.jpg)',
         backgroundPosition: 'center bottom',
-        backgroundSize: 'cover'
+        backgroundSize: 'cover',
+        overflow: 'hidden'
       }}
     >
       <Box
         sx={{
-          paddingTop: 360
+          paddingTop: [200, 200, 200, 360]
         }}
       >
         <Box
           sx={{
             margin: '0 auto',
-            width: 1200,
+            maxWidth: 1200,
             position: 'relative'
           }}
         >
@@ -31,25 +33,25 @@ const Banner = (props: Props) => {
             src="/images/homepage-coins.png"
             sx={{
               position: 'absolute',
-              top: -140,
-              right: 0,
-              width: 450
+              top: [300, 300, 250, -140],
+              right: [-40, 0, 40, 0],
+              width: [250, 250, 300, 450]
             }}
           />
           <Image
             src="/images/pie.png"
             sx={{
               position: 'absolute',
-              top: 0,
-              right: 30,
-              width: 500
+              top: [400, 400, 350, 0],
+              right: [0, 30],
+              width: [300, 300, 400, 500],
             }}
           />
           <Box sx={{ position: 'relative' }}>
             <Box
               sx={{
-                maxWidth: 562,
-                fontSize: 110,
+                maxWidth: [260, 450, 450, 562],
+                fontSize: [50, 80, 80, 110],
                 fontWeight: 700,
                 color: '#16103a',
                 lineHeight: 1
@@ -59,8 +61,8 @@ const Banner = (props: Props) => {
             </Box>
             <Box
               sx={{
-                marginTop: 5,
-                fontSize: 24,
+                marginTop: [4, 5],
+                fontSize: [16, 24],
                 fontWeight: 500,
                 color: '#8e8da0',
                 maxWidth: 665
@@ -68,7 +70,7 @@ const Banner = (props: Props) => {
             >
               Stake to earn rewards while entering for a chance to win the Jackpot!
             </Box>
-            <Box sx={{ marginTop: 70 }}>
+            <Box sx={{ marginTop: [30, 70] }}>
               <Button
                 variant="primary"
                 sx={{

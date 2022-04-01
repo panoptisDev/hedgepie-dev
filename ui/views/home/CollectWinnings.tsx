@@ -6,6 +6,7 @@ const CollectWinnings = () => {
   return (
     <Box
       sx={{
+        padding: '0 16px',
         marginTop: 60,
         marginBottom: 150
       }}
@@ -13,18 +14,25 @@ const CollectWinnings = () => {
       <Box
         sx={{
           margin: '0 auto',
-          width: 1200,
+          maxWidth: 1200,
         }}
       >
         <Box
           sx={{
             display: 'flex',
+            flexDirection: ['column', 'column', 'row'],
+            marginBottom: 50,
             '& > *': {
               flex: 1
             }
           }}
         >
-          <Box>
+          <Box
+            sx={{
+              display: 'flex',
+              justifyContent: 'center'
+            }}
+          >
             <Image src="/images/piebear.png" />
           </Box>
           <Box
@@ -37,7 +45,7 @@ const CollectWinnings = () => {
             <Box
               sx={{
                 color: '#16103A',
-                fontSize: 50,
+                fontSize: [30, 50],
                 fontWeight: 700
               }}
             >
@@ -46,7 +54,8 @@ const CollectWinnings = () => {
             <Box
               sx={{
                 color: '#8E8DA0',
-                marginTop: 16
+                marginTop: 16,
+                fontSize: [14, 16],
               }}
             >
               It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English. Many desktop publishing packages and web page editors now use Lorem Ipsum as their default model text, and a search for 'lorem ipsum' will uncover many web sites
@@ -75,6 +84,7 @@ const CollectWinnings = () => {
         <Box
           sx={{
             display: 'flex',
+            flexDirection: ['column-reverse', 'column-reverse', 'row'],
             '& > *': {
               flex: 1
             }
@@ -90,7 +100,7 @@ const CollectWinnings = () => {
             <Box
               sx={{
                 color: '#16103A',
-                fontSize: 50,
+                fontSize: [30, 50],
                 fontWeight: 700
               }}
             >
@@ -125,7 +135,14 @@ const CollectWinnings = () => {
               </Button>
             </Box>
           </Box>
-          <Box sx={{ position: 'relative' }}>
+          <Box
+            sx={{
+              position: 'relative',
+              display: 'flex',
+              alignItems: 'center',
+              justifyContent: 'center'
+            }}
+          >
             <Image src="/images/cake-ring.png" />
             <Box
               sx={{
@@ -136,7 +153,8 @@ const CollectWinnings = () => {
                 height: '100%',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
+                padding: '15%'
               }}
             >
               <Image src="/images/logo-large.png" />
