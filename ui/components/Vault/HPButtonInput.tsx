@@ -7,16 +7,19 @@ import { useVaultPools } from 'state/hooks'
 import { useERC20Contract } from 'hooks/useContract'
 import { useVault } from 'hooks/useVault'
 
-type Props = {}
+type Props = {
+  activePoolIdx?: number
+}
 
 const HPButtonInput = (props: Props) => {
+  const { activePoolIdx } = props
   const [isPending, setPending] = useState(false)
   const [amount, setAmount] = useState('')
 
   const { account } = useWeb3React()
   const pools = useVaultPools()
   const { onApprove, onStake, onUnstake, onClaim } = useVault()
-  const activePool = pools.find((pool) => pool.pid === 0)
+  const activePool = pools.find((pool) => pool.pid === activePoolIdx)
   const userData = activePool?.userData
   const tokenContract = useERC20Contract(activePool?.lpToken || '')
   const isApproved = userData && userData.allowance > 0
