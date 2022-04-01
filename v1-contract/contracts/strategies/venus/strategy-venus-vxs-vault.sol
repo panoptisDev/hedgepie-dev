@@ -8,10 +8,7 @@ contract StrategyVenusXVSVault is StrategyVenusVaultBase {
         address _stakingToken,
         address _rewardToken,
         address _strategist
-    )
-        public
-        StrategyVenusVaultBase(_stakingToken, _rewardToken, _strategist, 0)
-    {}
+    ) StrategyVenusVaultBase(_stakingToken, _rewardToken, _strategist, 0) {}
 
     function getName() external pure returns (string memory) {
         return "StrategyVenusXVSVault";

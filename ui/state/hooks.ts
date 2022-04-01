@@ -1,14 +1,25 @@
 import { useEffect } from 'react'
-import BigNumber from 'bignumber.js'
-import { useWeb3React } from '@web3-react/core'
 import { useSelector, useDispatch } from 'react-redux'
+import { fetchVaultGlobalDataAsync, fetchVaultPoolDataAsync } from './actions'
+import { State, Pool } from 'state/types'
+
 
 
 export const useFetchPublicData = () => {
   const dispatch = useDispatch()
 
   useEffect(() => {
-    // v2
+    // vault
+    dispatch(fetchVaultGlobalDataAsync())
+    dispatch(fetchVaultPoolDataAsync())
+
+    // ybnft
   }, [dispatch])
 }
 
+
+
+export const useVaultPools = (): Pool[] => {
+  const pools = useSelector((state: State) => state.vault.data)
+  return pools
+}

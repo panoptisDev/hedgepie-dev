@@ -8,10 +8,7 @@ contract StrategyPancakeIFOPool is StrategyPancakeStakeBase {
         address _stakingToken,
         address _rewardToken,
         address _strategist
-    )
-        public
-        StrategyPancakeStakeBase(_stakingToken, _rewardToken, _strategist)
-    {}
+    ) StrategyPancakeStakeBase(_stakingToken, _rewardToken, _strategist) {}
 
     function getName() external pure returns (string memory) {
         return "StrategyPancakeIFOStake";

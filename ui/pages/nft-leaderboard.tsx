@@ -4,13 +4,11 @@ import type { NextPage } from 'next'
 
 // Components
 import { HedgePieFinance } from 'components/HedgePieFinance'
-import LeaderboardHero from 'views/nft-leaderboard/LeaderboardHero'
-import LeaderboardMain from 'views/nft-leaderboard/LeaderboardMain'
+import LeaderboardMain from 'views/nft-leaderboard/LeaderBoard'
 
 const FinishedLotteries: NextPage = () => {
   return (
-    <HedgePieFinance>
-      <LeaderboardHero />
+    <HedgePieFinance title="YB NFT leaderboard">
       <LeaderboardMain />
     </HedgePieFinance>
   )

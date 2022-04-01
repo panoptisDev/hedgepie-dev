@@ -1,21 +1,22 @@
-/** @jsx jsx */
-/** @jsxRuntime classic */
+import React, { useEffect } from 'react'
+import { ThemeProvider, Box, Input, Button, Badge, Flex } from 'theme-ui'
+import { theme } from 'themes/theme'
+import { useWeb3React } from '@web3-react/core'
 
 import { ConnectWallet } from 'components/ConnectWallet'
-import { useEffect } from 'react'
-import { ThemeProvider, jsx, Box, Input, Button, Badge, Flex } from 'theme-ui'
 
-import { theme } from 'themes/theme'
-
-type Props = { label: string; placeholder?: string }
+type Props = { placeholder?: string }
 
 const HPButtonInput = (props: Props) => {
+  const { placeholder } = props
+  const { account } = useWeb3React()
+
   useEffect(() => {}, [])
-  const { label, placeholder } = props
+
   return (
     <ThemeProvider theme={theme}>
       <Box
-        css={{
+        sx={{
           position: 'relative',
           width: '100%',
           overflow: 'hidden',
@@ -24,33 +25,10 @@ const HPButtonInput = (props: Props) => {
           borderRadius: '31px',
         }}
       >
-        <Flex css={{ position: 'absolute', marginTop: 0, height: '100%', gap: '10px', zIndex: '1' }}>
-          <ConnectWallet>
-            <Button
-              css={{
-                position: 'relative',
-                height: '100%',
-                borderRadius: '40px',
-                width: '200px',
-                padding: '0px 20px',
-                lineHeight: '48px',
-                fontSize: '18px',
-                fontWeight: '600',
-                opacity: '0.8',
-                backgroundColor: '#1799DE',
-                color: '#fff',
-                cursor: 'pointer',
-                ':hover': {
-                  border: '2px solid rgb(157 83 182)',
-                  color: 'rgb(157 83 182)',
-                },
-              }}
-            >
-              {label}
-            </Button>
-          </ConnectWallet>
+        <Flex sx={{ position: 'absolute', marginTop: 0, height: '100%', gap: '10px', zIndex: '1' }}>
+          {account ? <>Stake</> : <ConnectWallet />}
           <Badge
-            css={{
+            sx={{
               width: 'fit-content',
               height: 'fit-content',
               alignSelf: 'center',
@@ -64,7 +42,7 @@ const HPButtonInput = (props: Props) => {
           </Badge>
         </Flex>
         <Input
-          css={{
+          sx={{
             position: 'relative',
             height: '56px',
             borderRadius: '30px',

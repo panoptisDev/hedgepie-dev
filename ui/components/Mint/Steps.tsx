@@ -20,7 +20,7 @@ const Steps = (props) => {
           1
         </Button>
       </Flex>
-      <div style={styles.step_line_one}></div>
+      <Flex sx={styles.step_line_one}></Flex>
       <Flex sx={styles.step_two_column_container as ThemeUICSSObject}>
         <Text sx={{ ...styles.step_title, color: step === 2 ? '#16103A' : '#8E8DA0' } as ThemeUICSSObject}>
           Set Performance Fee
@@ -34,10 +34,10 @@ const Steps = (props) => {
           2
         </Button>
       </Flex>
-      <div style={styles.step_line_two}></div>
+      <Flex sx={styles.step_line_two}></Flex>
       <Flex sx={styles.step_three_column_container as ThemeUICSSObject}>
         <Text sx={{ ...styles.step_title, color: step === 3 ? '#16103A' : '#8E8DA0' } as ThemeUICSSObject}>
-          Optional Art and Name
+          Optional Art & Name
         </Text>
         <Button
           sx={{ ...styles.step_button, color: step === 3 ? '#16103A' : '#8E8DA0' } as ThemeUICSSObject}

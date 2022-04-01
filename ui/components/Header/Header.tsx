@@ -9,6 +9,7 @@ import {
 } from '@szhsin/react-menu'
 import '@szhsin/react-menu/dist/index.css'
 import '@szhsin/react-menu/dist/transitions/slide.css'
+import { ConnectWallet } from 'components/ConnectWallet'
 
 type Props = {
   overlay?: boolean
@@ -47,7 +48,7 @@ const Header = ({ overlay = false, dark = true }: Props) => {
         left: 0,
         width: '100%',
         backgroundColor: dark ? '#16103A' : 'transparent',
-        color: dark ? '#FFF' : '#000'
+        color: dark ? '#FFF' : '#000',
       }}
     >
       <Box
@@ -56,7 +57,7 @@ const Header = ({ overlay = false, dark = true }: Props) => {
           maxWidth: 1200,
           height: 120,
           display: 'flex',
-          alignItems: 'center'
+          alignItems: 'center',
         }}
       >
         <Link href="/" passHref>
@@ -64,7 +65,7 @@ const Header = ({ overlay = false, dark = true }: Props) => {
             <Image
               src="/images/logo.png"
               sx={{
-                height: 70
+                height: 70,
               }}
             />
           </ThemeLink>
@@ -77,38 +78,27 @@ const Header = ({ overlay = false, dark = true }: Props) => {
           }}
         >
           <Link href="/vault" passHref>
-            <ThemeLink mr={4}>
-              Vault
-            </ThemeLink>
+            <ThemeLink mr={4}>Vault</ThemeLink>
           </Link>
           <Link href="/nft-leaderboard" passHref>
-            <ThemeLink mr={4}>
-              Leaderboard
-            </ThemeLink>
+            <ThemeLink mr={4}>Leaderboard</ThemeLink>
           </Link>
           <Link href="/mint" passHref>
-            <ThemeLink mr={4}>
-              Mint
-            </ThemeLink>
+            <ThemeLink mr={4}>Mint</ThemeLink>
           </Link>
-          <Button
-            variant="info"
+          <Box
             sx={{
               border: '1px solid #1799DE',
               borderRadius: 40,
               height: 64,
-              padding: '0 24px',
               cursor: 'pointer',
               transition: 'all .2s',
               display: 'flex',
-              alignItems: 'center'
+              alignItems: 'center',
             }}
           >
-            <Box mr={2}>
-              Connect Wallet
-            </Box>
-            <ArrowRight />
-          </Button>
+            <ConnectWallet isHeaderBtn />
+          </Box>
         </Box>
         <Menu
           menuButton={

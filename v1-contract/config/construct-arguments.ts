@@ -1,6 +1,8 @@
 
-export const vaultArgs = {
-  hedgepie: "0xb71C87Ec8d132Cb6aCe4977fDdF07aad98F73d78", // bsc-testnet
+export const masterChefArgs = {
+  lp: "0x3CdFF37d36278e13e1f68f6A0faECcDaB699E264", // HPIE token address
+  rewardToken: "0x3CdFF37d36278e13e1f68f6A0faECcDaB699E264", // HPIE token address
+  rewardPerBlock: "5000000000000000000", // 5 per block
 };
 
 export const mockBEP20Args = {
