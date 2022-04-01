@@ -5,9 +5,18 @@ import { ThemeProvider, jsx, Flex, Image, Select, Box, Label } from 'theme-ui'
 
 import { theme } from 'themes/theme'
 
-type Props = {}
+type Props = {
+  items: any[]
+  onChangePoolIdx: (idx: string) => void
+}
 
-const HPInstrumentSelect = (props: Props) => {
+const HPSelect = (props: Props) => {
+  const { items, onChangePoolIdx } = props
+
+  const onSelect = (e) => {
+    onChangePoolIdx(e.target.value)
+  }
+
   return (
     <ThemeProvider theme={theme}>
       <Flex p={2} css={{ gap: '1rem', width: '100%' }}>
@@ -60,9 +69,11 @@ const HPInstrumentSelect = (props: Props) => {
               marginTop: '2px',
             }}
             mb={3}
+            onChange={onSelect}
           >
-            <option>HPIE</option>
-            <option>HPIE-LP</option>
+            {items?.map((item) => {
+              return <option value={item.value}>{item.name}</option>
+            })}
           </Select>
         </Box>
       </Flex>
@@ -70,4 +81,4 @@ const HPInstrumentSelect = (props: Props) => {
   )
 }
 
-export default HPInstrumentSelect
+export default HPSelect

@@ -18,3 +18,8 @@ export const getMasterChefAddress = () => {
 export const getMulticallAddress = () => {
   return getAddress(addresses.mulltiCall)
 }
+
+export const getTokenName = (address: string) => {
+  if (address.toLowerCase() === getHpieAddress().toLowerCase()) return 'HPIE'
+  return 'Unknown'
+}

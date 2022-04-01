@@ -16,6 +16,7 @@ async function deploy() {
     masterChefArgs.lp,
     masterChefArgs.rewardToken,
     masterChefArgs.rewardPerBlock,
+    masterChefArgs.rewardHolder
   );
 
   await deployContractInstance.deployed();

@@ -6,12 +6,16 @@ import { Pool } from '../types'
 
 
 export const fetchGlobalData = async () => {
-  const [poolLength, rewardPerBlock, totalAllocPoint] = await multicall(
+  const [poolLength, rewardToken, rewardPerBlock, totalAllocPoint] = await multicall(
     masterChefAbi,
     [
       {
         address: getMasterChefAddress(),
         name: 'poolLength',
+      },
+      {
+        address: getMasterChefAddress(),
+        name: 'rewardToken',
       },
       {
         address: getMasterChefAddress(),
@@ -26,6 +30,7 @@ export const fetchGlobalData = async () => {
 
   return {
     poolLength: new BigNumber(poolLength).toNumber(),
+    rewardToken: rewardToken[0],
     rewardPerBlock: new BigNumber(rewardPerBlock).div(new BigNumber(10).pow(18)).toNumber(),
     totalAllocPoint: new BigNumber(totalAllocPoint).toNumber(),
   }
@@ -62,6 +67,7 @@ export const fetchVaultPoolData = async () => {
       pid,
       lpToken: poolInfo.lpToken,
       allocPoint: new BigNumber(poolInfo.allocPoint._hex).toNumber(),
+      totalStaked: new BigNumber(poolInfo.totalShares._hex).div(new BigNumber(10).pow(18)).toNumber()
     })
   }
 

@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState } from 'react'
 import { ThemeProvider, Box, Input, Button, Badge, Flex } from 'theme-ui'
 import { theme } from 'themes/theme'
 import { useWeb3React } from '@web3-react/core'
@@ -7,22 +7,25 @@ import { useVaultPools } from 'state/hooks'
 import { useERC20Contract } from 'hooks/useContract'
 import { useVault } from 'hooks/useVault'
 
-type Props = { placeholder?: string }
+type Props = {
+  activePoolIdx?: number
+  formType: string
+}
 
 const HPButtonInput = (props: Props) => {
+  const { activePoolIdx, formType } = props
   const [isPending, setPending] = useState(false)
   const [amount, setAmount] = useState('')
 
-  const { placeholder } = props
   const { account } = useWeb3React()
   const pools = useVaultPools()
   const { onApprove, onStake, onUnstake, onClaim } = useVault()
-  const activePool = pools.find((pool) => pool.pid === 0)
+  const activePool = pools.find((pool) => pool.pid === activePoolIdx)
   const userData = activePool?.userData
   const tokenContract = useERC20Contract(activePool?.lpToken || '')
   const isApproved = userData && userData.allowance > 0
 
-  const onApproveOrStake = async () => {
+  const onApproveOrDeposit = async () => {
     if (!isApproved) {
       setPending(true)
 
@@ -45,13 +48,25 @@ const HPButtonInput = (props: Props) => {
     }
   }
 
+  const onWithdraw = async () => {
+    setPending(true)
+    try {
+      await onUnstake(activePool?.pid, amount)
+    } catch (err) {
+      console.log('Staking error:', err)
+    }
+    setPending(false)
+    setAmount('')
+  }
+
   const onChangeAmount = (e) => {
     setAmount(e.target.value)
   }
 
   const getBtnText = () => {
     if (isPending) return 'Pending...'
-    return isApproved ? 'Stake' : 'Approve'
+    if (formType === 'DEPOSIT') return isApproved ? 'Stake' : 'Approve'
+    if (formType === 'WITHDRAW') return 'Unstake'
   }
 
   return (
@@ -75,12 +90,12 @@ const HPButtonInput = (props: Props) => {
                 borderRadius: '50px',
                 padding: '0px 48.5px',
                 cursor: 'pointer',
-                '&:disabled': {
-                  // background: '#ffff00',
-                },
+                '&:disabled': {},
               }}
               disabled={isPending || !account}
-              onClick={onApproveOrStake}
+              onClick={() => {
+                formType === 'DEPOSIT' ? onApproveOrDeposit() : onWithdraw()
+              }}
             >
               {getBtnText()}
             </Button>
@@ -117,7 +132,7 @@ const HPButtonInput = (props: Props) => {
             color: '#8E8DA0',
           }}
           maxLength={6}
-          placeholder={placeholder}
+          placeholder="0.0"
           value={amount}
           onChange={onChangeAmount}
         />

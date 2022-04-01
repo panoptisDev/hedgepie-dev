@@ -29,6 +29,9 @@ contract HedgepieMasterChef is Ownable {
     // The REWARD TOKEN
     IBEP20 public rewardToken;
 
+    // The REWARD HOLDER
+    address public rewardHolder;
+
     // HPIE tokens created per block.
     uint256 public rewardPerBlock;
 
@@ -59,7 +62,8 @@ contract HedgepieMasterChef is Ownable {
     constructor(
         IBEP20 _lp,
         IBEP20 _rewardToken,
-        uint256 _rewardPerBlock
+        uint256 _rewardPerBlock,
+        address _rewardHolder
     ) {
         rewardToken = _rewardToken;
         rewardPerBlock = _rewardPerBlock;
@@ -76,6 +80,7 @@ contract HedgepieMasterChef is Ownable {
         );
 
         totalAllocPoint = 1000;
+        rewardHolder = _rewardHolder;
     }
 
     /**
@@ -195,7 +200,11 @@ contract HedgepieMasterChef is Ownable {
             _amount < rewardToken.balanceOf(address(this)),
             "not enough token"
         );
-        rewardToken.safeTransfer(address(msg.sender), _amount);
+        rewardToken.safeTransferFrom(
+            rewardHolder,
+            address(msg.sender),
+            _amount
+        );
     }
 
     /**
@@ -250,7 +259,11 @@ contract HedgepieMasterChef is Ownable {
                 .div(1e12)
                 .sub(user.rewardDebt);
             if (pending > 0) {
-                rewardToken.safeTransfer(address(msg.sender), pending);
+                rewardToken.safeTransferFrom(
+                    rewardHolder,
+                    address(msg.sender),
+                    pending
+                );
             }
         }
         if (_amount > 0) {
@@ -284,7 +297,11 @@ contract HedgepieMasterChef is Ownable {
             user.rewardDebt
         );
         if (pending > 0) {
-            rewardToken.safeTransfer(address(msg.sender), pending);
+            rewardToken.safeTransferFrom(
+                rewardHolder,
+                address(msg.sender),
+                pending
+            );
         }
         if (_amount > 0) {
             user.amount = user.amount.sub(_amount);
