@@ -70,10 +70,6 @@ const Web3ContextProvider = ({ children }) => {
     const address = await signer.getAddress()
     const network = await web3Provider.getNetwork()
 
-    console.log('changed account:', address)
-
-    console.log('123--->changed account:', address, network.chainId)
-
     // store data
     setAccount(address)
     setChainId(network.chainId)

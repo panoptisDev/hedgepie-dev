@@ -4,7 +4,7 @@ import { fetchGlobalData, fetchVaultPoolData } from './fetchVault'
 import {
   fetchVaultUserData
 } from './fetchVaultUser'
-import { VaultState, Pool } from '../types'
+import { VaultState, Pool } from 'state/types'
 
 const initialState: VaultState = {
   poolLength: 0,

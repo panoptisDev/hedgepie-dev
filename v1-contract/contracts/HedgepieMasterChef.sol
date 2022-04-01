@@ -23,6 +23,7 @@ contract HedgepieMasterChef is Ownable {
         uint256 allocPoint; // How many allocation points assigned to this pool. HPIEs to distribute per block.
         uint256 lastRewardBlock; // Last block number that HPIEs distribution occurs.
         uint256 accHpiePerShare; // Accumulated HPIEs per share, times 1e12. See below.
+        uint256 totalShares;
     }
 
     // The REWARD TOKEN
@@ -69,7 +70,8 @@ contract HedgepieMasterChef is Ownable {
                 lpToken: _lp,
                 allocPoint: 1000,
                 lastRewardBlock: block.number,
-                accHpiePerShare: 0
+                accHpiePerShare: 0,
+                totalShares: 0
             })
         );
 
@@ -147,7 +149,8 @@ contract HedgepieMasterChef is Ownable {
                 lpToken: _lpToken,
                 allocPoint: _allocPoint,
                 lastRewardBlock: block.number,
-                accHpiePerShare: 0
+                accHpiePerShare: 0,
+                totalShares: 0
             })
         );
     }
@@ -256,6 +259,7 @@ contract HedgepieMasterChef is Ownable {
                 address(this),
                 _amount
             );
+            pool.totalShares += _amount;
             user.amount = user.amount.add(_amount);
         }
         user.rewardDebt = user.amount.mul(pool.accHpiePerShare).div(1e12);
@@ -285,6 +289,7 @@ contract HedgepieMasterChef is Ownable {
         if (_amount > 0) {
             user.amount = user.amount.sub(_amount);
             pool.lpToken.safeTransfer(address(msg.sender), _amount);
+            pool.totalShares -= _amount;
         }
         user.rewardDebt = user.amount.mul(pool.accHpiePerShare).div(1e12);
 
@@ -300,6 +305,7 @@ contract HedgepieMasterChef is Ownable {
         UserInfo storage user = userInfo[_pid][msg.sender];
 
         pool.lpToken.safeTransfer(address(msg.sender), user.amount);
+        pool.totalShares -= user.amount;
         emit EmergencyWithdraw(msg.sender, _pid, user.amount);
 
         user.amount = 0;

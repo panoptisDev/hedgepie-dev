@@ -9,8 +9,6 @@ import {
 import erc20Abi from 'config/abi/Erc20.json'
 import masterChefAbi from 'config/abi/HedgepieMasterChef.json'
 
-
-
 const useContract = (abi: AbiItem, address: string, contractOptions?: ContractOptions) => {
   const web3 = useWeb3()
   const [contract, setContract] = useState(new web3.eth.Contract(abi, address, contractOptions))
@@ -23,17 +21,17 @@ const useContract = (abi: AbiItem, address: string, contractOptions?: ContractOp
 }
 
 // erc20 token contract
-export const useERC20 = (address: string) => {
+export const useERC20Contract = (address: string) => {
   return useContract((erc20Abi as unknown) as AbiItem, address)
 }
 
 // erc20 token contract
-export const useHpie = (address: string) => {
+export const useHpieContract = (address: string) => {
   return useContract((erc20Abi as unknown) as AbiItem, getHpieAddress())
 }
 
 // vault contract (masterChef)
-export const useMasterchef = () => {
+export const useMasterchefContract = () => {
   return useContract((masterChefAbi as unknown) as AbiItem, getMasterChefAddress())
 }
 

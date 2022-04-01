@@ -1,6 +1,7 @@
 import { useEffect } from 'react'
-import { useDispatch } from 'react-redux'
+import { useSelector, useDispatch } from 'react-redux'
 import { fetchVaultGlobalDataAsync, fetchVaultPoolDataAsync } from './actions'
+import { State, Pool } from 'state/types'
 
 
 
@@ -11,8 +12,14 @@ export const useFetchPublicData = () => {
     // vault
     dispatch(fetchVaultGlobalDataAsync())
     dispatch(fetchVaultPoolDataAsync())
-    // ybnft
 
+    // ybnft
   }, [dispatch])
 }
 
+
+
+export const useVaultPools = (): Pool[] => {
+  const pools = useSelector((state: State) => state.vault.data)
+  return pools
+}

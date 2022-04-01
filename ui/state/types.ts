@@ -27,7 +27,7 @@ export interface Pool {
   apy?: BigNumber
   userData?: {
     pid?: number
-    allowance?: number
+    allowance: number
     stakingTokenBalance: BigNumber
     stakedBalance: BigNumber
     pendingReward: BigNumber
@@ -39,4 +39,8 @@ export interface VaultState {
   totalAllocPoint?: number
   rewardPerBlock?: number
   data: Pool[]
+}
+
+export interface State {
+  vault: VaultState
 }
