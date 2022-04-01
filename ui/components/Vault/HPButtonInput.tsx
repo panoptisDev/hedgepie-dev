@@ -9,10 +9,11 @@ import { useVault } from 'hooks/useVault'
 
 type Props = {
   activePoolIdx?: number
+  formType: string
 }
 
 const HPButtonInput = (props: Props) => {
-  const { activePoolIdx } = props
+  const { activePoolIdx, formType } = props
   const [isPending, setPending] = useState(false)
   const [amount, setAmount] = useState('')
 
@@ -24,7 +25,7 @@ const HPButtonInput = (props: Props) => {
   const tokenContract = useERC20Contract(activePool?.lpToken || '')
   const isApproved = userData && userData.allowance > 0
 
-  const onApproveOrStake = async () => {
+  const onApproveOrDeposit = async () => {
     if (!isApproved) {
       setPending(true)
 
@@ -47,13 +48,25 @@ const HPButtonInput = (props: Props) => {
     }
   }
 
+  const onWithdraw = async () => {
+    setPending(true)
+    try {
+      await onUnstake(activePool?.pid, amount)
+    } catch (err) {
+      console.log('Staking error:', err)
+    }
+    setPending(false)
+    setAmount('')
+  }
+
   const onChangeAmount = (e) => {
     setAmount(e.target.value)
   }
 
   const getBtnText = () => {
     if (isPending) return 'Pending...'
-    return isApproved ? 'Stake' : 'Approve'
+    if (formType === 'DEPOSIT') return isApproved ? 'Stake' : 'Approve'
+    if (formType === 'WITHDRAW') return 'Unstake'
   }
 
   return (
@@ -80,7 +93,9 @@ const HPButtonInput = (props: Props) => {
                 '&:disabled': {},
               }}
               disabled={isPending || !account}
-              onClick={onApproveOrStake}
+              onClick={() => {
+                formType === 'DEPOSIT' ? onApproveOrDeposit() : onWithdraw()
+              }}
             >
               {getBtnText()}
             </Button>

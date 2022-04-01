@@ -6,9 +6,12 @@ import { HPVaultSummary } from 'widgets/HPVaultSummary'
 import { getTvl, getApy } from 'utils/getPrice'
 import { getTokenName } from 'utils/addressHelpers'
 
-type Props = {}
+type Props = {
+  formType: string
+}
 
 const VaultCard = (props: Props) => {
+  const { formType } = props
   const [activePoolIdx, setActivePoolIdx] = useState(0)
   const vault = useVault()
   const pools = useVaultPools()
@@ -39,7 +42,7 @@ const VaultCard = (props: Props) => {
       <HPInfo label="STAKED" value={String(userStatkedBalance.toFixed(2))} />
       <HPInfo label="APY" value={`${poolApy.toFixed(2)}%`} />
       <HPInfo label="Profit" value={String(userProfit.toFixed(2))} />
-      <HPButtonInput activePoolIdx={activePoolIdx} />
+      <HPButtonInput activePoolIdx={activePoolIdx} formType={formType} />
       <HPVaultSummary tvl={`$${tvl.toFixed(2)}`} />
     </>
   )
