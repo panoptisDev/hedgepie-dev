@@ -1,10 +1,13 @@
-import { getHpieAddress } from 'utils/addressHelpers'
+import { getHpieAddress, getHpieLpAddress } from 'utils/addressHelpers'
 import { BLOCK_GENERATION_TIME, SECONDS_PERY_YEAR } from 'constants/common'
 
 export const getTokenPrice = (address: string): number => {
-  const hpeiAddress = getHpieAddress();
-  if (address.toLowerCase() === hpeiAddress.toLowerCase()) {
+  if (address.toLowerCase() === getHpieAddress().toLowerCase()) {
     return 15;
+  }
+
+  if (address.toLowerCase() === getHpieLpAddress().toLowerCase()) {
+    return 30;
   }
 
   return 10;

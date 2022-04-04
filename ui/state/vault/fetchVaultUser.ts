@@ -2,9 +2,7 @@ import BigNumber from 'bignumber.js'
 import erc20Abi from 'config/abi/Erc20.json'
 import masterChefAbi from 'config/abi/HedgepieMasterChef.json'
 import multicall from 'utils/multicall'
-import { getHpieAddress, getMasterChefAddress } from 'utils/addressHelpers'
-import { Pool } from '../types'
-
+import { getMasterChefAddress } from 'utils/addressHelpers'
 
 export const fetchVaultUserData = async (account) => {
   const [_poolLength] = await multicall(
