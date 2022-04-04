@@ -1,4 +1,5 @@
 import React, { useState } from 'react'
+import { Box, Button } from 'theme-ui'
 import { useVault, useVaultPools } from 'state/hooks'
 import HPButtonInput from 'components/Vault/HPButtonInput'
 import { HPSelect, HPInfo } from 'components/Vault'
@@ -44,6 +45,51 @@ const VaultCard = (props: Props) => {
       <HPInfo label="Profit" value={String(userProfit.toFixed(2))} />
       <HPButtonInput activePoolIdx={activePoolIdx} formType={formType} />
       <HPVaultSummary tvl={`$${tvl.toFixed(2)}`} />
+      <Box
+        sx={{
+          marginTop: 32,
+          padding: 16,
+          backgroundColor: '#fff',
+          borderRadius: 64,
+          display: 'flex',
+          alignItems: 'center',
+          justifyContent: 'space-between',
+          gap: 2
+        }}
+      >
+        <Button
+          variant="primary"
+          sx={{
+            borderRadius: 40,
+            width: 188,
+            height: 38,
+            padding: '0 24px',
+            cursor: 'pointer',
+            transition: 'all .2s',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          Harvest
+        </Button>
+        <Button
+          variant="primary"
+          sx={{
+            borderRadius: 40,
+            width: 188,
+            height: 38,
+            padding: '0 24px',
+            cursor: 'pointer',
+            transition: 'all .2s',
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center'
+          }}
+        >
+          Compound
+        </Button>
+      </Box>
     </>
   )
 }
