@@ -12,4 +12,11 @@ export const mockBEP20Args = {
   initialSupply: "100000000000000000000000000",
 };
 
+export const mockLPArgs = {
+  name: "mock HPIE LP",
+  symbol: "mLP",
+  initialSupply: "100000000000000000000000000",
+};
+
+
 export const ybnftArgs = {}
