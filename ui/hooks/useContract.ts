@@ -4,6 +4,7 @@ import { ContractOptions } from 'web3-eth-contract'
 import useWeb3 from 'hooks/useWeb3'
 import {
   getHpieAddress,
+  getHpieLpAddress,
   getMasterChefAddress,
 } from 'utils/addressHelpers'
 import erc20Abi from 'config/abi/Erc20.json'
@@ -28,6 +29,11 @@ export const useERC20Contract = (address: string) => {
 // erc20 token contract
 export const useHpieContract = (address: string) => {
   return useContract((erc20Abi as unknown) as AbiItem, getHpieAddress())
+}
+
+// hpie lp token contract
+export const useHpieLpContract = (address: string) => {
+  return useContract((erc20Abi as unknown) as AbiItem, getHpieLpAddress())
 }
 
 // vault contract (masterChef)

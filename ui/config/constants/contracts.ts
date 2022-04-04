@@ -1,7 +1,14 @@
 export default {
+  // HPIE
   hpie: {
     56: '0x3CdFF37d36278e13e1f68f6A0faECcDaB699E264',
     97: '0x3CdFF37d36278e13e1f68f6A0faECcDaB699E264',
+  },
+
+  // HPIE-LP
+  hpieLp: {
+    56: '0x8d926E4b87752e699095c99a9D68011abeD93710',
+    97: '0x8d926E4b87752e699095c99a9D68011abeD93710',
   },
 
   // vault

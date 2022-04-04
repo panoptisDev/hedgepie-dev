@@ -72,7 +72,11 @@ const HPSelect = (props: Props) => {
             onChange={onSelect}
           >
             {items?.map((item) => {
-              return <option value={item.value}>{item.name}</option>
+              return (
+                <option key={item.value} value={item.value}>
+                  {item.name}
+                </option>
+              )
             })}
           </Select>
         </Box>
