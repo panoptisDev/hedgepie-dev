@@ -44,7 +44,7 @@ const HPButtonInput = (props: Props) => {
     } else {
       setPending(true)
       try {
-        await onStake(activePool.pid, amount)
+        await onStake(activePool.pid, amountString)
       } catch (err) {
         console.log('Staking error:', err)
       }
@@ -57,7 +57,7 @@ const HPButtonInput = (props: Props) => {
   const onWithdraw = async () => {
     setPending(true)
     try {
-      await onUnstake(activePool?.pid, amount)
+      await onUnstake(activePool?.pid, amountString)
     } catch (err) {
       console.log('Staking error:', err)
     }
@@ -172,7 +172,7 @@ const HPButtonInput = (props: Props) => {
             position: 'relative',
             height: '56px',
             borderRadius: '30px',
-            minWidth: '30rem',
+            minWidth: '100%',
             boxShadow: 'none',
             border: 'none',
             outline: 0,
