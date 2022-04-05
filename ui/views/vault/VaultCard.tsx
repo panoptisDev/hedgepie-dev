@@ -1,4 +1,4 @@
-import React, { useState } from 'react'
+import React, { useEffect, useState } from 'react'
 import { useVault, useVaultPools } from 'state/hooks'
 import HPButtonInput from 'components/Vault/HPButtonInput'
 import { HPSelect, HPInfo } from 'components/Vault'
@@ -42,7 +42,12 @@ const VaultCard = (props: Props) => {
       <HPInfo label="STAKED" value={String(userStatkedBalance.toFixed(2))} />
       <HPInfo label="APY" value={`${poolApy.toFixed(2)}%`} />
       <HPInfo label="Profit" value={String(userProfit.toFixed(2))} />
-      <HPButtonInput activePoolIdx={activePoolIdx} formType={formType} />
+      <HPButtonInput
+        activePoolIdx={activePoolIdx}
+        formType={formType}
+        stakedBalance={userData?.stakedBalance}
+        allowance={userData?.allowance}
+      />
       <HPVaultSummary tvl={`$${tvl.toFixed(2)}`} />
     </>
   )

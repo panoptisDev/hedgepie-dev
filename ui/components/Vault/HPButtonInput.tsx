@@ -1,22 +1,26 @@
-import React, { useState } from 'react'
-import { ThemeProvider, Box, Input, Button, Badge, Flex } from 'theme-ui'
+import React, { useEffect, useState } from 'react'
+import { ThemeProvider, Box, Input, Button, Flex } from 'theme-ui'
 import { theme } from 'themes/theme'
 import { useWeb3React } from '@web3-react/core'
 import { ConnectWallet } from 'components/ConnectWallet'
 import { useVaultPools } from 'state/hooks'
 import { useERC20Contract } from 'hooks/useContract'
 import { useVault } from 'hooks/useVault'
+import BigNumber from 'bignumber.js'
 
 type Props = {
   activePoolIdx?: number
   formType: string
+  stakedBalance: BigNumber | undefined
+  allowance: number | undefined
 }
 
 const HPButtonInput = (props: Props) => {
-  const { activePoolIdx, formType } = props
+  const { activePoolIdx, formType, stakedBalance, allowance } = props
   const [isPending, setPending] = useState(false)
   const [amount, setAmount] = useState('')
-
+  const [disabled, setDisabled] = useState(false)
+  const [invalidAmount, setInvalidAmount] = useState(false)
   const { account } = useWeb3React()
   const pools = useVaultPools()
   const { onApprove, onStake, onUnstake, onClaim } = useVault()
@@ -63,10 +67,34 @@ const HPButtonInput = (props: Props) => {
     setAmount(e.target.value)
   }
 
+  // Setting parameters for the button to be disabled/enabled
+  useEffect(() => {
+    if (
+      (allowance && formType === 'DEPOSIT' && Number.parseFloat(amount) > allowance) ||
+      (stakedBalance && formType == 'WITHDRAW' && new BigNumber(Number.parseFloat(amount)) > stakedBalance)
+    ) {
+      setInvalidAmount(true)
+    } else {
+      setInvalidAmount(false)
+    }
+  }, [stakedBalance, allowance, formType, amount])
+
+  useEffect(() => {
+    setDisabled(invalidAmount || isPending || !account)
+  }, [invalidAmount, isPending, account])
+
   const getBtnText = () => {
     if (isPending) return 'Pending...'
     if (formType === 'DEPOSIT') return isApproved ? 'Stake' : 'Approve'
     if (formType === 'WITHDRAW') return 'Unstake'
+  }
+
+  const onMaxClick = () => {
+    if (formType === 'DEPOSIT' && isApproved) {
+      allowance && setAmount(String(allowance.toFixed(2)))
+    } else if (formType === 'WITHDRAW') {
+      stakedBalance && setAmount(String(stakedBalance.toFixed(2)))
+    }
   }
 
   return (
@@ -81,7 +109,7 @@ const HPButtonInput = (props: Props) => {
           borderRadius: '31px',
         }}
       >
-        <Flex sx={{ position: 'absolute', marginTop: 0, height: '100%', gap: '10px', zIndex: '1' }}>
+        <Flex sx={{ position: 'absolute', marginTop: 0, height: '100%', gap: '6px', zIndex: '1' }}>
           {account ? (
             <Button
               {...props}
@@ -90,9 +118,9 @@ const HPButtonInput = (props: Props) => {
                 borderRadius: '50px',
                 padding: '0px 48.5px',
                 cursor: 'pointer',
-                '&:disabled': {},
+                opacity: disabled ? 0.5 : 1,
               }}
-              disabled={isPending || !account}
+              disabled={disabled}
               onClick={() => {
                 formType === 'DEPOSIT' ? onApproveOrDeposit() : onWithdraw()
               }}
@@ -102,19 +130,27 @@ const HPButtonInput = (props: Props) => {
           ) : (
             <ConnectWallet />
           )}
-          <Badge
+          <Button
             sx={{
-              width: 'fit-content',
-              height: 'fit-content',
+              width: 'min-content',
+              height: 'min-content',
               alignSelf: 'center',
               backgroundColor: 'rgba(160, 160, 160, 0.32)',
               borderRadius: '4px',
+              fontSize: '12px',
               color: '#8E8DA0',
               fontWeight: '300',
+              cursor: 'pointer',
+              ':hover': {
+                backgroundColor: '#fff',
+                border: '2px solid rgba(160, 160, 160, 0.32)',
+              },
+              padding: '4px',
             }}
+            onClick={onMaxClick}
           >
             MAX
-          </Badge>
+          </Button>
         </Flex>
         <Input
           sx={{
