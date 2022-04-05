@@ -12,13 +12,14 @@ type Props = {
   activePoolIdx?: number
   formType: string
   stakedBalance: BigNumber | undefined
-  allowance: number | undefined
+  stakingTokenBalance: BigNumber | undefined
 }
 
 const HPButtonInput = (props: Props) => {
-  const { activePoolIdx, formType, stakedBalance, allowance } = props
+  const { activePoolIdx, formType, stakedBalance, stakingTokenBalance } = props
   const [isPending, setPending] = useState(false)
-  const [amount, setAmount] = useState('')
+  const [amount, setAmount] = useState<number | BigNumber>(0.0)
+  const [amountString, setAmountString] = useState('0.00')
   const [disabled, setDisabled] = useState(false)
   const [invalidAmount, setInvalidAmount] = useState(false)
   const { account } = useWeb3React()
@@ -48,7 +49,8 @@ const HPButtonInput = (props: Props) => {
         console.log('Staking error:', err)
       }
       setPending(false)
-      setAmount('')
+      setAmount(0.0)
+      setAmountString('0.00')
     }
   }
 
@@ -60,28 +62,35 @@ const HPButtonInput = (props: Props) => {
       console.log('Staking error:', err)
     }
     setPending(false)
-    setAmount('')
+    setAmount(0.0)
+    setAmountString('0.00')
   }
 
   const onChangeAmount = (e) => {
-    setAmount(e.target.value)
+    setAmountString(e.target.value)
+    e.target.value && !isNaN(e.target.value) && setAmount(parseFloat(e.target.value))
   }
 
   // Setting parameters for the button to be disabled/enabled
   useEffect(() => {
     if (
-      (allowance && formType === 'DEPOSIT' && Number.parseFloat(amount) > allowance) ||
-      (stakedBalance && formType == 'WITHDRAW' && new BigNumber(Number.parseFloat(amount)) > stakedBalance)
+      (stakingTokenBalance && formType === 'DEPOSIT' && new BigNumber(amount) > stakingTokenBalance) ||
+      (stakedBalance && formType == 'WITHDRAW' && amount && new BigNumber(amount) > stakedBalance)
     ) {
       setInvalidAmount(true)
     } else {
       setInvalidAmount(false)
     }
-  }, [stakedBalance, allowance, formType, amount])
+  }, [activePoolIdx, stakedBalance, stakingTokenBalance, formType, amount])
 
   useEffect(() => {
     setDisabled(invalidAmount || isPending || !account)
   }, [invalidAmount, isPending, account])
+
+  useEffect(() => {
+    setAmount(0.0)
+    setAmountString('0.00')
+  }, [formType, activePoolIdx])
 
   const getBtnText = () => {
     if (isPending) return 'Pending...'
@@ -91,9 +100,15 @@ const HPButtonInput = (props: Props) => {
 
   const onMaxClick = () => {
     if (formType === 'DEPOSIT' && isApproved) {
-      allowance && setAmount(String(allowance.toFixed(2)))
+      if (stakingTokenBalance) {
+        setAmount(stakingTokenBalance)
+        setAmountString(stakingTokenBalance.toFixed(2))
+      }
     } else if (formType === 'WITHDRAW') {
-      stakedBalance && setAmount(String(stakedBalance.toFixed(2)))
+      if (stakedBalance) {
+        setAmount(stakedBalance)
+        setAmountString(stakedBalance.toFixed(2))
+      }
     }
   }
 
@@ -169,7 +184,7 @@ const HPButtonInput = (props: Props) => {
           }}
           maxLength={6}
           placeholder="0.0"
-          value={amount}
+          value={amountString}
           onChange={onChangeAmount}
         />
       </Box>
