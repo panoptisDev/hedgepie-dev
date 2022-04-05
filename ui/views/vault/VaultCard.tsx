@@ -43,9 +43,14 @@ const VaultCard = (props: Props) => {
       <HPInfo label="STAKED" value={String(userStatkedBalance.toFixed(2))} />
       <HPInfo label="APY" value={`${poolApy.toFixed(2)}%`} />
       <HPInfo label="Profit" value={String(userProfit.toFixed(2))} />
-      <HPButtonInput activePoolIdx={activePoolIdx} formType={formType} />
+      <HPButtonInput
+        activePoolIdx={activePoolIdx}
+        formType={formType}
+        stakedBalance={userData?.stakedBalance}
+        allowance={userData?.allowance}
+      />
       <HPVaultSummary tvl={`$${tvl.toFixed(2)}`} />
-      {formType === 'DEPOSIT' &&
+      {formType === 'DEPOSIT' && (
         <Box
           sx={{
             marginTop: 32,
@@ -55,7 +60,7 @@ const VaultCard = (props: Props) => {
             display: 'flex',
             alignItems: 'center',
             justifyContent: 'space-between',
-            gap: 2
+            gap: 2,
           }}
         >
           <Button
@@ -69,7 +74,7 @@ const VaultCard = (props: Props) => {
               transition: 'all .2s',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
             }}
           >
             Harvest
@@ -85,13 +90,13 @@ const VaultCard = (props: Props) => {
               transition: 'all .2s',
               display: 'flex',
               alignItems: 'center',
-              justifyContent: 'center'
+              justifyContent: 'center',
             }}
           >
             Compound
           </Button>
         </Box>
-      }
+      )}
     </>
   )
 }
