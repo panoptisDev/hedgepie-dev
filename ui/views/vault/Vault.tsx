@@ -5,6 +5,7 @@ import { useDispatch } from 'react-redux'
 import { theme } from 'themes/theme'
 import { HPSwitch } from 'components/Vault'
 import { fetchVaultUserDataAsync } from 'state/actions'
+import VaultTab from './VaultTab'
 import VaultCard from './VaultCard'
 
 type Props = {}
@@ -21,24 +22,43 @@ const Vault = (props: Props) => {
     }
   }, [account, dispatch])
 
-  const onChangeFormType = () => {
-    setFormType(formType === 'DEPOSIT' ? 'WITHDRAW' : 'DEPOSIT')
+  const handleFormTypeChange = (value) => {
+    setFormType(value)
   }
 
   return (
-    <ThemeProvider theme={theme}>
-      <Box p={3}>
-        <Flex sx={{ alignItems: 'center', justifyContent: 'center' }}>
+    <Box p={3}>
+      <Box
+        sx={{
+          marginTop: 90,
+          marginBottom: 90,
+        }}
+      >
+        <Box
+          sx={{
+            backgroundColor: '#E5F6FF',
+            borderRadius: 12,
+            maxWidth: 556,
+            margin: '0 auto',
+          }}
+        >
+          <VaultTab
+            value={formType}
+            onChange={handleFormTypeChange}
+          />
           <Box
-            p={3}
-            sx={{ backgroundColor: '#E5F6FF', borderRadius: '11px', width: 'fit-content', height: 'fit-content' }}
+            sx={{
+              padding: 16,
+              [`@media screen and (min-width: 600px)`]: {
+                padding: 32,
+              },
+            }}
           >
-            <HPSwitch value={formType === 'DEPOSIT' ? 'on' : 'off'} onSwitch={onChangeFormType} />
             <VaultCard formType={formType} />
           </Box>
-        </Flex>
+        </Box>
       </Box>
-    </ThemeProvider>
+    </Box>
   )
 }
 
