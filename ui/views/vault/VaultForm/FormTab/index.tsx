@@ -1,7 +1,7 @@
 import { Box } from 'theme-ui'
-import VaultTabBtn from './VaultTabBtn'
+import TabButton from './TabButton'
 
-const VaultTab = ({ value, onChange }) => {
+const FormTab = ({ value, onChange }) => {
 
   return (
     <Box
@@ -12,20 +12,18 @@ const VaultTab = ({ value, onChange }) => {
         backgroundColor: '#79C8F2',
       }}
     >
-      <VaultTabBtn
+      <TabButton
         active={value === 'DEPOSIT'}
         onClick={() => onChange('DEPOSIT')}
-      >
-        Stake
-      </VaultTabBtn>
-      <VaultTabBtn
+        label="Stake"
+      />
+      <TabButton
         active={value === 'WITHDRAW'}
         onClick={() => onChange('WITHDRAW')}
-      >
-        Withdraw
-      </VaultTabBtn>
+        label="Withdraw"
+      />
     </Box>
   )
 }
 
-export default VaultTab
+export default FormTab
