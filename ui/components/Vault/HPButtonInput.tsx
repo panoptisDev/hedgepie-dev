@@ -76,8 +76,8 @@ const HPButtonInput = (props: Props) => {
   // Setting parameters for the button to be disabled/enabled
   useEffect(() => {
     if (
-      (stakingTokenBalance && formType === 'DEPOSIT' && new BigNumber(amount) > stakingTokenBalance) ||
-      (stakedBalance && formType == 'WITHDRAW' && amount && new BigNumber(amount) > stakedBalance)
+      (stakingTokenBalance && formType === 'DEPOSIT' && new BigNumber(amount).gt(stakingTokenBalance)) ||
+      (stakedBalance && formType == 'WITHDRAW' && amount && new BigNumber(amount).gt(stakedBalance))
     ) {
       setInvalidAmount(true)
     } else {
@@ -184,7 +184,6 @@ const HPButtonInput = (props: Props) => {
             fontWeight: '600',
             color: '#8E8DA0',
           }}
-          maxLength={6}
           placeholder="0.0"
           value={amountString}
           onChange={onChangeAmount}
