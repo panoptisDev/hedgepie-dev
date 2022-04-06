@@ -8,7 +8,7 @@ export const approveToken = async (tokenContract, masterChefContract, account) =
 
 export const stakeOnMasterChef = async (masterChefContract, pid, amount, account) => {
     return masterChefContract.methods
-        .deposit(pid, ethers.utils.parseEther(amount))
+        .deposit(pid, amount)
         .send({ from: account })
         .on('transactionHash', (tx) => {
             return tx.transactionHash
@@ -17,7 +17,7 @@ export const stakeOnMasterChef = async (masterChefContract, pid, amount, account
 
 export const unstakeOnMasterChef = async (masterChefContract, pid, amount, account) => {
     return masterChefContract.methods
-        .withdraw(pid, ethers.utils.parseEther(amount))
+        .withdraw(pid, amount)
         .send({ from: account })
         .on('transactionHash', (tx) => {
             return tx.transactionHash
