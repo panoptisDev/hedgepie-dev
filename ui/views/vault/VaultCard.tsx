@@ -47,7 +47,7 @@ const VaultCard = (props: Props) => {
         activePoolIdx={activePoolIdx}
         formType={formType}
         stakedBalance={userData?.stakedBalance}
-        allowance={userData?.allowance}
+        stakingTokenBalance={userData?.stakingTokenBalance}
       />
       <HPVaultSummary tvl={`$${tvl.toFixed(2)}`} />
       {formType === 'DEPOSIT' && (
