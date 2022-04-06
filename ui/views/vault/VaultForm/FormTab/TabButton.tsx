@@ -1,6 +1,6 @@
 import { Box } from 'theme-ui'
 
-const VaultTabBtn = ({ active = false, children, ...props }) => {
+const TabButton = ({ active = false, label, ...props }) => {
 
   // WITHDRAW
 
@@ -26,9 +26,9 @@ const VaultTabBtn = ({ active = false, children, ...props }) => {
       }}
       {...props}
     >
-      {children}
+      {label}
     </Box>
   )
 }
 
-export default VaultTabBtn
+export default TabButton
