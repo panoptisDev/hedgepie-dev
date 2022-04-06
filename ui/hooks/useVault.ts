@@ -11,8 +11,6 @@ export const useVault = () => {
   const masterChefContract = useMasterchefContract()
 
   const handleApprove = useCallback(async (tokenContract) => {
-
-
     if (!tokenContract.options.address) return;
     const txHash = await approveToken(tokenContract, masterChefContract, account)
     dispatch(fetchVaultUserDataAsync(account))

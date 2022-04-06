@@ -7,6 +7,7 @@ import { useVaultPools } from 'state/hooks'
 import { useERC20Contract } from 'hooks/useContract'
 import { useVault } from 'hooks/useVault'
 import BigNumber from 'bignumber.js'
+import { getBalanceInEther, getBalanceInWei } from 'utils/formatBalance'
 
 type Props = {
   activePoolIdx?: number
@@ -44,7 +45,7 @@ const HPButtonInput = (props: Props) => {
     } else {
       setPending(true)
       try {
-        await onStake(activePool.pid, String(amount))
+        await onStake(activePool.pid, amount)
       } catch (err) {
         console.log('Staking error:', err)
       }
@@ -57,7 +58,7 @@ const HPButtonInput = (props: Props) => {
   const onWithdraw = async () => {
     setPending(true)
     try {
-      await onUnstake(activePool?.pid, String(amount))
+      await onUnstake(activePool?.pid, amount)
     } catch (err) {
       console.log('Staking error:', err)
     }
@@ -68,7 +69,7 @@ const HPButtonInput = (props: Props) => {
 
   const onChangeAmount = (e) => {
     setAmountString(e.target.value)
-    e.target.value && !isNaN(e.target.value) && setAmount(parseFloat(e.target.value))
+    e.target.value && !isNaN(e.target.value) && setAmount(getBalanceInWei(e.target.value))
   }
 
   // Setting parameters for the button to be disabled/enabled
@@ -102,12 +103,12 @@ const HPButtonInput = (props: Props) => {
     if (formType === 'DEPOSIT' && isApproved) {
       if (stakingTokenBalance) {
         setAmount(stakingTokenBalance)
-        setAmountString(stakingTokenBalance.toFixed(2))
+        setAmountString(getBalanceInEther(stakingTokenBalance).toFixed(2))
       }
     } else if (formType === 'WITHDRAW') {
       if (stakedBalance) {
         setAmount(stakedBalance)
-        setAmountString(stakedBalance.toFixed(2))
+        setAmountString(getBalanceInEther(stakedBalance).toFixed(2))
       }
     }
   }

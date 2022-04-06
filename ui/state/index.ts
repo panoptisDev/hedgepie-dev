@@ -6,7 +6,8 @@ const store = configureStore({
   devTools: process.env.NODE_ENV !== 'production',
   reducer: {
     vault: vaultReducer,
-  }
+  },
+  middleware: (getDefaultMiddleware) => getDefaultMiddleware({ serializableCheck: false })
 })
 
 export type AppDispatch = typeof store.dispatch

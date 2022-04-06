@@ -27,10 +27,10 @@ export interface Pool {
   apy?: BigNumber
   userData?: {
     pid?: number
-    allowance: number
-    stakingTokenBalance: BigNumber
-    stakedBalance: BigNumber
-    pendingReward: BigNumber
+    allowance?: number
+    stakingTokenBalance?: BigNumber
+    stakedBalance?: BigNumber
+    pendingReward?: BigNumber
   }
 }
 
