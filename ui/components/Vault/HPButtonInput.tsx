@@ -1,12 +1,12 @@
 import React, { useEffect, useState } from 'react'
 import { ThemeProvider, Box, Input, Button, Flex } from 'theme-ui'
+import BigNumber from 'bignumber.js'
 import { theme } from 'themes/theme'
 import { useWeb3React } from '@web3-react/core'
 import { ConnectWallet } from 'components/ConnectWallet'
 import { useVaultPools } from 'state/hooks'
 import { useERC20Contract } from 'hooks/useContract'
 import { useVault } from 'hooks/useVault'
-import BigNumber from 'bignumber.js'
 import { getBalanceInEther, getBalanceInWei } from 'utils/formatBalance'
 
 type Props = {
@@ -44,6 +44,7 @@ const HPButtonInput = (props: Props) => {
       setPending(false)
     } else {
       setPending(true)
+
       try {
         await onStake(activePool.pid, amount)
       } catch (err) {
