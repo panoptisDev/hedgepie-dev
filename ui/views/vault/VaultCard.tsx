@@ -6,6 +6,7 @@ import { HPSelect, HPInfo } from 'components/Vault'
 import { HPVaultSummary } from 'widgets/HPVaultSummary'
 import { getTvl, getApy } from 'utils/getPrice'
 import { getTokenName } from 'utils/addressHelpers'
+import { getBalanceInEther } from 'utils/formatBalance'
 
 type Props = {
   formType: string
@@ -25,10 +26,10 @@ const VaultCard = (props: Props) => {
   }
 
   // get tvl, apy
-  const userStatkedBalance = userData ? userData.stakedBalance : 0.0
+  const userStatkedBalance = userData ? getBalanceInEther(userData.stakedBalance) : 0.0
   const tvl = getTvl(activePool?.lpToken, activePool?.totalStaked)
   const poolApy = getApy(vault.rewardToken, vault.rewardPerBlock, activePoolRewardAllocation, tvl)
-  const userProfit = userData ? userData.pendingReward : 0.0
+  const userProfit = userData ? getBalanceInEther(userData.pendingReward) : 0.0
 
   const items = pools.map((pool, idx) => {
     return {
