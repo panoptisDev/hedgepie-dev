@@ -25,7 +25,16 @@ const WalletCard: React.FC<Props> = ({ login, walletConfig, onDismiss, mb }) => 
         window.localStorage.setItem(connectorLocalStorageKey, walletConfig.connectorId)
         onDismiss()
       }}
-      sx={{ borderRadius: '30px', backgroundColor: bgColor, cursor: 'pointer', margin: '0.7rem' }}
+      sx={{
+        borderRadius: '30px',
+        backgroundColor: bgColor,
+        cursor: 'pointer',
+        width: '100%',
+        [`@media screen and (min-width: 650px)`]: {
+          width: 200,
+          margin: 2,
+        }
+      }}
       id={`wallet-connect-${title.toLocaleLowerCase()}`}
     >
       <Flex sx={styles.flex_wallet_card as ThemeUICSSObject}>
