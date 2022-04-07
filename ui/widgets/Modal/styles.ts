@@ -1,6 +1,6 @@
 export const styles = {
   connect_wallet_modal: {
-    width: '38rem',
+    width: 530,
     maxWidth: '100%',
     height: 'max-content',
     zIndex: 99,
