@@ -176,6 +176,7 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         uint256 _amount
     ) internal {
         IBEP20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+        IBEP20(_token).approve(investor, _amount);
         IHedgepieInvestor(investor).deposit(
             msg.sender,
             address(this),
