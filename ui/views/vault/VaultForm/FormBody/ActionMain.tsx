@@ -1,21 +1,56 @@
-import React, { useState } from 'react'
-import { Box, Input, Badge } from 'theme-ui'
+import React, { useState, useEffect } from 'react'
+import { Box, Input, Button } from 'theme-ui'
+import BigNumber from 'bignumber.js'
+import { useWeb3React } from '@web3-react/core'
 import { useVaultPools } from 'state/hooks'
 import { useERC20Contract } from 'hooks/useContract'
 import { useVault } from 'hooks/useVault'
+import { getBalanceInEther, getBalanceInWei } from 'utils/formatBalance'
 import ActionMainButton from './ActionMainButton'
 
-const HPButtonInput = ({ activePoolIdx, formType }) => {
+type Props = {
+  activePoolIdx?: number
+  formType: string
+  stakedBalance: BigNumber | undefined
+  stakingTokenBalance: BigNumber | undefined
+}
+
+const ActionMain = (props: Props) => {
+  const { activePoolIdx, formType, stakedBalance, stakingTokenBalance } = props
 
   const [isPending, setPending] = useState(false)
-  const [amount, setAmount] = useState('')
-
+  const [amount, setAmount] = useState<number | BigNumber>(0.0)
+  const [amountString, setAmountString] = useState('0.00')
+  const [disabled, setDisabled] = useState(false)
+  const [invalidAmount, setInvalidAmount] = useState(false)
+  const { account } = useWeb3React()
   const pools = useVaultPools()
-  const { onApprove, onStake, onUnstake } = useVault()
+  const { onApprove, onStake, onUnstake, onClaim } = useVault()
   const activePool = pools.find((pool) => pool.pid === activePoolIdx)
   const userData = activePool?.userData
   const tokenContract = useERC20Contract(activePool?.lpToken || '')
   const isApproved = userData && userData.allowance > 0
+
+  // Setting parameters for the button to be disabled/enabled
+  useEffect(() => {
+    if (
+      (stakingTokenBalance && formType === 'DEPOSIT' && new BigNumber(amount).gt(stakingTokenBalance)) ||
+      (stakedBalance && formType == 'WITHDRAW' && amount && new BigNumber(amount).gt(stakedBalance))
+    ) {
+      setInvalidAmount(true)
+    } else {
+      setInvalidAmount(false)
+    }
+  }, [activePoolIdx, stakedBalance, stakingTokenBalance, formType, amount])
+
+  useEffect(() => {
+    setDisabled(invalidAmount || isPending || !account)
+  }, [invalidAmount, isPending, account])
+
+  useEffect(() => {
+    setAmount(0.0)
+    setAmountString('0.00')
+  }, [formType, activePoolIdx])
 
   const handleApproveOrDeposit = async () => {
     if (!isApproved) {
@@ -30,13 +65,15 @@ const HPButtonInput = ({ activePoolIdx, formType }) => {
       setPending(false)
     } else {
       setPending(true)
+
       try {
         await onStake(activePool.pid, amount)
       } catch (err) {
         console.log('Staking error:', err)
       }
       setPending(false)
-      setAmount('')
+      setAmount(0.0)
+      setAmountString('0.00')
     }
   }
 
@@ -48,11 +85,27 @@ const HPButtonInput = ({ activePoolIdx, formType }) => {
       console.log('Staking error:', err)
     }
     setPending(false)
-    setAmount('')
+    setAmount(0.0)
+    setAmountString('0.00')
   }
 
   const onChangeAmount = (e) => {
-    setAmount(e.target.value)
+    setAmountString(e.target.value)
+    e.target.value && !isNaN(e.target.value) && setAmount(getBalanceInWei(e.target.value))
+  }
+
+  const onMaxClick = () => {
+    if (formType === 'DEPOSIT' && isApproved) {
+      if (stakingTokenBalance) {
+        setAmount(stakingTokenBalance)
+        setAmountString(getBalanceInEther(stakingTokenBalance).toFixed(2))
+      }
+    } else if (formType === 'WITHDRAW') {
+      if (stakedBalance) {
+        setAmount(stakedBalance)
+        setAmountString(getBalanceInEther(stakedBalance).toFixed(2))
+      }
+    }
   }
 
   return (
@@ -63,8 +116,8 @@ const HPButtonInput = ({ activePoolIdx, formType }) => {
           marginBottom: 2,
           width: '100%',
           [`@media screen and (min-width: 600px)`]: {
-            display: 'none'
-          }
+            display: 'none',
+          },
         }}
       >
         <ActionMainButton
@@ -82,7 +135,7 @@ const HPButtonInput = ({ activePoolIdx, formType }) => {
           borderRadius: 62,
           overflow: 'hidden',
           display: 'flex',
-          alignItems: 'center'
+          alignItems: 'center',
         }}
       >
         <Box
@@ -91,8 +144,8 @@ const HPButtonInput = ({ activePoolIdx, formType }) => {
             [`@media screen and (min-width: 600px)`]: {
               display: 'block',
               flexShrink: 0,
-              width: 200
-            }
+              width: 200,
+            },
           }}
         >
           <ActionMainButton
@@ -103,7 +156,7 @@ const HPButtonInput = ({ activePoolIdx, formType }) => {
             isPending={isPending}
           />
         </Box>
-        <Badge
+        <Button
           sx={{
             width: 44,
             height: 26,
@@ -117,11 +170,12 @@ const HPButtonInput = ({ activePoolIdx, formType }) => {
             margin: '0 8px 0 32px',
             [`@media screen and (min-width: 600px)`]: {
               margin: '0 8px',
-            }
+            },
           }}
+          onClick={onMaxClick}
         >
           MAX
-        </Badge>
+        </Button>
         <Input
           sx={{
             boxShadow: 'none',
@@ -131,11 +185,10 @@ const HPButtonInput = ({ activePoolIdx, formType }) => {
             fontSize: 24,
             fontWeight: 700,
             color: '#8E8DA0',
-            paddingRight: 32
+            paddingRight: 32,
           }}
-          maxLength={6}
           placeholder="0.0"
-          value={amount}
+          value={amountString}
           onChange={onChangeAmount}
         />
       </Box>
@@ -143,4 +196,4 @@ const HPButtonInput = ({ activePoolIdx, formType }) => {
   )
 }
 
-export default HPButtonInput
+export default ActionMain
