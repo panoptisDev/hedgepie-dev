@@ -6,7 +6,6 @@ import useWalletModal from 'widgets/WalletModal/useWalletModal'
 import useAuth from 'hooks/useAuth'
 
 const ActionMainButton = ({ activePoolIdx, formType, onApproveOrDeposit, onWithdraw, isPending }) => {
-
   const { login, logout } = useAuth()
   const { onPresentConnectModal } = useWalletModal(login, logout)
   const { account } = useWeb3React()
@@ -30,12 +29,13 @@ const ActionMainButton = ({ activePoolIdx, formType, onApproveOrDeposit, onWithd
             borderRadius: 62,
             cursor: 'pointer',
             width: '100%',
-            flexShrink: 0
+            flexShrink: 0,
           }}
           disabled={isPending || !account}
           onClick={() => {
             formType === 'DEPOSIT' ? onApproveOrDeposit() : onWithdraw()
           }}
+          id="action-button"
         >
           {getBtnText()}
         </Button>
@@ -46,9 +46,10 @@ const ActionMainButton = ({ activePoolIdx, formType, onApproveOrDeposit, onWithd
             borderRadius: 62,
             cursor: 'pointer',
             width: '100%',
-            flexShrink: 0
+            flexShrink: 0,
           }}
           onClick={onPresentConnectModal}
+          id="action-button"
         >
           Connect Wallet
         </Button>

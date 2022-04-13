@@ -25,15 +25,16 @@ const TitleMast = (props: Props) => {
           width: '100%',
           height: '100%',
           objectFit: 'cover',
-          objectPosition: 'right'
+          objectPosition: 'right',
         }}
       />
       <Box
         sx={{
           fontSize: 40,
           fontWeight: 'bold',
-          textAlign: 'center'
+          textAlign: 'center',
         }}
+        id="title-mast"
       >
         {title}
       </Box>
