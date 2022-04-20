@@ -39,13 +39,13 @@ const FormBody = ({ formType }) => {
     <Box>
       <LineInstrument items={items} onChangePoolIdx={onChangePoolIdx} />
       <Box mt={3}>
-        <LineInfo label="STAKED" value={String(userStatkedBalance.toFixed(2))} />
+        <LineInfo label="STAKED" id="staked-info" value={String(userStatkedBalance.toFixed(2))} />
       </Box>
       <Box mt={3}>
-        <LineInfo label="APY" value={`${poolApy.toFixed(2)}%`} />
+        <LineInfo label="APY" id="apy-info" value={`${poolApy.toFixed(2)}%`} />
       </Box>
       <Box mt={3}>
-        <LineInfo label="Profit" value={String(userProfit.toFixed(2))} />
+        <LineInfo label="Profit" id="profit-info" value={String(userProfit.toFixed(2))} />
       </Box>
       <Box mt={4}>
         <ActionMain

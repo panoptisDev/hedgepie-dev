@@ -190,6 +190,7 @@ const ActionMain = (props: Props) => {
           placeholder="0.0"
           value={amountString}
           onChange={onChangeAmount}
+          id="amount-input"
         />
       </Box>
     </Box>

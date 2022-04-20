@@ -1,8 +1,7 @@
 import { Image, Box } from 'theme-ui'
 import Select from 'react-select'
 
-const HPSelect = ({ items, onChangePoolIdx }) => {
-
+const LineInstrument = ({ items, onChangePoolIdx }) => {
   const handleSelect = (option) => {
     onChangePoolIdx(option.value)
   }
@@ -11,7 +10,7 @@ const HPSelect = ({ items, onChangePoolIdx }) => {
     <Box
       sx={{
         display: 'flex',
-        gap: 18
+        gap: 18,
       }}
     >
       <Box
@@ -29,10 +28,7 @@ const HPSelect = ({ items, onChangePoolIdx }) => {
           },
         }}
       >
-        <Image
-          src="/images/logo.png"
-          sx={{ height: 44 }}
-        />
+        <Image src="/images/logo.png" sx={{ height: 44 }} />
       </Box>
       <Box
         sx={{
@@ -41,7 +37,7 @@ const HPSelect = ({ items, onChangePoolIdx }) => {
             content: "'INSTRUMENT'",
             paddingLeft: '8px',
             fontWeight: 700,
-            color: '#16103A'
+            color: '#16103A',
           },
           '& .select__control': {
             height: 62,
@@ -52,11 +48,11 @@ const HPSelect = ({ items, onChangePoolIdx }) => {
           '& .select__single-value': {
             color: '#8E8DA0',
             fontWeight: 700,
-            textAlign: 'right'
+            textAlign: 'right',
           },
           '& .select__indicator-separator': {
-            display: 'none'
-          }
+            display: 'none',
+          },
         }}
       >
         <Select
@@ -69,6 +65,7 @@ const HPSelect = ({ items, onChangePoolIdx }) => {
           // value={items[0]}
           getOptionLabel={(option: any) => option['name']}
           onChange={handleSelect}
+          id="instrument-select"
         />
       </Box>
       {/* <Box
@@ -134,4 +131,4 @@ const HPSelect = ({ items, onChangePoolIdx }) => {
   )
 }
 
-export default HPSelect
+export default LineInstrument

@@ -11,7 +11,7 @@ const HPAction = () => {
         display: 'flex',
         alignItems: 'center',
         justifyContent: 'space-between',
-        gap: 2
+        gap: 2,
       }}
     >
       <Button
@@ -25,8 +25,9 @@ const HPAction = () => {
           transition: 'all .2s',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
         }}
+        id="harvest-button"
       >
         Harvest
       </Button>
@@ -41,8 +42,9 @@ const HPAction = () => {
           transition: 'all .2s',
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
         }}
+        id="compound-button"
       >
         Compound
       </Button>
