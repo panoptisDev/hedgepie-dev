@@ -8,6 +8,28 @@ import YbNftSummaryArt from './YbNftSummaryArt'
 const FormArtName = () => {
 
   const { formData } = React.useContext(MintWizardContext)
+  const [summaryLegend, setSummaryLegend] = React.useState<any>([])
+
+  React.useEffect(() => {
+    const allocated = Math.min(100, formData.allocated)
+    let legendData = [
+      {
+        title: 'Artwork',
+        status: formData.artWorkUrl ? 'Set' : 'Not set'
+      },
+      {
+        title: `${allocated}%`,
+        status: 'Allocated'
+      }
+    ]
+    if (allocated > 0 && allocated < 100) {
+      legendData.push({
+        title: `${100 - allocated}%`,
+        status: 'Unallocated'
+      })
+    }
+    setSummaryLegend(legendData)
+  }, [formData.allocated])
 
   const handleMint = () => {
     console.log('form data')

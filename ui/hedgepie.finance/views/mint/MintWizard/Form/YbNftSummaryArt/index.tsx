@@ -1,7 +1,7 @@
 import React from 'react'
 import { Box, Image } from 'theme-ui'
 import MintWizardContext from 'contexts/MintWizardContext'
-import Legend from './Legend'
+import SummaryLegend from '../SummaryLegend'
 
 const YbNftSummaryArt = () => {
 
@@ -66,7 +66,7 @@ const YbNftSummaryArt = () => {
           </Box>
         </Box>
         <Box mt={18}>
-          <Legend />
+          <SummaryLegend />
         </Box>
       </Box>
       <Box

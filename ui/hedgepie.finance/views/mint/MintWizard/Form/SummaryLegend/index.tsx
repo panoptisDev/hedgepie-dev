@@ -2,25 +2,28 @@ import React from 'react'
 import { Box } from 'theme-ui'
 import MintWizardContext from 'contexts/MintWizardContext'
 
-const Legend = () => {
+const SummaryLegend = () => {
 
   const { formData } = React.useContext(MintWizardContext)
   const [data, setData] = React.useState<any>([])
 
   React.useEffect(() => {
-    const allocated = Math.min(100, formData.allocated)
-    let legendData = [
+    const allocated = Math.min(100, parseInt(formData.allocated || 0))
+    let legendData = formData.order === 2 ? [
       {
+        key: 'summary-artwork',
         title: 'Artwork',
         status: formData.artWorkUrl ? 'Set' : 'Not set'
-      },
-      {
-        title: `${allocated}%`,
-        status: 'Allocated'
       }
-    ]
+    ] : []
+    legendData.push({
+      key: 'summary-allocated',
+      title: `${allocated}%`,
+      status: 'Allocated'
+    })
     if (allocated > 0 && allocated < 100) {
       legendData.push({
+        key: 'summary-unallocated',
         title: `${100 - allocated}%`,
         status: 'Unallocated'
       })
@@ -35,6 +38,7 @@ const Legend = () => {
           <Box as="tr" key={d.status}>
             <Box
               as="td"
+              className={`${d.key}-title`}
               sx={{
                 paddingRight: 12,
                 color: '#0A3F5C',
@@ -50,6 +54,7 @@ const Legend = () => {
             </Box>
             <Box
               as="td"
+              className={`${d.key}-status`}
               sx={{
                 color: '#DF4886',
                 fontSize: 14,
@@ -68,4 +73,4 @@ const Legend = () => {
   )
 }
 
-export default Legend
+export default SummaryLegend

@@ -44,6 +44,7 @@ const Label = ({ index, label, active }: Props) => {
         }}
       >
         <Box
+          className='wizard-nav-item'
           sx={{
             display: 'flex',
             alignItems: 'center',

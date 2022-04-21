@@ -12,10 +12,11 @@ const Position = ({ data, onUpdate, onDelete, onLock }) => {
   }
 
   const handleChangeWeight = (e) => {
-    if (e.target.value === '' || (parseInt(e.target.value) > 0 && parseInt(e.target.value) < 100)) {
+    let newValue = parseInt(e.target.value, 10) || 0
+    if (newValue < 100) {
       onUpdate({
         ...data,
-        weight: e.target.value
+        weight: newValue.toString()
       })
     }
   }
@@ -92,6 +93,7 @@ const Position = ({ data, onUpdate, onDelete, onLock }) => {
               </Box>
               :
               <Input
+                className='weight-input'
                 sx={{
                   border: 'none',
                   outline: 'none',
@@ -101,7 +103,7 @@ const Position = ({ data, onUpdate, onDelete, onLock }) => {
                   width: 50
                 }}
                 type="number"
-                min={1}
+                min={0}
                 max={99}
                 value={data.weight}
                 onChange={handleChangeWeight}
@@ -114,12 +116,14 @@ const Position = ({ data, onUpdate, onDelete, onLock }) => {
           </Box>
           <Button
             variant="icon"
+            className="position-lock"
             onClick={handleLock}
           >
             <Image src="/images/icon-lock.png" />
           </Button>
           <Button
             variant="icon"
+            className="position-delete"
             onClick={onDelete}
           >
             <Image src="/images/icon-trash.png" />
