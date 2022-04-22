@@ -58,9 +58,9 @@ const YbNftSummaryArt = () => {
               }}
             >
               {formData.artWorkUrl ?
-                <Image src={formData.artWorkUrl} />
+                <Image className="artwork-set" src={formData.artWorkUrl} />
                 :
-                <Image src="/images/icon-art.png" />
+                <Image className="artwork-empty" src="/images/icon-art.png" />
               }
             </Box>
           </Box>

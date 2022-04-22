@@ -1,5 +1,5 @@
 
-describe('Navigation to Mint Page', () => {
+describe('Mint Page', () => {
 
   beforeEach(function () {
     cy.visit('http://localhost:3000/mint-new')
@@ -14,9 +14,7 @@ describe('Navigation to Mint Page', () => {
     cy.contains('.wizard-nav-item', '3')
   })
 
-  it('wizard form navigation', () => {
-
-    // navigate using nav
+  it('wizard form navigation by nav', () => {
     cy.contains('.wizard-nav-item', '3')
       .click()
     cy.contains('Upload Artwork')
@@ -27,8 +25,9 @@ describe('Navigation to Mint Page', () => {
       .click()
     cy.contains('Composition')
     cy.contains('Weight')
+  })
 
-    // navigate using next button
+  it('wizard form navigation by next button', () => {
     cy.contains('NEXT STEP')
       .click()
     cy.contains('Performance Fee')
@@ -37,7 +36,30 @@ describe('Navigation to Mint Page', () => {
     cy.contains('Upload Artwork')
   })
 
-  it('wizard form1 - position item', () => {
+  it('wizard form1 - position item (composition menu)', () => {
+    cy.contains('Add Position')
+      .click()
+
+    cy.get('.select__control')
+      .click()
+    cy.contains('Pancakeswap (Cake)')
+      .click()
+    cy.get('.select__value-container')
+      .find('img')
+      .should('have.attr', 'src')
+      .should('include', 'token-cake')
+
+    cy.get('.select__control')
+      .click()
+    cy.contains('Venus (XVS)')
+      .click()
+    cy.get('.select__value-container')
+      .find('img')
+      .should('have.attr', 'src')
+      .should('include', 'token-xvs')
+  })
+
+  it('wizard form1 - position item (weight)', () => {
     cy.contains('Add Position')
       .click()
     cy.get('.weight-input')
@@ -102,17 +124,45 @@ describe('Navigation to Mint Page', () => {
     cy.get('.summary-unallocated-title')
       .should('not.exist')
 
-
-    // cy.get('.weight-input').should($input => {
-    //   let count = 0
-
-    //   $input.map((i, el) => {
-    //     count++
-    //   })
-
-    //   expect(count).to.eq(3)
-    // })
   })
 
+  it('wizard form2', () => {
+    cy.contains('.wizard-nav-item', '2')
+      .click()
+    cy.get('.performance-input')
+      .clear()
+      .should('have.value', '0')
+      .type('0')
+      .should('have.value', '0')
+      .type('100')
+      .should('have.value', '10')
+  })
+
+  it('wizard form3', () => {
+    cy.contains('.wizard-nav-item', '3')
+      .click()
+    cy.get('.summary-artwork-status')
+      .should('have.text', 'Not set')
+    cy.get('img.artwork-empty')
+      .should('exist')
+    cy.get('img.artwork-set')
+      .should('not.exist')
+
+    cy.get('.artwork-file-input')
+      .selectFile('public/images/nft.png')
+    cy.get('.summary-artwork-status')
+      .should('have.text', 'Set')
+    cy.get('img.artwork-empty')
+      .should('not.exist')
+    cy.get('img.artwork-set')
+      .should('exist')
+
+    cy.contains('NFT Name')
+    cy.get('.nft-name-input')
+      .type('my nft')
+      .should('have.value', 'my nft')
+      .clear()
+      .should('have.value', '')
+  })
 
 })

@@ -78,8 +78,12 @@ const UploadArtwork = () => {
         <Box as="label">
           <Input
             type="file"
+            className="artwork-file-input"
             sx={{
-              display: 'none'
+              width: 0,
+              height: 0,
+              padding: 0,
+              opacity: 0
             }}
             onChange={handleChange}
           />

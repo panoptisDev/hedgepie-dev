@@ -23,3 +23,24 @@
 //
 // -- This will overwrite an existing command --
 // Cypress.Commands.overwrite('visit', (originalFn, url, options) => { ... })
+// import 'cypress-file-upload'
+
+// Cypress.Commands.add("uploadFile", (selector, fileUrl) => {
+//   return cy.get(selector).then(subject => {
+//     return cy
+//       .fixture(fileUrl, "base64")
+//       .then(Cypress.Blob.base64StringToBlob)
+//       .then(blob => {
+//         return cy.window().then(win => {
+//           const el = subject[0];
+//           const nameSegments = fileUrl.split("/");
+//           const name = nameSegments[nameSegments.length - 1];
+//           const testFile = new win.File([blob], name);
+//           const dataTransfer = new DataTransfer();
+//           dataTransfer.items.add(testFile);
+//           el.files = dataTransfer.files;
+//           return cy.wrap(subject).trigger('change');
+//         });
+//       });
+//   });
+// });

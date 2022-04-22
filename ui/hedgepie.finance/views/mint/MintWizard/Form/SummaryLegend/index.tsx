@@ -4,12 +4,12 @@ import MintWizardContext from 'contexts/MintWizardContext'
 
 const SummaryLegend = () => {
 
-  const { formData } = React.useContext(MintWizardContext)
+  const { formData, wizard } = React.useContext(MintWizardContext)
   const [data, setData] = React.useState<any>([])
 
   React.useEffect(() => {
     const allocated = Math.min(100, parseInt(formData.allocated || 0))
-    let legendData = formData.order === 2 ? [
+    let legendData = wizard.order === 2 ? [
       {
         key: 'summary-artwork',
         title: 'Artwork',
@@ -29,7 +29,7 @@ const SummaryLegend = () => {
       })
     }
     setData(legendData)
-  }, [formData.allocated])
+  }, [formData.allocated, formData.artWorkUrl, wizard.order])
 
   return (
     <Box as="table">
