@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.hedgepie_finance_deepaksrinivas.twa",
+      "sha256_cert_fingerprints": [
+        "4A:AA:0B:F9:0D:7E:C4:81:E1:4E:11:31:B2:0A:03:3D:05:97:DA:6F:58:66:06:67:A7:82:29:D5:C6:3E:13:6F"
+      ]
+    }
+  }
+]
