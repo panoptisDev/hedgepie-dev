@@ -49,7 +49,6 @@ const ActionMainButton = ({ activePoolIdx, formType, onApproveOrDeposit, onWithd
             flexShrink: 0,
           }}
           onClick={onPresentConnectModal}
-          id="action-button"
         >
           Connect Wallet
         </Button>

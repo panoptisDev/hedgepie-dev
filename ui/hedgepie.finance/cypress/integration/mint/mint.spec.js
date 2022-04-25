@@ -5,10 +5,15 @@ describe('Mint Page', () => {
     cy.visit('http://localhost:3000/mint-new')
   })
 
-  it('verify mint page', () => {
+  it('mint page has proper url', () => {
     cy.url().should('include', '/mint-new')
+  })
+
+  it('mint page has "Mint"', () => {
     cy.contains('Mint')
-    cy.contains('YB NFT Minting')
+  })
+
+  it('mint page has wizard navigation', () => {
     cy.contains('.wizard-nav-item', '1')
     cy.contains('.wizard-nav-item', '2')
     cy.contains('.wizard-nav-item', '3')
@@ -59,36 +64,52 @@ describe('Mint Page', () => {
       .should('include', 'token-xvs')
   })
 
-  it('wizard form1 - position item (weight)', () => {
+  it('wizard form1 - position weight editable, >=0, <100', () => {
     cy.contains('Add Position')
       .click()
     cy.get('.weight-input')
       .should('have.value', '1')
-      .type('{backspace}')
+      .clear()
       .should('have.value', '0')
       .type('0')
       .should('have.value', '0')
       .type('100')
       .should('have.value', '10')
+      .clear()
+      .type('{rightArrow}')
+      .type('-10')
+      .should('have.value', '0')
+  })
+
+  it('wizard form1 - position lock/unlock', () => {
+    cy.contains('Add Position')
+      .click()
     cy.get('.position-lock')
       .click()
     cy.get('.weight-input')
       .should('not.exist')
+    cy.get('.position-lock')
+      .click()
+    cy.get('.weight-input')
+      .should('be.exist')
+  })
+
+  it('wizard form1 - position remove', () => {
+    cy.contains('Add Position')
+      .click()
     cy.get('.position-delete')
       .click()
     cy.get('.position-delete')
       .should('not.exist')
   })
 
-  it('wizard form1 - position list', () => {
+  it('wizard form1 - position list add, remove', () => {
     cy.contains('Add Position')
       .click()
-    cy.contains('Add Position')
       .click()
-    cy.contains('Add Position')
       .click()
-    cy.contains('Add Position')
       .click()
+
     cy.get('.position-delete')
       .should('have.length', 4)
 
@@ -97,6 +118,13 @@ describe('Mint Page', () => {
       .click()
     cy.get('.position-delete')
       .should('have.length', 3)
+  })
+
+  it('wizard form1 - position list - allocated sum', () => {
+    cy.contains('Add Position')
+      .click()
+      .click()
+      .click()
 
     cy.get('.weight-input')
       .eq(0)
@@ -126,7 +154,7 @@ describe('Mint Page', () => {
 
   })
 
-  it('wizard form2', () => {
+  it('wizard form2 - performance fee editable', () => {
     cy.contains('.wizard-nav-item', '2')
       .click()
     cy.get('.performance-input')
@@ -138,7 +166,7 @@ describe('Mint Page', () => {
       .should('have.value', '10')
   })
 
-  it('wizard form3', () => {
+  it('wizard form3 - default summary', () => {
     cy.contains('.wizard-nav-item', '3')
       .click()
     cy.get('.summary-artwork-status')
@@ -147,6 +175,11 @@ describe('Mint Page', () => {
       .should('exist')
     cy.get('img.artwork-set')
       .should('not.exist')
+  })
+
+  it('wizard form3 - upload artwork, summary update', () => {
+    cy.contains('.wizard-nav-item', '3')
+      .click()
 
     cy.get('.artwork-file-input')
       .selectFile('public/images/nft.png')
@@ -156,6 +189,11 @@ describe('Mint Page', () => {
       .should('not.exist')
     cy.get('img.artwork-set')
       .should('exist')
+  })
+
+  it('wizard form3 - nft name editable', () => {
+    cy.contains('.wizard-nav-item', '3')
+      .click()
 
     cy.contains('NFT Name')
     cy.get('.nft-name-input')

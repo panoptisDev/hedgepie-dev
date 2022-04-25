@@ -22,9 +22,7 @@ const Position = ({ data, onUpdate, onDelete, onLock }) => {
   }
 
   const handleLock = () => {
-    if (!data.locked) {
-      onLock()
-    }
+    onLock()
   }
 
   return (
@@ -87,6 +85,7 @@ const Position = ({ data, onUpdate, onDelete, onLock }) => {
                   height: 44,
                   textAlign: 'right',
                   pr: 2,
+                  fontWeight: 500
                 }}
               >
                 {data.weight}

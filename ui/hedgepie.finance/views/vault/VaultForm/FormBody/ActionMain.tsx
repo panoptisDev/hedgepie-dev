@@ -111,6 +111,7 @@ const ActionMain = (props: Props) => {
   return (
     <Box>
       <Box
+        className="mobile-action"
         sx={{
           display: 'block',
           marginBottom: 2,
@@ -139,6 +140,7 @@ const ActionMain = (props: Props) => {
         }}
       >
         <Box
+          className="desktop-action"
           sx={{
             display: 'none',
             [`@media screen and (min-width: 600px)`]: {

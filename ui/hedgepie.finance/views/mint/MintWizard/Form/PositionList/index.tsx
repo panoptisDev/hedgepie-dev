@@ -43,7 +43,7 @@ const PositionList = () => {
   const handleLock = (index) => {
     setFormData({
       ...formData,
-      positions: formData.positions.map((d, i) => i === index ? { ...d, locked: true } : d)
+      positions: formData.positions.map((d, i) => i === index ? { ...d, locked: !d.locked } : d)
     })
   }
 

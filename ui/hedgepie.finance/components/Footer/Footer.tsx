@@ -10,7 +10,7 @@ type Props = {}
 
 const Footer = (props: Props) => {
   return (
-    <Box sx={styles.footer_container as ThemeUICSSObject}>
+    <Box className="footer" sx={styles.footer_container as ThemeUICSSObject}>
       <Box py={90} px={[16, 60]} sx={styles.footer_inner_container as ThemeUICSSObject}>
         <Box mr={4}>
           <Image src="images/logo.png" />
