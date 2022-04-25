@@ -65,6 +65,10 @@ contract HedgepieMasterChef is Ownable {
         uint256 _rewardPerBlock,
         address _rewardHolder
     ) {
+        require(address(_lp) != address(0));
+        require(_rewardHolder != address(0));
+        require(address(_rewardToken) != address(0));
+
         rewardToken = _rewardToken;
         rewardPerBlock = _rewardPerBlock;
 
@@ -145,6 +149,11 @@ contract HedgepieMasterChef is Ownable {
         IBEP20 _lpToken,
         bool _withUpdate
     ) public onlyOwner {
+        require(address(_lpToken) != address(0));
+        for(uint i = 0; i < poolInfo.length; i++) {
+            if(address(poolInfo[i].lpToken) == address(_lpToken)) revert("Pool duplicated");
+        }
+
         if (_withUpdate) {
             massUpdatePools();
         }
@@ -188,6 +197,7 @@ contract HedgepieMasterChef is Ownable {
      * @param _multiplierNumber  _multiplier value
      */
     function updateMultiplier(uint256 _multiplierNumber) public onlyOwner {
+        require(_multiplierNumber > 0, "Invalid");
         BONUS_MULTIPLIER = _multiplierNumber;
     }
 

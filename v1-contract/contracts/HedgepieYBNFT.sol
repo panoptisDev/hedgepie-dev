@@ -113,12 +113,10 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
 
     // ===== public functions =====
     function manageToken(address[] calldata _tokens, bool _flag)
-        public
+        external
         onlyOwner
     {
-        for (uint8 idx = 0; idx < _tokens.length; idx++) {
-            allowedToken[_tokens[idx]] = _flag;
-        }
+        for (uint idx = 0; idx < _tokens.length; idx++) allowedToken[_tokens[idx]] = _flag;
     }
 
     function deposit(
@@ -159,7 +157,7 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         address[] calldata _swapToken,
         address[] calldata _strategyAddress
     ) internal {
-        for (uint8 idx = 0; idx < _swapToken.length; idx++) {
+        for (uint idx = 0; idx < _swapToken.length; ++idx) {
             nftStrategy[_tokenId].push(
                 Strategy({
                     percent: _swapPercent[idx],
