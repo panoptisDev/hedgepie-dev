@@ -8,6 +8,9 @@ import { useVault } from 'hooks/useVault'
 import { getBalanceInEther, getBalanceInWei } from 'utils/formatBalance'
 import ActionMainButton from './ActionMainButton'
 
+import { getTokenName } from 'utils/addressHelpers'
+import toast from '../../../../utils/toast'
+
 type Props = {
   activePoolIdx?: number
   formType: string
@@ -33,11 +36,18 @@ const ActionMain = (props: Props) => {
 
   // Setting parameters for the button to be disabled/enabled
   useEffect(() => {
-    if (
-      (stakingTokenBalance && formType === 'DEPOSIT' && new BigNumber(amount).gt(stakingTokenBalance)) ||
-      (stakedBalance && formType == 'WITHDRAW' && amount && new BigNumber(amount).gt(stakedBalance))
-    ) {
+    if (stakingTokenBalance && formType === 'DEPOSIT' && new BigNumber(amount).gt(stakingTokenBalance)) {
       setInvalidAmount(true)
+      toast(
+        (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)} : ` : '') +
+          `Cannot Stake more than the Approved Amount`,
+      )
+    } else if (stakedBalance && formType == 'WITHDRAW' && amount && new BigNumber(amount).gt(stakedBalance)) {
+      setInvalidAmount(true)
+      toast(
+        (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)} : ` : '') +
+          `Cannot Withdraw more than the Staked Amount`,
+      )
     } else {
       setInvalidAmount(false)
     }
@@ -55,11 +65,13 @@ const ActionMain = (props: Props) => {
   const handleApproveOrDeposit = async () => {
     if (!isApproved) {
       setPending(true)
-
       try {
         await onApprove(tokenContract)
       } catch (err) {
         console.log('Approve error:', err)
+        toast(
+          (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)} : ` : '') + `Transaction Error while Approving`,
+        )
       }
 
       setPending(false)
@@ -68,8 +80,15 @@ const ActionMain = (props: Props) => {
 
       try {
         await onStake(activePool.pid, amount)
+        toast(
+          (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)} : ` : '') +
+            `Staked ${amountString} Successfully`,
+        )
       } catch (err) {
         console.log('Staking error:', err)
+        toast(
+          (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)} : ` : '') + `Transaction Error while Staking`,
+        )
       }
       setPending(false)
       setAmount(0.0)
@@ -81,8 +100,15 @@ const ActionMain = (props: Props) => {
     setPending(true)
     try {
       await onUnstake(activePool?.pid, amount)
+      toast(
+        (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)} : ` : '') +
+          `Withdrew ${amountString} Successfully`,
+      )
     } catch (err) {
-      console.log('Staking error:', err)
+      console.log('Withdrawing error:', err)
+      toast(
+        (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)} : ` : '') + `Transaction Error while Withdrawing`,
+      )
     }
     setPending(false)
     setAmount(0.0)
@@ -126,6 +152,7 @@ const ActionMain = (props: Props) => {
           onApproveOrDeposit={handleApproveOrDeposit}
           onWithdraw={handleWithdraw}
           isPending={isPending}
+          isDisabled={disabled}
         />
       </Box>
       <Box
@@ -154,6 +181,7 @@ const ActionMain = (props: Props) => {
             onApproveOrDeposit={handleApproveOrDeposit}
             onWithdraw={handleWithdraw}
             isPending={isPending}
+            isDisabled={disabled}
           />
         </Box>
         <Button

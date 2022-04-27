@@ -6,6 +6,9 @@ import { Header } from 'components/Header'
 import { TitleMast } from 'components/TitleMast'
 import { Footer } from 'components/Footer'
 
+import 'react-toastify/dist/ReactToastify.css'
+import { ToastContainer } from 'react-toastify'
+
 type Props = {
   title?: string
   children?: ReactNode
@@ -25,6 +28,19 @@ const HedgePieFinance = (props: Props) => {
         <link rel="icon" href="/favicon.ico" />
       </Head>
       {children}
+      <ToastContainer
+        position="bottom-right"
+        autoClose={2000}
+        hideProgressBar={true}
+        newestOnTop={false}
+        closeOnClick
+        rtl={false}
+        pauseOnFocusLoss
+        draggable
+        pauseOnHover
+        icon={false}
+        closeButton={true}
+      />
       <Footer />
     </ThemeProvider>
   )
