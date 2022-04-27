@@ -51,7 +51,7 @@ const ActionMain = (props: Props) => {
     } else {
       setInvalidAmount(false)
     }
-  }, [activePoolIdx, stakedBalance, stakingTokenBalance, formType, amount])
+  }, [stakedBalance, stakingTokenBalance, amount])
 
   useEffect(() => {
     setDisabled(invalidAmount || isPending || !account)
