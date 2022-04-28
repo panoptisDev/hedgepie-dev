@@ -5,7 +5,7 @@ import { useVaultPools } from 'state/hooks'
 import useWalletModal from 'widgets/WalletModal/useWalletModal'
 import useAuth from 'hooks/useAuth'
 
-const ActionMainButton = ({ activePoolIdx, formType, onApproveOrDeposit, onWithdraw, isPending }) => {
+const ActionMainButton = ({ activePoolIdx, formType, onApproveOrDeposit, onWithdraw, isPending, isDisabled }) => {
   const { login, logout } = useAuth()
   const { onPresentConnectModal } = useWalletModal(login, logout)
   const { account } = useWeb3React()
@@ -16,6 +16,7 @@ const ActionMainButton = ({ activePoolIdx, formType, onApproveOrDeposit, onWithd
 
   const getBtnText = () => {
     if (isPending) return 'Pending...'
+    if (isDisabled) return 'Invalid Input' // Can be used for any type of invalid input like non-digit characters etc.
     if (formType === 'DEPOSIT') return isApproved ? 'Stake' : 'Approve'
     if (formType === 'WITHDRAW') return 'Unstake'
   }
@@ -31,7 +32,7 @@ const ActionMainButton = ({ activePoolIdx, formType, onApproveOrDeposit, onWithd
             width: '100%',
             flexShrink: 0,
           }}
-          disabled={isPending || !account}
+          disabled={isPending || !account || isDisabled}
           onClick={() => {
             formType === 'DEPOSIT' ? onApproveOrDeposit() : onWithdraw()
           }}
