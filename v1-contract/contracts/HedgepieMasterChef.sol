@@ -65,9 +65,12 @@ contract HedgepieMasterChef is Ownable {
         uint256 _rewardPerBlock,
         address _rewardHolder
     ) {
-        require(address(_lp) != address(0));
-        require(_rewardHolder != address(0));
-        require(address(_rewardToken) != address(0));
+        require(address(_lp) != address(0), "Zero address: lpToken");
+        require(
+            address(_rewardToken) != address(0),
+            "Zero address: rewardToken"
+        );
+        require(_rewardHolder != address(0), "Zero address: rewardHolder");
 
         rewardToken = _rewardToken;
         rewardPerBlock = _rewardPerBlock;
@@ -144,7 +147,7 @@ contract HedgepieMasterChef is Ownable {
      * @param _lpToken  token address
      */
     function add(uint256 _allocPoint, IBEP20 _lpToken) public onlyOwner {
-        require(address(_lpToken) != address(0));
+        require(address(_lpToken) != address(0), "Lp token: Zero address");
         for (uint256 i = 0; i < poolInfo.length; i++) {
             if (address(poolInfo[i].lpToken) == address(_lpToken))
                 revert("Pool duplicated");
