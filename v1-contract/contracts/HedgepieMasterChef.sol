@@ -23,7 +23,7 @@ contract HedgepieMasterChef is Ownable {
         uint256 allocPoint; // How many allocation points assigned to this pool. HPIEs to distribute per block.
         uint256 lastRewardBlock; // Last block number that HPIEs distribution occurs.
         uint256 accHpiePerShare; // Accumulated HPIEs per share, times 1e12. See below.
-        uint256 totalShares;
+        uint256 totalShares; // Balance of total staked amount in the pool
     }
 
     // The REWARD TOKEN
@@ -36,7 +36,7 @@ contract HedgepieMasterChef is Ownable {
     uint256 public rewardPerBlock;
 
     // Bonus muliplier for early hpie makers.
-    uint256 public BONUS_MULTIPLIER = 1;
+    uint256 public BONUS_MULTIPLIER = 100;
 
     // Info of each pool.
     PoolInfo[] public poolInfo;
@@ -65,9 +65,12 @@ contract HedgepieMasterChef is Ownable {
         uint256 _rewardPerBlock,
         address _rewardHolder
     ) {
-        require(address(_lp) != address(0));
-        require(_rewardHolder != address(0));
-        require(address(_rewardToken) != address(0));
+        require(address(_lp) != address(0), "Zero address: lpToken");
+        require(
+            address(_rewardToken) != address(0),
+            "Zero address: rewardToken"
+        );
+        require(_rewardHolder != address(0), "Zero address: rewardHolder");
 
         rewardToken = _rewardToken;
         rewardPerBlock = _rewardPerBlock;
@@ -104,7 +107,7 @@ contract HedgepieMasterChef is Ownable {
         view
         returns (uint256)
     {
-        return _to.sub(_from).mul(BONUS_MULTIPLIER);
+        return _to.sub(_from).mul(BONUS_MULTIPLIER).div(100);
     }
 
     /**
@@ -120,7 +123,7 @@ contract HedgepieMasterChef is Ownable {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
         uint256 accHpiePerShare = pool.accHpiePerShare;
-        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
+        uint256 lpSupply = pool.totalShares;
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
             uint256 multiplier = getMultiplier(
                 pool.lastRewardBlock,
@@ -142,21 +145,15 @@ contract HedgepieMasterChef is Ownable {
      * XXX DO NOT add the same LP token more than once. Rewards will be messed up if you do.
      * @param _allocPoint  reward allocation point
      * @param _lpToken  token address
-     * @param _withUpdate  flag to update all pools
      */
-    function add(
-        uint256 _allocPoint,
-        IBEP20 _lpToken,
-        bool _withUpdate
-    ) public onlyOwner {
-        require(address(_lpToken) != address(0));
-        for(uint i = 0; i < poolInfo.length; i++) {
-            if(address(poolInfo[i].lpToken) == address(_lpToken)) revert("Pool duplicated");
+    function add(uint256 _allocPoint, IBEP20 _lpToken) public onlyOwner {
+        require(address(_lpToken) != address(0), "Lp token: Zero address");
+        for (uint256 i = 0; i < poolInfo.length; i++) {
+            if (address(poolInfo[i].lpToken) == address(_lpToken))
+                revert("Pool duplicated");
         }
 
-        if (_withUpdate) {
-            massUpdatePools();
-        }
+        massUpdatePools();
         totalAllocPoint = totalAllocPoint.add(_allocPoint);
         poolInfo.push(
             PoolInfo({
@@ -173,16 +170,9 @@ contract HedgepieMasterChef is Ownable {
      * @notice Update the given pool's HPIE allocation point. Can only be called by the owner.
      * @param _pid  pool id
      * @param _allocPoint  reward allocation point
-     * @param _withUpdate  flag to update all pools
      */
-    function set(
-        uint256 _pid,
-        uint256 _allocPoint,
-        bool _withUpdate
-    ) public onlyOwner {
-        if (_withUpdate) {
-            massUpdatePools();
-        }
+    function set(uint256 _pid, uint256 _allocPoint) public onlyOwner {
+        massUpdatePools();
         uint256 prevAllocPoint = poolInfo[_pid].allocPoint;
         poolInfo[_pid].allocPoint = _allocPoint;
         if (prevAllocPoint != _allocPoint) {
@@ -197,24 +187,8 @@ contract HedgepieMasterChef is Ownable {
      * @param _multiplierNumber  _multiplier value
      */
     function updateMultiplier(uint256 _multiplierNumber) public onlyOwner {
-        require(_multiplierNumber > 0, "Invalid");
+        require(_multiplierNumber >= 100, "Invalid multipler number");
         BONUS_MULTIPLIER = _multiplierNumber;
-    }
-
-    /**
-     * @notice Withdraw reward only. Can only be called by the owner.
-     * @param _amount  reward amount
-     */
-    function emergencyRewardWithdraw(uint256 _amount) public onlyOwner {
-        require(
-            _amount < rewardToken.balanceOf(address(this)),
-            "not enough token"
-        );
-        rewardToken.safeTransferFrom(
-            rewardHolder,
-            address(msg.sender),
-            _amount
-        );
     }
 
     /**
@@ -226,7 +200,7 @@ contract HedgepieMasterChef is Ownable {
         if (block.number <= pool.lastRewardBlock) {
             return;
         }
-        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
+        uint256 lpSupply = pool.totalShares;
         if (lpSupply == 0) {
             pool.lastRewardBlock = block.number;
             return;
