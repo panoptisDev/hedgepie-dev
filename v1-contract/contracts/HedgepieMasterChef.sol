@@ -23,7 +23,7 @@ contract HedgepieMasterChef is Ownable {
         uint256 allocPoint; // How many allocation points assigned to this pool. HPIEs to distribute per block.
         uint256 lastRewardBlock; // Last block number that HPIEs distribution occurs.
         uint256 accHpiePerShare; // Accumulated HPIEs per share, times 1e12. See below.
-        uint256 totalShares;
+        uint256 totalShares; // Balance of total staked amount in the pool
     }
 
     // The REWARD TOKEN
@@ -120,7 +120,7 @@ contract HedgepieMasterChef is Ownable {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][_user];
         uint256 accHpiePerShare = pool.accHpiePerShare;
-        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
+        uint256 lpSupply = pool.totalShares;
         if (block.number > pool.lastRewardBlock && lpSupply != 0) {
             uint256 multiplier = getMultiplier(
                 pool.lastRewardBlock,
@@ -203,22 +203,6 @@ contract HedgepieMasterChef is Ownable {
     }
 
     /**
-     * @notice Withdraw reward only. Can only be called by the owner.
-     * @param _amount  reward amount
-     */
-    function emergencyRewardWithdraw(uint256 _amount) public onlyOwner {
-        require(
-            _amount < rewardToken.balanceOf(address(this)),
-            "not enough token"
-        );
-        rewardToken.safeTransferFrom(
-            rewardHolder,
-            address(msg.sender),
-            _amount
-        );
-    }
-
-    /**
      * @notice Update reward variables of the given pool to be up-to-date.
      * @param _pid  pool id
      */
@@ -227,7 +211,7 @@ contract HedgepieMasterChef is Ownable {
         if (block.number <= pool.lastRewardBlock) {
             return;
         }
-        uint256 lpSupply = pool.lpToken.balanceOf(address(this));
+        uint256 lpSupply = pool.totalShares;
         if (lpSupply == 0) {
             pool.lastRewardBlock = block.number;
             return;
