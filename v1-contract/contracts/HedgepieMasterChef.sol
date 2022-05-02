@@ -142,22 +142,15 @@ contract HedgepieMasterChef is Ownable {
      * XXX DO NOT add the same LP token more than once. Rewards will be messed up if you do.
      * @param _allocPoint  reward allocation point
      * @param _lpToken  token address
-     * @param _withUpdate  flag to update all pools
      */
-    function add(
-        uint256 _allocPoint,
-        IBEP20 _lpToken,
-        bool _withUpdate
-    ) public onlyOwner {
+    function add(uint256 _allocPoint, IBEP20 _lpToken) public onlyOwner {
         require(address(_lpToken) != address(0));
         for (uint256 i = 0; i < poolInfo.length; i++) {
             if (address(poolInfo[i].lpToken) == address(_lpToken))
                 revert("Pool duplicated");
         }
 
-        if (_withUpdate) {
-            massUpdatePools();
-        }
+        massUpdatePools();
         totalAllocPoint = totalAllocPoint.add(_allocPoint);
         poolInfo.push(
             PoolInfo({
@@ -174,16 +167,9 @@ contract HedgepieMasterChef is Ownable {
      * @notice Update the given pool's HPIE allocation point. Can only be called by the owner.
      * @param _pid  pool id
      * @param _allocPoint  reward allocation point
-     * @param _withUpdate  flag to update all pools
      */
-    function set(
-        uint256 _pid,
-        uint256 _allocPoint,
-        bool _withUpdate
-    ) public onlyOwner {
-        if (_withUpdate) {
-            massUpdatePools();
-        }
+    function set(uint256 _pid, uint256 _allocPoint) public onlyOwner {
+        massUpdatePools();
         uint256 prevAllocPoint = poolInfo[_pid].allocPoint;
         poolInfo[_pid].allocPoint = _allocPoint;
         if (prevAllocPoint != _allocPoint) {
