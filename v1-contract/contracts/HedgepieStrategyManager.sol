@@ -8,6 +8,9 @@ contract HedgepieStrategyManager is Ownable {
     // strategy address => status
     mapping(address => bool) public strategies;
 
+    // investor address
+    address public investor;
+
     event StrategyAdded(address strategy);
     event StrategyRemoveed(address strategy);
 
@@ -17,18 +20,35 @@ contract HedgepieStrategyManager is Ownable {
         _;
     }
 
+    modifier onlyInvestor() {
+        require(msg.sender == investor, "Error: caller is not investor");
+        _;
+    }
+
+    /**
+     * @notice Deposit from strategy
+     * @param _strategy  strategy address
+     * @param _amount  deposit amount
+     */
     function deposit(address _strategy, uint256 _amount)
         external
         onlyActiveStratey(_strategy)
+        onlyInvestor
     {
         require(_amount > 0, "Amount can not be 0");
 
         IStrategy(_strategy).invest(_amount);
     }
 
+    /**
+     * @notice Withdraw from strategy
+     * @param _strategy  strategy address
+     * @param _amount  withdraw amount
+     */
     function withdraw(address _strategy, uint256 _amount)
         external
         onlyActiveStratey(_strategy)
+        onlyInvestor
     {
         require(_amount > 0, "Amount can not be 0");
 
@@ -58,5 +78,15 @@ contract HedgepieStrategyManager is Ownable {
         strategies[_strategy] = false;
 
         emit StrategyAdded(_strategy);
+    }
+
+    /**
+     * @notice Set investor contract
+     * @param _investor  investor address
+     */
+    function setInvestor(address _investor) external onlyOwner {
+        require(_investor != address(0), "Invalid investor address");
+
+        investor = _investor;
     }
 }
