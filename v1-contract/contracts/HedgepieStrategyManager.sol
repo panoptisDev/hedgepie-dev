@@ -15,11 +15,17 @@ contract HedgepieStrategyManager is Ownable {
     event StrategyRemoveed(address strategy);
 
     // ===== modifiers =====
+    /**
+     * @dev Throws if strategy is invalid
+     */
     modifier onlyActiveStratey(address _strategy) {
         require(strategies[_strategy], "Error: strategy was not listed");
         _;
     }
 
+    /**
+     * @dev Throws if called by any account other than the investor.
+     */
     modifier onlyInvestor() {
         require(msg.sender == investor, "Error: caller is not investor");
         _;
