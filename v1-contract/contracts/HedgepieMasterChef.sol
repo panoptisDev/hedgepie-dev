@@ -36,7 +36,7 @@ contract HedgepieMasterChef is Ownable {
     uint256 public rewardPerBlock;
 
     // Bonus muliplier for early hpie makers.
-    uint256 public BONUS_MULTIPLIER = 1;
+    uint256 public BONUS_MULTIPLIER = 100;
 
     // Info of each pool.
     PoolInfo[] public poolInfo;
@@ -104,7 +104,7 @@ contract HedgepieMasterChef is Ownable {
         view
         returns (uint256)
     {
-        return _to.sub(_from).mul(BONUS_MULTIPLIER);
+        return _to.sub(_from).mul(BONUS_MULTIPLIER).div(100);
     }
 
     /**
@@ -150,8 +150,9 @@ contract HedgepieMasterChef is Ownable {
         bool _withUpdate
     ) public onlyOwner {
         require(address(_lpToken) != address(0));
-        for(uint i = 0; i < poolInfo.length; i++) {
-            if(address(poolInfo[i].lpToken) == address(_lpToken)) revert("Pool duplicated");
+        for (uint256 i = 0; i < poolInfo.length; i++) {
+            if (address(poolInfo[i].lpToken) == address(_lpToken))
+                revert("Pool duplicated");
         }
 
         if (_withUpdate) {
@@ -197,7 +198,7 @@ contract HedgepieMasterChef is Ownable {
      * @param _multiplierNumber  _multiplier value
      */
     function updateMultiplier(uint256 _multiplierNumber) public onlyOwner {
-        require(_multiplierNumber > 0, "Invalid");
+        require(_multiplierNumber >= 100, "Invalid multipler number");
         BONUS_MULTIPLIER = _multiplierNumber;
     }
 
