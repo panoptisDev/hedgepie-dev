@@ -7,10 +7,11 @@ const PerformanceFee = () => {
   const { formData, setFormData } = React.useContext(MintWizardContext)
 
   const handleChange = (e) => {
-    if (e.target.value === '' || (parseInt(e.target.value) > 0 && parseInt(e.target.value) < 100)) {
+    let newValue = parseInt(e.target.value, 10) || 0
+    if (newValue < 100) {
       setFormData({
         ...formData,
-        performanceFee: parseInt(e.target.value)
+        performanceFee: newValue.toString()
       })
     }
   }
@@ -80,6 +81,7 @@ const PerformanceFee = () => {
           }}
         >
           <Input
+            className="performance-input"
             sx={{
               border: 'none',
               outline: 'none',
@@ -88,7 +90,7 @@ const PerformanceFee = () => {
               pr: 2
             }}
             type="number"
-            min={1}
+            min={0}
             max={99}
             value={formData.performanceFee}
             onChange={handleChange}

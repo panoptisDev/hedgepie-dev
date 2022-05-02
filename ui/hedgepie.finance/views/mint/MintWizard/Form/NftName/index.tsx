@@ -51,6 +51,7 @@ const NftName = () => {
       <Box mt={24}>
         <Input
           type="text"
+          className="nft-name-input"
           sx={{
             height: 62,
             width: '100%',

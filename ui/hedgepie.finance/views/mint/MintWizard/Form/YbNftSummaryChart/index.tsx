@@ -1,7 +1,7 @@
 import React from 'react'
 import { Box } from 'theme-ui'
 import PieChart from './PieChart'
-import Legend from './Legend'
+import SummaryLegend from '../SummaryLegend'
 
 const YbNftSummaryChart = () => {
   return (
@@ -44,7 +44,7 @@ const YbNftSummaryChart = () => {
             marginTop: 18
           }}
         >
-          <Legend />
+          <SummaryLegend />
         </Box>
       </Box>
       <Box

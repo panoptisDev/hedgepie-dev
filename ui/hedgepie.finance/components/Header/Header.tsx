@@ -22,8 +22,9 @@ const MobileMenuLink = ({ href, children }) => (
 const Header = ({ overlay = false, dark = true }: Props) => {
   return (
     <Box
-      px={3}
+      className="header"
       sx={{
+        px: 3,
         position: overlay ? 'absolute' : 'relative',
         top: 0,
         left: 0,
@@ -34,7 +35,7 @@ const Header = ({ overlay = false, dark = true }: Props) => {
     >
       <Box sx={styles.header_inner_container as ThemeUICSSObject}>
         <Link href="/" passHref>
-          <ThemeLink mr={4}>
+          <ThemeLink className="logo" mr={4}>
             <Image
               src="/images/logo.png"
               sx={{

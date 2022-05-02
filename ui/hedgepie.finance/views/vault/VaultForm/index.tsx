@@ -24,6 +24,7 @@ const VaultForm = () => {
 
   return (
     <Box
+      className="vault-form"
       sx={{
         backgroundColor: '#E5F6FF',
         borderRadius: 12,
