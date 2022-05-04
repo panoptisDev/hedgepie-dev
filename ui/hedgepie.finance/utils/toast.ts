@@ -1,10 +1,10 @@
 import { toast as Toastify } from 'react-toastify'
 
-const toast = (message: string) => {
+const toast = (message: string, type?: string) => {
   Toastify(message, {
     position: Toastify.POSITION.BOTTOM_RIGHT,
     style: {
-      backgroundColor: '#1799DE',
+      backgroundColor: type == 'success' ? '#1799DE' : type === 'warning' ? '#de588e' : '#1799DE',
       borderRadius: '10px',
       padding: '10px',
       fontFamily: 'Noto Sans',

@@ -41,18 +41,21 @@ const ActionMain = (props: Props) => {
     } else if (formType === 'WITHDRAW' && stakedBalance?.eq(0)) {
       toast(
         'You do not have any ' + (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)}` : '') + ' to Withdraw',
+        'warning',
       )
     } else if (stakingTokenBalance && formType === 'DEPOSIT' && new BigNumber(amount).gt(stakingTokenBalance)) {
       setInvalidAmount(true)
       toast(
         (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)} : ` : '') +
           `Cannot Stake more than the Approved Amount`,
+        'warning',
       )
     } else if (stakedBalance && formType == 'WITHDRAW' && amount && new BigNumber(amount).gt(stakedBalance)) {
       setInvalidAmount(true)
       toast(
         (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)} : ` : '') +
           `Cannot Withdraw more than the Staked Amount`,
+        'warning',
       )
     } else {
       setInvalidAmount(false)
@@ -77,6 +80,7 @@ const ActionMain = (props: Props) => {
         console.log('Approve error:', err)
         toast(
           (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)} : ` : '') + `Transaction Error while Approving`,
+          'warning',
         )
       }
 
@@ -87,6 +91,7 @@ const ActionMain = (props: Props) => {
           'Allowed to stake more than 0.00 ' +
             (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)}` : '') +
             ' only',
+          'warning',
         )
         return
       }
@@ -96,11 +101,13 @@ const ActionMain = (props: Props) => {
         toast(
           (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)} : ` : '') +
             `Staked ${amountString} Successfully`,
+          'success',
         )
       } catch (err) {
         console.log('Staking error:', err)
         toast(
           (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)} : ` : '') + `Transaction Error while Staking`,
+          'warning',
         )
       }
       setPending(false)
@@ -115,6 +122,7 @@ const ActionMain = (props: Props) => {
         'Allowed to withdraw more than 0.00 ' +
           (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)}` : '') +
           ' only',
+        'warning',
       )
       return
     }
@@ -124,11 +132,13 @@ const ActionMain = (props: Props) => {
       toast(
         (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)} : ` : '') +
           `Withdrew ${amountString} Successfully`,
+        'success',
       )
     } catch (err) {
       console.log('Withdrawing error:', err)
       toast(
         (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)} : ` : '') + `Transaction Error while Withdrawing`,
+        'warning',
       )
     }
     setPending(false)
@@ -140,7 +150,7 @@ const ActionMain = (props: Props) => {
     setAmountString(e.target.value)
     if (e.target.value && (isNaN(e.target.value) || Number.parseFloat(e.target.value) < 0)) {
       setInvalidAmount(true)
-      toast('Please input only Positive Numeric values')
+      toast('Please input only Positive Numeric values', 'warning')
     }
     setInvalidAmount(false)
     e.target.value && !isNaN(e.target.value) && setAmount(getBalanceInWei(e.target.value))
@@ -245,6 +255,7 @@ const ActionMain = (props: Props) => {
           }}
           placeholder="0.0"
           value={amountString}
+          type="number"
           onChange={onChangeAmount}
           id="amount-input"
         />
