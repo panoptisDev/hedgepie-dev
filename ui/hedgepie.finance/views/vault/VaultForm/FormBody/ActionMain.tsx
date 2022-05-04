@@ -36,7 +36,13 @@ const ActionMain = (props: Props) => {
 
   // Setting parameters for the button to be disabled/enabled
   useEffect(() => {
-    if (stakingTokenBalance && formType === 'DEPOSIT' && new BigNumber(amount).gt(stakingTokenBalance)) {
+    if (formType === 'DEPOSIT' && stakingTokenBalance?.eq(0)) {
+      toast('You do not have any ' + (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)}` : '') + ' to Stake')
+    } else if (formType === 'WITHDRAW' && stakedBalance?.eq(0)) {
+      toast(
+        'You do not have any ' + (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)}` : '') + ' to Withdraw',
+      )
+    } else if (stakingTokenBalance && formType === 'DEPOSIT' && new BigNumber(amount).gt(stakingTokenBalance)) {
       setInvalidAmount(true)
       toast(
         (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)} : ` : '') +
@@ -76,8 +82,15 @@ const ActionMain = (props: Props) => {
 
       setPending(false)
     } else {
+      if (!(amount > 0)) {
+        toast(
+          'Allowed to stake more than 0.00 ' +
+            (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)}` : '') +
+            ' only',
+        )
+        return
+      }
       setPending(true)
-
       try {
         await onStake(activePool.pid, amount)
         toast(
@@ -97,6 +110,14 @@ const ActionMain = (props: Props) => {
   }
 
   const handleWithdraw = async () => {
+    if (!(amount > 0)) {
+      toast(
+        'Allowed to withdraw more than 0.00 ' +
+          (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)}` : '') +
+          ' only',
+      )
+      return
+    }
     setPending(true)
     try {
       await onUnstake(activePool?.pid, amount)
@@ -117,6 +138,10 @@ const ActionMain = (props: Props) => {
 
   const onChangeAmount = (e) => {
     setAmountString(e.target.value)
+    if (e.target.value && (isNaN(e.target.value) || Number.parseFloat(e.target.value) < 0)) {
+      setInvalidAmount(true)
+      toast('Please input only Positive Numeric values')
+    }
     e.target.value && !isNaN(e.target.value) && setAmount(getBalanceInWei(e.target.value))
   }
 
