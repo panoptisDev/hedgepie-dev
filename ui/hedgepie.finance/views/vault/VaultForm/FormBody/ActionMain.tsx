@@ -37,7 +37,10 @@ const ActionMain = (props: Props) => {
   // Setting parameters for the button to be disabled/enabled
   useEffect(() => {
     if (formType === 'DEPOSIT' && stakingTokenBalance?.eq(0)) {
-      toast('You do not have any ' + (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)}` : '') + ' to Stake')
+      toast(
+        'You do not have any ' + (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)}` : '') + ' to Stake',
+        'warning',
+      )
     } else if (formType === 'WITHDRAW' && stakedBalance?.eq(0)) {
       toast(
         'You do not have any ' + (activePool?.lpToken ? `${getTokenName(activePool?.lpToken)}` : '') + ' to Withdraw',
