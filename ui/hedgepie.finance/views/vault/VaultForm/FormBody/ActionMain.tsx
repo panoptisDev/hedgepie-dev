@@ -142,6 +142,7 @@ const ActionMain = (props: Props) => {
       setInvalidAmount(true)
       toast('Please input only Positive Numeric values')
     }
+    setInvalidAmount(false)
     e.target.value && !isNaN(e.target.value) && setAmount(getBalanceInWei(e.target.value))
   }
 
