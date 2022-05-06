@@ -85,6 +85,7 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         address[] calldata _strategyAddress,
         uint256 _performanceFee
     ) external onlyOwner {
+        require(_performanceFee < 1000, "Performance fee should be less than 10%");
         require(
             _swapToken.length > 0 &&
                 _swapToken.length == _swapPercent.length &&
