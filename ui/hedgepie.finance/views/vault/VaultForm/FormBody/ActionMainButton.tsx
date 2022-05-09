@@ -1,9 +1,11 @@
 import React from 'react'
-import { Box, Button } from 'theme-ui'
+import { Box, Button, ThemeUICSSObject } from 'theme-ui'
 import { useWeb3React } from '@web3-react/core'
 import { useVaultPools } from 'state/hooks'
 import useWalletModal from 'widgets/WalletModal/useWalletModal'
 import useAuth from 'hooks/useAuth'
+
+import { styles } from '../styles'
 
 const ActionMainButton = ({ activePoolIdx, formType, onApproveOrDeposit, onWithdraw, isPending, isDisabled }) => {
   const { login, logout } = useAuth()
@@ -25,13 +27,7 @@ const ActionMainButton = ({ activePoolIdx, formType, onApproveOrDeposit, onWithd
     <>
       {account ? (
         <Button
-          sx={{
-            height: 62,
-            borderRadius: 62,
-            cursor: 'pointer',
-            width: '100%',
-            flexShrink: 0,
-          }}
+          sx={styles.vault_action_button as ThemeUICSSObject}
           disabled={isPending || !account || isDisabled}
           onClick={() => {
             formType === 'DEPOSIT' ? onApproveOrDeposit() : onWithdraw()
@@ -41,16 +37,7 @@ const ActionMainButton = ({ activePoolIdx, formType, onApproveOrDeposit, onWithd
           {getBtnText()}
         </Button>
       ) : (
-        <Button
-          sx={{
-            height: 62,
-            borderRadius: 62,
-            cursor: 'pointer',
-            width: '100%',
-            flexShrink: 0,
-          }}
-          onClick={onPresentConnectModal}
-        >
+        <Button sx={styles.vault_action_button as ThemeUICSSObject} onClick={onPresentConnectModal}>
           Connect Wallet
         </Button>
       )}

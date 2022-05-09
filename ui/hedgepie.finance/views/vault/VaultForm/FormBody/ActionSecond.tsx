@@ -1,51 +1,14 @@
 import React from 'react'
-import { Box, Button } from 'theme-ui'
+import { Box, Button, ThemeUICSSObject } from 'theme-ui'
+import { styles } from '../styles'
 
 const HPAction = () => {
   return (
-    <Box
-      sx={{
-        padding: 16,
-        backgroundColor: '#fff',
-        borderRadius: 64,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        gap: 2,
-      }}
-    >
-      <Button
-        variant="primary"
-        sx={{
-          borderRadius: 40,
-          width: 188,
-          height: 38,
-          padding: '0 24px',
-          cursor: 'pointer',
-          transition: 'all .2s',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-        id="harvest-button"
-      >
+    <Box sx={styles.vault_second_action_container as ThemeUICSSObject}>
+      <Button variant="primary" sx={styles.vault_second_action_button as ThemeUICSSObject} id="harvest-button">
         Harvest
       </Button>
-      <Button
-        variant="primary"
-        sx={{
-          borderRadius: 40,
-          width: 188,
-          height: 38,
-          padding: '0 24px',
-          cursor: 'pointer',
-          transition: 'all .2s',
-          display: 'flex',
-          alignItems: 'center',
-          justifyContent: 'center',
-        }}
-        id="compound-button"
-      >
+      <Button variant="primary" sx={styles.vault_second_action_button as ThemeUICSSObject} id="compound-button">
         Compound
       </Button>
     </Box>

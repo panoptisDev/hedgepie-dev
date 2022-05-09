@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Box, Input, Button } from 'theme-ui'
+import { Box, Input, Button, ThemeUICSSObject } from 'theme-ui'
 import BigNumber from 'bignumber.js'
 import { useWeb3React } from '@web3-react/core'
 import { useVaultPools } from 'state/hooks'
@@ -10,6 +10,7 @@ import ActionMainButton from './ActionMainButton'
 
 import { getTokenName } from 'utils/addressHelpers'
 import toast from '../../../../utils/toast'
+import { styles } from '../styles'
 
 type Props = {
   activePoolIdx?: number
@@ -175,17 +176,7 @@ const ActionMain = (props: Props) => {
 
   return (
     <Box>
-      <Box
-        className="mobile-action"
-        sx={{
-          display: 'block',
-          marginBottom: 2,
-          width: '100%',
-          [`@media screen and (min-width: 600px)`]: {
-            display: 'none',
-          },
-        }}
-      >
+      <Box className="mobile-action" sx={styles.vault_action_button_container_mobile as ThemeUICSSObject}>
         <ActionMainButton
           activePoolIdx={activePoolIdx}
           formType={formType}
@@ -195,27 +186,8 @@ const ActionMain = (props: Props) => {
           isDisabled={disabled}
         />
       </Box>
-      <Box
-        sx={{
-          height: 62,
-          backgroundColor: '#fff',
-          borderRadius: 62,
-          overflow: 'hidden',
-          display: 'flex',
-          alignItems: 'center',
-        }}
-      >
-        <Box
-          className="desktop-action"
-          sx={{
-            display: 'none',
-            [`@media screen and (min-width: 600px)`]: {
-              display: 'block',
-              flexShrink: 0,
-              width: 200,
-            },
-          }}
-        >
+      <Box sx={styles.vault_action_container_desktop as ThemeUICSSObject}>
+        <Box className="desktop-action" sx={styles.vault_action_button_container_desktop as ThemeUICSSObject}>
           <ActionMainButton
             activePoolIdx={activePoolIdx}
             formType={formType}
@@ -225,37 +197,11 @@ const ActionMain = (props: Props) => {
             isDisabled={disabled}
           />
         </Box>
-        <Button
-          sx={{
-            width: 44,
-            height: 26,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: 'rgba(160, 160, 160, 0.32)',
-            borderRadius: '4px',
-            color: '#8E8DA0',
-            flexShrink: 0,
-            margin: '0 8px 0 32px',
-            [`@media screen and (min-width: 600px)`]: {
-              margin: '0 8px',
-            },
-          }}
-          onClick={onMaxClick}
-        >
+        <Button sx={styles.vault_action_max_button as ThemeUICSSObject} onClick={onMaxClick}>
           MAX
         </Button>
         <Input
-          sx={{
-            boxShadow: 'none',
-            border: 'none',
-            outline: 0,
-            textAlign: 'right',
-            fontSize: 24,
-            fontWeight: 700,
-            color: '#8E8DA0',
-            paddingRight: 32,
-          }}
+          sx={styles.vault_action_input as ThemeUICSSObject}
           placeholder="0.0"
           value={amountString}
           type="number"

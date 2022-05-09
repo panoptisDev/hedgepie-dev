@@ -1,5 +1,6 @@
-import { Image, Box } from 'theme-ui'
+import { Image, Box, ThemeUICSSObject } from 'theme-ui'
 import Select from 'react-select'
+import { styles } from '../styles'
 
 const LineInstrument = ({ items, onChangePoolIdx }) => {
   const handleSelect = (option) => {
@@ -13,48 +14,10 @@ const LineInstrument = ({ items, onChangePoolIdx }) => {
         gap: 18,
       }}
     >
-      <Box
-        sx={{
-          display: 'none',
-          [`@media screen and (min-width: 600px)`]: {
-            width: 62,
-            height: 62,
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            backgroundColor: '#fff',
-            flexShrink: 0,
-            borderRadius: '50%',
-          },
-        }}
-      >
+      <Box sx={styles.vault_instrument_logo_container as ThemeUICSSObject}>
         <Image src="/images/logo.png" sx={{ height: 44 }} />
       </Box>
-      <Box
-        sx={{
-          width: '100%',
-          '& .select__control::before': {
-            content: "'INSTRUMENT'",
-            paddingLeft: '8px',
-            fontWeight: 700,
-            color: '#16103A',
-          },
-          '& .select__control': {
-            height: 62,
-            border: 'none',
-            borderRadius: 62,
-            padding: '0 24px',
-          },
-          '& .select__single-value': {
-            color: '#8E8DA0',
-            fontWeight: 700,
-            textAlign: 'right',
-          },
-          '& .select__indicator-separator': {
-            display: 'none',
-          },
-        }}
-      >
+      <Box sx={styles.vault_instrument_select as ThemeUICSSObject}>
         <Select
           instanceId="hp-instrument"
           classNamePrefix="select"
