@@ -12,8 +12,10 @@ import "./interface/VBep20Interface.sol";
 contract VenusAdapter is Ownable, Pausable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
+    // reward fee
     uint256 public rewardFee;
 
+    // vToken => bool
     mapping(address => bool) public isVToken;
 
     // vToken => nToken
@@ -31,15 +33,26 @@ contract VenusAdapter is Ownable, Pausable, ReentrancyGuard {
         _;
     }
 
+    /**
+     * @notice Approve vToken allowance
+     * @param _vToken  vToken address
+     * @param _amount  vToken amount that going to use from user's wallet
+     */
     function _approveVToken(address _vToken, uint256 _amount) internal {
         if (IERC20(_vToken).allowance(address(this), _vToken) < _amount) {
             IERC20(_vToken).approve(_vToken, 2**256 - 1);
         }
     }
 
+    /**
+     * @notice Supply collateral to Venus
+     * @param _nToken  collateral token address
+     * @param _amount  token amount that gonna supply to venus
+     */
     function supply(address _nToken, uint256 _amount)
         external
         onlyEOA
+        whenNotPaused
         nonReentrant
     {
         require(nTokens[_nToken] != address(0), "vToken is not set or invalid");
@@ -59,7 +72,17 @@ contract VenusAdapter is Ownable, Pausable, ReentrancyGuard {
         );
     }
 
-    function redeem(address _vToken, uint256 _amount) external {
+    /**
+     * @notice Redeem vToken to get supplied collateral to Venus
+     * @param _vToken  vToken address
+     * @param _amount  token amount that gonna redeem from venus
+     */
+    function redeem(address _vToken, uint256 _amount)
+        external
+        onlyEOA
+        whenNotPaused
+        nonReentrant
+    {
         require(isVToken[_vToken], "vToken is not set or invalid");
 
         _approveVToken(_vToken, _amount);
@@ -75,45 +98,11 @@ contract VenusAdapter is Ownable, Pausable, ReentrancyGuard {
         );
     }
 
-    function borrow(
-        address _cToken,
-        address _vToken,
-        uint256 _amount
-    ) external {
-        require(isVToken[_vToken], "vToken is not set or invalid");
-
-        _approveVToken(_cToken, 2**256 - 1);
-
-        uint256 cTokenBal = IERC20(_cToken).balanceOf(msg.sender);
-
-        IERC20(_cToken).safeTransferFrom(msg.sender, address(this), cTokenBal);
-        require(
-            VBep20Interface(_vToken).borrow(_amount) == 0,
-            "Venus Protocol Error"
-        );
-        IERC20(vTokens[_vToken]).safeTransfer(
-            msg.sender,
-            IERC20(vTokens[_vToken]).balanceOf(address(this))
-        );
-        IERC20(_cToken).safeTransfer(msg.sender, cTokenBal);
-    }
-
-    function repay(address _vToken, uint256 _amount) external {
-        require(isVToken[_vToken], "vToken is not set or invalid");
-
-        _approveVToken(_vToken, _amount);
-        IERC20(_vToken).safeTransferFrom(msg.sender, address(this), _amount);
-
-        require(
-            VBep20Interface(_vToken).repayBorrow(_amount) == 0,
-            "Venus Protocol Error"
-        );
-        IERC20(vTokens[_vToken]).safeTransfer(
-            msg.sender,
-            IERC20(vTokens[_vToken]).balanceOf(address(this))
-        );
-    }
-
+    /**
+     * @notice Add vToken vs collateral token
+     * @param _vTokens array of vTokens which are registerd to Venus
+     * @param _nTokens array of collateral tokens pointed to each vToken address from Venus
+     */
     function addVTokens(address[] memory _vTokens, address[] memory _nTokens)
         external
         onlyOwner
@@ -133,10 +122,16 @@ contract VenusAdapter is Ownable, Pausable, ReentrancyGuard {
         }
     }
 
+    /**
+     * @notice pause supply & redeem functions
+     */
     function pause() external onlyOwner {
         _pause();
     }
 
+    /**
+     * @notice unpause supply & redeem functions
+     */
     function unpause() external onlyOwner {
         _unpause();
     }
