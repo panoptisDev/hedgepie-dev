@@ -15,6 +15,9 @@ contract VenusAdapter is Ownable, Pausable, ReentrancyGuard {
     // reward fee
     uint256 public rewardFee;
 
+    // MAX reward fee
+    uint256 public constant MAX_REWARD_FEE = 10000;
+
     // vToken => bool
     mapping(address => bool) public isVToken;
 
@@ -25,6 +28,7 @@ contract VenusAdapter is Ownable, Pausable, ReentrancyGuard {
     mapping(address => address) public vTokens;
 
     constructor(uint256 rewardFee_) public {
+        require(rewardFee_ <= MAX_REWARD_FEE, "Invalid reward fee");
         rewardFee = rewardFee_;
     }
 
