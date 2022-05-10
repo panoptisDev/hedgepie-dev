@@ -1,10 +1,12 @@
 import React, { useState, useEffect } from 'react'
-import { Box } from 'theme-ui'
+import { Box, ThemeUICSSObject } from 'theme-ui'
 import { useWeb3React } from '@web3-react/core'
 import { useDispatch } from 'react-redux'
 import { fetchVaultUserDataAsync } from 'state/actions'
 import FormTab from './FormTab'
 import FormBody from './FormBody'
+
+import { styles } from './styles'
 
 const VaultForm = () => {
   const [formType, setFormType] = useState('DEPOSIT')
@@ -23,19 +25,8 @@ const VaultForm = () => {
   }
 
   return (
-    <Box
-      className="vault-form"
-      sx={{
-        backgroundColor: '#E5F6FF',
-        borderRadius: 12,
-        maxWidth: 556,
-        margin: '0 auto',
-      }}
-    >
-      <FormTab
-        value={formType}
-        onChange={handleFormTypeChange}
-      />
+    <Box className="vault-form" sx={styles.vault_container as ThemeUICSSObject}>
+      <FormTab value={formType} onChange={handleFormTypeChange} />
       <Box
         sx={{
           padding: 16,

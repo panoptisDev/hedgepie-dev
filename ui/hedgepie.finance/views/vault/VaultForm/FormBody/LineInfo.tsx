@@ -1,20 +1,10 @@
 import React from 'react'
-import { Box, Text } from 'theme-ui'
+import { Box, Text, ThemeUICSSObject } from 'theme-ui'
+import { styles } from '../styles'
 
 const HPInfo = ({ label, value, id }) => {
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'space-between',
-        backgroundColor: '#fff',
-        height: 62,
-        borderRadius: 62,
-        padding: '0px 32px',
-      }}
-      id={id}
-    >
+    <Box sx={styles.vault_line_info_container as ThemeUICSSObject} id={id}>
       <Text
         sx={{
           fontWeight: 700,

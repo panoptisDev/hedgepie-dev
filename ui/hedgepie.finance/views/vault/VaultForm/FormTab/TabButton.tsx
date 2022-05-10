@@ -1,29 +1,26 @@
-import { Box } from 'theme-ui'
+import { Box, ThemeUICSSObject } from 'theme-ui'
+
+import { styles } from '../styles'
 
 const TabButton = ({ active = false, label, ...props }) => {
-
   // WITHDRAW
 
   return (
     <Box
-      sx={{
-        width: '50%',
-        backgroundColor: active ? '#16103A' : 'transparent',
-        color: active ? '#fff' : '#fff8',
-        borderRadius: 12,
-        display: 'flex',
-        alignItems: 'center',
-        justifyContent: 'center',
-        cursor: active ? 'default' : 'pointer',
-        transition: 'all .2s',
-        userSelect: 'none',
-        '&:hover': {
-          color: '#fff',
-        },
-        '&:active': {
-          color: active ? '#fff' : '#fffc',
-        },
-      }}
+      sx={
+        {
+          backgroundColor: active ? '#16103A' : 'transparent',
+          color: active ? '#fff' : '#fff8',
+          cursor: active ? 'default' : 'pointer',
+          '&:hover': {
+            color: '#fff',
+          },
+          '&:active': {
+            color: active ? '#fff' : '#fffc',
+          },
+          ...styles.vault_form_tab,
+        } as ThemeUICSSObject
+      }
       {...props}
     >
       {label}
