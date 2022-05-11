@@ -2,9 +2,9 @@ import addresses from 'config/constants/contracts'
 import { Address } from 'config/constants/types'
 
 export const getAddress = (address: Address): string => {
-  const mainNetChainId = 56
-  const chainId = 97
-  return address[chainId] ? address[chainId] : address[mainNetChainId]
+  const mainnetChainId = 56
+  const testnetChainId = 97
+  return address[testnetChainId] ? address[testnetChainId] : address[mainnetChainId]
 }
 
 export const getHpieAddress = () => {

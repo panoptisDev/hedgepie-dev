@@ -15,7 +15,7 @@ const useWeb3 = () => {
 
   useEffect(() => {
     if (library !== refEth.current) {
-      setweb3(library ? new Web3(library) : getWeb3NoAccount())
+      setweb3 && setweb3(library ? new Web3(library) : getWeb3NoAccount())
       refEth.current = library
     }
   }, [library])

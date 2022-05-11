@@ -6,4 +6,7 @@ module.exports = withPWA({
     register: true,
     skipWaiting: true,
   },
+  env: {
+    REACT_APP_CHAIN_ID: '97',
+  },
 })
