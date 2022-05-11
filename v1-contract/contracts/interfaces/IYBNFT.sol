@@ -8,5 +8,7 @@ interface IYBNFT {
         address strategyAddress;
     }
 
-    function getNftStrategy(uint256) external returns (Strategy[] memory);
+    function getStrategies(uint256) external returns (Strategy[] memory);
+
+    function exists(uint256) external returns (bool);
 }

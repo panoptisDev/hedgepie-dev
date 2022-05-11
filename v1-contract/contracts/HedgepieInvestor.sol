@@ -1,6 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.4;
 
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./libraries/SafeBEP20.sol";
 import "./libraries/Ownable.sol";
 
@@ -9,7 +10,7 @@ import "./interfaces/IPancakeRouter.sol";
 import "./interfaces/IStrategy.sol";
 import "./interfaces/IStrategyManager.sol";
 
-contract HedgepieInvestor is Ownable {
+contract HedgepieInvestor is Ownable, ReentrancyGuard {
     using SafeBEP20 for IBEP20;
 
     // user => nft address => nft id => amount
@@ -19,14 +20,15 @@ contract HedgepieInvestor is Ownable {
     // user => strategy address => amount
     mapping(address => mapping(address => uint256)) public userStrategyInfo;
 
-    // nft => listed status
-    mapping(address => bool) public nftWhiteList; // whitelisted nfts
+    // token => status
+    mapping(address => bool) public allowedToken;
 
-    // wrapped bnb address
-    address public wbnb;
+    // ybnft address
+    address public ybnft;
     // swap router address
     address public swapRouter;
-
+    // wrapped bnb address
+    address public wbnb;
     // strategy manager
     address public strategyManager;
 
@@ -42,8 +44,7 @@ contract HedgepieInvestor is Ownable {
         uint256 nftId,
         uint256 amount
     );
-    event NftListed(address indexed user, address nft);
-    event NftDeListed(address indexed user, address nft);
+    event TokenStatusChanged(address indexed token, bool status);
     event StrategyManagerChanged(address indexed user, address strategyManager);
 
     /**
@@ -51,41 +52,50 @@ contract HedgepieInvestor is Ownable {
      * @param _swapRouter  Pancakeswap router address (0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3 // on bsc testnet)
      * @param _wbnb  Wrapped BNB address (0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd // on bsc testnet)
      */
-    constructor(address _swapRouter, address _wbnb) {
+    constructor(
+        address _ybnft,
+        address _swapRouter,
+        address _wbnb
+    ) {
+        require(_ybnft != address(0), "Error: YBNFT address missing");
         require(_swapRouter != address(0), "Error: swap router missing");
         require(_wbnb != address(0), "wbnb missing");
 
+        ybnft = _ybnft;
         swapRouter = _swapRouter;
         wbnb = _wbnb;
     }
 
     // ===== modifiers =====
-    modifier onlyWhiteListedNft(address _nft) {
-        require(nftWhiteList[_nft], "Error: nft was not listed");
+    modifier onlyAllowedToken(address _token) {
+        require(allowedToken[_token], "Error: token is not allowed");
+        _;
+    }
+
+    modifier shouldMatchCaller(address _user) {
+        require(_user == msg.sender, "Caller is not matched");
         _;
     }
 
     /**
      * @notice deposit fund
-     * @param _user  user address
-     * @param _nft  YBNft address
      * @param _tokenId  YBNft token id
      * @param _token  token address
      * @param _amount  token amount
      */
     function deposit(
         address _user,
-        address _nft,
         uint256 _tokenId,
         address _token,
         uint256 _amount
-    ) external onlyWhiteListedNft(msg.sender) {
+    ) external shouldMatchCaller(_user) nonReentrant {
         require(_amount > 0, "Amount can not be 0");
+        require(IYBNFT(ybnft).exists(_tokenId), "YBNFT: token id is invalid");
 
-        IBEP20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+        IBEP20(_token).safeTransferFrom(_user, address(this), _amount);
         IBEP20(_token).safeApprove(swapRouter, _amount);
 
-        IYBNFT.Strategy[] memory info = IYBNFT(_nft).getNftStrategy(_tokenId);
+        IYBNFT.Strategy[] memory info = IYBNFT(ybnft).getStrategies(_tokenId);
         for (uint8 idx = 0; idx < info.length; idx++) {
             IYBNFT.Strategy memory infoItem = info[idx];
 
@@ -107,15 +117,14 @@ contract HedgepieInvestor is Ownable {
             userStrategyInfo[_user][infoItem.strategyAddress] += amountOut;
         }
 
-        userInfo[_user][_nft][_tokenId] += _amount;
+        userInfo[_user][ybnft][_tokenId] += _amount;
 
-        emit Deposit(_user, _nft, _tokenId, _amount);
+        emit Deposit(_user, ybnft, _tokenId, _amount);
     }
 
     /**
      * @notice withdraw fund
      * @param _user  user address
-     * @param _nft  YBNft address
      * @param _tokenId  YBNft token id
      * @param _token  token address
      * @param _amount  token amount
@@ -123,16 +132,16 @@ contract HedgepieInvestor is Ownable {
 
     function withdraw(
         address _user,
-        address _nft,
         uint256 _tokenId,
         address _token,
         uint256 _amount
-    ) public onlyWhiteListedNft(msg.sender) {
-        uint256 userAmount = userInfo[_user][_nft][_tokenId];
+    ) public shouldMatchCaller(_user) nonReentrant {
+        uint256 userAmount = userInfo[_user][ybnft][_tokenId];
+        require(IYBNFT(ybnft).exists(_tokenId), "YBNFT: token id is invalid");
         require(_amount > 0, "Amount can not be 0");
         require(userAmount > _amount, "Withdraw: exceeded amount");
 
-        IYBNFT.Strategy[] memory info = IYBNFT(_nft).getNftStrategy(_tokenId);
+        IYBNFT.Strategy[] memory info = IYBNFT(ybnft).getStrategies(_tokenId);
         uint256 amountOut;
         for (uint8 idx = 0; idx < info.length; idx++) {
             IYBNFT.Strategy memory infoItem = info[idx];
@@ -155,7 +164,7 @@ contract HedgepieInvestor is Ownable {
         IBEP20(_token).safeTransfer(_user, amountOut);
         userAmount -= _amount;
 
-        emit Withdraw(_user, _nft, _tokenId, _amount);
+        emit Withdraw(_user, ybnft, _tokenId, _amount);
     }
 
     /**
@@ -170,36 +179,22 @@ contract HedgepieInvestor is Ownable {
         address _nft,
         uint256 _tokenId,
         address _token
-    ) external onlyWhiteListedNft(msg.sender) {
-        uint256 userAmount = userInfo[_user][_nft][_tokenId];
-        require(userAmount > 0, "Withdraw: amount is 0");
-
-        withdraw(_user, _nft, _tokenId, _token, userAmount);
+    ) external nonReentrant {
+        withdraw(_user, _tokenId, _token, userInfo[_user][_nft][_tokenId]);
     }
 
     // ===== Owner functions =====
     /**
-     * @notice list nft into whitelist
-     * @param _nft  nft address
-     */
-    function listNft(address _nft) external onlyOwner {
-        require(_nft != address(0), "Invalid NFT address");
-
-        nftWhiteList[_nft] = true;
-
-        emit NftListed(msg.sender, _nft);
-    }
-
-    /**
      * @notice delist nft from whitelist
-     * @param _nft  nft address
+     * @param _token  address of erc20 token
+     * @param _status  status
      */
-    function deListNft(address _nft) external onlyOwner {
-        require(_nft != address(0), "Invalid NFT address");
+    function manageToken(address _token, bool _status) external onlyOwner {
+        require(_token != address(0), "Invalid token address");
 
-        nftWhiteList[_nft] = false;
+        allowedToken[_token] = _status;
 
-        emit NftDeListed(msg.sender, _nft);
+        emit TokenStatusChanged(_token, _status);
     }
 
     /**
