@@ -1,6 +1,7 @@
 // Set of helper functions to facilitate wallet setup
 
-import { nodes } from './getRpcUrl'
+import chainParams from './chainParams'
+import toast from './toast'
 
 /**
  * Prompt the user to add Avalanche as a network on Metamask, or switch to Avalanche if the wallet is on a different network
@@ -10,27 +11,16 @@ export const setupNetwork = async () => {
   const provider = (window as any).ethereum
   if (provider) {
     const chainId = parseInt(process.env.REACT_APP_CHAIN_ID || '97', 10)
-
     try {
       await provider.request({
         method: 'wallet_addEthereumChain',
-        params: [
-          {
-            chainId: `0x${chainId.toString(16)}`,
-            chainName: 'BSC Testnet',
-            nativeCurrency: {
-              name: 'BSC mainnet',
-              symbol: 'BNB',
-              decimals: 18,
-            },
-            rpcUrls: nodes,
-            blockExplorerUrls: ['https://testnet.bscscan.com'],
-          },
-        ],
+        params: [chainParams?.[chainId]],
       })
       return true
     } catch (error) {
-      console.error(error)
+      console.log('Error' + JSON.stringify(error))
+      toast('Trying to connect to a network other than BNB Testnet or BNB Mainnet', 'warning')
+      // console.error(error)
       return false
     }
   } else {
