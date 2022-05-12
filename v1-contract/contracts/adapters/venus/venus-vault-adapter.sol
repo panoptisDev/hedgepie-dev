@@ -1,25 +1,31 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../interfaces/strategies/IPancakeswapStrategy.sol";
-import "../libraries/Ownable.sol";
+import "@openzeppelin/contracts/access/Ownable.sol";
+import "../../interfaces/strategies/IVenusStrategy.sol";
 
-abstract contract StrategyPancakeStakeBase is Ownable {
+abstract contract VenusVaultAdapter is Ownable {
     address public stakingToken;
     address public rewardToken;
     address public strategy;
     address public investor;
+    uint256 public poolId;
+    string public name;
 
     event InvestorSet(address indexed user, address investor);
 
     constructor(
         address _stakingToken,
         address _rewardToken,
-        address _strategy
+        address _strategy,
+        uint256 _poolId,
+        string memory _name
     ) {
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
         strategy = _strategy;
+        poolId = _poolId;
+        name = _name;
     }
 
     // ===== modifiers =====
@@ -29,11 +35,15 @@ abstract contract StrategyPancakeStakeBase is Ownable {
     }
 
     function invest(uint256 _amount) external onlyInvestor(msg.sender) {
-        IPancakeswapStrategy(strategy).deposit(_amount);
+        IVenusStrategy(strategy).deposit(rewardToken, poolId, _amount);
     }
 
     function withdraw(uint256 _amount) external onlyInvestor(msg.sender) {
-        IPancakeswapStrategy(strategy).withdraw(_amount);
+        IVenusStrategy(strategy).requestWithdrawal(
+            rewardToken,
+            poolId,
+            _amount
+        );
     }
 
     // ===== Owner functions =====

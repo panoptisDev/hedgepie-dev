@@ -11,8 +11,8 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
 
     // current max tokenId
     Counters.Counter private _tokenIdPointer;
-    // tokenId => strategy[]
-    mapping(uint256 => Strategy[]) public stratigies;
+    // tokenId => Adapter[]
+    mapping(uint256 => Adapter[]) public adapterInfo;
     // tokenId => performanceFee
     mapping(uint256 => uint256) public performanceFee;
 
@@ -20,16 +20,23 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
 
     constructor() BEP721("Hedgepie YBNFT", "YBNFT") {}
 
-    // ===== external functions =====
-    function getStrategies(uint256 _tokenId)
+    /**
+     * @notice Get adapter info from nft tokenId
+     * @param _tokenId  YBNft token id
+     */
+    function getAdapterInfo(uint256 _tokenId)
         external
         view
         override
-        returns (Strategy[] memory)
+        returns (Adapter[] memory)
     {
-        return stratigies[_tokenId];
+        return adapterInfo[_tokenId];
     }
 
+    /**
+     * @notice Get performance fee info from nft tokenId
+     * @param _tokenId  YBNft token id
+     */
     function getPerformanceFee(uint256 _tokenId)
         external
         view
@@ -38,76 +45,92 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         return performanceFee[_tokenId];
     }
 
+    /**
+     * @notice Check if nft id is existed
+     * @param _tokenId  YBNft token id
+     */
     function exists(uint256 _tokenId) external view override returns (bool) {
         return _exists(_tokenId);
     }
 
+    /**
+     * @notice Mint nft with adapter infos
+     * @param _adapterAllocations  allocation of adapters
+     * @param _adapterTokens  token of adapters
+     * @param _adapterAddrs  address of adapters
+     */
     function mint(
-        uint256[] calldata _swapPercent,
-        address[] calldata _swapToken,
-        address[] calldata _strategyAddress,
+        uint256[] calldata _adapterAllocations,
+        address[] calldata _adapterTokens,
+        address[] calldata _adapterAddrs,
         uint256 _performanceFee
-    ) external onlyOwner returns (uint256) {
+    ) external onlyOwner {
         require(
             _performanceFee < 1000,
             "Performance fee should be less than 10%"
         );
         require(
-            _swapToken.length > 0 &&
-                _swapToken.length == _swapPercent.length &&
-                _swapToken.length == _strategyAddress.length,
-            "Mismatched strategies"
+            _adapterTokens.length > 0 &&
+                _adapterTokens.length == _adapterAllocations.length &&
+                _adapterTokens.length == _adapterAddrs.length,
+            "Mismatched adapters"
         );
-        require(_checkPercent(_swapPercent), "Incorrect swap percent");
+        require(
+            _checkPercent(_adapterAllocations),
+            "Incorrect adapter allocation"
+        );
+
         _tokenIdPointer.increment();
-
-        // mint token
-        _safeMint(msg.sender, _tokenIdPointer._value);
-
-        // set strategy
-        _setStrategy(
-            _tokenIdPointer._value,
-            _swapPercent,
-            _swapToken,
-            _strategyAddress
-        );
-
-        // set performance fee
         performanceFee[_tokenIdPointer._value] = _performanceFee;
 
+        _safeMint(msg.sender, _tokenIdPointer._value);
+        _setAdapterInfo(
+            _tokenIdPointer._value,
+            _adapterAllocations,
+            _adapterTokens,
+            _adapterAddrs
+        );
+
         emit Mint(msg.sender, _tokenIdPointer._value);
-        // return _tokenIdPointer._value;
-        return 105;
     }
 
-    // ===== internal functions =====
-    function _setStrategy(
+    /**
+     * @notice Set adapter infos of nft from token id
+     * @param _adapterAllocations  allocation of adapters
+     * @param _adapterTokens  adapter token
+     * @param _adapterAddrs  address of adapters
+     */
+    function _setAdapterInfo(
         uint256 _tokenId,
-        uint256[] calldata _swapPercent,
-        address[] calldata _swapToken,
-        address[] calldata _strategyAddress
+        uint256[] calldata _adapterAllocations,
+        address[] calldata _adapterTokens,
+        address[] calldata _adapterAddrs
     ) internal {
-        for (uint256 idx = 0; idx < _swapToken.length; ++idx) {
-            stratigies[_tokenId].push(
-                Strategy({
-                    percent: _swapPercent[idx],
-                    swapToken: _swapToken[idx],
-                    strategyAddress: _strategyAddress[idx]
+        for (uint256 i = 0; i < _adapterTokens.length; ++i) {
+            adapterInfo[_tokenId].push(
+                Adapter({
+                    allocation: _adapterAllocations[i],
+                    token: _adapterTokens[i],
+                    addr: _adapterAddrs[i]
                 })
             );
         }
     }
 
-    function _checkPercent(uint256[] calldata _swapPercent)
+    /**
+     * @notice Check if total percent of adapters is valid
+     * @param _adapterAllocations  allocation of adapters
+     */
+    function _checkPercent(uint256[] calldata _adapterAllocations)
         internal
         pure
         returns (bool)
     {
-        uint256 totalPercent;
-        for (uint256 idx = 0; idx < _swapPercent.length; idx++) {
-            totalPercent = totalPercent + _swapPercent[idx];
+        uint256 totalAlloc;
+        for (uint256 i = 0; i < _adapterAllocations.length; i++) {
+            totalAlloc = totalAlloc + _adapterAllocations[i];
         }
 
-        return totalPercent <= 1e4;
+        return totalAlloc <= 1e4;
     }
 }

@@ -48,12 +48,12 @@ describe("Vault(MasterChef) contract test", () => {
     });
 
     describe("setting test", () => {
-        it("pool length should be 1", async() => {
+        it("pool length should be 1", async () => {
             const poolLength = Number(await vaultContract.poolLength());
             expect(poolLength).to.be.equal(1);
         });
 
-        it("add pool can be called by only owner", async() => {
+        it("add pool can be called by only owner", async () => {
             await expect(vaultContract.connect(account1).add(1000, mocklp.address, false)).to.be.revertedWith(
                 'Ownable: caller is not the owner'
             );
@@ -61,12 +61,12 @@ describe("Vault(MasterChef) contract test", () => {
             await vaultContract.connect(deployer).add(1000, mocklp.address, false);
         });
 
-        it("pool length should be 2", async() => {
+        it("pool length should be 2", async () => {
             const poolLength = Number(await vaultContract.poolLength());
             expect(poolLength).to.be.equal(2);
         });
 
-        it("update pool[1] info by only owner", async() => {
+        it("update pool[1] info by only owner", async () => {
             // current alloc value is 1000
             const poolInfo = await vaultContract.poolInfo(1);
             const allocValue = Number(poolInfo.allocPoint);
@@ -81,7 +81,7 @@ describe("Vault(MasterChef) contract test", () => {
             expect(newAllocValue).to.be.equal(1500);
         });
 
-        it("update multiplier", async() => {
+        it("update multiplier", async () => {
             // can be called only owner
             await expect(vaultContract.connect(account1).updateMultiplier(2)).to.be.revertedWith(
                 'Ownable: caller is not the owner'
@@ -98,7 +98,7 @@ describe("Vault(MasterChef) contract test", () => {
     });
 
     describe("deposit function test", () => {
-        it("should be failed when caller has insufficient balance", async() => {
+        it("should be failed when caller has insufficient balance", async () => {
             await expect(vaultContract.connect(account2).deposit(0, utils.parseUnits("100"))).to.be.revertedWith(
                 'BEP20: transfer amount exceeds balance'
             );
@@ -112,7 +112,7 @@ describe("Vault(MasterChef) contract test", () => {
             await vaultContract.connect(account1).deposit(0, utils.parseUnits("300"));
 
             await vaultContract.connect(deployer).deposit(0, utils.parseUnits("500"));
-            
+
             const userInfo = await vaultContract.userInfo(0, account1.address);
             const userAmount = Number(userInfo.amount) / Math.pow(10, 18);
             expect(userAmount).to.be.equal(600);
@@ -120,28 +120,28 @@ describe("Vault(MasterChef) contract test", () => {
     });
 
     describe("withdraw function test", () => {
-        it("account2's pending reward should be zero", async() => {
+        it("account2's pending reward should be zero", async () => {
             const pendingReward = Number(await vaultContract.pendingReward(0, account2.address));
             expect(pendingReward).to.be.equal(0);
         });
 
-        it("account1's pending reward on pool 1 is also zero", async() => {
+        it("account1's pending reward on pool 1 is also zero", async () => {
             const pendingReward = Number(await vaultContract.pendingReward(1, account1.address));
             expect(pendingReward).to.be.equal(0);
         });
 
-        it("account1's pending reward on pool 0 should bigger than zero", async() => {
+        it("account1's pending reward on pool 0 should bigger than zero", async () => {
             const pendingReward = Number(await vaultContract.pendingReward(0, account1.address)) / Math.pow(10, 18);
             expect(pendingReward).to.be.gt(0);
         });
 
-        it("can not withdraw bigger than current amount", async() => {
+        it("can not withdraw bigger than current amount", async () => {
             await expect(vaultContract.connect(account1).withdraw(0, utils.parseUnits("10000"))).to.be.revertedWith(
                 'withdraw: not good'
             );
         });
 
-        it("withdraw should be successed", async() => {
+        it("withdraw should be successed", async () => {
             await vaultContract.connect(account1).withdraw(0, utils.parseUnits("1"));
 
             const userBalance = Number(await mockToken.balanceOf(account1.address)) / Math.pow(10, 18);
