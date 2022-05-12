@@ -6,8 +6,10 @@
   "scripts": {
     "build": "npx hardhat compile",
     "lint": "npx solhint contracts/*.sol",
-    "test:all": "npx hardhat test --network hardhat",
-    "test:YBNFT": "npx hardhat test ./test/YBNFT.js --network hardhat",
+    "test": "npx hardhat test --network hardhat",
+    "test:vault": "npx hardhat test ./test/unit/vault.js --network hardhat",
+    "test:ybnft": "npx hardhat test ./test/unit/ybnft.js --network hardhat",
+    "test:investor": "npx hardhat test ./test/unit/investor.js --network hardhat",
     "deploy:mockBEP20": "npx hardhat run deploy/mockBEP20.ts --network bscTestnet",
     "deploy:mockLP": "npx hardhat run deploy/mockLP.ts --network bscTestnet",
     "deploy:vault": "npx hardhat run deploy/vault.ts --network bscTestnet",
