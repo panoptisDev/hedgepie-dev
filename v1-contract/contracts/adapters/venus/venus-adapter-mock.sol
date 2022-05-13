@@ -9,7 +9,7 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "./interface/VBep20Interface.sol";
 
-contract VenusAdapter is Ownable, Pausable, ReentrancyGuard {
+contract VenusAdapterMock is Ownable, Pausable, ReentrancyGuard {
     using SafeERC20 for IERC20;
 
     // reward fee
