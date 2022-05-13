@@ -1,56 +1,42 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-import "./interfaces/IPancakeRouter.sol";
+import "@openzeppelin/contracts/utils/Counters.sol";
 import "./interfaces/IYBNFT.sol";
-import "./interfaces/IHedgepieInvestor.sol";
 import "./libraries/Ownable.sol";
-import "./libraries/SafeMath.sol";
-import "./libraries/SafeBEP20.sol";
 import "./type/BEP721.sol";
 
 contract YBNFT is BEP721, IYBNFT, Ownable {
-    using SafeMath for uint256;
-    using SafeBEP20 for IBEP20;
+    using Counters for Counters.Counter;
 
     // current max tokenId
-    uint256 public tokenIdPointer;
-
-    // lottery address
-    address public lottery;
-    // treasury address
-    address public treasury;
-    // investor address
-    address public investor;
-    // protocol fee
-    uint256 public protocolFee;
-    // token => status
-    mapping(address => bool) public allowedToken;
-    // tokenId => strategy[]
-    mapping(uint256 => Strategy[]) public nftStrategy;
+    Counters.Counter private _tokenIdPointer;
+    // tokenId => Adapter[]
+    mapping(uint256 => Adapter[]) public adapterInfo;
     // tokenId => performanceFee
     mapping(uint256 => uint256) public performanceFee;
 
-    event Mint(address indexed user, uint256 indexed tokenId);
+    event Mint(address indexed minter, uint256 indexed tokenId);
 
     constructor() BEP721("Hedgepie YBNFT", "YBNFT") {}
 
-    // ===== modifiers =====
-    modifier onlyAllowedToken(address token) {
-        require(allowedToken[token], "Error: token is not allowed");
-        _;
-    }
-
-    // TODO: ===== external functions =====
-    function getNftStrategy(uint256 _tokenId)
+    /**
+     * @notice Get adapter info from nft tokenId
+     * @param _tokenId  YBNft token id
+     */
+    function getAdapterInfo(uint256 _tokenId)
         external
         view
         override
-        returns (Strategy[] memory)
+        returns (Adapter[] memory)
     {
-        return nftStrategy[_tokenId];
+        return adapterInfo[_tokenId];
     }
 
+    /**
+     * @notice Get performance fee info from nft tokenId
+     * @param _tokenId  YBNft token id
+     */
     function getPerformanceFee(uint256 _tokenId)
         external
         view
@@ -59,165 +45,92 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         return performanceFee[_tokenId];
     }
 
-    function setInvestor(address _investor) external onlyOwner {
-        require(_investor != address(0), "Missing investor");
-        investor = _investor;
+    /**
+     * @notice Check if nft id is existed
+     * @param _tokenId  YBNft token id
+     */
+    function exists(uint256 _tokenId) external view override returns (bool) {
+        return _exists(_tokenId);
     }
 
-    function setLottery(address _lottery) external onlyOwner {
-        require(_lottery != address(0), "Missing lottery");
-        lottery = _lottery;
-    }
-
-    function setTreasury(address _treasury) external onlyOwner {
-        require(_treasury != address(0), "Missing treasury");
-        treasury = _treasury;
-    }
-
-    function setProtocolFee(uint256 _protocolFee) external onlyOwner {
-        require(_protocolFee < 1000, "Protocol fee should be less than 10%");
-        protocolFee = _protocolFee;
-    }
-
+    /**
+     * @notice Mint nft with adapter infos
+     * @param _adapterAllocations  allocation of adapters
+     * @param _adapterTokens  token of adapters
+     * @param _adapterAddrs  address of adapters
+     */
     function mint(
-        uint256[] calldata _swapPercent,
-        address[] calldata _swapToken,
-        address[] calldata _strategyAddress,
+        uint256[] calldata _adapterAllocations,
+        address[] calldata _adapterTokens,
+        address[] calldata _adapterAddrs,
         uint256 _performanceFee
     ) external onlyOwner {
-        require(_performanceFee < 1000, "Performance fee should be less than 10%");
         require(
-            _swapToken.length > 0 &&
-                _swapToken.length == _swapPercent.length &&
-                _swapToken.length == _strategyAddress.length,
-            "Mismatched strategies"
+            _performanceFee < 1000,
+            "Performance fee should be less than 10%"
         );
-        require(_checkPercent(_swapPercent), "Incorrect swap percent");
-        tokenIdPointer = tokenIdPointer + 1;
-
-        // mint token
-        _safeMint(msg.sender, tokenIdPointer);
-
-        // set strategy
-        _setStrategy(
-            tokenIdPointer,
-            _swapPercent,
-            _swapToken,
-            _strategyAddress
+        require(
+            _adapterTokens.length > 0 &&
+                _adapterTokens.length == _adapterAllocations.length &&
+                _adapterTokens.length == _adapterAddrs.length,
+            "Mismatched adapters"
+        );
+        require(
+            _checkPercent(_adapterAllocations),
+            "Incorrect adapter allocation"
         );
 
-        // set performance fee
-        performanceFee[tokenIdPointer] = _performanceFee;
+        _tokenIdPointer.increment();
+        performanceFee[_tokenIdPointer._value] = _performanceFee;
 
-        emit Mint(address(this), tokenIdPointer);
+        _safeMint(msg.sender, _tokenIdPointer._value);
+        _setAdapterInfo(
+            _tokenIdPointer._value,
+            _adapterAllocations,
+            _adapterTokens,
+            _adapterAddrs
+        );
+
+        emit Mint(msg.sender, _tokenIdPointer._value);
     }
 
-    // ===== public functions =====
-    function manageToken(address[] calldata _tokens, bool _flag)
-        external
-        onlyOwner
-    {
-        for (uint idx = 0; idx < _tokens.length; idx++) allowedToken[_tokens[idx]] = _flag;
-    }
-
-    function deposit(
+    /**
+     * @notice Set adapter infos of nft from token id
+     * @param _adapterAllocations  allocation of adapters
+     * @param _adapterTokens  adapter token
+     * @param _adapterAddrs  address of adapters
+     */
+    function _setAdapterInfo(
         uint256 _tokenId,
-        address _token,
-        uint256 _amount
-    ) external onlyAllowedToken(_token) {
-        require(_exists(_tokenId), "BEP721: NFT not exist");
-        require(_amount > 0, "Amount: can't be 0");
-
-        _deposit(_tokenId, _token, _amount);
-    }
-
-    function withdraw(
-        uint256 _tokenId,
-        address _token,
-        uint256 _amount
-    ) external onlyAllowedToken(_token) {
-        require(_exists(_tokenId), "BEP721: NFT not exist");
-        require(_amount > 0, "Amount: can't be 0");
-
-        _withdraw(_tokenId, _token, _amount);
-    }
-
-    function withdraw(uint256 _tokenId, address _token)
-        external
-        onlyAllowedToken(_token)
-    {
-        require(_exists(_tokenId), "BEP721: NFT not exist");
-
-        _withdrawAll(_tokenId, _token);
-    }
-
-    // ===== internal functions =====
-    function _setStrategy(
-        uint256 _tokenId,
-        uint256[] calldata _swapPercent,
-        address[] calldata _swapToken,
-        address[] calldata _strategyAddress
+        uint256[] calldata _adapterAllocations,
+        address[] calldata _adapterTokens,
+        address[] calldata _adapterAddrs
     ) internal {
-        for (uint idx = 0; idx < _swapToken.length; ++idx) {
-            nftStrategy[_tokenId].push(
-                Strategy({
-                    percent: _swapPercent[idx],
-                    swapToken: _swapToken[idx],
-                    strategyAddress: _strategyAddress[idx]
+        for (uint256 i = 0; i < _adapterTokens.length; ++i) {
+            adapterInfo[_tokenId].push(
+                Adapter({
+                    allocation: _adapterAllocations[i],
+                    token: _adapterTokens[i],
+                    addr: _adapterAddrs[i]
                 })
             );
         }
     }
 
-    function _deposit(
-        uint256 _tokenId,
-        address _token,
-        uint256 _amount
-    ) internal {
-        IBEP20(_token).safeTransferFrom(msg.sender, address(this), _amount);
-        IBEP20(_token).approve(investor, _amount);
-        IHedgepieInvestor(investor).deposit(
-            msg.sender,
-            address(this),
-            _tokenId,
-            _token,
-            _amount
-        );
-    }
-
-    function _withdraw(
-        uint256 _tokenId,
-        address _token,
-        uint256 _amount
-    ) internal {
-        IHedgepieInvestor(investor).withdraw(
-            msg.sender,
-            address(this),
-            _tokenId,
-            _token,
-            _amount
-        );
-    }
-
-    function _withdrawAll(uint256 _tokenId, address _token) internal {
-        IHedgepieInvestor(investor).withdrawAll(
-            msg.sender,
-            address(this),
-            _tokenId,
-            _token
-        );
-    }
-
-    function _checkPercent(uint256[] calldata _swapPercent)
+    /**
+     * @notice Check if total percent of adapters is valid
+     * @param _adapterAllocations  allocation of adapters
+     */
+    function _checkPercent(uint256[] calldata _adapterAllocations)
         internal
         pure
         returns (bool)
     {
-        uint256 totalPercent;
-        for (uint256 idx = 0; idx < _swapPercent.length; idx++) {
-            totalPercent = totalPercent + _swapPercent[idx];
+        uint256 totalAlloc;
+        for (uint256 i = 0; i < _adapterAllocations.length; i++) {
+            totalAlloc = totalAlloc + _adapterAllocations[i];
         }
 
-        return totalPercent <= 1e4;
+        return totalAlloc <= 1e4;
     }
 }

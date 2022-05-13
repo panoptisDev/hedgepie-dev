@@ -2,11 +2,13 @@
 pragma solidity ^0.8.4;
 
 interface IYBNFT {
-    struct Strategy {
-        uint256 percent;
-        address swapToken;
-        address strategyAddress;
+    struct Adapter {
+        uint256 allocation;
+        address token;
+        address addr;
     }
 
-    function getNftStrategy(uint256) external returns (Strategy[] memory);
+    function getAdapterInfo(uint256 nftId) external returns (Adapter[] memory);
+
+    function exists(uint256) external returns (bool);
 }

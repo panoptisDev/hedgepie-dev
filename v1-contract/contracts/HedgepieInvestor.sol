@@ -1,15 +1,16 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.4;
 
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 import "./libraries/SafeBEP20.sol";
 import "./libraries/Ownable.sol";
 
 import "./interfaces/IYBNFT.sol";
+import "./interfaces/IAdapter.sol";
+import "./interfaces/IAdapterManager.sol";
 import "./interfaces/IPancakeRouter.sol";
-import "./interfaces/IStrategy.sol";
-import "./interfaces/IStrategyManager.sol";
 
-contract HedgepieInvestor is Ownable {
+contract HedgepieInvestor is Ownable, ReentrancyGuard {
     using SafeBEP20 for IBEP20;
 
     // user => nft address => nft id => amount
@@ -19,16 +20,14 @@ contract HedgepieInvestor is Ownable {
     // user => strategy address => amount
     mapping(address => mapping(address => uint256)) public userStrategyInfo;
 
-    // nft => listed status
-    mapping(address => bool) public nftWhiteList; // whitelisted nfts
-
-    // wrapped bnb address
-    address public wbnb;
+    // ybnft address
+    address public ybnft;
     // swap router address
     address public swapRouter;
-
+    // wrapped bnb address
+    address public wbnb;
     // strategy manager
-    address public strategyManager;
+    address public adapterManager;
 
     event Deposit(
         address indexed user,
@@ -42,80 +41,75 @@ contract HedgepieInvestor is Ownable {
         uint256 nftId,
         uint256 amount
     );
-    event NftListed(address indexed user, address nft);
-    event NftDeListed(address indexed user, address nft);
-    event StrategyManagerChanged(address indexed user, address strategyManager);
+    event TokenStatusChanged(address indexed token, bool status);
+    event AdapterManagerChanged(address indexed user, address adapterManager);
 
     /**
      * @notice construct
      * @param _swapRouter  Pancakeswap router address (0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3 // on bsc testnet)
      * @param _wbnb  Wrapped BNB address (0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd // on bsc testnet)
      */
-    constructor(address _swapRouter, address _wbnb) {
+    constructor(
+        address _ybnft,
+        address _swapRouter,
+        address _wbnb
+    ) {
+        require(_ybnft != address(0), "Error: YBNFT address missing");
         require(_swapRouter != address(0), "Error: swap router missing");
         require(_wbnb != address(0), "wbnb missing");
 
+        ybnft = _ybnft;
         swapRouter = _swapRouter;
         wbnb = _wbnb;
     }
 
     // ===== modifiers =====
-    modifier onlyWhiteListedNft(address _nft) {
-        require(nftWhiteList[_nft], "Error: nft was not listed");
+    modifier shouldMatchCaller(address _user) {
+        require(_user == msg.sender, "Caller is not matched");
         _;
     }
 
     /**
      * @notice deposit fund
-     * @param _user  user address
-     * @param _nft  YBNft address
      * @param _tokenId  YBNft token id
      * @param _token  token address
      * @param _amount  token amount
      */
     function deposit(
         address _user,
-        address _nft,
         uint256 _tokenId,
         address _token,
         uint256 _amount
-    ) external onlyWhiteListedNft(msg.sender) {
+    ) external shouldMatchCaller(_user) nonReentrant {
         require(_amount > 0, "Amount can not be 0");
+        require(IYBNFT(ybnft).exists(_tokenId), "YBNFT: token id is invalid");
 
-        IBEP20(_token).safeTransferFrom(msg.sender, address(this), _amount);
+        IBEP20(_token).safeTransferFrom(_user, address(this), _amount);
         IBEP20(_token).safeApprove(swapRouter, _amount);
 
-        IYBNFT.Strategy[] memory info = IYBNFT(_nft).getNftStrategy(_tokenId);
-        for (uint8 idx = 0; idx < info.length; idx++) {
-            IYBNFT.Strategy memory infoItem = info[idx];
+        IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
+            _tokenId
+        );
+        for (uint8 i = 0; i < adapterInfo.length; i++) {
+            IYBNFT.Adapter memory adapter = adapterInfo[i];
 
             // swapping
-            uint256 amountIn = (_amount * infoItem.percent) / 1e4;
-            uint256 amountOut = _swapOnPCS(
-                amountIn,
-                _token,
-                infoItem.swapToken
-            );
+            uint256 amountIn = (_amount * adapter.allocation) / 1e4;
+            uint256 amountOut = _swapOnPKS(amountIn, _token, adapter.token);
 
-            // staking into strategy
-            IBEP20(_token).safeApprove(infoItem.strategyAddress, _amount);
-            IStrategyManager(strategyManager).deposit(
-                infoItem.strategyAddress,
-                amountOut
-            );
-
-            userStrategyInfo[_user][infoItem.strategyAddress] += amountOut;
+            // deposit to adapter
+            _depositToAdapter(_token, adapter.addr, _amount);
+            userStrategyInfo[_user][adapter.addr] += amountOut;
         }
 
-        userInfo[_user][_nft][_tokenId] += _amount;
+        userInfo[_user][ybnft][_tokenId] += _amount;
 
-        emit Deposit(_user, _nft, _tokenId, _amount);
+        emit Deposit(_user, ybnft, _tokenId, _amount);
     }
 
     /**
      * @notice withdraw fund
      * @param _user  user address
-     * @param _nft  YBNft address
      * @param _tokenId  YBNft token id
      * @param _token  token address
      * @param _amount  token amount
@@ -123,39 +117,11 @@ contract HedgepieInvestor is Ownable {
 
     function withdraw(
         address _user,
-        address _nft,
         uint256 _tokenId,
         address _token,
         uint256 _amount
-    ) public onlyWhiteListedNft(msg.sender) {
-        uint256 userAmount = userInfo[_user][_nft][_tokenId];
-        require(_amount > 0, "Amount can not be 0");
-        require(userAmount > _amount, "Withdraw: exceeded amount");
-
-        IYBNFT.Strategy[] memory info = IYBNFT(_nft).getNftStrategy(_tokenId);
-        uint256 amountOut;
-        for (uint8 idx = 0; idx < info.length; idx++) {
-            IYBNFT.Strategy memory infoItem = info[idx];
-
-            // get the amount of strategy token to be withdrawn from strategy
-            uint256[] memory amounts = IPancakeRouter(infoItem.strategyAddress)
-                .getAmountsIn(
-                    (_amount * infoItem.percent) / 1e4,
-                    _getPaths(infoItem.swapToken, _token)
-                );
-
-            // unstaking into strategy
-            IStrategy(infoItem.strategyAddress).withdraw(amounts[0]);
-            userStrategyInfo[_user][infoItem.strategyAddress] -= amounts[0];
-
-            // swapping
-            IBEP20(infoItem.swapToken).safeApprove(swapRouter, amounts[0]);
-            amountOut += _swapOnPCS(amounts[0], infoItem.swapToken, _token);
-        }
-        IBEP20(_token).safeTransfer(_user, amountOut);
-        userAmount -= _amount;
-
-        emit Withdraw(_user, _nft, _tokenId, _amount);
+    ) public shouldMatchCaller(_user) nonReentrant {
+        _withdraw(_user, _tokenId, _token, _amount);
     }
 
     /**
@@ -170,48 +136,21 @@ contract HedgepieInvestor is Ownable {
         address _nft,
         uint256 _tokenId,
         address _token
-    ) external onlyWhiteListedNft(msg.sender) {
-        uint256 userAmount = userInfo[_user][_nft][_tokenId];
-        require(userAmount > 0, "Withdraw: amount is 0");
-
-        withdraw(_user, _nft, _tokenId, _token, userAmount);
+    ) external nonReentrant {
+        _withdraw(_user, _tokenId, _token, userInfo[_user][_nft][_tokenId]);
     }
 
     // ===== Owner functions =====
     /**
-     * @notice list nft into whitelist
-     * @param _nft  nft address
-     */
-    function listNft(address _nft) external onlyOwner {
-        require(_nft != address(0), "Invalid NFT address");
-
-        nftWhiteList[_nft] = true;
-
-        emit NftListed(msg.sender, _nft);
-    }
-
-    /**
-     * @notice delist nft from whitelist
-     * @param _nft  nft address
-     */
-    function deListNft(address _nft) external onlyOwner {
-        require(_nft != address(0), "Invalid NFT address");
-
-        nftWhiteList[_nft] = false;
-
-        emit NftDeListed(msg.sender, _nft);
-    }
-
-    /**
      * @notice Set strategy manager contract
-     * @param _strategyManager  nft address
+     * @param _adapterManager  nft address
      */
-    function setStrategyManager(address _strategyManager) external onlyOwner {
-        require(_strategyManager != address(0), "Invalid NFT address");
+    function setAdapterManager(address _adapterManager) external onlyOwner {
+        require(_adapterManager != address(0), "Invalid NFT address");
 
-        strategyManager = _strategyManager;
+        adapterManager = _adapterManager;
 
-        emit StrategyManagerChanged(msg.sender, _strategyManager);
+        emit AdapterManagerChanged(msg.sender, _adapterManager);
     }
 
     // ===== internal functions =====
@@ -232,7 +171,7 @@ contract HedgepieInvestor is Ownable {
         }
     }
 
-    function _swapOnPCS(
+    function _swapOnPKS(
         uint256 _amountIn,
         address _inToken,
         address _outToken
@@ -242,5 +181,92 @@ contract HedgepieInvestor is Ownable {
             .swapExactTokensForTokens(_amountIn, 0, path, address(this), 1200);
 
         amountOut = amounts[amounts.length - 1];
+    }
+
+    /**
+     * @notice deposit fund to adapter
+     * @param _adapterAddr  adapter address
+     * @param _amount  token amount
+     */
+
+    function _depositToAdapter(
+        address _adapterAddr,
+        address _token,
+        uint256 _amount
+    ) internal {
+        IBEP20(_token).safeApprove(
+            IAdapterManager(adapterManager).getAdapterStrat(_adapterAddr),
+            _amount
+        );
+
+        (address to, uint256 value, bytes memory callData) = IAdapterManager(
+            adapterManager
+        ).getDepositCallData(_adapterAddr, _amount);
+
+        to.call{value: value}(callData);
+    }
+
+    /**
+     * @notice withdraw fund from adapter
+     * @param _adapterAddr  adapter address
+     * @param _amount  token amount
+     */
+
+    function _withdrawFromAdapter(address _adapterAddr, uint256 _amount)
+        internal
+    {
+        (address to, uint256 value, bytes memory callData) = IAdapterManager(
+            adapterManager
+        ).getWithdrawCallData(_adapterAddr, _amount);
+
+        to.call{value: value}(callData);
+    }
+
+    /**
+     * @notice withdraw fund
+     * @param _user  user address
+     * @param _tokenId  YBNft token id
+     * @param _token  token address
+     * @param _amount  token amount
+     */
+
+    function _withdraw(
+        address _user,
+        uint256 _tokenId,
+        address _token,
+        uint256 _amount
+    ) internal shouldMatchCaller(_user) {
+        uint256 userAmount = userInfo[_user][ybnft][_tokenId];
+        require(IYBNFT(ybnft).exists(_tokenId), "YBNFT: token id is invalid");
+        require(_amount > 0, "Amount can not be 0");
+        require(userAmount > _amount, "Withdraw: exceeded amount");
+
+        IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
+            _tokenId
+        );
+
+        uint256 amountOut;
+        for (uint8 i = 0; i < adapterInfo.length; i++) {
+            IYBNFT.Adapter memory adapter = adapterInfo[i];
+
+            // get the amount of strategy token to be withdrawn from strategy
+            uint256[] memory amounts = IPancakeRouter(adapter.addr)
+                .getAmountsIn(
+                    (_amount * adapter.allocation) / 1e4,
+                    _getPaths(adapter.token, _token)
+                );
+
+            _withdrawFromAdapter(adapter.addr, _amount);
+            userStrategyInfo[_user][adapter.addr] -= amounts[0];
+
+            // swapping
+            IBEP20(adapter.token).safeApprove(swapRouter, amounts[0]);
+            amountOut += _swapOnPKS(amounts[0], adapter.token, _token);
+        }
+
+        IBEP20(_token).safeTransfer(_user, amountOut);
+        userAmount -= _amount;
+
+        emit Withdraw(_user, ybnft, _tokenId, _amount);
     }
 }
