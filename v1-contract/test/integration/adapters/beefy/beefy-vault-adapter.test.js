@@ -2,7 +2,7 @@ const hre = require("hardhat");
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 
-const WHALE = "0x41772edd47d9ddf9ef848cdb34fe76143908c7ad";
+const WHALE = "0xF977814e90dA44bFA03b6295A0616a897441aceC";
 const cakeVault = "0x97e5d50Fe0632A95b9cf1853E744E02f7D816677";
 const cakeAddr = "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82";
 const swapRouter = "0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3";
@@ -10,15 +10,15 @@ const wBNB = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
 
 const unlockAccount = async (address) => {
   await hre.network.provider.send("hardhat_impersonateAccount", [address]);
-  return hre.ethers.provider.getSigner(address);
+  return ethers.provider.getSigner(address);
 };
 
 describe.only("Beefy Vault Adapter Unit Test", function () {
   let beefyAdapter, hedgepieInvestor, ybnftContract;
-  let deployer, alice, whaleUser, cakeToken;
+  let deployer, whaleUser, cakeToken;
 
   before("Deploy contract", async function () {
-    [deployer, alice] = await ethers.getSigners();
+    [deployer] = await ethers.getSigners();
 
     whaleUser = await unlockAccount(WHALE);
 
@@ -68,64 +68,60 @@ describe.only("Beefy Vault Adapter Unit Test", function () {
     });
   });
 
-  describe("deposit function testing", async() => {
-    // approve tokens first
-    await cakeToken.connect(whaleUser).approve(hedgepieInvestor.address, ethers.utils.parseUnits("100"));
+  describe("deposit function testing", () => {
+    it("deposit testing", async() => {
+      // approve tokens first
+      await cakeToken.connect(whaleUser).approve(hedgepieInvestor.address, ethers.utils.parseUnits("100"));
 
-    await hedgepieInvestor.connect(whaleUser).deposit(
+      await hedgepieInvestor.connect(whaleUser).deposit(
+        WHALE,
         1, // tokenid
         cakeAddr, // cake token
         ethers.utils.parseUnits("100") // amount
-    );
-    
-    // deposit amount should be 100
-    const depositAmount = Number(await hedgepieInvestor.userInfo(whaleWallet, ybnftContract.address, 1)) / Math.pow(10, 18);
-    expect(depositAmount).to.be.equal(100);
+      );
+      
+      // deposit amount should be 100
+      const depositAmount = Number(await hedgepieInvestor.userInfo(WHALE, ybnftContract.address, 1)) / Math.pow(10, 18);
+      expect(depositAmount).to.be.equal(100);
+    }).timeout(100000);
+  });
+
+  describe("withdraw function testing", () => {
+    it("withdraw request requires vault token", async() => {
+      await expect(hedgepieInvestor.connect(deployer).withdraw(
+          deployer.address,
+          1,
+          cakeAddr,
+          ethers.utils.parseUnits("50")
+      )).to.be.revertedWith("Withdraw: exceeded amount");
+    });
+
+    it("withdraw amount should be smaller than token balance", async() => {
+      await expect(hedgepieInvestor.connect(whaleUser).withdraw(
+          WHALE,
+          1,
+          cakeAddr,
+          ethers.utils.parseUnits("150")
+      )).to.be.revertedWith("Withdraw: exceeded amount");
+    });
+
+    it("withdraw will be successed", async() => {
+      const startBal = Number(await cakeToken.balanceOf(WHALE)) / Math.pow(10, 18);
+
+      await hedgepieInvestor.connect(whaleUser).withdraw(
+        WHALE,
+        1,
+        cakeAddr,
+        ethers.utils.parseUnits("50")
+      );
+
+      const lastBal = Number(await cakeToken.balanceOf(WHALE)) / Math.pow(10, 18);
+      const diffBal = lastBal - startBal;
+      expect(diffBal).to.be.gt(50);
+
+      // deposit amount should be 50
+      const depositAmount = Number(await hedgepieInvestor.userInfo(WHALE, ybnftContract.address, 1)) / Math.pow(10, 18);
+      expect(depositAmount).to.be.equal(50);
+    }).timeout(100000);
   });
 });
-
-//         it("testing deposit", async() => {
-//             // approve tokens first
-//             await cakeToken.connect(whaleUser).approve(ybnftContract.address, ethers.utils.parseUnits("100"));
-
-//             await ybnftContract.connect(whaleUser).deposit(
-//                 1, // tokenid
-//                 cakeAddr, // cake token
-//                 ethers.utils.parseUnits("100") // amount
-//             );
-            
-//             // deposit amount should be 100
-//             const depositAmount = Number(await hedgepieInvestor.userInfo(whaleWallet, ybnftContract.address, 1)) / Math.pow(10, 18);
-//             expect(depositAmount).to.be.equal(100);
-//         }).timeout(100000);
-//     });
-
-//     describe("withdraw function test", () => {
-//         it("withdraw request requires vault token", async() => {
-//             await expect(ybnftContract.connect(deployer).callStatic['withdraw(uint256,address,uint256)'](
-//                 1,
-//                 cakeAddr,
-//                 ethers.utils.parseUnits("50")
-//             )).to.be.revertedWith("Withdraw: exceeded amount");
-//         });
-
-//         it("withdraw amount should be smaller than token balance", async() => {
-//             await expect(ybnftContract.connect(whaleUser).callStatic['withdraw(uint256,address,uint256)'](
-//                 1,
-//                 cakeAddr,
-//                 ethers.utils.parseUnits("150")
-//             )).to.be.revertedWith("Withdraw: exceeded amount");
-//         })
-
-//         it("withdraw will be successed", async() => {
-//             // change investor address - this should be fixed
-//             await beefyAdapter.setInvestor(hedgepieInvestor.address);
-
-//             await ybnftContract.connect(whaleUser).callStatic['withdraw(uint256,address,uint256)'](
-//                 1,
-//                 cakeAddr,
-//                 ethers.utils.parseUnits("50")
-//             );
-//         }).timeout(100000);
-//     })
-// });
