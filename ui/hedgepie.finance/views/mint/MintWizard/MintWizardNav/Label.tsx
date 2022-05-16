@@ -1,7 +1,6 @@
 import React from 'react'
-import { Box, ThemeUICSSObject } from 'theme-ui'
+import { Box } from 'theme-ui'
 import MintWizardContext from 'contexts/MintWizardContext'
-import { styles } from 'views/mint/styles'
 
 type Props = {
   index: number
@@ -10,33 +9,79 @@ type Props = {
 }
 
 const Label = ({ index, label, active }: Props) => {
+
   const { wizard, setWizard } = React.useContext(MintWizardContext)
 
   const handleNavigate = () => {
     if (wizard.order !== index) {
       setWizard({
         ...wizard,
-        order: index,
+        order: index
       })
     }
   }
 
   return (
-    <Box sx={styles.mint_nav_horizontal_container as ThemeUICSSObject}>
-      {index > 0 && <Box sx={styles.mint_nav_horizontal_line as ThemeUICSSObject} />}
+    <Box
+      sx={{
+        display: 'flex',
+        alignItems: 'center',
+        marginTop: 50
+      }}
+    >
+      {index > 0 &&
+        <Box
+          sx={{
+            height: '1px',
+            width: 160,
+            backgroundColor: '#1799DE',
+          }}
+        />
+      }
       <Box
         sx={{
-          position: 'relative',
+          position: 'relative'
         }}
       >
         <Box
-          className="wizard-nav-item"
-          sx={{ ...styles.mint_nav_horizontal_item, color: active ? '#000' : '#CCC' } as ThemeUICSSObject}
+          className='wizard-nav-item'
+          sx={{
+            display: 'flex',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: 74,
+            height: 74,
+            border: '1px solid #1799DE',
+            color: active ? '#000' : '#CCC',
+            borderRadius: '50%',
+            fontSize: 36,
+            fontWeight: 900,
+            userSelect: 'none',
+            cursor: 'pointer',
+            transition: 'all .2s',
+            '&:hover': {
+              backgroundColor: '#1799DE11'
+            },
+            '&:active': {
+              backgroundColor: '#1799DE33'
+            },
+          }}
           onClick={handleNavigate}
         >
           {index + 1}
         </Box>
-        <Box sx={{ ...styles.mint_nav_horizontal_label, color: active ? '#000' : '#ccc' } as ThemeUICSSObject}>
+        <Box
+          sx={{
+            position: 'absolute',
+            top: -50,
+            left: 30,
+            display: 'flex',
+            justifyContent: 'center',
+            width: 0,
+            whiteSpace: 'nowrap',
+            color: active ? '#000' : '#ccc'
+          }}
+        >
           {label}
         </Box>
       </Box>

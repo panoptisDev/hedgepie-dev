@@ -152,16 +152,12 @@ const ActionMain = (props: Props) => {
 
   const onChangeAmount = (e) => {
     setAmountString(e.target.value)
-    if (e.target.value && (isNaN(Number.parseFloat(e.target.value)) || Number.parseFloat(e.target.value) < 0)) {
+    if (e.target.value && (isNaN(e.target.value) || Number.parseFloat(e.target.value) < 0)) {
       setInvalidAmount(true)
       toast('Please input only Positive Numeric values', 'warning')
     }
     setInvalidAmount(false)
     e.target.value && !isNaN(e.target.value) && setAmount(getBalanceInWei(e.target.value))
-  }
-
-  const onKeyPress = (e) => {
-    e.key === '-' && e.preventDefault()
   }
 
   const onMaxClick = () => {
@@ -210,7 +206,6 @@ const ActionMain = (props: Props) => {
           value={amountString}
           type="number"
           onChange={onChangeAmount}
-          onKeyPress={onKeyPress}
           id="amount-input"
         />
       </Box>
