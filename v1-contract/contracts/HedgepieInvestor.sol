@@ -98,7 +98,8 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             uint256 amountOut = _swapOnPKS(amountIn, _token, adapter.token);
 
             // deposit to adapter
-            _depositToAdapter(_token, adapter.addr, _amount);
+            _depositToAdapter(adapter.token, adapter.addr, amountOut);
+
             userStrategyInfo[_user][adapter.addr] += amountOut;
         }
 
@@ -178,7 +179,13 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     ) internal returns (uint256 amountOut) {
         address[] memory path = _getPaths(_inToken, _outToken);
         uint256[] memory amounts = IPancakeRouter(swapRouter)
-            .swapExactTokensForTokens(_amountIn, 0, path, address(this), 1200);
+            .swapExactTokensForTokens(
+                _amountIn,
+                0,
+                path,
+                address(this),
+                block.timestamp + 2 hours
+            );
 
         amountOut = amounts[amounts.length - 1];
     }
@@ -190,8 +197,8 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
      */
 
     function _depositToAdapter(
-        address _adapterAddr,
         address _token,
+        address _adapterAddr,
         uint256 _amount
     ) internal {
         IBEP20(_token).safeApprove(
@@ -199,11 +206,16 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             _amount
         );
 
-        (address to, uint256 value, bytes memory callData) = IAdapterManager(
-            adapterManager
-        ).getDepositCallData(_adapterAddr, _amount);
+        // (address to, uint256 value, bytes memory callData) = IAdapterManager(
+        //     adapterManager
+        // ).getDepositCallData(_adapterAddr, _amount);
 
-        to.call{value: value}(callData);
+        (address to, uint256 value, bytes memory callData) = IAdapter(
+            _adapterAddr
+        ).getInvestCallData(_amount);
+
+        (bool success, ) = to.call{value: value}(callData);
+        require(success, "Error: Deposit internal issue");
     }
 
     /**
@@ -215,11 +227,17 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     function _withdrawFromAdapter(address _adapterAddr, uint256 _amount)
         internal
     {
-        (address to, uint256 value, bytes memory callData) = IAdapterManager(
-            adapterManager
-        ).getWithdrawCallData(_adapterAddr, _amount);
+        // (address to, uint256 value, bytes memory callData) = IAdapterManager(
+        //     adapterManager
+        // ).getWithdrawCallData(_adapterAddr, _amount);
 
-        to.call{value: value}(callData);
+        (address to, uint256 value, bytes memory callData) = IAdapter(
+            _adapterAddr
+        ).getDevestCallData(_amount);
+
+        (bool success, ) = to.call{value: value}(callData);
+
+        require(success, "Error: Withdraw internal issue");
     }
 
     /**
@@ -250,13 +268,13 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             IYBNFT.Adapter memory adapter = adapterInfo[i];
 
             // get the amount of strategy token to be withdrawn from strategy
-            uint256[] memory amounts = IPancakeRouter(adapter.addr)
-                .getAmountsIn(
-                    (_amount * adapter.allocation) / 1e4,
-                    _getPaths(adapter.token, _token)
-                );
+            uint256[] memory amounts = IPancakeRouter(swapRouter).getAmountsIn(
+                (_amount * adapter.allocation) / 1e4,
+                _getPaths(adapter.token, _token)
+            );
 
             _withdrawFromAdapter(adapter.addr, _amount);
+
             userStrategyInfo[_user][adapter.addr] -= amounts[0];
 
             // swapping
