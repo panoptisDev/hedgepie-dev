@@ -3,13 +3,12 @@ import { Box, Input } from 'theme-ui'
 import MintWizardContext from 'contexts/MintWizardContext'
 
 const NftName = () => {
-
   const { formData, setFormData } = React.useContext(MintWizardContext)
 
   const handleNameChange = (e) => {
     setFormData({
       ...formData,
-      nftName: e.target.value
+      nftName: e.target.value,
     })
   }
 
@@ -21,7 +20,7 @@ const NftName = () => {
         borderRadius: 8,
         [`@media screen and (min-width: 500px)`]: {
           padding: 24,
-        }
+        },
       }}
     >
       <Box
@@ -31,7 +30,7 @@ const NftName = () => {
           color: '#16103A',
           [`@media screen and (min-width: 500px)`]: {
             fontSize: 24,
-          }
+          },
         }}
       >
         NFT Name
@@ -42,8 +41,8 @@ const NftName = () => {
           fontWeight: 500,
           color: '#DF4886',
           [`@media screen and (min-width: 500px)`]: {
-            fontSize: 16
-          }
+            fontSize: 16,
+          },
         }}
       >
         Provide a name you want to give your NFT
@@ -61,7 +60,7 @@ const NftName = () => {
             paddingLeft: 24,
             paddingRight: 24,
             border: 'none',
-            outline: 'none'
+            outline: 'none',
           }}
           placeholder="NFT Title ..."
           value={formData.nftName}

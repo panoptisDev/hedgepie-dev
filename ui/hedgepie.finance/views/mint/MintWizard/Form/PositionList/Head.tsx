@@ -11,7 +11,7 @@ const Head = () => {
         [`@media screen and (min-width: 900px)`]: {
           flexDirection: 'row',
           gap: 24,
-        }
+        },
       }}
     >
       <Box sx={{ flex: '1 1 0' }}>
@@ -22,7 +22,7 @@ const Head = () => {
             color: '#16103A',
             [`@media screen and (min-width: 500px)`]: {
               fontSize: 24,
-            }
+            },
           }}
         >
           Composition
@@ -34,7 +34,7 @@ const Head = () => {
             color: '#DF4886',
             [`@media screen and (min-width: 500px)`]: {
               fontSize: 16,
-            }
+            },
           }}
         >
           Stake positions
@@ -48,7 +48,7 @@ const Head = () => {
             color: '#16103A',
             [`@media screen and (min-width: 500px)`]: {
               fontSize: 24,
-            }
+            },
           }}
         >
           Weight
@@ -60,7 +60,7 @@ const Head = () => {
             color: '#DF4886',
             [`@media screen and (min-width: 500px)`]: {
               fontSize: 16,
-            }
+            },
           }}
         >
           Percentage allocation

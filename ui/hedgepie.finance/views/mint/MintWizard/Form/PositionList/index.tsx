@@ -5,7 +5,6 @@ import Head from './Head'
 import Position from './Position'
 
 const PositionList = () => {
-
   const { formData, setFormData, strategies } = React.useContext(MintWizardContext)
 
   const handleAdd = () => {
@@ -17,33 +16,33 @@ const PositionList = () => {
         {
           composition: strategies[0],
           weight: 1,
-          locked: false
-        }
-      ]
+          locked: false,
+        },
+      ],
     })
   }
 
   const handleUpdate = (index, newData) => {
-    const newPositions = formData.positions.map((d, i) => i === index ? newData : d);
+    const newPositions = formData.positions.map((d, i) => (i === index ? newData : d))
     const allocated = newPositions.reduce((p, c) => p + parseInt(c.weight), 0)
     setFormData({
       ...formData,
       allocated,
-      positions: newPositions
+      positions: newPositions,
     })
   }
 
   const handleDelete = (index) => {
     setFormData({
       ...formData,
-      positions: formData.positions.filter((d, i) => i !== index)
+      positions: formData.positions.filter((d, i) => i !== index),
     })
   }
 
   const handleLock = (index) => {
     setFormData({
       ...formData,
-      positions: formData.positions.map((d, i) => i === index ? { ...d, locked: !d.locked } : d)
+      positions: formData.positions.map((d, i) => (i === index ? { ...d, locked: !d.locked } : d)),
     })
   }
 
@@ -55,7 +54,7 @@ const PositionList = () => {
         borderRadius: 8,
         [`@media screen and (min-width: 500px)`]: {
           padding: 24,
-        }
+        },
       }}
     >
       <Head />
@@ -65,16 +64,16 @@ const PositionList = () => {
           minHeight: 300,
         }}
       >
-        {formData.positions.map((d, i) =>
+        {formData.positions.map((d, i) => (
           <Box key={i} mt={3}>
             <Position
               data={d}
-              onUpdate={composition => handleUpdate(i, composition)}
+              onUpdate={(composition) => handleUpdate(i, composition)}
               onLock={() => handleLock(i)}
               onDelete={() => handleDelete(i)}
             />
           </Box>
-        )}
+        ))}
       </Box>
       <Box mt={4}>
         <Button

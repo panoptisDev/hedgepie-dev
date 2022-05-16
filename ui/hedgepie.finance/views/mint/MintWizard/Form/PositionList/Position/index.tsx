@@ -3,11 +3,10 @@ import { Box, Image, Button, Input } from 'theme-ui'
 import CompositionSelect from './CompositionSelect'
 
 const Position = ({ data, onUpdate, onDelete, onLock }) => {
-
   const handleSelect = (composition) => {
     onUpdate({
       ...data,
-      composition
+      composition,
     })
   }
 
@@ -16,7 +15,7 @@ const Position = ({ data, onUpdate, onDelete, onLock }) => {
     if (newValue < 100) {
       onUpdate({
         ...data,
-        weight: newValue.toString()
+        weight: newValue.toString(),
       })
     }
   }
@@ -35,14 +34,11 @@ const Position = ({ data, onUpdate, onDelete, onLock }) => {
         [`@media screen and (min-width: 900px)`]: {
           flexDirection: 'row',
           gap: 24,
-        }
+        },
       }}
     >
       <Box sx={{ flex: '1 1 0' }}>
-        <CompositionSelect
-          value={data.composition}
-          onSelect={handleSelect}
-        />
+        <CompositionSelect value={data.composition} onSelect={handleSelect} />
       </Box>
       <Box
         sx={{
@@ -60,7 +56,7 @@ const Position = ({ data, onUpdate, onDelete, onLock }) => {
             paddingRight: 16,
             [`@media screen and (min-width: 900px)`]: {
               paddingLeft: 32,
-            }
+            },
           }}
         >
           <Box
@@ -75,31 +71,31 @@ const Position = ({ data, onUpdate, onDelete, onLock }) => {
               userSelect: 'none',
               [`@media screen and (min-width: 500px)`]: {
                 fontSize: 30,
-              }
+              },
             }}
           >
-            {data.locked ?
+            {data.locked ? (
               <Box
                 sx={{
                   width: 50,
                   height: 44,
                   textAlign: 'right',
                   pr: 2,
-                  fontWeight: 500
+                  fontWeight: 500,
                 }}
               >
                 {data.weight}
               </Box>
-              :
+            ) : (
               <Input
-                className='weight-input'
+                className="weight-input"
                 sx={{
                   border: 'none',
                   outline: 'none',
                   padding: 0,
                   textAlign: 'right',
                   pr: 2,
-                  width: 50
+                  width: 50,
                 }}
                 type="number"
                 min={0}
@@ -107,24 +103,14 @@ const Position = ({ data, onUpdate, onDelete, onLock }) => {
                 value={data.weight}
                 onChange={handleChangeWeight}
               />
-            }
+            )}
 
-            <Box sx={{ height: 44 }}>
-              %
-            </Box>
+            <Box sx={{ height: 44 }}>%</Box>
           </Box>
-          <Button
-            variant="icon"
-            className="position-lock"
-            onClick={handleLock}
-          >
+          <Button variant="icon" className="position-lock" onClick={handleLock}>
             <Image src="/images/icon-lock.png" />
           </Button>
-          <Button
-            variant="icon"
-            className="position-delete"
-            onClick={onDelete}
-          >
+          <Button variant="icon" className="position-delete" onClick={onDelete}>
             <Image src="/images/icon-trash.png" />
           </Button>
         </Box>
@@ -139,12 +125,12 @@ const Position = ({ data, onUpdate, onDelete, onLock }) => {
           width: 24,
           backgroundColor: '#fff',
           [`@media screen and (min-width: 900px)`]: {
-            display: 'block'
-          }
+            display: 'block',
+          },
         }}
       />
-    </Box >
+    </Box>
   )
 }
 
-export default Position;
+export default Position
