@@ -1,101 +1,24 @@
 import React from 'react'
-import { Box, Image } from 'theme-ui'
+import { Box, Image, ThemeUICSSObject } from 'theme-ui'
 import MintWizard from './MintWizard'
+import { styles } from './styles'
 
 const Mint = () => {
-
   return (
-    <Box
-      sx={{
-        position: 'relative',
-      }}
-    >
-      <Box
-        sx={{
-          width: '100%',
-          position: 'absolute',
-          top: -99,
-          left: 0,
-          [`@media screen and (min-width: 700px)`]: {
-            top: -149,
-          },
-          [`@media screen and (min-width: 992px)`]: {
-            top: -197,
-          }
-        }}
-      >
-        <Box
-          sx={{
-            maxWidth: 1200,
-            margin: '0 auto'
-          }}
-        >
-          <Image
-            src="/images/hedgehog-head.png"
-            sx={{
-              width: 200,
-              [`@media screen and (min-width: 700px)`]: {
-                width: 300,
-              },
-              [`@media screen and (min-width: 992px)`]: {
-                width: 'auto'
-              }
-            }}
-          />
+    <Box sx={styles.mint_page_container as ThemeUICSSObject}>
+      <Box sx={styles.mint_title_mast_container as ThemeUICSSObject}>
+        <Box sx={styles.mint_title_mast_image_container as ThemeUICSSObject}>
+          <Image src="/images/hedgehog-head.png" sx={styles.mint_title_mast_hedgehog_img as ThemeUICSSObject} />
         </Box>
       </Box>
-      <Box
-        sx={{
-          position: 'relative',
-          padding: '0 16px',
-          paddingTop: 80,
-          paddingBottom: 40,
-          overflow: 'hidden',
-        }}
-      >
-        <Box
-          sx={{
-            margin: '0 auto',
-            maxWidth: 1200,
-          }}
-        >
+      <Box sx={styles.mint_wizard_outer_container as ThemeUICSSObject}>
+        <Box sx={styles.mint_wizard_inner_container as ThemeUICSSObject}>
           <MintWizard />
         </Box>
       </Box>
-      <Box
-        sx={{
-          position: 'relative',
-          height: 200,
-          width: '100%',
-          [`@media screen and (min-width: 1200px)`]: {
-            height: 300
-          }
-        }}
-      >
-        <Box
-          sx={{
-            maxWidth: 1200,
-            margin: '0 auto',
-            position: 'relative'
-          }}
-        >
-          <Image
-            src="/images/pie-eaten.png"
-            sx={{
-              position: 'absolute',
-              width: 200,
-              top: -40,
-              right: 0,
-              [`@media screen and (min-width: 600px)`]: {
-                width: 300,
-                right: -40
-              },
-              [`@media screen and (min-width: 1200px)`]: {
-                width: 400,
-                right: -200
-              }
-            }}
-          />
+      <Box sx={styles.mint_eaten_pie_img_outer_container as ThemeUICSSObject}>
+        <Box sx={styles.mint_eaten_pie_img_inner_container as ThemeUICSSObject}>
+          <Image src="/images/pie-eaten.png" sx={styles.mint_eaten_pie_img as ThemeUICSSObject} />
         </Box>
       </Box>
     </Box>
