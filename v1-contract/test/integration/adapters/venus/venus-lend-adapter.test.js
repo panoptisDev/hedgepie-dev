@@ -28,8 +28,7 @@ describe("VenusAdapter Integration Test", function () {
     // Deploy Venus Adapter contract
     const VenusAdapter = await ethers.getContractFactory("VenusLendAdapter");
     this.vAdapter = await VenusAdapter.deploy(
-      this.strategy,
-      "0x0000000000000000000000000000000000000001"
+      this.strategy
     );
     await this.vAdapter.deployed();
 
@@ -68,9 +67,6 @@ describe("VenusAdapter Integration Test", function () {
     // Set investor in adapter manager
     await this.adapterManager.setInvestor(this.investor.address);
 
-    // Set investory to vAdaptor
-    this.vAdapter.setInvestor(this.investor.address);
-
     console.log("YBNFT: ", this.ybNft.address);
     console.log("Investor: ", this.investor.address);
     console.log("VenusAdapter: ", this.vAdapter.address);
@@ -98,33 +94,29 @@ describe("VenusAdapter Integration Test", function () {
   });
 
   describe("should set correct state variable", function () {
-    it("(1) Check investor address", async function () {
-      expect(await this.vAdapter.investor()).to.eq(this.investor.address);
-    });
-
-    it("(2) Check strategy address", async function () {
+    it("(1) Check strategy address", async function () {
       expect(await this.vAdapter.strategy()).to.eq(this.strategy);
     });
 
-    it("(3) Check owner wallet", async function () {
+    it("(2) Check owner wallet", async function () {
       expect(await this.vAdapter.owner()).to.eq(this.owner.address);
     });
 
-    it("(4) Check AdapterManager address in Investor contract", async function () {
+    it("(3) Check AdapterManager address in Investor contract", async function () {
       expect(await this.investor.adapterManager()).to.eq(
         this.adapterManager.address
       );
     });
 
-    it("(5) Check Investor address in AdapterManager contract", async function () {
+    it("(4) Check Investor address in AdapterManager contract", async function () {
       expect(await this.adapterManager.investor()).to.eq(this.investor.address);
     });
 
-    it("(6) Check owner wallet", async function () {
+    it("(5) Check owner wallet", async function () {
       expect(await this.vAdapter.owner()).to.eq(this.owner.address);
     });
 
-    it("(7) Check AdapterInfo of YBNFT", async function () {
+    it("(6) Check AdapterInfo of YBNFT", async function () {
       const response = await this.ybNft.getAdapterInfo(1);
       expect(response[0].allocation).to.eq(10000) &&
         expect(response[0].token).to.eq(busd) &&
