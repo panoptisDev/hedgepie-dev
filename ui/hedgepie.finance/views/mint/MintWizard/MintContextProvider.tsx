@@ -2,9 +2,14 @@ import React from 'react'
 import MintWizardContext from 'contexts/MintWizardContext'
 
 const MintContextProvider = ({ children }) => {
+
   const [wizard, setWizard] = React.useState({
-    forms: ['Choose positions & Widgets', 'Set Performance fee', 'Optional Art & Name'],
-    order: 0,
+    forms: [
+      'Choose positions & Widgets',
+      'Set Performance fee',
+      'Optional Art & Name'
+    ],
+    order: 0
   })
   const [formData, setFormData] = React.useState({
     positions: [],
@@ -12,7 +17,7 @@ const MintContextProvider = ({ children }) => {
     artWorkFile: null,
     artWorkUrl: '',
     nftName: '',
-    allocated: 0,
+    allocated: 0
   })
   const [strategies, setStrategies] = React.useState<any>([])
 
@@ -42,10 +47,14 @@ const MintContextProvider = ({ children }) => {
       setWizard,
       setFormData,
     }),
-    [wizard, formData, strategies],
+    [wizard, formData, strategies]
   )
 
-  return <MintWizardContext.Provider value={value}>{children}</MintWizardContext.Provider>
+  return (
+    <MintWizardContext.Provider value={value}>
+      {children}
+    </MintWizardContext.Provider>
+  )
 }
 
 export default MintContextProvider
