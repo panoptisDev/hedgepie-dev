@@ -5,7 +5,6 @@ import CustomOption from './CustomOption'
 import CustomValue from './CustomValue'
 
 const CompositionSelect = ({ value, onSelect }) => {
-
   const { strategies } = React.useContext(MintWizardContext)
 
   const handleSelect = (option) => {
@@ -24,7 +23,7 @@ const CompositionSelect = ({ value, onSelect }) => {
       onChange={handleSelect}
       components={{
         Option: CustomOption,
-        ValueContainer: CustomValue
+        ValueContainer: CustomValue,
       }}
       styles={{
         control: () => ({
@@ -33,11 +32,11 @@ const CompositionSelect = ({ value, onSelect }) => {
           backgroundColor: '#fff',
           display: 'flex',
           alignItems: 'center',
-          paddingRight: 16
+          paddingRight: 16,
         }),
         indicatorSeparator: () => ({
-          display: 'none'
-        })
+          display: 'none',
+        }),
       }}
     />
   )

@@ -5,13 +5,12 @@ import PerformanceFee from './PerformanceFee'
 import YbNftSummaryChart from './YbNftSummaryChart'
 
 const FormPerformanceFee = () => {
-
   const { wizard, setWizard } = React.useContext(MintWizardContext)
 
   const handleNext = () => {
     setWizard({
       ...wizard,
-      order: 2
+      order: 2,
     })
   }
 
@@ -24,7 +23,7 @@ const FormPerformanceFee = () => {
         marginTop: 40,
         [`@media screen and (min-width: 1200px)`]: {
           flexDirection: 'row',
-        }
+        },
       }}
     >
       <Box sx={{ flex: 1 }}>
@@ -39,7 +38,7 @@ const FormPerformanceFee = () => {
               borderRadius: 40,
               padding: 0,
               cursor: 'pointer',
-              transition: 'all .2s'
+              transition: 'all .2s',
             }}
             onClick={handleNext}
           >
@@ -50,7 +49,7 @@ const FormPerformanceFee = () => {
       <Box
         sx={{
           maxWidth: 334,
-          flexShrink: 0
+          flexShrink: 0,
         }}
       >
         <YbNftSummaryChart />

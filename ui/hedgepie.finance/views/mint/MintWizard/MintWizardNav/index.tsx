@@ -4,7 +4,6 @@ import Label from './Label'
 import MintWizardContext from 'contexts/MintWizardContext'
 
 const MintWizardNav = ({ ...props }) => {
-
   const { wizard } = React.useContext(MintWizardContext)
 
   return (
@@ -13,17 +12,12 @@ const MintWizardNav = ({ ...props }) => {
         sx={{
           display: 'flex',
           alignItems: 'center',
-          justifyContent: 'center'
+          justifyContent: 'center',
         }}
       >
-        {wizard.forms.map((d, i) =>
-          <Label
-            key={d}
-            index={i}
-            label={d}
-            active={wizard.order === i}
-          />
-        )}
+        {wizard.forms.map((d, i) => (
+          <Label key={d} index={i} label={d} active={wizard.order === i} />
+        ))}
       </Box>
     </Box>
   )

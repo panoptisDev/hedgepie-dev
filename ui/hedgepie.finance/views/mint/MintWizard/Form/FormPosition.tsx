@@ -5,13 +5,12 @@ import PositionList from './PositionList'
 import YbNftSummaryChart from './YbNftSummaryChart'
 
 const FormPosition = () => {
-
   const { wizard, setWizard } = React.useContext(MintWizardContext)
 
   const handleNext = () => {
     setWizard({
       ...wizard,
-      order: 1
+      order: 1,
     })
   }
 
@@ -24,12 +23,12 @@ const FormPosition = () => {
         marginTop: 40,
         [`@media screen and (min-width: 1200px)`]: {
           flexDirection: 'row',
-        }
+        },
       }}
     >
       <Box
         sx={{
-          flex: 1
+          flex: 1,
         }}
       >
         <PositionList />
@@ -43,7 +42,7 @@ const FormPosition = () => {
               borderRadius: 40,
               padding: 0,
               cursor: 'pointer',
-              transition: 'all .2s'
+              transition: 'all .2s',
             }}
             onClick={handleNext}
           >
@@ -54,7 +53,7 @@ const FormPosition = () => {
       <Box
         sx={{
           maxWidth: 334,
-          flexShrink: 0
+          flexShrink: 0,
         }}
       >
         <YbNftSummaryChart />

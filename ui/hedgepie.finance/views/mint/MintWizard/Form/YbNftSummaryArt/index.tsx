@@ -1,17 +1,23 @@
 import React from 'react'
-import { Box, Image } from 'theme-ui'
+import { Box, Image, Textarea } from 'theme-ui'
 import MintWizardContext from 'contexts/MintWizardContext'
 import SummaryLegend from '../SummaryLegend'
 
 const YbNftSummaryArt = () => {
+  const { formData, setFormData } = React.useContext(MintWizardContext)
 
-  const { formData } = React.useContext(MintWizardContext)
+  const setDescription = (e) => {
+    setFormData({
+      ...formData,
+      description: e.target.value,
+    })
+  }
 
   return (
     <Box
       sx={{
         border: '1px solid #D8D8D8',
-        borderRadius: 8
+        borderRadius: 8,
       }}
     >
       <Box
@@ -19,7 +25,7 @@ const YbNftSummaryArt = () => {
           padding: '14px 14px',
           [`@media screen and (min-width: 400px)`]: {
             padding: '24px 34px',
-          }
+          },
         }}
       >
         <Box
@@ -30,7 +36,7 @@ const YbNftSummaryArt = () => {
             fontWeight: 700,
             [`@media screen and (min-width: 400px)`]: {
               fontSize: 24,
-            }
+            },
           }}
         >
           YB NFT Summary
@@ -39,7 +45,7 @@ const YbNftSummaryArt = () => {
           <Box
             sx={{
               position: 'relative',
-              paddingBottom: '100%'
+              paddingBottom: '100%',
             }}
           >
             <Box
@@ -54,14 +60,14 @@ const YbNftSummaryArt = () => {
                 backgroundColor: '#E9E9E9',
                 display: 'flex',
                 alignItems: 'center',
-                justifyContent: 'center'
+                justifyContent: 'center',
               }}
             >
-              {formData.artWorkUrl ?
+              {formData.artWorkUrl ? (
                 <Image className="artwork-set" src={formData.artWorkUrl} />
-                :
+              ) : (
                 <Image className="artwork-empty" src="/images/icon-art.png" />
-              }
+              )}
             </Box>
           </Box>
         </Box>
@@ -72,14 +78,28 @@ const YbNftSummaryArt = () => {
       <Box
         sx={{
           fontSize: 14,
-          padding: '20px 34px',
+          padding: '10px 10px',
           borderTop: '1px solid #D8D8D8',
           [`@media screen and (min-width: 400px)`]: {
-            fontSize: 16
-          }
+            fontSize: 16,
+          },
         }}
       >
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit voluptas, a, suscipit delectus ipsa harum voluptatibus eius hic quae et aliquam obcaecati aliquid modi assumenda ex mollitia unde, ut porro?
+        <Textarea
+          sx={{
+            width: '100%',
+            height: 100,
+            fontFamily: 'Noto Sans',
+            border: '1px solid #e9e9e9',
+            color: '#0A3F5C',
+            ':focus': {
+              outline: 'none !important',
+            },
+          }}
+          cols={40}
+          rows={5}
+          onChange={setDescription}
+        />
       </Box>
     </Box>
   )

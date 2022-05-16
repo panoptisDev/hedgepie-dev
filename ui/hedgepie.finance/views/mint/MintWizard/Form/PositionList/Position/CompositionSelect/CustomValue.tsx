@@ -3,20 +3,17 @@ import { Box, Image } from 'theme-ui'
 import { components } from 'react-select'
 
 const CustomValue = (props) => {
-
   const data = props.getValue()[0]
 
   return (
     <components.ValueContainer {...props}>
-      <Box sx={{ height: 0 }}>
-        {props.children}
-      </Box>
+      <Box sx={{ height: 0 }}>{props.children}</Box>
       <Box
         sx={{
           display: 'flex',
           alignItems: 'center',
           flex: 1,
-          userSelect: 'none'
+          userSelect: 'none',
         }}
       >
         <Image
@@ -27,7 +24,7 @@ const CustomValue = (props) => {
             [`@media screen and (min-width: 500px)`]: {
               width: 50,
               height: 50,
-            }
+            },
           }}
         />
         <Box
@@ -38,17 +35,17 @@ const CustomValue = (props) => {
         >
           <Box
             sx={{
-              fontSize: 20,
+              fontSize: 15,
               fontWeight: 700,
               color: '#0A3F5C',
               ml: 1,
               [`@media screen and (min-width: 500px)`]: {
-                fontSize: 30,
+                fontSize: 20,
                 ml: 3,
-              }
+              },
             }}
           >
-            1.9
+            {data.name}
           </Box>
           {/* <Box
             sx={{
@@ -69,7 +66,7 @@ const CustomValue = (props) => {
           </Box> */}
         </Box>
       </Box>
-    </components.ValueContainer >
+    </components.ValueContainer>
   )
 }
 
