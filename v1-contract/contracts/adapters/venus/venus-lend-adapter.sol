@@ -9,13 +9,7 @@ contract VenusLendAdapter is Ownable {
     // strategy token
     address public strategy;
 
-    // investor address
-    address public investor;
-
-    event InvestorSet(address indexed user, address investor);
-
-    constructor(address strategy_, address investor_) public {
-        require(investor_ != address(0), "Error: Invalid investor address");
+    constructor(address strategy_) {
         require(
             VBep20Interface(strategy_).isVToken(),
             "Error: Invalid vToken address"
@@ -25,19 +19,12 @@ contract VenusLendAdapter is Ownable {
             "Error: Invalid underlying address"
         );
 
-        investor = investor_;
         strategy = strategy_;
-    }
-
-    modifier onlyInvestor(address _caller) {
-        require(_caller == investor, "Error: caller is not investor");
-        _;
     }
 
     function getInvestCallData(uint256 _amount)
         external
         view
-        onlyInvestor(msg.sender)
         returns (
             address to,
             uint256 value,
@@ -52,7 +39,6 @@ contract VenusLendAdapter is Ownable {
     function getDevestCallData(uint256 _amount)
         external
         view
-        onlyInvestor(msg.sender)
         returns (
             address to,
             uint256 value,
@@ -62,17 +48,5 @@ contract VenusLendAdapter is Ownable {
         to = strategy;
         value = 0;
         data = abi.encodeWithSignature("redeem(uint256)", _amount);
-    }
-
-    /**
-     * @notice Set investor contract
-     * @param _investor  investor address
-     */
-    function setInvestor(address _investor) external onlyOwner {
-        require(_investor != address(0), "Invalid NFT address");
-
-        investor = _investor;
-
-        emit InvestorSet(msg.sender, _investor);
     }
 }
