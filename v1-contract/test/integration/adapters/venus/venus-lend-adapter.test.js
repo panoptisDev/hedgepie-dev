@@ -1,12 +1,5 @@
-const hre = require("hardhat");
-const { expect } = require("chai");
-const { time } = require("@openzeppelin/test-helpers");
+const { assert, expect } = require("chai");
 const { ethers } = require("hardhat");
-
-const BUSD_TOKEN = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
-const vBUSD_TOKEN = "0x95c78222B3D6e262426483D42CfA53685A67Ab9D";
-const WHALE = "0x41772edd47d9ddf9ef848cdb34fe76143908c7ad";
-const REWARD_FEE = 500;
 
 const BigNumber = ethers.BigNumber;
 
@@ -17,89 +10,151 @@ const unlockAccount = async (address) => {
   return hre.ethers.provider.getSigner(address);
 };
 
-describe("Venus Adapter Integration Test", function () {
+describe("VenusAdapter Integration Test", function () {
+  const performanceFee = 50;
+  const swapRouter = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // pks rounter address
+  const wbnb = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
+  const busd = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
+  const vbusd = "0x95c78222B3D6e262426483D42CfA53685A67Ab9D";
+  const WHALE = "0x41772edd47d9ddf9ef848cdb34fe76143908c7ad";
+
   before("Deploy contract", async function () {
     const [owner, alice] = await ethers.getSigners();
 
-    this.whaleWallet = await unlockAccount(WHALE);
-    this.owner = owner;
     this.alice = alice;
-    this.vBUSD = await ethers.getContractAt("VBep20Interface", vBUSD_TOKEN);
-    this.BUSD = await ethers.getContractAt("VBep20Interface", BUSD_TOKEN);
+    this.owner = owner;
+    this.strategy = "0x95c78222B3D6e262426483D42CfA53685A67Ab9D";
 
     // Deploy Venus Adapter contract
-    const VenusAdapter = await ethers.getContractFactory("VenusAdapterMock");
-    this.vAdapter = await VenusAdapter.deploy(REWARD_FEE);
+    const VenusAdapter = await ethers.getContractFactory("VenusLendAdapter");
+    this.vAdapter = await VenusAdapter.deploy(
+      this.strategy,
+      "0x0000000000000000000000000000000000000001"
+    );
     await this.vAdapter.deployed();
 
-    console.log("VenusAdapter: ", this.vAdapter.address);
-    console.log("vBUSD: ", this.vBUSD.address);
-    console.log("BUSD: ", this.BUSD.address);
+    // Deploy YBNFT contract
+    ybNftFactory = await ethers.getContractFactory("YBNFT");
+    this.ybNft = await ybNftFactory.deploy();
 
-    // Send 10k BUSD to alice
+    // Mint NFTs
+    await this.ybNft.mint(
+      [10000],
+      [busd],
+      [this.vAdapter.address],
+      performanceFee
+    );
+
+    // Deploy Investor contract
+    investorFactory = await ethers.getContractFactory("HedgepieInvestor");
+    this.investor = await investorFactory.deploy(
+      this.ybNft.address,
+      swapRouter,
+      wbnb
+    );
+
+    // Deploy Adaptor Manager contract
+    adapterManagerFactory = await ethers.getContractFactory(
+      "HedgepieAdapterManager"
+    );
+    this.adapterManager = await adapterManagerFactory.deploy();
+
+    // Add Venus Adapter to AdapterManager
+    await this.adapterManager.addAdapter(this.vAdapter.address);
+
+    // Set adapter manager in investor
+    await this.investor.setAdapterManager(this.adapterManager.address);
+
+    // Set investor in adapter manager
+    await this.adapterManager.setInvestor(this.investor.address);
+
+    // Set investory to vAdaptor
+    this.vAdapter.setInvestor(this.investor.address);
+
+    console.log("YBNFT: ", this.ybNft.address);
+    console.log("Investor: ", this.investor.address);
+    console.log("VenusAdapter: ", this.vAdapter.address);
+    console.log("AdapterManager: ", this.adapterManager.address);
+    console.log("Strategy: ", this.strategy);
+    console.log("Owner: ", this.owner.address);
+
+    this.whaleWallet = await unlockAccount(WHALE);
+    this.vBUSD = await ethers.getContractAt("VBep20Interface", vbusd);
+    this.BUSD = await ethers.getContractAt("VBep20Interface", busd);
+    this.WBNB = await ethers.getContractAt("VBep20Interface", wbnb);
+
     await this.BUSD.connect(this.whaleWallet).transfer(
-      this.alice.address,
+      this.owner.address,
       ethers.utils.parseEther("10000").toString()
     );
 
-    // Send 1k BNB to alice
-    await this.whaleWallet.sendTransaction({
-      to: this.alice.address,
-      value: ethers.utils.parseEther("1000.0"),
+    await this.WBNB.connect(this.whaleWallet).transfer(
+      this.owner.address,
+      ethers.utils.parseEther("10").toString()
+    );
+
+    // Approve investor to move wbnb
+    await this.WBNB.approve(this.investor.address, ethers.constants.MaxUint256);
+  });
+
+  describe("should set correct state variable", function () {
+    it("(1) Check investor address", async function () {
+      expect(await this.vAdapter.investor()).to.eq(this.investor.address);
     });
 
-    // Approve BUSD for adapter contract
-    await this.BUSD.connect(this.alice).approve(
-      this.vAdapter.address,
-      ethers.constants.MaxUint256
-    );
+    it("(2) Check strategy address", async function () {
+      expect(await this.vAdapter.strategy()).to.eq(this.strategy);
+    });
 
-    // Approve vBUSD for adapter contract
-    await this.vBUSD
-      .connect(this.alice)
-      .approve(this.vAdapter.address, ethers.constants.MaxUint256);
+    it("(3) Check owner wallet", async function () {
+      expect(await this.vAdapter.owner()).to.eq(this.owner.address);
+    });
 
-    // Add vTokens
-    await this.vAdapter.addVTokens([this.vBUSD.address], [this.BUSD.address]);
+    it("(4) Check AdapterManager address in Investor contract", async function () {
+      expect(await this.investor.adapterManager()).to.eq(
+        this.adapterManager.address
+      );
+    });
+
+    it("(5) Check Investor address in AdapterManager contract", async function () {
+      expect(await this.adapterManager.investor()).to.eq(this.investor.address);
+    });
+
+    it("(6) Check owner wallet", async function () {
+      expect(await this.vAdapter.owner()).to.eq(this.owner.address);
+    });
+
+    it("(7) Check AdapterInfo of YBNFT", async function () {
+      const response = await this.ybNft.getAdapterInfo(1);
+      expect(response[0].allocation).to.eq(10000) &&
+        expect(response[0].token).to.eq(busd) &&
+        expect(response[0].addr).to.eq(this.vAdapter.address);
+    });
   });
 
-  it("(1) test supply workflow", async function () {
-    await this.vAdapter
-      .connect(this.alice)
-      .supply(this.BUSD.address, ethers.utils.parseEther("100").toString());
-
-    expect(await this.vBUSD.balanceOf(this.alice.address)).to.eq(
-      BigNumber.from(100)
-        .mul(E18)
-        .mul(E18)
-        .div(BigNumber.from(await this.vBUSD.exchangeRateStored()))
+  it("should receive the vToken successfully after deposit function", async function () {
+    await this.investor.deposit(
+      this.owner.address,
+      1,
+      this.WBNB.address,
+      ethers.utils.parseEther("10").toString(),
+      { gasPrice: 21e9 }
     );
+
+    expect(
+      BigNumber.from(await this.vBUSD.balanceOf(this.investor.address)).gt(0)
+    ).to.eq(true);
   });
 
-  it("(2) test redeem workflow", async function () {
-    const vTokenBal = await this.vBUSD.balanceOf(this.alice.address);
-    const balBefore = await this.BUSD.balanceOf(this.alice.address);
+  it("should receive the WBNB successfully after withdraw function", async function () {
+    await this.investor.withdraw(
+      this.owner.address,
+      1,
+      this.WBNB.address,
+      (await this.vBUSD.balanceOf(this.investor.address)).toString(),
+      { gasPrice: 21e9 }
+    );
 
-    // mint 10 blocks
-    for (let i = 0; i < 10; i++) {
-      await ethers.provider.send("evm_mine");
-    }
-
-    await this.vAdapter
-      .connect(this.alice)
-      .redeem(this.vBUSD.address, BigNumber.from(vTokenBal).toString());
-
-    const balAfter = await this.BUSD.balanceOf(this.alice.address);
-
-    expect(BigNumber.from(balAfter).sub(BigNumber.from(balBefore))).to.eq(
-      BigNumber.from(vTokenBal)
-        .mul(BigNumber.from(await this.vBUSD.exchangeRateStored()))
-        .div(E18)
-    ) &&
-      expect(
-        BigNumber.from(balAfter).sub(
-          BigNumber.from(balBefore).gt(BigNumber.from(1000).mul(E18))
-        )
-      ).to.eq(true);
+    expect(await this.vBUSD.balanceOf(this.investor.address)).to.eq(0);
   });
 });

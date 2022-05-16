@@ -16,8 +16,9 @@ module.exports = {
     hardhat: {
       /// BSC mainnet forking environment
       forking: {
-        url: "https://bsc-dataseed.binance.org",
+        url: "https://bsc-dataseed4.binance.org/",
         enabled: true,
+        // blockNumber: 17849149,
       },
       /// ETH mainet forking environment
       // chainId: 31337,
