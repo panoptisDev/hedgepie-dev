@@ -6,11 +6,6 @@ const cakeVault = "0x97e5d50Fe0632A95b9cf1853E744E02f7D816677";
 const swapRouter = "0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3";
 const wBNB = "0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd";
 
-const unlockAccount = async (address) => {
-  await hre.network.provider.send("hardhat_impersonateAccount", [address]);
-  return hre.ethers.provider.getSigner(address);
-};
-
 describe("Beefy Vault Adapter Unit Test", function () {
   let beefyAdapter, hedgepieInvestor;
   let owner, alice;

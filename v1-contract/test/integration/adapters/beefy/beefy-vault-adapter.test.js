@@ -13,7 +13,7 @@ const unlockAccount = async (address) => {
   return ethers.provider.getSigner(address);
 };
 
-describe.only("Beefy Vault Adapter Unit Test", function () {
+describe("Beefy Vault Adapter Unit Test", function () {
   let beefyAdapter, hedgepieInvestor, ybnftContract;
   let deployer, whaleUser, cakeToken;
 
