@@ -80,7 +80,7 @@ const SubmitMint = () => {
       }}
       onClick={handleMint}
     >
-      MINT YB NFT
+      MINT
     </Button>
   )
 }
