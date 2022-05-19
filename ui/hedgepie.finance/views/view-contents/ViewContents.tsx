@@ -5,6 +5,8 @@ import { useState, useEffect } from 'react'
 import { ThemeProvider, jsx, Box, Flex, Button, Text, Image, Input, ThemeUICSSObject, Badge } from 'theme-ui'
 import { theme } from 'themes/theme'
 import { styles } from './styles'
+import { useRouter } from 'next/router'
+import ActionStake from './ActionStake'
 
 // TODO : Define the props type to get the NFT details in setState and useEffect and display in the UI
 type Props = {}
@@ -20,6 +22,12 @@ const ViewContents = (props: Props) => {
   const [details, setDetails] = useState([] as Detail[])
   const [stakeAmount, setStakeAmount] = useState('')
   const [owner, setOwner] = useState({ name: 'OWNER', image: 'images/owner.png' })
+  const router = useRouter()
+
+  useEffect(() => {
+    // TODO : Get the NFT ID and load the data and populate the contents page
+    console.log('HELLO' + JSON.stringify(router.query))
+  }, [])
 
   // Setting badges,strategies with the default values, which should later be taken from the props
   useEffect(() => {
@@ -104,7 +112,7 @@ const ViewContents = (props: Props) => {
                   </Text>
 
                   {/* Button Input Stake */}
-                  <div sx={styles.div_button_input as ThemeUICSSObject}>
+                  {/* <div sx={styles.div_button_input as ThemeUICSSObject}>
                     <Flex sx={styles.flex_button_badge as ThemeUICSSObject}>
                       <Button sx={styles.stake_button as ThemeUICSSObject}>STAKE</Button>
                       <Badge sx={styles.max_badge as ThemeUICSSObject}>MAX</Badge>
@@ -118,11 +126,13 @@ const ViewContents = (props: Props) => {
                       placeholder="0.00"
                       defaultValue="0.00"
                     />
-                  </div>
+                  </div> */}
+                  <ActionStake />
 
                   <Button sx={styles.unstake_button as ThemeUICSSObject} onClick={unstake}>
                     UNSTAKE
                   </Button>
+
                   <Flex sx={styles.flex_details_container as ThemeUICSSObject}>
                     <Text sx={styles.details_title_text as ThemeUICSSObject}>DETAILS:</Text>
                     {details.map((detail) => (

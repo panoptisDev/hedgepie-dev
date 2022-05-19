@@ -27,19 +27,19 @@ export default {
 
   // HedgepieYBNFT
   ybnft: {
-    56: '',
+    56: '0x068d446598a4a777E75e248B755d432AfEfC69db',
     97: '',
   },
 
-  // HedgepieYBNFT
+  // HedgepieInvestor
   investor: {
-    56: '',
+    56: '0x9aCdC51741335Da987eDFb9937619558232EeAa7',
     97: '',
   },
 
-  // HedgepieYBNFT
+  // HedgepieAdapterManager
   adapterManager: {
-    56: '',
+    56: '0x10b0c1580914Ce1A3c8EBCFc23Ef8Cd23F3D4aEd',
     97: '',
   },
 }

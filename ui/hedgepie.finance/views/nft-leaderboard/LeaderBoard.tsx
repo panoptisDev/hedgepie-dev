@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Box, ThemeUICSSObject } from 'theme-ui'
 import LotterySearch from './LotterySearch'
 import LotteryTable from './LotteryTable'
@@ -133,6 +133,10 @@ const LeaderBoard = () => {
   const [lotteries, setLotteries] = React.useState(testData)
   const [searchKey, setSearchKey] = React.useState('')
   const [sortKey, setSortKey] = React.useState('')
+
+  useEffect(() => {
+    // TODO : fetch All the YBNFTs from Investor Contract and display
+  }, [])
 
   const handleSearch = (key: string) => {
     setSearchKey(key)

@@ -3,6 +3,7 @@ import { Box, Button, Image, ThemeUICSSObject } from 'theme-ui'
 import { ChevronDown } from 'react-feather'
 
 import { styles } from './styles'
+import Link from 'next/link'
 
 function numberWithCommas(x: number) {
   return x.toString().replace(/\B(?=(\d{3})+(?!\d))/g, ',')
@@ -86,7 +87,7 @@ const LotteryTable = ({ data, onSort, sortKey }: any) => {
               <td>${numberWithCommas(d.profit)}</td>
               <td>
                 <Button variant="info" sx={styles.lottery_table_details_btn as ThemeUICSSObject}>
-                  DETAILS
+                  <Link href={{ pathname: '/view-contents', query: { tokenId: 2 } }}>DETAILS</Link>
                 </Button>
               </td>
             </tr>
