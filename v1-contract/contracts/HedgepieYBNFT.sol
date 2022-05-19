@@ -6,11 +6,19 @@ import "./interfaces/IYBNFT.sol";
 import "./libraries/Ownable.sol";
 import "./type/BEP721.sol";
 
-contract YBNFT is BEP721, IYBNFT, Ownable {
+contract YBNFT is BEP721, Ownable {
     using Counters for Counters.Counter;
+
+    struct Adapter {
+        uint256 allocation;
+        address token;
+        address addr;
+    }
 
     // current max tokenId
     Counters.Counter private _tokenIdPointer;
+    // tokenId => token uri
+    mapping(uint256 => string) private _tokenURIs;
     // tokenId => Adapter[]
     mapping(uint256 => Adapter[]) public adapterInfo;
     // tokenId => performanceFee
@@ -18,38 +26,48 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
 
     event Mint(address indexed minter, uint256 indexed tokenId);
 
+    /**
+     * @notice Construct
+     */
     constructor() BEP721("Hedgepie YBNFT", "YBNFT") {}
+
+    /**
+     * @notice Get current nft token id
+     */
+    function getCurrentTokenId() public view returns (uint256) {
+        return _tokenIdPointer._value;
+    }
 
     /**
      * @notice Get adapter info from nft tokenId
      * @param _tokenId  YBNft token id
      */
     function getAdapterInfo(uint256 _tokenId)
-        external
+        public
         view
-        override
         returns (Adapter[] memory)
     {
         return adapterInfo[_tokenId];
     }
 
     /**
-     * @notice Get performance fee info from nft tokenId
-     * @param _tokenId  YBNft token id
+     * @notice Get tokenURI from token id
+     * @param _tokenId token id
      */
-    function getPerformanceFee(uint256 _tokenId)
-        external
+    function tokenURI(uint256 _tokenId)
+        public
         view
-        returns (uint256)
+        override
+        returns (string memory)
     {
-        return performanceFee[_tokenId];
+        return _tokenURIs[_tokenId];
     }
 
     /**
      * @notice Check if nft id is existed
      * @param _tokenId  YBNft token id
      */
-    function exists(uint256 _tokenId) external view override returns (bool) {
+    function exists(uint256 _tokenId) public view returns (bool) {
         return _exists(_tokenId);
     }
 
@@ -63,7 +81,8 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         uint256[] calldata _adapterAllocations,
         address[] calldata _adapterTokens,
         address[] calldata _adapterAddrs,
-        uint256 _performanceFee
+        uint256 _performanceFee,
+        string memory _tokenURI
     ) external onlyOwner {
         require(
             _performanceFee < 1000,
@@ -84,6 +103,7 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         performanceFee[_tokenIdPointer._value] = _performanceFee;
 
         _safeMint(msg.sender, _tokenIdPointer._value);
+        _setTokenURI(_tokenIdPointer._value, _tokenURI);
         _setAdapterInfo(
             _tokenIdPointer._value,
             _adapterAllocations,
@@ -92,6 +112,22 @@ contract YBNFT is BEP721, IYBNFT, Ownable {
         );
 
         emit Mint(msg.sender, _tokenIdPointer._value);
+    }
+
+    /**
+     * @notice Set token uri
+     * @param _tokenId  token id
+     * @param _tokenURI  token uri
+     */
+    function _setTokenURI(uint256 _tokenId, string memory _tokenURI)
+        internal
+        virtual
+    {
+        require(
+            _exists(_tokenId),
+            "ERC721Metadata: URI set of nonexistent token"
+        );
+        _tokenURIs[_tokenId] = _tokenURI;
     }
 
     /**

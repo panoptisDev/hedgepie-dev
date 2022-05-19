@@ -4,10 +4,19 @@ pragma solidity ^0.8.4;
 interface IAdapter {
     function strategy() external view returns (address strategy);
 
+    function name() external view returns (string memory);
+
+    function repayToken() external view returns (address);
+
     function getAdapterStrategy(uint256 _adapter)
         external
         view
         returns (address strategy);
+
+    function getWithdrawalAmount(address _user)
+        external
+        view
+        returns (uint256 amount);
 
     function getInvestCallData(uint256 _amount)
         external
@@ -27,7 +36,7 @@ interface IAdapter {
             bytes memory data
         );
 
-    function invest(uint256 _amount) external;
+    function setWithdrawalAmount(address _user, uint256 _amount) external;
 
-    function withdraw(uint256 _amount) external;
+    function setInvestor(address _investor) external;
 }

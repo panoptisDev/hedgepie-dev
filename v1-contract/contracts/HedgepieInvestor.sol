@@ -13,13 +13,11 @@ import "./interfaces/IPancakeRouter.sol";
 contract HedgepieInvestor is Ownable, ReentrancyGuard {
     using SafeBEP20 for IBEP20;
 
-    // user => nft address => nft id => amount
+    // user => ybnft => nft id => amount
     mapping(address => mapping(address => mapping(uint256 => uint256)))
         public userInfo;
-
-    // user => strategy address => amount
-    mapping(address => mapping(address => uint256)) public userStrategyInfo;
-
+    // user => adapter => amount
+    mapping(address => mapping(address => uint256)) public userAdapterInfo;
     // ybnft address
     address public ybnft;
     // swap router address
@@ -41,13 +39,13 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         uint256 nftId,
         uint256 amount
     );
-    event TokenStatusChanged(address indexed token, bool status);
     event AdapterManagerChanged(address indexed user, address adapterManager);
 
     /**
-     * @notice construct
-     * @param _swapRouter  Pancakeswap router address (0x9Ac64Cc6e4415144C455BD8E4837Fea55603e5c3 // on bsc testnet)
-     * @param _wbnb  Wrapped BNB address (0xae13d989daC2f0dEbFf460aC112a837C89BAa7cd // on bsc testnet)
+     * @notice Construct
+     * @param _ybnft  address of YBNFT
+     * @param _swapRouter  address of pancakeswap router
+     * @param _wbnb  address of Wrapped BNB address
      */
     constructor(
         address _ybnft,
@@ -56,21 +54,24 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     ) {
         require(_ybnft != address(0), "Error: YBNFT address missing");
         require(_swapRouter != address(0), "Error: swap router missing");
-        require(_wbnb != address(0), "wbnb missing");
+        require(_wbnb != address(0), "Error: WBNB missing");
 
         ybnft = _ybnft;
         swapRouter = _swapRouter;
         wbnb = _wbnb;
     }
 
-    // ===== modifiers =====
+    /**
+     * @notice Throws if sender and user address is not matched
+     */
     modifier shouldMatchCaller(address _user) {
-        require(_user == msg.sender, "Caller is not matched");
+        require(_user == msg.sender, "Error: Caller is not matched");
         _;
     }
 
     /**
-     * @notice deposit fund
+     * @notice Deposit fund
+     * @param _user  user address
      * @param _tokenId  YBNft token id
      * @param _token  token address
      * @param _amount  token amount
@@ -81,8 +82,11 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         address _token,
         uint256 _amount
     ) external shouldMatchCaller(_user) nonReentrant {
-        require(_amount > 0, "Amount can not be 0");
-        require(IYBNFT(ybnft).exists(_tokenId), "YBNFT: token id is invalid");
+        require(_amount > 0, "Error: Amount can not be 0");
+        require(
+            IYBNFT(ybnft).exists(_tokenId),
+            "Error: nft tokenId is invalid"
+        );
 
         IBEP20(_token).safeTransferFrom(_user, address(this), _amount);
         IBEP20(_token).safeApprove(swapRouter, _amount);
@@ -90,71 +94,155 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
             _tokenId
         );
+
         for (uint8 i = 0; i < adapterInfo.length; i++) {
             IYBNFT.Adapter memory adapter = adapterInfo[i];
 
-            // swapping
+            // swap
             uint256 amountIn = (_amount * adapter.allocation) / 1e4;
             uint256 amountOut = _swapOnPKS(amountIn, _token, adapter.token);
 
             // deposit to adapter
             _depositToAdapter(adapter.token, adapter.addr, amountOut);
-
-            userStrategyInfo[_user][adapter.addr] += amountOut;
+            userAdapterInfo[_user][adapter.addr] += amountOut;
         }
 
         userInfo[_user][ybnft][_tokenId] += _amount;
-
         emit Deposit(_user, ybnft, _tokenId, _amount);
     }
 
     /**
-     * @notice withdraw fund
+     * @notice Withdraw fund
      * @param _user  user address
      * @param _tokenId  YBNft token id
      * @param _token  token address
-     * @param _amount  token amount
      */
-
     function withdraw(
         address _user,
         uint256 _tokenId,
-        address _token,
-        uint256 _amount
-    ) public shouldMatchCaller(_user) nonReentrant {
-        _withdraw(_user, _tokenId, _token, _amount);
-    }
-
-    /**
-     * @notice withdraw fund
-     * @param _user  user address
-     * @param _nft  YBNft address
-     * @param _tokenId  YBNft token id
-     * @param _token  token address
-     */
-    function withdrawAll(
-        address _user,
-        address _nft,
-        uint256 _tokenId,
         address _token
-    ) external nonReentrant {
-        _withdraw(_user, _tokenId, _token, userInfo[_user][_nft][_tokenId]);
+    ) public shouldMatchCaller(_user) nonReentrant {
+        uint256 userAmount = userInfo[_user][ybnft][_tokenId];
+        require(userAmount > 0, "Error: Amount should be greater than 0");
+        require(
+            IYBNFT(ybnft).exists(_tokenId),
+            "Error: nft tokenId is invalid"
+        );
+
+        IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
+            _tokenId
+        );
+
+        uint256 amountOut;
+        for (uint8 i = 0; i < adapterInfo.length; i++) {
+            IYBNFT.Adapter memory adapter = adapterInfo[i];
+            _withdrawFromAdapter(
+                adapter.addr,
+                IAdapter(adapter.addr).getWithdrawalAmount(msg.sender)
+            );
+
+            // swap
+            IBEP20(adapter.token).safeApprove(
+                swapRouter,
+                userAdapterInfo[_user][adapter.addr]
+            );
+            amountOut += _swapOnPKS(
+                userAdapterInfo[_user][adapter.addr],
+                adapter.token,
+                _token
+            );
+
+            userAdapterInfo[_user][adapter.addr] = 0;
+        }
+
+        userInfo[_user][ybnft][_tokenId] -= userAmount;
+
+        IBEP20(_token).safeTransfer(_user, amountOut);
+        emit Withdraw(_user, ybnft, _tokenId, userAmount);
     }
 
-    // ===== Owner functions =====
     /**
      * @notice Set strategy manager contract
      * @param _adapterManager  nft address
      */
     function setAdapterManager(address _adapterManager) external onlyOwner {
-        require(_adapterManager != address(0), "Invalid NFT address");
+        require(_adapterManager != address(0), "Error: Invalid NFT address");
 
         adapterManager = _adapterManager;
 
         emit AdapterManagerChanged(msg.sender, _adapterManager);
     }
 
-    // ===== internal functions =====
+    /**
+     * @notice deposit fund to adapter
+     * @param _adapterAddr  adapter address
+     * @param _amount  token amount
+     */
+    function _depositToAdapter(
+        address _token,
+        address _adapterAddr,
+        uint256 _amount
+    ) internal {
+        address repayToken = IAdapter(_adapterAddr).repayToken();
+        uint256 repayTokenAmountBefore = repayToken != address(0)
+            ? IBEP20(IAdapter(_adapterAddr).strategy()).balanceOf(address(this))
+            : 0;
+
+        IBEP20(_token).safeApprove(
+            IAdapterManager(adapterManager).getAdapterStrat(_adapterAddr),
+            _amount
+        );
+
+        (address to, uint256 value, bytes memory callData) = IAdapterManager(
+            adapterManager
+        ).getDepositCallData(_adapterAddr, _amount);
+
+        (bool success, ) = to.call{value: value}(callData);
+        require(success, "Error: Deposit internal issue");
+
+        uint256 repayTokenAmountAfter = repayToken != address(0)
+            ? IBEP20(IAdapter(_adapterAddr).strategy()).balanceOf(address(this))
+            : 0;
+
+        if (repayToken != address(0)) {
+            require(
+                repayTokenAmountAfter > repayTokenAmountBefore,
+                "Error: Deposit failed"
+            );
+
+            IAdapter(_adapterAddr).setWithdrawalAmount(
+                msg.sender,
+                repayTokenAmountAfter - repayTokenAmountBefore
+            );
+        } else {
+            IAdapter(_adapterAddr).setWithdrawalAmount(msg.sender, _amount);
+        }
+    }
+
+    /**
+     * @notice Withdraw fund from adapter
+     * @param _adapterAddr  adapter address
+     * @param _amount  token amount
+     */
+    function _withdrawFromAdapter(address _adapterAddr, uint256 _amount)
+        internal
+    {
+        (address to, uint256 value, bytes memory callData) = IAdapterManager(
+            adapterManager
+        ).getWithdrawCallData(_adapterAddr, _amount);
+
+        (bool success, ) = to.call{value: value}(callData);
+
+        // update storage data on adapter
+        IAdapter(_adapterAddr).setWithdrawalAmount(msg.sender, 0);
+        require(success, "Error: Withdraw internal issue");
+    }
+
+    /**
+     * @notice Get path via pancakeswap router from inToken and outToken
+     * @param _inToken  address of inToken
+     * @param _outToken  address of outToken
+     */
     function _getPaths(address _inToken, address _outToken)
         internal
         view
@@ -172,6 +260,12 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         }
     }
 
+    /**
+     * @notice Swap token via pancakeswap router
+     * @param _amountIn  amount of inToken
+     * @param _inToken  address of inToken
+     * @param _outToken  address of outToken
+     */
     function _swapOnPKS(
         uint256 _amountIn,
         address _inToken,
@@ -188,99 +282,5 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             );
 
         amountOut = amounts[amounts.length - 1];
-    }
-
-    /**
-     * @notice deposit fund to adapter
-     * @param _adapterAddr  adapter address
-     * @param _amount  token amount
-     */
-
-    function _depositToAdapter(
-        address _token,
-        address _adapterAddr,
-        uint256 _amount
-    ) internal {
-        IBEP20(_token).safeApprove(
-            IAdapterManager(adapterManager).getAdapterStrat(_adapterAddr),
-            _amount
-        );
-
-        (address to, uint256 value, bytes memory callData) = IAdapterManager(
-            adapterManager
-        ).getDepositCallData(_adapterAddr, _amount / 2);
-
-        (bool success, ) = to.call{value: value}(callData);
-        require(success, "Error: Deposit internal issue");
-    }
-
-    /**
-     * @notice withdraw fund from adapter
-     * @param _adapterAddr  adapter address
-     * @param _amount  token amount
-     */
-
-    function _withdrawFromAdapter(address _adapterAddr, uint256 _amount)
-        internal
-    {
-        // (address to, uint256 value, bytes memory callData) = IAdapterManager(
-        //     adapterManager
-        // ).getWithdrawCallData(_adapterAddr, _amount);
-
-        (address to, uint256 value, bytes memory callData) = IAdapter(
-            _adapterAddr
-        ).getDevestCallData(_amount);
-
-        (bool success, ) = to.call{value: value}(callData);
-
-        require(success, "Error: Withdraw internal issue");
-    }
-
-    /**
-     * @notice withdraw fund
-     * @param _user  user address
-     * @param _tokenId  YBNft token id
-     * @param _token  token address
-     * @param _amount  token amount
-     */
-
-    function _withdraw(
-        address _user,
-        uint256 _tokenId,
-        address _token,
-        uint256 _amount
-    ) internal shouldMatchCaller(_user) {
-        uint256 userAmount = userInfo[_user][ybnft][_tokenId];
-        require(IYBNFT(ybnft).exists(_tokenId), "YBNFT: token id is invalid");
-        require(_amount > 0, "Amount can not be 0");
-        require(userAmount > _amount, "Withdraw: exceeded amount");
-
-        IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
-            _tokenId
-        );
-
-        uint256 amountOut;
-        for (uint8 i = 0; i < adapterInfo.length; i++) {
-            IYBNFT.Adapter memory adapter = adapterInfo[i];
-
-            // get the amount of strategy token to be withdrawn from strategy
-            uint256[] memory amounts = IPancakeRouter(swapRouter).getAmountsIn(
-                (_amount * adapter.allocation) / 1e4,
-                _getPaths(adapter.token, _token)
-            );
-
-            _withdrawFromAdapter(adapter.addr, _amount);
-
-            userStrategyInfo[_user][adapter.addr] -= amounts[0];
-
-            // swapping
-            IBEP20(adapter.token).safeApprove(swapRouter, amounts[0]);
-            amountOut += _swapOnPKS(amounts[0], adapter.token, _token);
-        }
-
-        IBEP20(_token).safeTransfer(_user, amountOut);
-        userAmount -= _amount;
-
-        emit Withdraw(_user, ybnft, _tokenId, _amount);
     }
 }

@@ -27,9 +27,9 @@ contract VenusAdapterMock is Ownable, Pausable, ReentrancyGuard {
     // nToken => vToken
     mapping(address => address) public vTokens;
 
-    constructor(uint256 rewardFee_) public {
-        require(rewardFee_ <= MAX_REWARD_FEE, "Invalid reward fee");
-        rewardFee = rewardFee_;
+    constructor(uint256 _rewardFee) public {
+        require(_rewardFee <= MAX_REWARD_FEE, "Invalid reward fee");
+        rewardFee = _rewardFee;
     }
 
     modifier onlyEOA() {
