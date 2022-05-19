@@ -8,7 +8,21 @@ interface IYBNFT {
         address addr;
     }
 
-    function getAdapterInfo(uint256 nftId) external returns (Adapter[] memory);
+    function getCurrentTokenId() external view returns (uint256);
+
+    function performanceFee(uint256 tokenId) external view returns (uint256);
+
+    function getAdapterInfo(uint256 tokenId)
+        external
+        returns (Adapter[] memory);
 
     function exists(uint256) external returns (bool);
+
+    function mint(
+        uint256[] calldata adapterAllocations,
+        address[] calldata adapterTokens,
+        address[] calldata adapterAddrs,
+        uint256 performanceFee,
+        string memory tokenURI
+    ) external;
 }

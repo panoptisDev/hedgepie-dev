@@ -23,12 +23,15 @@ describe("VenusAdapter Integration Test", function () {
 
     this.alice = alice;
     this.owner = owner;
-    this.strategy = "0x95c78222B3D6e262426483D42CfA53685A67Ab9D";
+    this.strategy = vbusd;
 
     // Deploy Venus Adapter contract
     const VenusAdapter = await ethers.getContractFactory("VenusLendAdapter");
     this.vAdapter = await VenusAdapter.deploy(
-      this.strategy
+      this.strategy,
+      busd,
+      vbusd,
+      "Venus BUSD lend adapter"
     );
     await this.vAdapter.deployed();
 
@@ -41,7 +44,8 @@ describe("VenusAdapter Integration Test", function () {
       [10000],
       [busd],
       [this.vAdapter.address],
-      performanceFee
+      performanceFee,
+      "test tokenURI"
     );
 
     // Deploy Investor contract
@@ -66,6 +70,9 @@ describe("VenusAdapter Integration Test", function () {
 
     // Set investor in adapter manager
     await this.adapterManager.setInvestor(this.investor.address);
+
+    // Set investor in vAdapter
+    await this.vAdapter.setInvestor(this.investor.address);
 
     console.log("YBNFT: ", this.ybNft.address);
     console.log("Investor: ", this.investor.address);
@@ -143,7 +150,6 @@ describe("VenusAdapter Integration Test", function () {
       this.owner.address,
       1,
       this.WBNB.address,
-      (await this.vBUSD.balanceOf(this.investor.address)).toString(),
       { gasPrice: 21e9 }
     );
 
