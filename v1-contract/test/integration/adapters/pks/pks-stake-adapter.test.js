@@ -3,7 +3,6 @@ const { expect } = require("chai");
 const { time } = require("@openzeppelin/test-helpers");
 const { ethers } = require("hardhat");
 
-
 const BigNumber = ethers.BigNumber;
 
 const E18 = BigNumber.from(10).pow(18);
@@ -13,12 +12,10 @@ const unlockAccount = async (address) => {
   return hre.ethers.provider.getSigner(address);
 };
 
-
-describe("Pancakeswap Farm Adapter Integration Test", function () {
+describe("Pancakeswap Stake Adapter Integration Test", function () {
   const performanceFee = 50;
   const swapRouter = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // pks rounter address
   const wbnb = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
-  const busd = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
   const cake = "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82";
   const gal = "0xe4Cc45Bb5DBDA06dB6183E8bf016569f40497Aa5";
   const WHALE = "0x41772edd47d9ddf9ef848cdb34fe76143908c7ad";
@@ -37,9 +34,9 @@ describe("Pancakeswap Farm Adapter Integration Test", function () {
     // Deploy Venus Adapter contract
     const PksStakeAdapter = await ethers.getContractFactory("PancakeStakeAdapter");
     this.pksStakeAdapter = await PksStakeAdapter.deploy(
+      this.strategy,
       this.stakingToken,
       this.rewardToken,
-      this.strategy,
       "PKS-STAKE-GAL-ADAPTER"
     );
     await this.pksStakeAdapter.deployed();
@@ -53,7 +50,8 @@ describe("Pancakeswap Farm Adapter Integration Test", function () {
       [10000],
       [cake],
       [this.pksStakeAdapter.address],
-      performanceFee
+      performanceFee,
+      "test tokenURI"
     );
 
     // Deploy Investor contract
@@ -78,6 +76,9 @@ describe("Pancakeswap Farm Adapter Integration Test", function () {
 
     // Set investor in adapter manager
     await this.adapterManager.setInvestor(this.investor.address);
+
+    // Set investor in pksStakeAdapter
+    await this.pksStakeAdapter.setInvestor(this.investor.address);
 
 
     console.log("YBNFT: ", this.ybNft.address);
@@ -151,6 +152,25 @@ describe("Pancakeswap Farm Adapter Integration Test", function () {
 
       expect(
         BigNumber.from(wbnbBalBefore).eq(BigNumber.from(wbnbBalAfter).add(BigNumber.from(depositAmount)))
+      ).to.eq(true);
+    });
+  })
+
+  describe("withdraw() function test", function () {
+    it("should success", async function () {
+      const wbnbBalBefore = await this.WBNB.balanceOf(this.owner.address);
+
+      await this.investor.withdraw(
+        this.owner.address,
+        1,
+        this.WBNB.address,
+        { gasPrice: 21e9 }
+      );
+
+      const wbnbBalAfter = await this.WBNB.balanceOf(this.owner.address);
+
+      expect(
+        BigNumber.from(wbnbBalAfter).gte(BigNumber.from(wbnbBalBefore))
       ).to.eq(true);
     });
   })
