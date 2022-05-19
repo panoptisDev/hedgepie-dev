@@ -14,18 +14,11 @@ module.exports = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
-      /// BSC mainnet forking environment
       forking: {
         url: "https://bsc-dataseed4.binance.org/",
         enabled: true,
         // blockNumber: 17849149,
       },
-      /// ETH mainet forking environment
-      // chainId: 31337,
-      // forking: {
-      //   url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
-      //   blockNumber: 10207859,
-      // },
     },
     local: {
       url: "http://localhost:7545",
@@ -45,17 +38,18 @@ module.exports = {
       gasPrice: 200000000000,
       accounts: [process.env.TESTNET_PRIVKEY],
     },
-    // bsc-testnet
+    bsc: {
+      url: "https://bsc-dataseed.binance.org/",
+      accounts: [process.env.MAINNET_PRIVKEY],
+    },
     bscTestnet: {
       url: `https://data-seed-prebsc-1-s1.binance.org:8545`,
       accounts: [process.env.TESTNET_PRIVKEY],
     },
   },
   etherscan: {
-    apiKey: {
-      mainnet: process.env.ETHERSCAN_API_KEY,
-      bscTestnet: process.env.BSCSCAN_API_KEY,
-    },
+    // bnb network
+    apiKey: process.env.BSCSCAN_API_KEY
   },
   typechain: {
     outDir: "typechain",
