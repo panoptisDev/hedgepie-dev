@@ -2,8 +2,10 @@ import React from 'react'
 import { Box } from 'theme-ui'
 import PieChart from './PieChart'
 import SummaryLegend from '../SummaryLegend'
+import MintWizardContext from 'contexts/MintWizardContext'
 
 const YbNftSummaryChart = () => {
+  const { formData } = React.useContext(MintWizardContext)
   return (
     <Box
       sx={{
@@ -30,7 +32,7 @@ const YbNftSummaryChart = () => {
             },
           }}
         >
-          YB NFT Summary
+          {formData.nftName ? formData.nftName : 'YBNFT'}
         </Box>
         <Box
           sx={{

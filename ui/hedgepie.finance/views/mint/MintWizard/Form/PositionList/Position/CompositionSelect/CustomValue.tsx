@@ -16,7 +16,7 @@ const CustomValue = (props) => {
           userSelect: 'none',
         }}
       >
-        {data.icon && data.icon !== '' ? (
+        {data?.icon && data.icon !== '' ? (
           <Image
             src={data.icon}
             sx={{

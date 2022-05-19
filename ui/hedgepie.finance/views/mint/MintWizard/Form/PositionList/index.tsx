@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Box, Button } from 'theme-ui'
 import MintWizardContext from 'contexts/MintWizardContext'
 import Head from './Head'
@@ -21,6 +21,12 @@ const PositionList = () => {
       ],
     })
   }
+
+  useEffect(() => {
+    if (strategies?.length) {
+      handleAdd()
+    }
+  }, [strategies])
 
   const handleUpdate = (index, newData) => {
     const newPositions = formData.positions.map((d, i) => (i === index ? newData : d))

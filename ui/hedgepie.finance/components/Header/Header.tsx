@@ -46,9 +46,9 @@ const Header = ({ overlay = false, dark = true }: Props) => {
         </Link>
         <Box sx={{ flex: 1 }} />
         <Box sx={styles.navbar_container as ThemeUICSSObject}>
-          <Link href="/vault" passHref>
+          {/* <Link href="/vault" passHref>
             <ThemeLink mr={4}>Vault</ThemeLink>
-          </Link>
+          </Link> */}
           <Link href="/nft-leaderboard" passHref>
             <ThemeLink mr={4}>Leaderboard</ThemeLink>
           </Link>

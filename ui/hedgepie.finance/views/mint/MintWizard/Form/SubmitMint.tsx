@@ -50,14 +50,18 @@ const SubmitMint = () => {
         toast('NFT Name cannot be empty', 'warning')
         isValid = false
       }
-      if (!formData.artWorkFile) {
-        toast('Please upload an Image for the YBNFT', 'warning')
-        isValid = false
-      }
-      if (!formData.description) {
-        toast('Please provide a Description for the YBNFT', 'warning')
-        isValid = false
-      }
+
+      // Optional Image Upload
+      // if (!formData.artWorkFile) {
+      //   toast('Please upload an Image for the YBNFT', 'warning')
+      //   isValid = false
+      // }
+
+      // Optional Description
+      // if (!formData.description) {
+      //   toast('Please provide a Description for the YBNFT', 'warning')
+      //   isValid = false
+      // }
       if (!formData.positions) {
         toast('Please add Positions for Minting the YBNFT', 'warning')
         isValid = false
