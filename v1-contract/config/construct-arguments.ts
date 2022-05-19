@@ -18,5 +18,19 @@ export const mockLPArgs = {
   initialSupply: "100000000000000000000000000",
 };
 
+export const venusBUSDLendAdapterArgs = {
+  strategy: "0x95c78222B3D6e262426483D42CfA53685A67Ab9D",
+  stakingToken: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+  repayToken: "0x95c78222B3D6e262426483D42CfA53685A67Ab9D",
+  name: "Venus BUSD lend adapter",
+};
+
+export const pksGalStakeAdapterArgs = {
+  strategy: "0xa5D57C5dca083a7051797920c78fb2b19564176B",
+  stakingToken: "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82",
+  rewardToken: "0xe4Cc45Bb5DBDA06dB6183E8bf016569f40497Aa5",
+  name: "PKS-STAKE-GAL-ADAPTER",
+};
+
 
 export const ybnftArgs = {}
