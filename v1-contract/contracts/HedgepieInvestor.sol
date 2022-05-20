@@ -139,7 +139,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             _withdrawFromAdapter(
                 adapter.addr,
                 _tokenId,
-                IAdapter(adapter.addr).getWithdrawalAmount(msg.sender)
+                IAdapter(adapter.addr).getWithdrawalAmount(msg.sender, _tokenId)
             );
 
             // swap
@@ -212,14 +212,21 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 "Error: Deposit failed"
             );
 
-            uint256 prevAmount = IAdapter(_adapterAddr).getWithdrawalAmount(msg.sender);
+            uint256 prevAmount = IAdapter(_adapterAddr).getWithdrawalAmount(
+                msg.sender,
+                _tokenId
+            );
             IAdapter(_adapterAddr).setWithdrawalAmount(
                 msg.sender,
                 _tokenId,
                 prevAmount + repayTokenAmountAfter - repayTokenAmountBefore
             );
         } else {
-            IAdapter(_adapterAddr).setWithdrawalAmount(msg.sender, _tokenId, _amount);
+            IAdapter(_adapterAddr).setWithdrawalAmount(
+                msg.sender,
+                _tokenId,
+                _amount
+            );
         }
     }
 
@@ -228,9 +235,11 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
      * @param _adapterAddr  adapter address
      * @param _amount  token amount
      */
-    function _withdrawFromAdapter(address _adapterAddr, uint256 _tokenId, uint256 _amount)
-        internal
-    {
+    function _withdrawFromAdapter(
+        address _adapterAddr,
+        uint256 _tokenId,
+        uint256 _amount
+    ) internal {
         (address to, uint256 value, bytes memory callData) = IAdapterManager(
             adapterManager
         ).getWithdrawCallData(_adapterAddr, _amount);

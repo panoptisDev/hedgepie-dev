@@ -10,8 +10,8 @@ contract VenusLendAdapter is Ownable {
     address public strategy;
     string public name;
     address public investor;
-    // user => withdrawal amount
-    mapping(address => uint256) public withdrawalAmount;
+    // user => nft id => withdrawal amount
+    mapping(address => mapping(uint256 => uint256)) public withdrawalAmount;
 
     modifier onlyInvestor() {
         require(msg.sender == investor, "Error: Caller is not investor");
@@ -48,13 +48,14 @@ contract VenusLendAdapter is Ownable {
     /**
      * @notice Get withdrwal amount
      * @param _user  user address
+     * @param _nftId  nftId
      */
-    function getWithdrawalAmount(address _user)
+    function getWithdrawalAmount(address _user, uint256 _nftId)
         external
         view
         returns (uint256 amount)
     {
-        amount = withdrawalAmount[_user];
+        amount = withdrawalAmount[_user][_nftId];
     }
 
     /**
@@ -96,13 +97,15 @@ contract VenusLendAdapter is Ownable {
     /**
      * @notice Set withdrwal amount
      * @param _user  user address
+     * @param _nftId  nftId
      * @param _amount  amount of withdrawal
      */
-    function setWithdrawalAmount(address _user, uint256 _amount)
-        external
-        onlyInvestor
-    {
-        withdrawalAmount[_user] = _amount;
+    function setWithdrawalAmount(
+        address _user,
+        uint256 _nftId,
+        uint256 _amount
+    ) external onlyInvestor {
+        withdrawalAmount[_user][_nftId] = _amount;
     }
 
     /**
