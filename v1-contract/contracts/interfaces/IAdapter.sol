@@ -36,7 +36,7 @@ interface IAdapter {
             bytes memory data
         );
 
-    function setWithdrawalAmount(address _user, uint256 _amount) external;
+    function setWithdrawalAmount(address _user, uint256 _tokenId, uint256 _amount) external;
 
     function setInvestor(address _investor) external;
 }
