@@ -16,8 +16,9 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     // user => ybnft => nft id => amount
     mapping(address => mapping(address => mapping(uint256 => uint256)))
         public userInfo;
-    // user => adapter => amount
-    mapping(address => mapping(address => uint256)) public userAdapterInfo;
+    // user => nft id => adapter => amount
+    mapping(address => mapping(uint256 => mapping(address => uint256)))
+        public userAdapterInfo;
     // ybnft address
     address public ybnft;
     // swap router address
@@ -103,8 +104,8 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             uint256 amountOut = _swapOnPKS(amountIn, _token, adapter.token);
 
             // deposit to adapter
-            _depositToAdapter(adapter.token, adapter.addr, amountOut);
-            userAdapterInfo[_user][adapter.addr] += amountOut;
+            _depositToAdapter(adapter.token, adapter.addr, _tokenId, amountOut);
+            userAdapterInfo[_user][_tokenId][adapter.addr] += amountOut;
         }
 
         userInfo[_user][ybnft][_tokenId] += _amount;
@@ -123,11 +124,11 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         address _token
     ) public shouldMatchCaller(_user) nonReentrant {
         uint256 userAmount = userInfo[_user][ybnft][_tokenId];
-        require(userAmount > 0, "Error: Amount should be greater than 0");
         require(
             IYBNFT(ybnft).exists(_tokenId),
             "Error: nft tokenId is invalid"
         );
+        require(userAmount > 0, "Error: Amount should be greater than 0");
 
         IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
             _tokenId
@@ -138,21 +139,22 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             IYBNFT.Adapter memory adapter = adapterInfo[i];
             _withdrawFromAdapter(
                 adapter.addr,
-                IAdapter(adapter.addr).getWithdrawalAmount(msg.sender)
+                _tokenId,
+                IAdapter(adapter.addr).getWithdrawalAmount(msg.sender, _tokenId)
             );
 
             // swap
             IBEP20(adapter.token).safeApprove(
                 swapRouter,
-                userAdapterInfo[_user][adapter.addr]
+                userAdapterInfo[_user][_tokenId][adapter.addr]
             );
             amountOut += _swapOnPKS(
-                userAdapterInfo[_user][adapter.addr],
+                userAdapterInfo[_user][_tokenId][adapter.addr],
                 adapter.token,
                 _token
             );
 
-            userAdapterInfo[_user][adapter.addr] = 0;
+            userAdapterInfo[_user][_tokenId][adapter.addr] = 0;
         }
 
         userInfo[_user][ybnft][_tokenId] -= userAmount;
@@ -181,6 +183,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     function _depositToAdapter(
         address _token,
         address _adapterAddr,
+        uint256 _tokenId,
         uint256 _amount
     ) internal {
         address repayToken = IAdapter(_adapterAddr).repayToken();
@@ -209,13 +212,17 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 repayTokenAmountAfter > repayTokenAmountBefore,
                 "Error: Deposit failed"
             );
-
-            IAdapter(_adapterAddr).setWithdrawalAmount(
+            IAdapter(_adapterAddr).increaseWithdrawalAmount(
                 msg.sender,
+                _tokenId,
                 repayTokenAmountAfter - repayTokenAmountBefore
             );
         } else {
-            IAdapter(_adapterAddr).setWithdrawalAmount(msg.sender, _amount);
+            IAdapter(_adapterAddr).increaseWithdrawalAmount(
+                msg.sender,
+                _tokenId,
+                _amount
+            );
         }
     }
 
@@ -224,9 +231,11 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
      * @param _adapterAddr  adapter address
      * @param _amount  token amount
      */
-    function _withdrawFromAdapter(address _adapterAddr, uint256 _amount)
-        internal
-    {
+    function _withdrawFromAdapter(
+        address _adapterAddr,
+        uint256 _tokenId,
+        uint256 _amount
+    ) internal {
         (address to, uint256 value, bytes memory callData) = IAdapterManager(
             adapterManager
         ).getWithdrawCallData(_adapterAddr, _amount);
@@ -234,7 +243,11 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         (bool success, ) = to.call{value: value}(callData);
 
         // update storage data on adapter
-        IAdapter(_adapterAddr).setWithdrawalAmount(msg.sender, 0);
+        IAdapter(_adapterAddr).increaseWithdrawalAmount(
+            msg.sender,
+            _tokenId,
+            0
+        );
         require(success, "Error: Withdraw internal issue");
     }
 
