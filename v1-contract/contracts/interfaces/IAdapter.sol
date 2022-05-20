@@ -36,7 +36,7 @@ interface IAdapter {
             bytes memory data
         );
 
-    function setWithdrawalAmount(
+    function increaseWithdrawalAmount(
         address _user,
         uint256 _nftId,
         uint256 _amount

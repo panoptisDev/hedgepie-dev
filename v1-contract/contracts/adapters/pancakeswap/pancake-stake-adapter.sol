@@ -87,17 +87,17 @@ contract PancakeStakeAdapter is Ownable {
     }
 
     /**
-     * @notice Set withdrwal amount
+     * @notice Increase withdrwal amount
      * @param _user  user address
      * @param _nftId  nftId
      * @param _amount  amount of withdrawal
      */
-    function setWithdrawalAmount(
+    function increaseWithdrawalAmount(
         address _user,
         uint256 _nftId,
         uint256 _amount
     ) external onlyInvestor {
-        withdrawalAmount[_user][_nftId] = _amount;
+        withdrawalAmount[_user][_nftId] += _amount;
     }
 
     /**
