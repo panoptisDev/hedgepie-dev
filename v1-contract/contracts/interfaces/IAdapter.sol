@@ -13,7 +13,7 @@ interface IAdapter {
         view
         returns (address strategy);
 
-    function getWithdrawalAmount(address _user)
+    function getWithdrawalAmount(address _user, uint256 _nftId)
         external
         view
         returns (uint256 amount);
@@ -36,7 +36,11 @@ interface IAdapter {
             bytes memory data
         );
 
-    function setWithdrawalAmount(address _user, uint256 _tokenId, uint256 _amount) external;
+    function increaseWithdrawalAmount(
+        address _user,
+        uint256 _nftId,
+        uint256 _amount
+    ) external;
 
     function setInvestor(address _investor) external;
 }

@@ -22,11 +22,12 @@ describe("Pancakeswap Stake Adapter Integration Test", function () {
 
 
   before("Deploy contract", async function () {
-    const [owner, alice] = await ethers.getSigners();
+    const [owner, alice, bob] = await ethers.getSigners();
 
     this.whaleWallet = await unlockAccount(WHALE);
     this.owner = owner;
     this.alice = alice;
+    this.bob = bob;
     this.strategy = "0xa5D57C5dca083a7051797920c78fb2b19564176B";
     this.stakingToken = cake;
     this.rewardToken = gal;
@@ -46,12 +47,22 @@ describe("Pancakeswap Stake Adapter Integration Test", function () {
     this.ybNft = await ybNftFactory.deploy();
 
     // Mint NFTs
+    // tokenID: 1
     await this.ybNft.mint(
       [10000],
       [cake],
       [this.pksStakeAdapter.address],
       performanceFee,
-      "test tokenURI"
+      "test tokenURI1"
+    );
+
+    // tokenID: 2
+    await this.ybNft.mint(
+      [10000],
+      [cake],
+      [this.pksStakeAdapter.address],
+      performanceFee,
+      "test tokenURI2"
     );
 
     // Deploy Investor contract
@@ -94,9 +105,20 @@ describe("Pancakeswap Stake Adapter Integration Test", function () {
     this.WBNB = await ethers.getContractAt("contracts/interfaces/IBEP20.sol:IBEP20", wbnb);
 
 
+    // charge initial WBNB funds
     await this.WBNB.connect(this.whaleWallet).transfer(
       this.owner.address,
-      ethers.utils.parseEther("10").toString()
+      ethers.utils.parseEther("3").toString()
+    );
+
+    await this.WBNB.connect(this.whaleWallet).transfer(
+      this.alice.address,
+      ethers.utils.parseEther("3").toString()
+    );
+
+    await this.WBNB.connect(this.whaleWallet).transfer(
+      this.bob.address,
+      ethers.utils.parseEther("3").toString()
     );
 
     // Approve investor to move wbnb
@@ -136,10 +158,54 @@ describe("Pancakeswap Stake Adapter Integration Test", function () {
 
 
   describe("deposit() function test", function () {
-    it("should success", async function () {
-      const wbnbBalBefore = await this.WBNB.balanceOf(this.owner.address);
+    it("(1)should be reverted when nft tokenId is invalid", async function () {
+      // deposit to nftID: 3
+      const depositAmount = ethers.utils.parseEther("1")
+      await expect(
+        this.investor.deposit(
+          this.owner.address,
+          3,
+          this.WBNB.address,
+          depositAmount.toString(),
+          { gasPrice: 21e9 }
+        )
+      ).to.be.revertedWith("Error: nft tokenId is invalid")
+    });
 
-      const depositAmount = ethers.utils.parseEther("3")
+
+    it("(2)should be reverted when caller is not matched", async function () {
+      // deposit to nftID: 1
+      const depositAmount = ethers.utils.parseEther("1")
+      await expect(
+        this.investor.deposit(
+          this.alice.address,
+          1,
+          this.WBNB.address,
+          depositAmount.toString(),
+          { gasPrice: 21e9 }
+        )
+      ).to.be.revertedWith("Error: Caller is not matched")
+    });
+
+    it("(3)should be reverted when amount is 0", async function () {
+      // deposit to nftID: 1
+      const depositAmount = ethers.utils.parseEther("0")
+      await expect(
+        this.investor.deposit(
+          this.owner.address,
+          1,
+          this.WBNB.address,
+          depositAmount.toString(),
+          { gasPrice: 21e9 }
+        )
+      ).to.be.revertedWith("Error: Amount can not be 0")
+    });
+
+    it("(4)should success 1 time", async function () {
+      // deposit to nftID: 1
+      let wbnbBalBefore = await this.WBNB.balanceOf(this.owner.address);
+
+      const depositAmount = ethers.utils.parseEther("1")
       await this.investor.deposit(
         this.owner.address,
         1,
@@ -154,11 +220,91 @@ describe("Pancakeswap Stake Adapter Integration Test", function () {
         BigNumber.from(wbnbBalBefore).eq(BigNumber.from(wbnbBalAfter).add(BigNumber.from(depositAmount)))
       ).to.eq(true);
     });
+
+    it("(5)should success multiple times", async function () {
+      // deposit to nftID: 1
+      let wbnbBalBefore = await this.WBNB.balanceOf(this.owner.address);
+
+      const depositAmount = ethers.utils.parseEther("1")
+      await this.investor.deposit(
+        this.owner.address,
+        1,
+        this.WBNB.address,
+        depositAmount.toString(),
+        { gasPrice: 21e9 }
+      );
+
+      let wbnbBalAfter = await this.WBNB.balanceOf(this.owner.address);
+
+      expect(
+        BigNumber.from(wbnbBalBefore).eq(BigNumber.from(wbnbBalAfter).add(BigNumber.from(depositAmount)))
+      ).to.eq(true);
+
+      // deposit to nftID: 2
+      wbnbBalBefore = await this.WBNB.balanceOf(this.owner.address);
+
+      await this.investor.deposit(
+        this.owner.address,
+        2,
+        this.WBNB.address,
+        depositAmount.toString(),
+        { gasPrice: 21e9 }
+      );
+
+      wbnbBalAfter = await this.WBNB.balanceOf(this.owner.address);
+
+      expect(
+        BigNumber.from(wbnbBalBefore).eq(BigNumber.from(wbnbBalAfter).add(BigNumber.from(depositAmount)))
+      ).to.eq(true);
+    });
   })
 
   describe("withdraw() function test", function () {
-    it("should success", async function () {
-      const wbnbBalBefore = await this.WBNB.balanceOf(this.owner.address);
+    it("(1)should be reverted when nft tokenId is invalid", async function () {
+      // withdraw to nftID: 3
+      await expect(
+        this.investor.withdraw(
+          this.owner.address,
+          3,
+          this.WBNB.address,
+          { gasPrice: 21e9 }
+        )
+      ).to.be.revertedWith("Error: nft tokenId is invalid")
+    });
+
+
+    it("(2)should be reverted when caller is not matched", async function () {
+      // deposit to nftID: 1
+      const depositAmount = ethers.utils.parseEther("1")
+      await expect(
+        this.investor.withdraw(
+          this.alice.address,
+          1,
+          this.WBNB.address,
+          { gasPrice: 21e9 }
+        )
+      ).to.be.revertedWith("Error: Caller is not matched")
+    });
+
+    it("(3)should be reverted when amount is 0", async function () {
+      // deposit to nftID: 1
+      const depositAmount = ethers.utils.parseEther("0")
+      await expect(
+        this.investor.connect(this.bob).deposit(
+          this.bob.address,
+          1,
+          this.WBNB.address,
+          depositAmount.toString(),
+          {
+            gasPrice: 21e9,
+          },
+        )
+      ).to.be.revertedWith("Error: Amount can not be 0")
+    });
+
+    it("(4)should success", async function () {
+      // withdraw from nftId: 1
+      let wbnbBalBefore = await this.WBNB.balanceOf(this.owner.address);
 
       await this.investor.withdraw(
         this.owner.address,
@@ -167,7 +313,23 @@ describe("Pancakeswap Stake Adapter Integration Test", function () {
         { gasPrice: 21e9 }
       );
 
-      const wbnbBalAfter = await this.WBNB.balanceOf(this.owner.address);
+      let wbnbBalAfter = await this.WBNB.balanceOf(this.owner.address);
+
+      expect(
+        BigNumber.from(wbnbBalAfter).gte(BigNumber.from(wbnbBalBefore))
+      ).to.eq(true);
+
+      // withdraw from nftId: 2
+      wbnbBalBefore = await this.WBNB.balanceOf(this.owner.address);
+
+      await this.investor.withdraw(
+        this.owner.address,
+        2,
+        this.WBNB.address,
+        { gasPrice: 21e9 }
+      );
+
+      wbnbBalAfter = await this.WBNB.balanceOf(this.owner.address);
 
       expect(
         BigNumber.from(wbnbBalAfter).gte(BigNumber.from(wbnbBalBefore))
