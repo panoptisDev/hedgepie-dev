@@ -105,6 +105,7 @@ describe("Pancakeswap Stake Adapter Integration Test", function () {
     this.WBNB = await ethers.getContractAt("contracts/interfaces/IBEP20.sol:IBEP20", wbnb);
 
 
+    // charge initial WBNB funds
     await this.WBNB.connect(this.whaleWallet).transfer(
       this.owner.address,
       ethers.utils.parseEther("3").toString()
