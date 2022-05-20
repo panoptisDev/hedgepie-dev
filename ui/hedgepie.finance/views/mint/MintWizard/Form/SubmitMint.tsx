@@ -1,5 +1,5 @@
 import React, { useState } from 'react'
-import { Button, Text } from 'theme-ui'
+import { Box, Button, Spinner, Text } from 'theme-ui'
 import MintWizardContext from 'contexts/MintWizardContext'
 import { useWeb3React } from '@web3-react/core'
 import ipfs from 'utils/ipfs'
@@ -10,6 +10,7 @@ const SubmitMint = () => {
   const { formData } = React.useContext(MintWizardContext)
   const { account } = useWeb3React()
   const { onYBNFTMint } = useYBNFTMint()
+  const [disabled, setDisabled] = useState(false)
 
   const [promptMessage, setPromptMessage] = useState('')
 
@@ -132,7 +133,8 @@ const SubmitMint = () => {
         ipfsUrl,
     )
     try {
-      await onYBNFTMint(allocations, tokenAddrs, adapterAddrs, performanceFee, ipfsUrl)
+      const txHash = await onYBNFTMint(allocations, tokenAddrs, adapterAddrs, performanceFee, ipfsUrl)
+      return txHash
     } catch (err) {
       toast('Transaction Error while minting YBNFT', 'warning')
       console.log(JSON.stringify(err))
@@ -140,10 +142,11 @@ const SubmitMint = () => {
   }
 
   const handleMint = async () => {
-    console.log('HERE')
+    setDisabled(true)
     setPromptMessage('Validating the Entries')
     if (!validateMintEntries()) {
       setPromptMessage('')
+      setDisabled(false)
       return
     }
 
@@ -157,11 +160,14 @@ const SubmitMint = () => {
     console.log('formData' + JSON.stringify(formData))
     setPromptMessage('Minting YBNFT on BSC ...')
     const txHash = await mintYBNFT(formData, ipfsUrl)
-    setPromptMessage('YBNFT Successfully Minted !! TX Hash : ' + txHash)
+    setPromptMessage(`YBNFT ${formData.nftName} Successfully Minted !! `)
+    setDisabled(false)
   }
 
   return (
-    <>
+    <Box
+      sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
+    >
       <Button
         variant="primary"
         sx={{
@@ -172,13 +178,20 @@ const SubmitMint = () => {
           padding: 0,
           cursor: 'pointer',
           transition: 'all .2s',
+          opacity: disabled ? 0.7 : 1,
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          gap: '0.3rem',
         }}
         onClick={handleMint}
+        disabled={disabled}
       >
-        MINT
+        MINT {disabled ? <Spinner sx={{ height: '2rem' }} /> : ''}
       </Button>
-      <Text>{promptMessage}</Text>
-    </>
+      <Text sx={{ fontSize: 18, color: '#8E8DA0' }}>{promptMessage}</Text>
+    </Box>
   )
 }
 

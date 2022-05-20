@@ -9,12 +9,14 @@ import {
   getYBNFTAddress,
   getInvestorAddress,
   getAdapterManagerAddress,
+  getWBNBAddress,
 } from 'utils/addressHelpers'
 import erc20Abi from 'config/abi/Erc20.json'
 import masterChefAbi from 'config/abi/HedgepieMasterChef.json'
 import ybnftAbi from 'config/abi/HedgepieYBNFT.json'
 import investorAbi from 'config/abi/HedgepieInvestor.json'
 import adapterManagerAbi from 'config/abi/HedgepieAdapterManager.json'
+import wBNBAbi from 'config/abi/wBNB.json'
 
 const useContract = (abi: AbiItem, address: string, contractOptions?: ContractOptions) => {
   const web3 = useWeb3()
@@ -60,6 +62,11 @@ export const useInvestorContract = () => {
 // Adapter Manager Contract
 export const useAdapterManagerContract = () => {
   return useContract(adapterManagerAbi as unknown as AbiItem, getAdapterManagerAddress())
+}
+
+// wBNB token contract
+export const useWBNBContract = () => {
+  return useContract(wBNBAbi as unknown as AbiItem, getWBNBAddress())
 }
 
 export default useContract

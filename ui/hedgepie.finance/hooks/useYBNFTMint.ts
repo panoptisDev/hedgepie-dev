@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react'
 import { useWeb3React } from '@web3-react/core'
 import { useYBNFTMintContract } from 'hooks/useContract'
-import { mintYBNFT } from 'utils/callHelpers'
+import { mintYBNFT, fetchMaxTokenId, fetchTokenUri, fetchAllocations } from 'utils/callHelpers'
 
 export const useYBNFTMint = () => {
   const { account } = useWeb3React()
@@ -26,5 +26,25 @@ export const useYBNFTMint = () => {
     [account, ybnftMintContract],
   )
 
-  return { onYBNFTMint: handleMint }
+  const getMaxTokenId = async () => {
+    const maxTokenId = await fetchMaxTokenId(ybnftMintContract)
+    return maxTokenId
+  }
+
+  const getTokenUri = async (tokenId) => {
+    const tokenUri = await fetchTokenUri(ybnftMintContract, tokenId)
+    return tokenUri
+  }
+
+  const getAllocations = async (tokenId) => {
+    const allocations = await fetchAllocations(ybnftMintContract, tokenId)
+    return allocations
+  }
+
+  return {
+    onYBNFTMint: handleMint,
+    getMaxTokenId: getMaxTokenId,
+    getTokenUri: getTokenUri,
+    getAllocations: getAllocations,
+  }
 }

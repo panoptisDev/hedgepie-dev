@@ -23,7 +23,7 @@ const PositionList = () => {
   }
 
   useEffect(() => {
-    if (strategies?.length) {
+    if (strategies?.length && !formData?.positions.length) {
       handleAdd()
     }
   }, [strategies])
@@ -77,6 +77,7 @@ const PositionList = () => {
               onUpdate={(composition) => handleUpdate(i, composition)}
               onLock={() => handleLock(i)}
               onDelete={() => handleDelete(i)}
+              allocated={formData.allocated}
             />
           </Box>
         ))}

@@ -35,6 +35,10 @@ export const getAdapterManagerAddress = () => {
   return getAddress(addresses.adapterManager)
 }
 
+export const getWBNBAddress = () => {
+  return getAddress(addresses.wBNB)
+}
+
 export const getTokenName = (address: string) => {
   if (address.toLowerCase() === getHpieAddress().toLowerCase()) return 'HPIE'
   if (address.toLowerCase() === getHpieLpAddress().toLowerCase()) return 'HPIE-LP'

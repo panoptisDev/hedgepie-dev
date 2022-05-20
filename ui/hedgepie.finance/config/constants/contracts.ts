@@ -27,19 +27,25 @@ export default {
 
   // HedgepieYBNFT
   ybnft: {
-    56: '0x068d446598a4a777E75e248B755d432AfEfC69db',
+    56: '0xdf5926C9A457d61c72C1dbcBce140c1548fAE87b',
     97: '',
   },
 
   // HedgepieInvestor
   investor: {
-    56: '0x9aCdC51741335Da987eDFb9937619558232EeAa7',
+    56: '0x1Fb80FE7fBB23d552C571790F11078B0A8492f28',
     97: '',
   },
 
   // HedgepieAdapterManager
   adapterManager: {
-    56: '0x10b0c1580914Ce1A3c8EBCFc23Ef8Cd23F3D4aEd',
+    56: '0x0b6d9DF7581f515A6bFB72575a63aAad88b51fe4',
+    97: '',
+  },
+
+  // WBNB
+  wBNB: {
+    56: '0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c',
     97: '',
   },
 }

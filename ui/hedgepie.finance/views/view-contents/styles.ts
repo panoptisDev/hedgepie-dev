@@ -34,6 +34,7 @@ export const styles = {
   flex_column: { flexDirection: 'column' },
   series_name_text: { color: '#DF4886', fontSize: '20px', fontWeight: '500' },
   nft_name_text: { color: '#16103A', fontWeight: '700', fontSize: '28px' },
+  nft_desc_text: { color: '#8E8DA0', fontSize: '16px', paddingLeft: 'px' },
   flex_badges_row: { flexDirection: 'row', gap: '15px' },
   flex_badge_container: {
     border: '2px solid #D8D8D8',
@@ -56,13 +57,13 @@ export const styles = {
   flex_strategy_details_container: {
     backgroundColor: '#E5F6FF',
     borderRadius: '8px',
-    width: '200px',
+    width: 'fit-content',
     height: '100px',
     flexDirection: 'row',
     alignItems: 'center',
     justifyContent: 'center',
     gap: '10px',
-    padding: '2px',
+    padding: '10px',
   },
   strategy_detail_image: { width: '50px', height: '50px' },
   flex_strategy_detail_column: { flexDirection: 'column', gap: '5px' },
@@ -100,6 +101,7 @@ export const styles = {
     gap: '1rem',
     alignSelf: 'flex-start',
     marginLeft: '1rem',
+    width: '100%',
   },
   details_title_text: { fontSize: '16px', fontWeight: '600', fontFamily: 'Noto Sans', color: '#8E8DA0' },
   flex_inner_details_container: {
@@ -107,7 +109,8 @@ export const styles = {
     flexDirection: 'column',
     gap: '0.2rem',
     padding: '0.2rem',
-    width: '20rem',
+    width: '100%',
+    textOverflow: 'ellipsis',
   },
   inner_details_title_text: {
     color: '#0A3F5C',

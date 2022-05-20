@@ -17,7 +17,7 @@ const MintContextProvider = ({ children }) => {
   })
   const [formData, setFormData] = React.useState({
     positions: [],
-    performanceFee: 35,
+    performanceFee: 10,
     artWorkFile: null,
     artWorkUrl: '',
     nftName: '',
@@ -29,7 +29,7 @@ const MintContextProvider = ({ children }) => {
     const getCompositionOptions = async () => {
       try {
         const adapters = await getAdapters()
-
+        console.log('adapter' + JSON.stringify(adapters))
         var adapterOptions = [] as AdapterOption[]
         adapters.map((adapter) => {
           console.log(adapter)

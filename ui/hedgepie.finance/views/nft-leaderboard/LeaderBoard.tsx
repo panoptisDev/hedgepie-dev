@@ -1,10 +1,19 @@
-import React, { useEffect } from 'react'
-import { Box, ThemeUICSSObject } from 'theme-ui'
+import React, { useEffect, useState } from 'react'
+import { Box, ThemeUICSSObject, Spinner } from 'theme-ui'
 import LotterySearch from './LotterySearch'
 import LotteryTable from './LotteryTable'
 import LotteryLoad from './LotteryLoad'
 
+import { useYBNFTMint } from 'hooks/useYBNFTMint'
+
 import { styles } from './styles'
+
+export interface TokenInfo {
+  name: string
+  imageURL?: string
+  description?: string
+  tokenId: number
+}
 
 const testData = [
   {
@@ -130,12 +139,38 @@ const testData = [
 ]
 
 const LeaderBoard = () => {
-  const [lotteries, setLotteries] = React.useState(testData)
+  const [lotteries, setLotteries] = React.useState([] as TokenInfo[])
   const [searchKey, setSearchKey] = React.useState('')
   const [sortKey, setSortKey] = React.useState('')
+  const { getMaxTokenId, getTokenUri } = useYBNFTMint()
+  const [loading, setLoading] = useState(true)
 
   useEffect(() => {
-    // TODO : fetch All the YBNFTs from Investor Contract and display
+    const fetchLeaderboardData = async () => {
+      setLoading(true)
+      const maxTokenId = await getMaxTokenId()
+      console.log('max token id' + maxTokenId)
+      let tokens = [] as TokenInfo[]
+      for (let i = 1; i <= maxTokenId; i++) {
+        const tokenUri = await getTokenUri(i)
+        // Is the link is invalid, just proceed
+        if (!tokenUri.includes('.ipfs.')) {
+          continue
+        }
+        const metadataFile = await fetch(tokenUri)
+        const metadata = await metadataFile.json()
+        const leaderboardItem = {
+          tokenId: i,
+          name: metadata.name,
+          imageURL: metadata.imageURL,
+          description: metadata.description,
+        }
+        tokens.push(leaderboardItem)
+      }
+      setLotteries(tokens)
+      setLoading(false)
+    }
+    fetchLeaderboardData()
   }, [])
 
   const handleSearch = (key: string) => {
@@ -150,12 +185,12 @@ const LeaderBoard = () => {
     setSortKey(key === sortKey ? '' : key)
   }
 
-  const filtered = lotteries.filter(
-    (d) =>
-      (d.address && d.address.includes(searchKey)) ||
-      (d.name && d.name.includes(searchKey)) ||
-      (d.symbol && d.symbol.includes(searchKey)),
-  )
+  const filtered = lotteries.filter((d) => {
+    return (
+      (d.description && d.description.toLowerCase().includes(searchKey.toLowerCase())) ||
+      (d.name && d.name.toLowerCase().includes(searchKey.toLowerCase()))
+    )
+  })
 
   const sorted = filtered.sort((a: any, b: any) => {
     if (sortKey !== '') {
@@ -166,11 +201,15 @@ const LeaderBoard = () => {
 
   return (
     <Box sx={styles.leaderboard_container as ThemeUICSSObject}>
-      <Box sx={styles.leaderboard_inner_container as ThemeUICSSObject}>
-        <LotterySearch onSearch={handleSearch} />
-        <LotteryTable data={sorted} onSort={handleSort} sortKey={sortKey} />
-        <LotteryLoad onLoad={handleLoad} />
-      </Box>
+      {loading ? (
+        <Spinner />
+      ) : (
+        <Box sx={styles.leaderboard_inner_container as ThemeUICSSObject}>
+          <LotterySearch onSearch={handleSearch} />
+          <LotteryTable data={sorted} onSort={handleSort} sortKey={sortKey} />
+          {/* <LotteryLoad onLoad={handleLoad} /> */}
+        </Box>
+      )}
     </Box>
   )
 }

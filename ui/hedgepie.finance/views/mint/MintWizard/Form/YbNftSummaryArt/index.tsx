@@ -100,6 +100,7 @@ const YbNftSummaryArt = () => {
           rows={5}
           onChange={setDescription}
           placeholder="Provide a description for your Yield Bearing NFT..."
+          value={formData.description}
         />
       </Box>
     </Box>

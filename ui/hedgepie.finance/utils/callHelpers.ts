@@ -42,6 +42,7 @@ export const mintYBNFT = async (
 }
 
 export const depositOnYBNFT = async (ybnftInvestorContract, account, ybnftId, token, amount) => {
+  console.log(account + ' ' + ybnftId + ' ' + token + ' ' + amount)
   return ybnftInvestorContract.methods
     .deposit(account, ybnftId, token, amount)
     .send({ from: account })
@@ -50,9 +51,9 @@ export const depositOnYBNFT = async (ybnftInvestorContract, account, ybnftId, to
     })
 }
 
-export const withdrawFromYBNFT = async (ybnftInvestorContract, account, ybnftId, token, amount) => {
+export const withdrawFromYBNFT = async (ybnftInvestorContract, account, ybnftId, token) => {
   return ybnftInvestorContract.methods
-    .withdraw(account, ybnftId, token, amount)
+    .withdraw(account, ybnftId, token)
     .send({ from: account })
     .on('transactionHash', (tx) => {
       return tx.transactionHash
@@ -62,4 +63,19 @@ export const withdrawFromYBNFT = async (ybnftInvestorContract, account, ybnftId,
 export const fetchAdapters = async (adapterManagerContract) => {
   const adapters = await adapterManagerContract.methods.getAdapters().call()
   return adapters
+}
+
+export const fetchMaxTokenId = async (ybnftMintContract) => {
+  const maxTokenId = await ybnftMintContract.methods.getCurrentTokenId().call()
+  return maxTokenId
+}
+
+export const fetchTokenUri = async (ybnftMintContract, tokenId) => {
+  const tokenUri = await ybnftMintContract.methods.tokenURI(tokenId).call()
+  return tokenUri
+}
+
+export const fetchAllocations = async (ybnftMintContract, tokenId) => {
+  const allocations = await ybnftMintContract.methods.getAdapterInfo(tokenId).call()
+  return allocations
 }
