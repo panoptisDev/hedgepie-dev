@@ -101,8 +101,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
             // swap
             uint256 amountIn = (_amount * adapter.allocation) / 1e4;
-            // uint256 amountOut = _swapOnPKS(amountIn, _token, adapter.token);
-            uint256 amountOut = amountIn;
+            uint256 amountOut = _swapOnPKS(amountIn, _token, adapter.token);
 
             // deposit to adapter
             _depositToAdapter(adapter.token, adapter.addr, _tokenId, amountOut);
@@ -145,17 +144,15 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             );
 
             // swap
-            // IBEP20(adapter.token).safeApprove(
-            //     swapRouter,
-            //     userAdapterInfo[_user][_tokenId][adapter.addr]
-            // );
-            // amountOut += _swapOnPKS(
-            //     userAdapterInfo[_user][_tokenId][adapter.addr],
-            //     adapter.token,
-            //     _token
-            // );
-
-            amountOut += userAdapterInfo[_user][_tokenId][adapter.addr];
+            IBEP20(adapter.token).safeApprove(
+                swapRouter,
+                userAdapterInfo[_user][_tokenId][adapter.addr]
+            );
+            amountOut += _swapOnPKS(
+                userAdapterInfo[_user][_tokenId][adapter.addr],
+                adapter.token,
+                _token
+            );
 
             userAdapterInfo[_user][_tokenId][adapter.addr] = 0;
         }
