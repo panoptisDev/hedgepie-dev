@@ -101,7 +101,8 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
             // swap
             uint256 amountIn = (_amount * adapter.allocation) / 1e4;
-            uint256 amountOut = _swapOnPKS(amountIn, _token, adapter.token);
+            // uint256 amountOut = _swapOnPKS(amountIn, _token, adapter.token);
+            uint256 amountOut = amountIn;
 
             // deposit to adapter
             _depositToAdapter(adapter.token, adapter.addr, _tokenId, amountOut);
@@ -144,15 +145,17 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             );
 
             // swap
-            IBEP20(adapter.token).safeApprove(
-                swapRouter,
-                userAdapterInfo[_user][_tokenId][adapter.addr]
-            );
-            amountOut += _swapOnPKS(
-                userAdapterInfo[_user][_tokenId][adapter.addr],
-                adapter.token,
-                _token
-            );
+            // IBEP20(adapter.token).safeApprove(
+            //     swapRouter,
+            //     userAdapterInfo[_user][_tokenId][adapter.addr]
+            // );
+            // amountOut += _swapOnPKS(
+            //     userAdapterInfo[_user][_tokenId][adapter.addr],
+            //     adapter.token,
+            //     _token
+            // );
+
+            amountOut += userAdapterInfo[_user][_tokenId][adapter.addr];
 
             userAdapterInfo[_user][_tokenId][adapter.addr] = 0;
         }
@@ -188,7 +191,8 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     ) internal {
         address repayToken = IAdapter(_adapterAddr).repayToken();
         uint256 repayTokenAmountBefore = repayToken != address(0)
-            ? IBEP20(IAdapter(_adapterAddr).strategy()).balanceOf(address(this))
+            // ? IBEP20(IAdapter(_adapterAddr).strategy()).balanceOf(address(this))
+            ? IBEP20(repayToken).balanceOf(address(this))
             : 0;
 
         IBEP20(_token).safeApprove(
@@ -204,7 +208,8 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         require(success, "Error: Deposit internal issue");
 
         uint256 repayTokenAmountAfter = repayToken != address(0)
-            ? IBEP20(IAdapter(_adapterAddr).strategy()).balanceOf(address(this))
+            // ? IBEP20(IAdapter(_adapterAddr).strategy()).balanceOf(address(this))
+            ? IBEP20(repayToken).balanceOf(address(this))
             : 0;
 
         if (repayToken != address(0)) {
