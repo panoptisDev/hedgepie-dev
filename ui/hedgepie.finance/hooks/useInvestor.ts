@@ -1,8 +1,7 @@
 import { useCallback, useRef } from 'react'
 import { useWeb3React } from '@web3-react/core'
-import { useDispatch } from 'react-redux'
 import { useInvestorContract, useWBNBContract } from 'hooks/useContract'
-import { depositOnYBNFT, withdrawFromYBNFT, approveToken } from 'utils/callHelpers'
+import { depositOnYBNFT, withdrawFromYBNFT, approveToken, fetchAllowance } from 'utils/callHelpers'
 
 export const useInvestor = () => {
   const { account } = useWeb3React()
@@ -31,5 +30,15 @@ export const useInvestor = () => {
     console.info(txHash)
   }, [account, investorContract])
 
-  return { onYBNFTDeposit: handleDeposit, onYBNFTWithdraw: handleWithdraw, onYBNFTInvestorApprove: handleApprove }
+  const getAllowance = useCallback(async () => {
+    const allowance = await fetchAllowance(wBNBContract, account)
+    return allowance
+  }, [account, investorContract])
+
+  return {
+    onYBNFTDeposit: handleDeposit,
+    onYBNFTWithdraw: handleWithdraw,
+    onYBNFTInvestorApprove: handleApprove,
+    getAllowance: getAllowance,
+  }
 }

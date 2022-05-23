@@ -11,7 +11,7 @@ import toast from '../../utils/toast'
 import { styles } from './styles'
 
 const ActionStake = (props: any) => {
-  const { onYBNFTDeposit, onYBNFTWithdraw, onYBNFTInvestorApprove } = useInvestor()
+  const { onYBNFTDeposit, onYBNFTWithdraw, onYBNFTInvestorApprove, getAllowance } = useInvestor()
   const { tokenId } = props
 
   const [disabled, setDisabled] = useState(false)
@@ -56,6 +56,17 @@ const ActionStake = (props: any) => {
     }
     console.log(txHash)
   }
+
+  useEffect(() => {
+    if (!account) return
+    const checkIfAlreadyApproved = async () => {
+      const allowance = await getAllowance()
+      if (allowance && allowance > 0) {
+        setApproved(true)
+      }
+    }
+    checkIfAlreadyApproved()
+  }, [account])
 
   const onChangeAmount = (e) => {
     setAmountString(e.target.value)

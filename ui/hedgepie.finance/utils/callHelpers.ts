@@ -1,4 +1,5 @@
 import { ethers } from 'ethers'
+import { getInvestorAddress } from './addressHelpers'
 
 export const approveToken = async (tokenContract, masterChefContract, account) => {
   return tokenContract.methods
@@ -78,4 +79,9 @@ export const fetchTokenUri = async (ybnftMintContract, tokenId) => {
 export const fetchAllocations = async (ybnftMintContract, tokenId) => {
   const allocations = await ybnftMintContract.methods.getAdapterInfo(tokenId).call()
   return allocations
+}
+
+export const fetchAllowance = async (wbnbContract, account) => {
+  const allowance = await wbnbContract.methods.allowance(account, getInvestorAddress()).call()
+  return allowance
 }

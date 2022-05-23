@@ -9,10 +9,10 @@ import { useYBNFTMint } from 'hooks/useYBNFTMint'
 import { styles } from './styles'
 
 export interface TokenInfo {
-  name: string
+  name?: string
   imageURL?: string
   description?: string
-  tokenId: number
+  tokenId?: number
 }
 
 const testData = [
@@ -152,13 +152,16 @@ const LeaderBoard = () => {
       console.log('max token id' + maxTokenId)
       let tokens = [] as TokenInfo[]
       for (let i = 1; i <= maxTokenId; i++) {
+        console.log('In YBNFT ' + i)
         const tokenUri = await getTokenUri(i)
+        console.log('Token URI :' + tokenUri)
         // Is the link is invalid, just proceed
         if (!tokenUri.includes('.ipfs.')) {
           continue
         }
         const metadataFile = await fetch(tokenUri)
         const metadata = await metadataFile.json()
+        console.log('Metadata :' + JSON.stringify(metadata))
         const leaderboardItem = {
           tokenId: i,
           name: metadata.name,
@@ -166,8 +169,11 @@ const LeaderBoard = () => {
           description: metadata.description,
         }
         tokens.push(leaderboardItem)
+        setLotteries(tokens)
+        console.log('Lotteries' + i + ' ' + lotteries)
       }
       setLotteries(tokens)
+      console.log('setting loading false')
       setLoading(false)
     }
     fetchLeaderboardData()
