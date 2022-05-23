@@ -111,7 +111,16 @@ const ViewContents = (props: Props) => {
 
   useEffect(() => {
     setDetails([
-      { title: 'Contract Address', value: '0xdf5926C9A457d61c72C1dbcBce140c1548fAE87b' },
+      {
+        title: 'Contract Address',
+        value: (
+          <Link href="https://bscscan.com/address/0xdf5926C9A457d61c72C1dbcBce140c1548fAE87b">
+            <a target="_blank" rel="noopener noreferrer">
+              0xdf5926C9A457d61c72C1dbcBce140c1548fAE87b
+            </a>
+          </Link>
+        ),
+      },
       {
         title: 'IPFS JSON',
         value: metadataURL ? (

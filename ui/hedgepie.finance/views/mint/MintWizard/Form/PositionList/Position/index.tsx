@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import { Box, Image, Button, Input, ThemeUICSSObject } from 'theme-ui'
 import CompositionSelect from './CompositionSelect'
 

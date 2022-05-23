@@ -159,8 +159,9 @@ const SubmitMint = () => {
     // Create the needed Format of Positions
     console.log('formData' + JSON.stringify(formData))
     setPromptMessage('Minting YBNFT on BSC ...')
-    const txHash = await mintYBNFT(formData, ipfsUrl)
-    setPromptMessage(`YBNFT ${formData.nftName} Successfully Minted !! `)
+    await mintYBNFT(formData, ipfsUrl)
+    toast(`YBNFT ${formData.nftName} Successfully Minted !! `)
+    setPromptMessage('')
     setDisabled(false)
   }
 
@@ -188,9 +189,9 @@ const SubmitMint = () => {
         onClick={handleMint}
         disabled={disabled}
       >
-        MINT {disabled ? <Spinner sx={{ height: '2rem' }} /> : ''}
+        {promptMessage ? promptMessage : 'MINT'} {disabled ? <Spinner sx={{ height: '2rem' }} /> : ''}
       </Button>
-      <Text sx={{ fontSize: 18, color: '#8E8DA0' }}>{promptMessage}</Text>
+      {/* <Text sx={{ fontSize: 18, color: '#8E8DA0' }}>{promptMessage}</Text> */}
     </Box>
   )
 }

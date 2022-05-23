@@ -57,6 +57,12 @@ const ActionStake = (props: any) => {
     console.log(txHash)
   }
 
+  const onInputKeyPress = (e) => {
+    if (e.which == '-'.charCodeAt(0)) {
+      e.preventDefault()
+    }
+  }
+
   useEffect(() => {
     if (!account) return
     const checkIfAlreadyApproved = async () => {
@@ -99,8 +105,10 @@ const ActionStake = (props: any) => {
             placeholder="0.0"
             value={amountString}
             type="number"
+            pattern="/^[0-9.]+$/"
             onChange={onChangeAmount}
             id="amount-input"
+            onKeyPress={onInputKeyPress}
           />
         </Box>
       </Box>

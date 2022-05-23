@@ -42,6 +42,7 @@ export const styles = {
     padding: '0 10px 0 10px',
     justifyContent: 'center',
     alignItems: 'center',
+    gap: '0.9rem',
   },
   badge_title_text: { color: '#8E8DA0', fontWeight: '600' },
   badge_value_text: { color: '#0A3F5C' },
