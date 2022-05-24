@@ -25,6 +25,8 @@ const LeaderBoard = () => {
 
   const getIPFSFileWithTimeout = async (tokenUri) => {
     setTimeout(() => {
+      setLoading(false)
+      console.log('Here !!')
       return null
     }, 4000)
     const metadataFile = await fetch(tokenUri)
