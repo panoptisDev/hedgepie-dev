@@ -23,17 +23,21 @@ const LeaderBoard = () => {
   const { getMaxTokenId, getTokenUri } = useYBNFTMint()
   const [loading, setLoading] = useState(true)
 
-  const getIPFSFileWithTimeout = async (tokenUri) => {
+  const getIPFSFileWithTimeout = async (url) => {
     setTimeout(() => {
       setLoading(false)
-      console.log('Here !!')
       return null
     }, 4000)
-    const metadataFile = await fetch(tokenUri)
-    return metadataFile
+    try {
+      const metadataFile = await fetch(url)
+      return metadataFile
+    } catch (err) {
+      return null
+    }
   }
 
   useEffect(() => {
+    setLotteries([])
     const fetchLeaderboardData = async () => {
       setLoading(true)
       const maxTokenId = await getMaxTokenId()
@@ -45,8 +49,8 @@ const LeaderBoard = () => {
           continue
         }
         const metadataFile = await getIPFSFileWithTimeout(tokenUri)
+        console.log('metadataFile' + JSON.stringify(metadataFile))
         if (metadataFile == null) {
-          toast('Newly minted YBNFTs currently indexing...\n Please try a little while later.')
           continue
         }
         const metadata = await metadataFile.json()

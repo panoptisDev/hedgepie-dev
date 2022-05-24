@@ -33,7 +33,7 @@ const ViewContents = (props: Props) => {
   const [imageURL, setImageURL] = useState<string>()
   const [description, setDescription] = useState<string>()
 
-  const { getTokenUri, getAllocations } = useYBNFTMint()
+  const { getTokenUri, getAllocations, getMaxTokenId } = useYBNFTMint()
   const { getAdapters } = useAdapterManager()
 
   // Get the Token ID of the current YBNFT
@@ -49,7 +49,13 @@ const ViewContents = (props: Props) => {
   // Get the Metadata, Allocations, etc of the current YBNFT
   useEffect(() => {
     if (!tokenId) return
+
     const fetchContractData = async () => {
+      const maxTokenId = await getMaxTokenId()
+      if (tokenId > maxTokenId) {
+        router.push('/')
+        return
+      }
       const tokenUri = await getTokenUri(tokenId)
       setMetadataURL(tokenUri)
       const allocations = await getAllocations(tokenId)
