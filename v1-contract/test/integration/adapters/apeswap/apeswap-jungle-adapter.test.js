@@ -184,7 +184,7 @@ describe.only("ApeswapJungleAdapter Integration Test", function () {
         ).to.be.revertedWith("Error: Caller is not matched")
       });
   
-      it("(3)should receive the DOSE & Banana token successfully after withdraw function", async function () {
+      it("(3)should receive the Banana token successfully after withdraw function", async function () {
         // withdraw from nftId: 1
         let bananaBalBefore = await this.rewardToken.balanceOf(this.alice.address);
   
