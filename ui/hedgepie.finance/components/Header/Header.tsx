@@ -34,8 +34,8 @@ const Header = ({ overlay = false, dark = true }: Props) => {
       }}
     >
       <Box sx={styles.header_inner_container as ThemeUICSSObject}>
-        <Link href="/" passHref>
-          <ThemeLink className="logo" mr={4}>
+        <Link href="/">
+          <ThemeLink className="logo" mr={4} sx={{ ':hover': { cursor: 'pointer' } }}>
             <Image
               src="/images/logo.png"
               sx={{
@@ -49,7 +49,7 @@ const Header = ({ overlay = false, dark = true }: Props) => {
           {/* <Link href="/vault" passHref>
             <ThemeLink mr={4}>Vault</ThemeLink>
           </Link> */}
-          <Link href="/nft-leaderboard" passHref>
+          <Link href="/" passHref>
             <ThemeLink mr={4}>Leaderboard</ThemeLink>
           </Link>
           <Link href="/mint" passHref>

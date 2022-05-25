@@ -23,19 +23,6 @@ const LeaderBoard = () => {
   const { getMaxTokenId, getTokenUri } = useYBNFTMint()
   const [loading, setLoading] = useState(true)
 
-  const getIPFSFileWithTimeout = async (url) => {
-    setTimeout(() => {
-      setLoading(false)
-      return null
-    }, 4000)
-    try {
-      const metadataFile = await fetch(url)
-      return metadataFile
-    } catch (err) {
-      return null
-    }
-  }
-
   useEffect(() => {
     setLotteries([])
     const fetchLeaderboardData = async () => {
@@ -48,7 +35,7 @@ const LeaderBoard = () => {
         if (!tokenUri.includes('.ipfs.')) {
           continue
         }
-        const metadataFile = await getIPFSFileWithTimeout(tokenUri)
+        const metadataFile = await fetch(tokenUri)
         console.log('metadataFile' + JSON.stringify(metadataFile))
         if (metadataFile == null) {
           continue
@@ -99,15 +86,18 @@ const LeaderBoard = () => {
 
   return (
     <Box sx={styles.leaderboard_container as ThemeUICSSObject}>
-      {loading ? (
-        <Spinner />
-      ) : (
-        <Box sx={styles.leaderboard_inner_container as ThemeUICSSObject}>
-          <LotterySearch onSearch={handleSearch} />
-          <LotteryTable data={sorted} onSort={handleSort} sortKey={sortKey} />
-          {/* <LotteryLoad onLoad={handleLoad} /> */}
-        </Box>
-      )}
+      <Box sx={styles.leaderboard_inner_container as ThemeUICSSObject}>
+        <LotterySearch onSearch={handleSearch} />
+        <LotteryTable data={sorted} onSort={handleSort} sortKey={sortKey} />
+        {loading ? (
+          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.5rem' }}>
+            <Spinner />
+          </Box>
+        ) : (
+          ''
+        )}
+        {/* <LotteryLoad onLoad={handleLoad} /> */}
+      </Box>
     </Box>
   )
 }
