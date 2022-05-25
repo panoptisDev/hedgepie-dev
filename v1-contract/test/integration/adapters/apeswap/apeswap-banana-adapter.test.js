@@ -14,22 +14,23 @@ describe("ApeswapBananaAdapter Integration Test", function () {
 
     const performanceFee = 50;
     const wbnb = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
+    const whaleAddr = "0x41772edd47d9ddf9ef848cdb34fe76143908c7ad";
+    const bananaSplit = "0x86Ef5e73EDB2Fea111909Fe35aFcC564572AcC06";
+    const Banana = "0x603c7f932ED1fc6575303D8Fb018fDCBb0f39a95";
     const swapRouter = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // pks rounter address
 
     this.alice = alice;
     this.owner = owner;
-    this.WHALE = "0x17A14b2a8bAffd1222e9079c1f9a81f7Bf190F33";
     this.strategy = "0x5c8D727b265DBAfaba67E050f2f739cAeEB4A6F9"; // MasterApe
-    this.banana = "0x603c7f932ED1fc6575303D8Fb018fDCBb0f39a95";
-    this.bananaSplit = "0x86Ef5e73EDB2Fea111909Fe35aFcC564572AcC06";
+    this.hpie = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56"; // BUSD
 
     // Deploy Apeswap Banana Adapter contract
     const ApeBananaAdapter = await ethers.getContractFactory("ApeswapBananaAdapter");
     this.aAdapter = await ApeBananaAdapter.deploy(
       this.strategy,
-      this.banana,
-      this.banana,
-      this.bananaSplit,
+      Banana,
+      Banana,
+      bananaSplit,
       "Apeswap Banana Adapter"
     );
     await this.aAdapter.deployed();
@@ -56,20 +57,20 @@ describe("ApeswapBananaAdapter Integration Test", function () {
     // Mint NFTs
     // tokenID: 1
     await this.ybNft.mint(
-        [10000],
-        [this.banana],
-        [this.aAdapter.address],
-        performanceFee,
-        "test tokenURI1"
+      [10000],
+      [Banana],
+      [this.aAdapter.address],
+      performanceFee,
+      "test tokenURI1"
     );
   
     // tokenID: 2
     await this.ybNft.mint(
-        [10000],
-        [this.banana],
-        [this.aAdapter.address],
-        performanceFee,
-        "test tokenURI2"
+      [10000],
+      [Banana],
+      [this.aAdapter.address],
+      performanceFee,
+      "test tokenURI2"
     );
 
     // Add Venus Adapter to AdapterManager
@@ -89,11 +90,15 @@ describe("ApeswapBananaAdapter Integration Test", function () {
     console.log("Strategy: ", this.strategy);
     console.log("ApeswapBananaAdapter: ", this.aAdapter.address);
 
-    this.whaleWallet = await unlockAccount(this.WHALE);
+    this.repayToken = await ethers.getContractAt("VBep20Interface", bananaSplit);
+
+    // BUSD will be our HPIE token
+    const hpieToken = await ethers.getContractAt("VBep20Interface", this.hpie);
     
-    this.bnContract = await ethers.getContractAt("VBep20Interface", this.banana);
-    this.splitContract = await ethers.getContractAt("VBep20Interface", this.bananaSplit);
-    await this.bnContract.connect(this.whaleWallet).approve(this.investor.address, ethers.utils.parseUnits("100"));
+    const whaleWallet = await unlockAccount(whaleAddr);
+    
+    await hpieToken.connect(whaleWallet).transfer(this.alice.address, ethers.utils.parseUnits("1000"));
+    await hpieToken.connect(this.alice).approve(this.investor.address, ethers.utils.parseUnits("1000"));
   });
 
   describe("deposit function test", function() {
@@ -104,7 +109,7 @@ describe("ApeswapBananaAdapter Integration Test", function () {
           this.investor.connect(this.owner).deposit(
             this.owner.address,
             3,
-            this.banana,
+            this.hpie,
             depositAmount.toString(),
             { gasPrice: 21e9 }
           )
@@ -118,7 +123,7 @@ describe("ApeswapBananaAdapter Integration Test", function () {
           this.investor.deposit(
             this.alice.address,
             1,
-            this.banana,
+            this.hpie,
             depositAmount.toString(),
             { gasPrice: 21e9 }
           )
@@ -132,7 +137,7 @@ describe("ApeswapBananaAdapter Integration Test", function () {
           this.investor.deposit(
             this.owner.address,
             1,
-            this.banana,
+            this.hpie,
             depositAmount.toString(),
             { gasPrice: 21e9 }
           )
@@ -141,19 +146,19 @@ describe("ApeswapBananaAdapter Integration Test", function () {
 
     it("(4) deposit should success", async function () {
         const depositAmount = ethers.utils.parseEther("10")
-        await this.investor.connect(this.whaleWallet).deposit(
-          this.WHALE,
+        await this.investor.connect(this.alice).deposit(
+          this.alice.address,
           1,
-          this.banana,
+          this.hpie,
           depositAmount,
           { gasPrice: 21e9 }
         );
         
-        const userInfo = await this.investor.userInfo(this.WHALE, this.ybNft.address, 1);
+        const userInfo = await this.investor.userInfo(this.alice.address, this.ybNft.address, 1);
         const depositAmount1 = Number(userInfo) / Math.pow(10, 18);
         expect(depositAmount1).to.eq(10);
 
-        const tokenBalance = Number(await this.splitContract.balanceOf(this.investor.address)) / Math.pow(10, 18);
+        const tokenBalance = Number(await this.repayToken.balanceOf(this.investor.address)) / Math.pow(10, 18);
         expect(tokenBalance).to.gt(0);
     }).timeout(50000000);
   });
@@ -165,7 +170,7 @@ describe("ApeswapBananaAdapter Integration Test", function () {
           this.investor.withdraw(
             this.owner.address,
             3,
-            this.banana,
+            this.hpie,
             { gasPrice: 21e9 }
           )
         ).to.be.revertedWith("Error: nft tokenId is invalid")
@@ -177,7 +182,7 @@ describe("ApeswapBananaAdapter Integration Test", function () {
           this.investor.withdraw(
             this.alice.address,
             1,
-            this.banana,
+            this.hpie,
             { gasPrice: 21e9 }
           )
         ).to.be.revertedWith("Error: Caller is not matched")
@@ -185,17 +190,15 @@ describe("ApeswapBananaAdapter Integration Test", function () {
   
       it("(3)should receive the Banana token successfully after withdraw function", async function () {
         // withdraw from nftId: 1
-        let bananaBalBefore = await this.splitContract.balanceOf(this.owner.address);
-  
-        await this.investor.connect(this.whaleWallet).withdraw(
-          this.WHALE,
+        const bananaBalBefore = await this.repayToken.balanceOf(this.alice.address);
+        await this.investor.connect(this.alice).withdraw(
+          this.alice.address,
           1,
-          this.banana,
+          this.hpie,
           { gasPrice: 21e9 }
         );
   
-        let bananaBalAfter = await this.splitContract.balanceOf(this.owner.address);
-  
+        const bananaBalAfter = await this.repayToken.balanceOf(this.alice.address);
         expect(
           BigNumber.from(bananaBalAfter).gte(BigNumber.from(bananaBalBefore))
         ).to.eq(true);

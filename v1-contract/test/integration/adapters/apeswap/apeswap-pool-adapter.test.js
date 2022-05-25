@@ -14,20 +14,21 @@ describe("ApeswapPoolAdapter Integration Test", function () {
 
     const performanceFee = 50;
     const wbnb = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
+    const Banana = "0x603c7f932ED1fc6575303D8Fb018fDCBb0f39a95";
+    const whaleAddr = "0x41772edd47d9ddf9ef848cdb34fe76143908c7ad";
     const swapRouter = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // pks rounter address
 
     this.alice = alice;
     this.owner = owner;
-    this.WHALE = "0x17A14b2a8bAffd1222e9079c1f9a81f7Bf190F33";
     this.strategy = "0xd0378c1b37D530a00E91764A7a41EfEB3d6A5fbC"; // BEP20RewardApeV4
-    this.banana = "0x603c7f932ED1fc6575303D8Fb018fDCBb0f39a95";
+    this.hpie = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56"; // BUSD
     this.reward = "0x7837fd820bA38f95c54D6dAC4ca3751b81511357"; // DOSE token
 
     // Deploy Apeswap Banana Adapter contract
     const ApeBananaAdapter = await ethers.getContractFactory("ApeswapPoolAdapter");
     this.aAdapter = await ApeBananaAdapter.deploy(
       this.strategy,
-      this.banana,
+      Banana,
       this.reward,
       "Apeswap Banana Adapter"
     );
@@ -56,7 +57,7 @@ describe("ApeswapPoolAdapter Integration Test", function () {
     // tokenID: 1
     await this.ybNft.mint(
         [10000],
-        [this.banana],
+        [Banana],
         [this.aAdapter.address],
         performanceFee,
         "test tokenURI1"
@@ -65,7 +66,7 @@ describe("ApeswapPoolAdapter Integration Test", function () {
     // tokenID: 2
     await this.ybNft.mint(
         [10000],
-        [this.banana],
+        [Banana],
         [this.aAdapter.address],
         performanceFee,
         "test tokenURI2"
@@ -87,12 +88,16 @@ describe("ApeswapPoolAdapter Integration Test", function () {
     console.log("Investor: ", this.investor.address);
     console.log("Strategy: ", this.strategy);
     console.log("ApeswapPoolAdapter: ", this.aAdapter.address);
-
-    this.whaleWallet = await unlockAccount(this.WHALE);
     
-    this.bnContract = await ethers.getContractAt("VBep20Interface", this.banana);
-    this.rwContract = await ethers.getContractAt("VBep20Interface", this.reward);
-    await this.bnContract.connect(this.whaleWallet).approve(this.investor.address, ethers.utils.parseUnits("100"));
+    this.rewardToken = await ethers.getContractAt("VBep20Interface", this.reward);
+
+    // BUSD will be our HPIE token
+    const hpieToken = await ethers.getContractAt("VBep20Interface", this.hpie);
+    
+    const whaleWallet = await unlockAccount(whaleAddr);
+    
+    await hpieToken.connect(whaleWallet).transfer(this.alice.address, ethers.utils.parseUnits("1000"));
+    await hpieToken.connect(this.alice).approve(this.investor.address, ethers.utils.parseUnits("1000"));
   });
 
   describe("deposit function test", function() {
@@ -103,7 +108,7 @@ describe("ApeswapPoolAdapter Integration Test", function () {
           this.investor.connect(this.owner).deposit(
             this.owner.address,
             3,
-            this.banana,
+            this.hpie,
             depositAmount.toString(),
             { gasPrice: 21e9 }
           )
@@ -117,7 +122,7 @@ describe("ApeswapPoolAdapter Integration Test", function () {
           this.investor.deposit(
             this.alice.address,
             1,
-            this.banana,
+            this.hpie,
             depositAmount.toString(),
             { gasPrice: 21e9 }
           )
@@ -131,7 +136,7 @@ describe("ApeswapPoolAdapter Integration Test", function () {
           this.investor.deposit(
             this.owner.address,
             1,
-            this.banana,
+            this.hpie,
             depositAmount.toString(),
             { gasPrice: 21e9 }
           )
@@ -140,15 +145,15 @@ describe("ApeswapPoolAdapter Integration Test", function () {
 
     it("(4) deposit should success", async function () {
         const depositAmount = ethers.utils.parseEther("10")
-        await this.investor.connect(this.whaleWallet).deposit(
-          this.WHALE,
+        await this.investor.connect(this.alice).deposit(
+          this.alice.address,
           1,
-          this.banana,
+          this.hpie,
           depositAmount,
           { gasPrice: 21e9 }
         );
         
-        const userInfo = await this.investor.userInfo(this.WHALE, this.ybNft.address, 1);
+        const userInfo = await this.investor.userInfo(this.alice.address, this.ybNft.address, 1);
         const depositAmount1 = Number(userInfo) / Math.pow(10, 18);
         expect(depositAmount1).to.eq(10);
     }).timeout(50000000);
@@ -161,7 +166,7 @@ describe("ApeswapPoolAdapter Integration Test", function () {
           this.investor.withdraw(
             this.owner.address,
             3,
-            this.banana,
+            this.hpie,
             { gasPrice: 21e9 }
           )
         ).to.be.revertedWith("Error: nft tokenId is invalid")
@@ -173,7 +178,7 @@ describe("ApeswapPoolAdapter Integration Test", function () {
           this.investor.withdraw(
             this.alice.address,
             1,
-            this.banana,
+            this.hpie,
             { gasPrice: 21e9 }
           )
         ).to.be.revertedWith("Error: Caller is not matched")
@@ -181,16 +186,16 @@ describe("ApeswapPoolAdapter Integration Test", function () {
   
       it("(3)should receive the DOSE & Banana token successfully after withdraw function", async function () {
         // withdraw from nftId: 1
-        let bananaBalBefore = await this.rwContract.balanceOf(this.owner.address);
+        let bananaBalBefore = await this.rewardToken.balanceOf(this.alice.address);
   
-        await this.investor.connect(this.whaleWallet).withdraw(
-          this.WHALE,
+        await this.investor.connect(this.alice).withdraw(
+          this.alice.address,
           1,
-          this.banana,
+          this.hpie,
           { gasPrice: 21e9 }
         );
   
-        let bananaBalAfter = await this.rwContract.balanceOf(this.owner.address);
+        let bananaBalAfter = await this.rewardToken.balanceOf(this.alice.address);
   
         expect(
           BigNumber.from(bananaBalAfter).gte(BigNumber.from(bananaBalBefore))
