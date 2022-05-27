@@ -81,7 +81,7 @@ const ActionStake = (props: any) => {
       toast('Please input only Positive Numeric values', 'warning')
     }
     setInvalidAmount(false)
-    e.target.value && !isNaN(e.target.value) && setAmount(getBalanceInWei(e.target.value))
+    e.target.value && !isNaN(e.target.value) && setAmount(getBalanceInWei(Number.parseFloat(e.target.value)))
   }
 
   return (
