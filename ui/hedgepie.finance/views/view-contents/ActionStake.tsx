@@ -113,7 +113,7 @@ const ActionStake = (props: any) => {
         </Box>
       </Box>
       <Button sx={styles.unstake_button as ThemeUICSSObject} onClick={handleUnstake}>
-        UNSTAKE
+        WITHDRAW
       </Button>
     </>
   )

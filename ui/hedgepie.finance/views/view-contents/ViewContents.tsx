@@ -52,7 +52,7 @@ const ViewContents = (props: Props) => {
 
     const fetchContractData = async () => {
       const maxTokenId = await getMaxTokenId()
-      if (tokenId > maxTokenId) {
+      if (Number(tokenId) > maxTokenId) {
         router.push('/')
         return
       }
@@ -205,7 +205,7 @@ const ViewContents = (props: Props) => {
                   {/* Staking Details */}
                   <Flex sx={styles.flex_staking_details as ThemeUICSSObject}>
                     <Text sx={styles.staking_sub_title_text as ThemeUICSSObject}>
-                      Stake HPIE to join the YB-NFT strategy
+                      Stake BNB to join the YB-NFT strategy
                     </Text>
 
                     {/* Button Input Stake */}

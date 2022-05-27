@@ -1,12 +1,24 @@
-import React, { useEffect } from 'react'
-import { Box, Image, Button, Input, ThemeUICSSObject } from 'theme-ui'
+import MintWizardContext from 'contexts/MintWizardContext'
+import React, { useEffect, useContext, useState } from 'react'
+import { Box, Image, Button, Input, ThemeUICSSObject, Text } from 'theme-ui'
 import CompositionSelect from './CompositionSelect'
 
 const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
-  const handleSelect = (composition) => {
+  const { formData } = useContext(MintWizardContext)
+  const [bnbValue, setBNBValue] = useState<any>()
+  // const [usdValue, setUSDValue] = useState<any>()
+
+  const handleProtocolSelect = (composition) => {
     onUpdate({
       ...data,
       composition,
+    })
+  }
+
+  const handlePoolSelect = (pools) => {
+    onUpdate({
+      ...data,
+      pools,
     })
   }
 
@@ -19,6 +31,16 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
       })
     }
   }
+
+  useEffect(() => {
+    let value = (data.weight * formData.initialStake) / 100
+    value > 0 && setBNBValue(value.toFixed(3))
+  }, [data])
+
+  // useEffect(() => {
+  //   console.log('bnbValue' + bnbValue)
+  //   bnbValue && setUSDValue((Number(bnbValue) * bnbPrice).toString())
+  // }, [bnbValue])
 
   const handleLock = () => {
     onLock()
@@ -44,7 +66,11 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
       }}
     >
       <Box sx={{ flex: '1 1 0' }}>
-        <CompositionSelect value={data.composition} onSelect={handleSelect} />
+        <CompositionSelect
+          value={data.composition}
+          onProtocolSelect={handleProtocolSelect}
+          onPoolSelect={handlePoolSelect}
+        />
       </Box>
       <Box
         sx={{
@@ -110,8 +136,20 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
                 onChange={handleChangeWeight}
               />
             )}
-
             <Box sx={{ height: 44 }}>%</Box>
+            <Box
+              sx={{
+                marginLeft: 20,
+                display: 'flex',
+                flexDirection: 'column',
+                justifyContent: 'center',
+                alignContent: 'center',
+                gap: '0.3rem',
+              }}
+            >
+              <Text sx={{ fontSize: 20, fontWeight: 400 }}>{bnbValue ? bnbValue + ' BNB' : ''}</Text>
+              {/* <Text sx={{ fontSize: 14, fontWeight: 400 }}>{usdValue ? usdValue : ''}</Text> */}
+            </Box>
           </Box>
           <Button
             sx={{

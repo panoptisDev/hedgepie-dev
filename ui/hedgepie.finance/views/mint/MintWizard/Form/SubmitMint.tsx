@@ -5,12 +5,15 @@ import { useWeb3React } from '@web3-react/core'
 import ipfs from 'utils/ipfs'
 import toast from 'utils/toast'
 import { useYBNFTMint } from 'hooks/useYBNFTMint'
+import { useModal } from 'widgets/Modal'
+import MintTransactionModal from './MintTransactionModal'
 
 const SubmitMint = () => {
   const { formData } = React.useContext(MintWizardContext)
   const { account } = useWeb3React()
   const { onYBNFTMint } = useYBNFTMint()
   const [disabled, setDisabled] = useState(false)
+  const [onMintTransactionModal] = useModal(<MintTransactionModal formData={formData} />, false)
 
   const [promptMessage, setPromptMessage] = useState('')
 
@@ -143,26 +146,27 @@ const SubmitMint = () => {
 
   const handleMint = async () => {
     setDisabled(true)
-    setPromptMessage('Validating the Entries')
-    if (!validateMintEntries()) {
-      setPromptMessage('')
-      setDisabled(false)
-      return
-    }
+    // TODO
+    // setPromptMessage('Validating the Entries')
+    // if (!validateMintEntries()) {
+    //   setPromptMessage('')
+    //   setDisabled(false)
+    //   return
+    // }
 
-    setPromptMessage('Uploading Image and YBNFT Metadata to IPFS')
-    const ipfsUrl = await getIPFSUrlForMetadata()
-
-    console.log('IPFS URL : ' + ipfsUrl)
-
-    //TODO : Set the metadata CID with the contract and minted nft address and store
-    // Create the needed Format of Positions
-    console.log('formData' + JSON.stringify(formData))
-    setPromptMessage('Minting YBNFT on BSC ...')
-    await mintYBNFT(formData, ipfsUrl)
-    toast(`YBNFT ${formData.nftName} Successfully Minted !! `)
-    setPromptMessage('')
+    // setPromptMessage('Uploading Image and YBNFT Metadata to IPFS')
+    // const ipfsUrl = await getIPFSUrlForMetadata()
+    // console.log('IPFS URL : ' + ipfsUrl)
+    // //TODO : Set the metadata CID with the contract and minted nft address and store
+    // // Create the needed Format of Positions
+    // console.log('formData' + JSON.stringify(formData))
+    // setPromptMessage('Minting YBNFT on BSC ...')
+    // await mintYBNFT(formData, ipfsUrl)
+    // toast(`YBNFT ${formData.nftName} Successfully Minted !! `)
+    // setPromptMessage('')
     setDisabled(false)
+
+    onMintTransactionModal()
   }
 
   return (
