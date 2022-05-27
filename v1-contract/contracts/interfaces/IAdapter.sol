@@ -8,6 +8,8 @@ interface IAdapter {
 
     function repayToken() external view returns (address);
 
+    function router() external view returns (address);
+
     function getAdapterStrategy(uint256 _adapter)
         external
         view

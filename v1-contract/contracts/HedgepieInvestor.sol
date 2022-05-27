@@ -8,6 +8,7 @@ import "./libraries/Ownable.sol";
 import "./interfaces/IYBNFT.sol";
 import "./interfaces/IAdapter.sol";
 import "./interfaces/IAdapterManager.sol";
+import "./interfaces/IPancakePair.sol";
 import "./interfaces/IPancakeRouter.sol";
 
 contract HedgepieInvestor is Ownable, ReentrancyGuard {
@@ -90,7 +91,6 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         );
 
         IBEP20(_token).safeTransferFrom(_user, address(this), _amount);
-        IBEP20(_token).safeApprove(swapRouter, _amount);
 
         IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
             _tokenId
@@ -99,9 +99,14 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         for (uint8 i = 0; i < adapterInfo.length; i++) {
             IYBNFT.Adapter memory adapter = adapterInfo[i];
 
-            // swap
             uint256 amountIn = (_amount * adapter.allocation) / 1e4;
-            uint256 amountOut = _swapOnPKS(amountIn, _token, adapter.token);
+            uint256 amountOut;
+            address routerAddr = IAdapter(adapter.addr).router();
+            if(routerAddr == address(0)) { // swap
+                amountOut = _swapOnPKS(amountIn, _token, adapter.token);
+            } else { // get lp
+                amountOut = _getLP(amountIn, _token, adapter.token, routerAddr);
+            }
 
             // deposit to adapter
             _depositToAdapter(adapter.token, adapter.addr, _tokenId, amountOut);
@@ -144,10 +149,6 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             );
 
             // swap
-            IBEP20(adapter.token).safeApprove(
-                swapRouter,
-                userAdapterInfo[_user][_tokenId][adapter.addr]
-            );
             amountOut += _swapOnPKS(
                 userAdapterInfo[_user][_tokenId][adapter.addr],
                 adapter.token,
@@ -286,6 +287,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         address _inToken,
         address _outToken
     ) internal returns (uint256 amountOut) {
+        IBEP20(_inToken).safeApprove(swapRouter, _amountIn);
         address[] memory path = _getPaths(_inToken, _outToken);
         uint256[] memory amounts = IPancakeRouter(swapRouter)
             .swapExactTokensForTokens(
@@ -297,5 +299,47 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             );
 
         amountOut = amounts[amounts.length - 1];
+    }
+
+    /**
+     * @notice GET LP from pair
+     * @param _amountIn  amount of inToken
+     * @param _inToken  address of inToken
+     * @param _pairToken  address of pairToken
+     * @param _router  address of router
+     */
+    function _getLP(
+        uint256 _amountIn,
+        address _inToken,
+        address _pairToken,
+        address _router
+    ) internal returns (uint256 amountOut) {
+        address token0 = IPancakePair(_pairToken).token0();
+        address token1 = IPancakePair(_pairToken).token1();
+
+        uint256 token0Amount = _amountIn / 2;
+        uint256 token1Amount = _amountIn / 2;
+        if(token0 != _inToken) {
+            token0Amount = _swapOnPKS(token0Amount, _inToken, token0);
+        }
+
+        if(token1 != _inToken) {
+            token1Amount = _swapOnPKS(token1Amount, _inToken, token1);
+        }
+
+        if(token0Amount > 0 && token1Amount > 0) {
+            IBEP20(token0).safeApprove(_router, token0Amount);
+            IBEP20(token1).safeApprove(_router, token1Amount);
+            (,, amountOut) = IPancakeRouter(_router).addLiquidity(
+                token0, 
+                token1, 
+                token0Amount, 
+                token1Amount, 
+                0, 
+                0, 
+                address(this), 
+                block.timestamp + 2 hours
+            );
+        }
     }
 }
