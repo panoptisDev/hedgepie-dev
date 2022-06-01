@@ -35,7 +35,19 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         uint256 nftId,
         uint256 amount
     );
+    event DepositBNB(
+        address indexed user,
+        address nft,
+        uint256 nftId,
+        uint256 amount
+    );
     event Withdraw(
+        address indexed user,
+        address nft,
+        uint256 nftId,
+        uint256 amount
+    );
+    event WithdrawBNB(
         address indexed user,
         address nft,
         uint256 nftId,
@@ -118,6 +130,49 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     }
 
     /**
+     * @notice Deposit with BNB
+     * @param _user  user address
+     * @param _tokenId  YBNft token id
+     * @param _amount  BNB amount
+     */
+    function depositBNB(
+        address _user,
+        uint256 _tokenId,
+        uint256 _amount
+    ) external payable shouldMatchCaller(_user) nonReentrant {
+        require(_amount > 0, "Error: Amount can not be 0");
+        require(msg.value == _amount, "Error: Insufficient BNB");
+        require(
+            IYBNFT(ybnft).exists(_tokenId),
+            "Error: nft tokenId is invalid"
+        );
+
+        IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
+            _tokenId
+        );
+
+        for (uint8 i = 0; i < adapterInfo.length; i++) {
+            IYBNFT.Adapter memory adapter = adapterInfo[i];
+
+            uint256 amountIn = (_amount * adapter.allocation) / 1e4;
+            uint256 amountOut;
+            address routerAddr = IAdapter(adapter.addr).router();
+            if(routerAddr == address(0)) { // swap
+                amountOut = _swapOnPKSBNB(amountIn, adapter.token);
+            } else { // get lp
+                amountOut = _getLPBNB(amountIn, adapter.token, routerAddr);
+            }
+
+            // deposit to adapter
+            _depositToAdapter(adapter.token, adapter.addr, _tokenId, amountOut);
+            userAdapterInfo[_user][_tokenId][adapter.addr] += amountOut;
+        }
+
+        userInfo[_user][ybnft][_tokenId] += _amount;
+        emit DepositBNB(_user, ybnft, _tokenId, _amount);
+    }
+
+    /**
      * @notice Withdraw fund
      * @param _user  user address
      * @param _tokenId  YBNft token id
@@ -162,6 +217,58 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
         IBEP20(_token).safeTransfer(_user, amountOut);
         emit Withdraw(_user, ybnft, _tokenId, userAmount);
+    }
+
+    /**
+     * @notice Withdraw BNB
+     * @param _user  user address
+     * @param _tokenId  YBNft token id
+     */
+    function withdrawBNB(
+        address _user,
+        uint256 _tokenId
+    ) public payable shouldMatchCaller(_user) nonReentrant {
+        require(
+            IYBNFT(ybnft).exists(_tokenId),
+            "Error: nft tokenId is invalid"
+        );
+        uint256 userAmount = userInfo[_user][ybnft][_tokenId];
+        require(userAmount > 0, "Error: Amount should be greater than 0");
+
+        IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
+            _tokenId
+        );
+
+        uint256 amountOut;
+        for (uint8 i = 0; i < adapterInfo.length; i++) {
+            IYBNFT.Adapter memory adapter = adapterInfo[i];
+            _withdrawFromAdapter(
+                adapter.addr,
+                _tokenId,
+                IAdapter(adapter.addr).getWithdrawalAmount(msg.sender, _tokenId)
+            );
+
+            address routerAddr = IAdapter(adapter.addr).router();
+            if(routerAddr == address(0)) { // swap
+                amountOut += _swapforBNB(
+                    userAdapterInfo[_user][_tokenId][adapter.addr],
+                    adapter.token
+                );
+            } else { // withdraw lp and get BNB
+                amountOut += _withdrawLPBNB(
+                    userAdapterInfo[_user][_tokenId][adapter.addr], 
+                    adapter.token, 
+                    routerAddr
+                );
+            }
+
+            userAdapterInfo[_user][_tokenId][adapter.addr] = 0;
+        }   
+
+        userInfo[_user][ybnft][_tokenId] -= userAmount;
+
+        payable(_user).transfer(amountOut);
+        emit WithdrawBNB(_user, ybnft, _tokenId, userAmount);
     }
 
     /**
@@ -302,6 +409,56 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     }
 
     /**
+     * @notice Swap token via pancakeswap router
+     * @param _amountIn  amount of inToken
+     * @param _outToken  address of outToken
+     */
+    function _swapOnPKSBNB(
+        uint256 _amountIn,
+        address _outToken
+    ) internal returns (uint256 amountOut) {
+        address[] memory path = _getPaths(wbnb, _outToken);
+        uint256 beforeBalance = IBEP20(_outToken).balanceOf(address(this));
+        IPancakeRouter(swapRouter)
+        .swapExactETHForTokensSupportingFeeOnTransferTokens{value: _amountIn} (
+            0,
+            path,
+            address(this),
+            block.timestamp + 2 hours
+        );
+
+        uint256 afterBalance = IBEP20(_outToken).balanceOf(address(this));
+        amountOut = afterBalance - beforeBalance;
+    }
+
+    /**
+     * @notice Swap token via pancakeswap router
+     * @param _amountIn  amount of inToken
+     * @param _inToken  address of inToken
+     */
+    function _swapforBNB(
+        uint256 _amountIn,
+        address _inToken
+    ) internal returns (uint256 amountOut) {
+        address[] memory path = _getPaths(_inToken, wbnb);
+        uint256 beforeBalance = address(this).balance;
+
+        IBEP20(_inToken).approve(address(swapRouter), _amountIn);
+
+        IPancakeRouter(swapRouter)
+        .swapExactTokensForETHSupportingFeeOnTransferTokens (
+            _amountIn,
+            0,
+            path,
+            address(this),
+            block.timestamp + 2 hours
+        );
+
+        uint256 afterBalance = address(this).balance;
+        amountOut = afterBalance - beforeBalance;
+    }
+
+    /**
      * @notice GET LP from pair
      * @param _amountIn  amount of inToken
      * @param _inToken  address of inToken
@@ -340,6 +497,100 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 address(this), 
                 block.timestamp + 2 hours
             );
+        }
+    }
+
+    /**
+     * @notice GET LP from pair
+     * @param _amountIn  amount of inToken
+     * @param _pairToken  address of pairToken
+     * @param _router  address of router
+     */
+    function _getLPBNB(
+        uint256 _amountIn,
+        address _pairToken,
+        address _router
+    ) internal returns (uint256 amountOut) {
+        address token0 = IPancakePair(_pairToken).token0();
+        address token1 = IPancakePair(_pairToken).token1();
+
+        uint256 token0Amount = _amountIn / 2;
+        uint256 token1Amount = _amountIn / 2;
+        if(token0 != wbnb) {
+            token0Amount = _swapOnPKSBNB(token0Amount, token0);
+            IBEP20(token0).safeApprove(_router, token0Amount);
+        }
+
+        if(token1 != wbnb) {
+            token1Amount = _swapOnPKSBNB(token1Amount, token1);
+            IBEP20(token1).safeApprove(_router, token1Amount);
+        }
+
+        if(token0Amount > 0 && token1Amount > 0) {
+            if(token0 == wbnb || token1 == wbnb) {
+                (,, amountOut) = IPancakeRouter(_router).addLiquidityETH(
+                    token0 == wbnb ? token1 : token0,
+                    token0 == wbnb ? token1Amount : token0Amount, 
+                    0, 
+                    0, 
+                    address(this), 
+                    block.timestamp + 2 hours
+                );
+            } else {
+                (,, amountOut) = IPancakeRouter(_router).addLiquidity(
+                    token0, 
+                    token1, 
+                    token0Amount, 
+                    token1Amount, 
+                    0, 
+                    0, 
+                    address(this), 
+                    block.timestamp + 2 hours
+                );
+            }
+        }
+    }
+
+    /**
+     * @notice Withdraw LP from pair
+     * @param _amountIn  amount of inToken
+     * @param _pairToken  address of pairToken
+     * @param _router  address of router
+     */
+    function _withdrawLPBNB(
+        uint256 _amountIn,
+        address _pairToken,
+        address _router
+    ) internal returns (uint256 amountOut) {
+        address token0 = IPancakePair(_pairToken).token0();
+        address token1 = IPancakePair(_pairToken).token1();
+
+        if(token0 == wbnb || token1 == wbnb) {
+            address tokenAddr = token0 == wbnb ? token1 : token0;
+            (uint256 amountToken, uint256 amountETH) = IPancakeRouter(_router).removeLiquidityETH(
+                tokenAddr, 
+                _amountIn, 
+                0, 
+                0, 
+                address(this), 
+                block.timestamp + 2 hours
+            );
+
+            amountOut = amountETH;
+            amountOut += _swapforBNB(amountToken, tokenAddr);
+        } else {
+            (uint256 amountA, uint256 amountB) = IPancakeRouter(_router).removeLiquidity(
+                token0, 
+                token1, 
+                _amountIn, 
+                0, 
+                0, 
+                address(this), 
+                block.timestamp + 2 hours
+            );
+
+            amountOut += _swapforBNB(amountA, token0);
+            amountOut += _swapforBNB(amountB, token1);
         }
     }
 }

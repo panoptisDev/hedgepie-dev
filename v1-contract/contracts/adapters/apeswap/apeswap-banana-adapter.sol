@@ -8,6 +8,7 @@ contract ApeswapBananaAdapter is Ownable {
     address public rewardToken;
     address public repayToken;
     address public strategy;
+    address public router;
     string public name;
     address public investor;
 
@@ -32,12 +33,14 @@ contract ApeswapBananaAdapter is Ownable {
         address _stakingToken,
         address _rewardToken,
         address _repayToken,
+        address _router,
         string memory _name
     ) {
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
         repayToken = _repayToken;
         strategy = _strategy;
+        router = _router;
         name = _name;
     }
 

@@ -8,6 +8,7 @@ contract ApeswapJungleAdapter is Ownable {
     address public rewardToken;
     address public repayToken;
     address public strategy;
+    address public router;
     string public name;
     address public investor;
 
@@ -30,11 +31,13 @@ contract ApeswapJungleAdapter is Ownable {
         address _strategy,
         address _stakingToken,
         address _rewardToken,
+        address _router,
         string memory _name
     ) {
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
         strategy = _strategy;
+        router = _router;
         name = _name;
     }
 
