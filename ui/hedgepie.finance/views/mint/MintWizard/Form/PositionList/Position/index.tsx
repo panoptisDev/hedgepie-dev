@@ -33,8 +33,10 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
   }
 
   useEffect(() => {
+    console.log(data)
     let value = (data.weight * formData.initialStake) / 100
     value > 0 && setBNBValue(value.toFixed(3))
+    value == 0 && setBNBValue('')
   }, [data])
 
   // useEffect(() => {
@@ -61,7 +63,7 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
         position: 'relative',
         [`@media screen and (min-width: 900px)`]: {
           flexDirection: 'row',
-          gap: 24,
+          gap: 20,
         },
       }}
     >
@@ -80,14 +82,16 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
         <Box
           sx={{
             height: 62,
+            width: 'max-content',
             borderRadius: 62,
             display: 'flex',
             alignItems: 'center',
             backgroundColor: '#fff',
-            paddingLeft: 16,
+            // paddingLeft: 16,
             paddingRight: 16,
+            marginLeft: 35,
             [`@media screen and (min-width: 900px)`]: {
-              paddingLeft: 32,
+              paddingLeft: 10,
             },
           }}
         >
@@ -106,55 +110,73 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
               },
             }}
           >
-            {data.locked ? (
-              <Box
-                sx={{
-                  width: 50,
-                  height: 44,
-                  textAlign: 'right',
-                  pr: 2,
-                  fontWeight: 500,
-                }}
-              >
-                {data.weight}
+            <Box sx={{ width: 150 }}>
+              <Box sx={{ display: 'flex' }}>
+                {data.locked ? (
+                  <Box
+                    sx={{
+                      width: 50,
+                      height: 50,
+                      textAlign: 'right',
+                      pr: 2,
+                      fontWeight: 500,
+                    }}
+                  >
+                    {data.weight}
+                  </Box>
+                ) : (
+                  <Input
+                    className="weight-input"
+                    sx={{
+                      border: 'none',
+                      outline: 'none',
+                      padding: 0,
+                      textAlign: 'right',
+                      pr: 2,
+                      width: 50,
+                    }}
+                    type="number"
+                    min={0}
+                    max={99}
+                    value={data.weight}
+                    onChange={handleChangeWeight}
+                  />
+                )}
+                <Box sx={{ height: 44 }}>%</Box>
               </Box>
-            ) : (
-              <Input
-                className="weight-input"
-                sx={{
-                  border: 'none',
-                  outline: 'none',
-                  padding: 0,
-                  textAlign: 'right',
-                  pr: 2,
-                  width: 50,
-                }}
-                type="number"
-                min={0}
-                max={99}
-                value={data.weight}
-                onChange={handleChangeWeight}
-              />
-            )}
-            <Box sx={{ height: 44 }}>%</Box>
-            <Box
-              sx={{
-                marginLeft: 20,
-                display: 'flex',
-                flexDirection: 'column',
-                justifyContent: 'center',
-                alignContent: 'center',
-                gap: '0.3rem',
-              }}
-            >
-              <Text sx={{ fontSize: 20, fontWeight: 400 }}>{bnbValue ? bnbValue + ' BNB' : ''}</Text>
-              {/* <Text sx={{ fontSize: 14, fontWeight: 400 }}>{usdValue ? usdValue : ''}</Text> */}
+              {bnbValue ? (
+                <Box
+                  sx={{
+                    marginLeft: 20,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignContent: 'center',
+                    gap: '0.3rem',
+                  }}
+                >
+                  <Text sx={{ fontSize: 15, fontWeight: 400 }}>{bnbValue ? bnbValue + ' BNB' : ''}</Text>
+                  {/* <Text sx={{ fontSize: 14, fontWeight: 400 }}>{usdValue ? usdValue : ''}</Text> */}
+                </Box>
+              ) : (
+                <Box
+                  sx={{
+                    marginLeft: 20,
+                    height: 15,
+                    display: 'flex',
+                    flexDirection: 'column',
+                    justifyContent: 'center',
+                    alignContent: 'center',
+                    gap: '0.3rem',
+                  }}
+                ></Box>
+              )}
             </Box>
           </Box>
           <Button
             sx={{
-              width: 44,
-              height: 26,
+              width: 40,
+              height: 20,
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
@@ -183,7 +205,7 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
           </Button>
         </Box>
       </Box>
-      <Box
+      {/* <Box
         sx={{
           display: 'none',
           position: 'absolute',
@@ -196,7 +218,7 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
             display: 'block',
           },
         }}
-      />
+      /> */}
     </Box>
   )
 }

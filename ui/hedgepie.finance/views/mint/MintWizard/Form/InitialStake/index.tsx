@@ -95,7 +95,11 @@ const InitialStake = () => {
           />
           BNB
         </Box>
-        <Box sx={{ color: '#0A3F5C', fontSize: 24, fontWeight: 400 }}>${formData.valueInUSD} USD</Box>
+        {formData.valueInUSD ? (
+          <Box sx={{ color: '#0A3F5C', fontSize: 24, fontWeight: 400 }}>${formData.valueInUSD} USD</Box>
+        ) : (
+          ''
+        )}
       </Box>
     </Box>
   )

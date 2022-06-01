@@ -60,7 +60,7 @@ const PositionList = () => {
         backgroundColor: '#E5F6FF',
         borderRadius: 8,
         [`@media screen and (min-width: 500px)`]: {
-          padding: 24,
+          padding: 20,
         },
       }}
     >

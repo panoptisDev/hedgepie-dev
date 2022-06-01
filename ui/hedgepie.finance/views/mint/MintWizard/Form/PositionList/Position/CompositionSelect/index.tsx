@@ -7,8 +7,8 @@ import { Box } from 'theme-ui'
 
 const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
   const { strategies, formData } = useContext(MintWizardContext)
-  const [protocol, setProtocol] = useState<any>({ name: 'Select Protocol..' })
-  const [pool, setPool] = useState<any>({ name: 'Select Pool..' })
+  const [protocol, setProtocol] = useState<any>({ name: 'Protocol' })
+  const [pool, setPool] = useState<any>({ name: 'Pool' })
 
   const handleProtocolSelect = (option) => {
     console.log(JSON.stringify(option))
@@ -29,7 +29,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'row', gap: '2rem' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'row', gap: '0.6rem' }}>
       <Select
         instanceId={`composition-${1}`}
         classNamePrefix="select"
@@ -45,7 +45,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
         }}
         styles={{
           control: () => ({
-            height: 62,
+            height: 60,
             width: 200,
             borderRadius: 62,
             backgroundColor: '#fff',
@@ -58,7 +58,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
           }),
         }}
       />
-      <Box
+      {/* <Box
         sx={{
           display: 'none',
           position: 'absolute',
@@ -71,7 +71,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
             display: 'block',
           },
         }}
-      />
+      /> */}
       <Select
         instanceId={`composition-${1}`}
         classNamePrefix="select"
@@ -87,8 +87,8 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
         }}
         styles={{
           control: () => ({
-            height: 62,
-            width: 200,
+            height: 60,
+            width: 155,
             borderRadius: 62,
             backgroundColor: '#fff',
             display: 'flex',
