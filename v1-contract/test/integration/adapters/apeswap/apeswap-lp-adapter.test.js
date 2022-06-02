@@ -14,22 +14,24 @@ describe("ApeswapLPAdapter Integration Test", function () {
 
     const performanceFee = 50;
     const wbnb = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
+    const Banana = "0x603c7f932ED1fc6575303D8Fb018fDCBb0f39a95";
+    const whaleAddr = "0x41772edd47d9ddf9ef848cdb34fe76143908c7ad";
+    const strategy = "0x5c8D727b265DBAfaba67E050f2f739cAeEB4A6F9"; // MasterApe
     const swapRouter = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // pks rounter address
+    const lpToken = "0x51e6D27FA57373d8d4C256231241053a70Cb1d93" // BUSD-WBNB LP
 
     this.alice = alice;
     this.owner = owner;
-    this.WHALE = "0xD719085662A26971c43881C008639bb8AC1Babba";
-    this.strategy = "0x5c8D727b265DBAfaba67E050f2f739cAeEB4A6F9"; // MasterApe
-    this.lpToken = "0x51e6D27FA57373d8d4C256231241053a70Cb1d93" // BUSD-WBNB LP
-    this.banana = "0x603c7f932ED1fc6575303D8Fb018fDCBb0f39a95";
+    this.apeRouter = "0xcF0feBd3f17CEf5b47b0cD257aCf6025c5BFf3b7";
 
     // Deploy Apeswap LP Adapter contract
     const ApeLPAdapter = await ethers.getContractFactory("ApeswapLPAdapter");
     this.aAdapter = await ApeLPAdapter.deploy(
       3, // pid
-      this.strategy,
-      this.lpToken,
-      this.banana,
+      strategy,
+      lpToken,
+      Banana,
+      this.apeRouter,
       "BUSD-WBNB LP Adapter"
     );
     await this.aAdapter.deployed();
@@ -57,7 +59,7 @@ describe("ApeswapLPAdapter Integration Test", function () {
     // tokenID: 1
     await this.ybNft.mint(
         [10000],
-        [this.lpToken],
+        [lpToken],
         [this.aAdapter.address],
         performanceFee,
         "test tokenURI1"
@@ -66,7 +68,7 @@ describe("ApeswapLPAdapter Integration Test", function () {
     // tokenID: 2
     await this.ybNft.mint(
         [10000],
-        [this.lpToken],
+        [lpToken],
         [this.aAdapter.address],
         performanceFee,
         "test tokenURI2"
@@ -86,26 +88,26 @@ describe("ApeswapLPAdapter Integration Test", function () {
 
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
-    console.log("Strategy: ", this.strategy);
+    console.log("Strategy: ", strategy);
     console.log("ApeswapLPAdapter: ", this.aAdapter.address);
 
-    this.whaleWallet = await unlockAccount(this.WHALE);
-    
-    this.lpContract = await ethers.getContractAt("VBep20Interface", this.lpToken);
-    await this.lpContract.connect(this.whaleWallet).approve(this.investor.address, ethers.utils.parseUnits("100"));
+    this.whaleWallet = await unlockAccount(whaleAddr);
+    this.lpContract = await ethers.getContractAt("VBep20Interface", lpToken);
   });
 
-  describe("deposit function test", function() {
+  describe("depositBNB function test", function() {
     it("(1)should be reverted when nft tokenId is invalid", async function () {
         // deposit to nftID: 3
         const depositAmount = ethers.utils.parseEther("1");
         await expect(
-          this.investor.connect(this.owner).deposit(
+          this.investor.connect(this.owner).depositBNB(
             this.owner.address,
             3,
-            this.lpToken,
             depositAmount.toString(),
-            { gasPrice: 21e9 }
+            { 
+              gasPrice: 21e9,
+              value: depositAmount
+            }
           )
         ).to.be.revertedWith("Error: nft tokenId is invalid")
     });
@@ -114,10 +116,9 @@ describe("ApeswapLPAdapter Integration Test", function () {
         // deposit to nftID: 1
         const depositAmount = ethers.utils.parseEther("1");
         await expect(
-          this.investor.deposit(
+          this.investor.depositBNB(
             this.alice.address,
             1,
-            this.lpToken,
             depositAmount.toString(),
             { gasPrice: 21e9 }
           )
@@ -128,10 +129,9 @@ describe("ApeswapLPAdapter Integration Test", function () {
         // deposit to nftID: 1
         const depositAmount = ethers.utils.parseEther("0")
         await expect(
-          this.investor.deposit(
+          this.investor.depositBNB(
             this.owner.address,
             1,
-            this.lpToken,
             depositAmount.toString(),
             { gasPrice: 21e9 }
           )
@@ -139,29 +139,40 @@ describe("ApeswapLPAdapter Integration Test", function () {
     });
 
     it("(4) deposit should success", async function () {
-        const depositAmount = ethers.utils.parseEther("10")
-        await this.investor.connect(this.whaleWallet).deposit(
-          this.WHALE,
+        const depositAmount = ethers.utils.parseEther("10");
+        await this.investor.connect(this.alice).depositBNB(
+          this.alice.address,
           1,
-          this.lpToken,
           depositAmount,
-          { gasPrice: 21e9 }
+          { 
+            gasPrice: 21e9,
+            value: depositAmount
+          }
         );
+
+        // const txInfo = await this.investor.connect(this.alice).callStatic._getLPBNB(
+        //   depositAmount,
+        //   this.lpToken,
+        //   this.lpRouter,
+        //   {
+        //     value: depositAmount
+        //   }
+        // );
+        // console.log(txInfo);
         
-        const userInfo = await this.investor.userInfo(this.WHALE, this.ybNft.address, 1);
+        const userInfo = await this.investor.userInfo(this.alice.address, this.ybNft.address, 1);
         const depositAmount1 = Number(userInfo) / Math.pow(10, 18);
         expect(depositAmount1).to.eq(10);
     }).timeout(50000000);
   });
 
-  describe("withdraw() function test", function () {
+  describe("withdrawBNB() function test", function () {
     it("(1)should be reverted when nft tokenId is invalid", async function () {
         // withdraw to nftID: 3
         await expect(
-          this.investor.withdraw(
+          this.investor.withdrawBNB(
             this.owner.address,
             3,
-            this.lpToken,
             { gasPrice: 21e9 }
           )
         ).to.be.revertedWith("Error: nft tokenId is invalid")
@@ -170,34 +181,34 @@ describe("ApeswapLPAdapter Integration Test", function () {
       it("(2)should be reverted when caller is not matched", async function () {
         // deposit to nftID: 1
         await expect(
-          this.investor.withdraw(
+          this.investor.withdrawBNB(
             this.alice.address,
             1,
-            this.lpToken,
             { gasPrice: 21e9 }
           )
         ).to.be.revertedWith("Error: Caller is not matched")
       });
   
-      it("(3)should receive the LP successfully after withdraw function", async function () {
-        const userInfo = await this.investor.userInfo(this.WHALE, this.ybNft.address, 1);
-        const depositAmount1 = Number(userInfo) / Math.pow(10, 18);
-
+      it("(3)should receive the BNB successfully after withdraw function", async function () {
         // withdraw from nftId: 1
-        let lpBalBefore = await this.lpContract.balanceOf(this.owner.address);
+        const aliceAddr = this.alice.address;
+        const beforeBNB = await ethers.provider.getBalance(aliceAddr);
   
-        await this.investor.connect(this.whaleWallet).withdraw(
-          this.WHALE,
+        await this.investor.connect(this.alice).withdrawBNB(
+          aliceAddr,
           1,
-          this.lpToken,
           { gasPrice: 21e9 }
         );
   
-        let lpBalAfter = await this.lpContract.balanceOf(this.owner.address);
+        const afterBNB = await ethers.provider.getBalance(aliceAddr);
   
         expect(
-          BigNumber.from(lpBalAfter).gte(BigNumber.from(lpBalBefore))
+          BigNumber.from(afterBNB).gt(BigNumber.from(beforeBNB))
         ).to.eq(true);
+
+        const userInfo = await this.investor.userInfo(aliceAddr, this.ybNft.address, 1);
+        const depositAmount1 = Number(userInfo) / Math.pow(10, 18);
+        expect(depositAmount1).to.eq(0);
       }).timeout(50000000);
     });
 });
