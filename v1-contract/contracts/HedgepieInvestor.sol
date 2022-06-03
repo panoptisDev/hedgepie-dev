@@ -283,7 +283,13 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 if(rewardAmount > 0) {
                     uint256 taxAmount = rewardAmount * taxPercent / 1e4;
                     IBEP20(rewardToken).transfer(treasuryAddr, taxAmount);
-                    IBEP20(rewardToken).transfer(_user, rewardAmount - taxAmount);
+
+                    // swap reward token to BNB
+                    amountOut += _swapforBNB(
+                        rewardAmount - taxAmount,
+                        rewardToken,
+                        swapRouter
+                    );
                 }
             }
 
