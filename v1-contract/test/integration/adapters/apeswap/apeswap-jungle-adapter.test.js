@@ -8,7 +8,7 @@ const unlockAccount = async (address) => {
     return hre.ethers.provider.getSigner(address);
 };
 
-describe.only("ApeswapJungleAdapter Integration Test", function () {
+describe("ApeswapJungleAdapter Integration Test", function () {
   before("Deploy contract", async function () {
     const [owner, alice] = await ethers.getSigners();
 

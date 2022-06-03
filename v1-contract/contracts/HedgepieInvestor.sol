@@ -29,6 +29,9 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     // strategy manager
     address public adapterManager;
 
+    address public treasuryAddr;
+    uint256 public taxPercent;
+
     event Deposit(
         address indexed user,
         address nft,
@@ -81,6 +84,21 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     modifier shouldMatchCaller(address _user) {
         require(_user == msg.sender, "Error: Caller is not matched");
         _;
+    }
+
+    /**
+     * @notice Set treasury address and percent
+     * @param _treasury  treasury address
+     * @param _percent  user address
+     */
+    function setTreasury(
+        address _treasury,
+        uint256 _percent
+    ) external onlyOwner {
+        require(_treasury != address(0), "Invalid address");
+
+        treasuryAddr = _treasury;
+        taxPercent = _percent;
     }
 
     /**
@@ -249,12 +267,25 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         for (uint8 i = 0; i < adapterInfo.length; i++) {
             IYBNFT.Adapter memory adapter = adapterInfo[i];
             uint256 beforeBalance = IBEP20(adapter.token).balanceOf(address(this));
+            address rewardToken = IAdapter(adapter.addr).rewardToken();
+            
+            uint256 beforeReward = rewardToken != address(0) && rewardToken != adapter.token ? IBEP20(rewardToken).balanceOf(address(this)) : 0;
+            
             _withdrawFromAdapter(
                 adapter.addr,
                 _tokenId,
                 IAdapter(adapter.addr).getWithdrawalAmount(_user, _tokenId)
             );
+
             uint256 afterBalance = IBEP20(adapter.token).balanceOf(address(this));
+            if(rewardToken != address(0) && rewardToken != adapter.token) { // distribute reward
+                uint256 rewardAmount = IBEP20(rewardToken).balanceOf(address(this)) - beforeReward;
+                if(rewardAmount > 0) {
+                    uint256 taxAmount = rewardAmount * taxPercent / 1e4;
+                    IBEP20(rewardToken).transfer(treasuryAddr, taxAmount);
+                    IBEP20(rewardToken).transfer(_user, rewardAmount - taxAmount);
+                }
+            }
 
             address routerAddr = IAdapter(adapter.addr).router();
             if(routerAddr == address(0)) { // swap
@@ -606,6 +637,28 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
             amountOut += _swapforBNB(amountA, token0, _router);
             amountOut += _swapforBNB(amountB, token1, _router);
+        }
+    }
+
+    /**
+     * @notice GET reward tokens and reward amount
+     * @param _user  user address
+     * @param _tokenId  tokenId
+     */
+    function getReward(
+        address _user,
+        uint256 _tokenId
+    ) external view returns(address[] memory tokens, uint256[] memory rewards) {
+        IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
+            _tokenId
+        );
+
+        tokens = new address[](adapterInfo.length);
+        rewards = new uint256[](adapterInfo.length);
+        for (uint8 i = 0; i < adapterInfo.length; i++) {
+            IYBNFT.Adapter memory adapter = adapterInfo[i];
+            tokens[i] = IAdapter(adapter.addr).rewardToken();
+            rewards[i] = IAdapter(adapter.addr).getReward(_user);
         }
     }
 

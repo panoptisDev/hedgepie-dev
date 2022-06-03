@@ -3,6 +3,10 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+interface IStrategy {
+    function pendingCake(uint256 _pid, address _user) external view returns(uint256);
+}
+
 contract ApeswapLPAdapter is Ownable {
     uint256 pid;
     address public stakingToken;
@@ -114,5 +118,13 @@ contract ApeswapLPAdapter is Ownable {
     function setInvestor(address _investor) external onlyOwner {
         require(_investor != address(0), "Error: Investor zero address");
         investor = _investor;
+    }
+
+    /**
+     * @notice Get pending reward
+     * @param _user  address of investor
+     */
+    function getReward(address _user) external view returns(uint256) {
+        return IStrategy(strategy).pendingCake(pid, _user);
     }
 }
