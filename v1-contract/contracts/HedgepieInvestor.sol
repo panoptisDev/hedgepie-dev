@@ -10,22 +10,41 @@ import "./interfaces/IAdapter.sol";
 import "./interfaces/IAdapterManager.sol";
 import "./interfaces/IPancakePair.sol";
 import "./interfaces/IPancakeRouter.sol";
+import "./interfaces/IPancakePair.sol";
 
 contract HedgepieInvestor is Ownable, ReentrancyGuard {
     using SafeBEP20 for IBEP20;
 
-    // user => ybnft => nft id => amount
+    struct UserAdapterInfo {
+        uint256 amount;
+        uint256 userShares;
+    }
+
+    struct AdapterInfo {
+        uint256 accTokenPerShare;
+        uint256 totalStaked;
+    }
+
+    // user => ybnft => nft id => amount(Invested WBNB)
     mapping(address => mapping(address => mapping(uint256 => uint256)))
         public userInfo;
-    // user => nft id => adapter => amount
-    mapping(address => mapping(uint256 => mapping(address => uint256)))
-        public userAdapterInfo;
+
+    // user => nft id => adapter => UserAdapterInfo
+    mapping(address => mapping(uint256 => mapping(address => UserAdapterInfo)))
+        public userAdapterInfos;
+
+    // nft id => adapter => AdapterInfo
+    mapping(uint256 => mapping(address => AdapterInfo)) public adapterInfos;
+
     // ybnft address
     address public ybnft;
+
     // swap router address
     address public swapRouter;
+
     // wrapped bnb address
     address public wbnb;
+
     // strategy manager
     address public adapterManager;
 
@@ -91,10 +110,10 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
      * @param _treasury  treasury address
      * @param _percent  user address
      */
-    function setTreasury(
-        address _treasury,
-        uint256 _percent
-    ) external onlyOwner {
+    function setTreasury(address _treasury, uint256 _percent)
+        external
+        onlyOwner
+    {
         require(_treasury != address(0), "Invalid address");
 
         treasuryAddr = _treasury;
@@ -114,7 +133,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         address _token,
         uint256 _amount
     ) external shouldMatchCaller(_user) nonReentrant {
-        require(_amount > 0, "Error: Amount can not be 0");
+        require(_amount != 0, "Error: Amount can not be 0");
         require(
             IYBNFT(ybnft).exists(_tokenId),
             "Error: nft tokenId is invalid"
@@ -132,15 +151,17 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             uint256 amountIn = (_amount * adapter.allocation) / 1e4;
             uint256 amountOut;
             address routerAddr = IAdapter(adapter.addr).router();
-            if(routerAddr == address(0)) { // swap
+            if (routerAddr == address(0)) {
+                // swap
                 amountOut = _swapOnPKS(amountIn, _token, adapter.token);
-            } else { // get lp
+            } else {
+                // get lp
                 amountOut = _getLP(amountIn, _token, adapter.token, routerAddr);
             }
 
             // deposit to adapter
             _depositToAdapter(adapter.token, adapter.addr, _tokenId, amountOut);
-            userAdapterInfo[_user][_tokenId][adapter.addr] += amountOut;
+            userAdapterInfos[_user][_tokenId][adapter.addr].amount += amountOut;
         }
 
         userInfo[_user][ybnft][_tokenId] += _amount;
@@ -158,7 +179,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         uint256 _tokenId,
         uint256 _amount
     ) external payable shouldMatchCaller(_user) nonReentrant {
-        require(_amount > 0, "Error: Amount can not be 0");
+        require(_amount != 0, "Error: Amount can not be 0");
         require(msg.value == _amount, "Error: Insufficient BNB");
         require(
             IYBNFT(ybnft).exists(_tokenId),
@@ -177,21 +198,35 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             uint256 amountIn = (_amount * adapter.allocation) / 1e4;
             uint256 amountOut;
             address routerAddr = IAdapter(adapter.addr).router();
-            if(routerAddr == address(0)) { // swap
-                amountOut = _swapOnRouuterBNB(amountIn, adapter.token, swapRouter);
-            } else { // get lp
+            if (routerAddr == address(0)) {
+                // swap
+                amountOut = _swapOnRouterBNB(
+                    amountIn,
+                    adapter.token,
+                    swapRouter
+                );
+            } else {
+                // get lp
                 amountOut = _getLPBNB(amountIn, adapter.token, routerAddr);
             }
 
             // deposit to adapter
             _depositToAdapter(adapter.token, adapter.addr, _tokenId, amountOut);
-            userAdapterInfo[_user][_tokenId][adapter.addr] += amountOut;
+            if (userAdapterInfos[_user][_tokenId][adapter.addr].amount == 0) {
+                userAdapterInfos[_user][_tokenId][adapter.addr]
+                    .userShares = adapterInfos[_tokenId][adapter.addr]
+                    .accTokenPerShare;
+            }
+
+            userAdapterInfos[_user][_tokenId][adapter.addr].amount += amountOut;
+            adapterInfos[_tokenId][adapter.addr].totalStaked += amountOut;
         }
 
         userInfo[_user][ybnft][_tokenId] += _amount;
 
         uint256 afterBalance = address(this).balance;
-        if(afterBalance > beforeBalance) payable(_user).transfer(afterBalance - beforeBalance);
+        if (afterBalance > beforeBalance)
+            payable(_user).transfer(afterBalance - beforeBalance);
 
         emit DepositBNB(_user, ybnft, _tokenId, _amount);
     }
@@ -212,7 +247,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             IYBNFT(ybnft).exists(_tokenId),
             "Error: nft tokenId is invalid"
         );
-        require(userAmount > 0, "Error: Amount should be greater than 0");
+        require(userAmount != 0, "Error: Amount should be greater than 0");
 
         IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
             _tokenId
@@ -229,12 +264,12 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
             // swap
             amountOut += _swapOnPKS(
-                userAdapterInfo[_user][_tokenId][adapter.addr],
+                userAdapterInfos[_user][_tokenId][adapter.addr].amount,
                 adapter.token,
                 _token
             );
 
-            userAdapterInfo[_user][_tokenId][adapter.addr] = 0;
+            userAdapterInfos[_user][_tokenId][adapter.addr].amount = 0;
         }
 
         userInfo[_user][ybnft][_tokenId] -= userAmount;
@@ -248,16 +283,17 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
      * @param _user  user address
      * @param _tokenId  YBNft token id
      */
-    function withdrawBNB(
-        address _user,
-        uint256 _tokenId
-    ) external shouldMatchCaller(_user) nonReentrant {
+    function withdrawBNB(address _user, uint256 _tokenId)
+        external
+        shouldMatchCaller(_user)
+        nonReentrant
+    {
         require(
             IYBNFT(ybnft).exists(_tokenId),
             "Error: nft tokenId is invalid"
         );
         uint256 userAmount = userInfo[_user][ybnft][_tokenId];
-        require(userAmount > 0, "Error: Amount should be greater than 0");
+        require(userAmount != 0, "Error: Amount should be greater than 0");
 
         IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
             _tokenId
@@ -266,22 +302,32 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         uint256 amountOut;
         for (uint8 i = 0; i < adapterInfo.length; i++) {
             IYBNFT.Adapter memory adapter = adapterInfo[i];
-            uint256 beforeBalance = IBEP20(adapter.token).balanceOf(address(this));
+            uint256 beforeBalance = IBEP20(adapter.token).balanceOf(
+                address(this)
+            );
             address rewardToken = IAdapter(adapter.addr).rewardToken();
-            
-            uint256 beforeReward = rewardToken != address(0) && rewardToken != adapter.token ? IBEP20(rewardToken).balanceOf(address(this)) : 0;
-            
+
+            uint256 beforeReward = rewardToken != address(0) &&
+                rewardToken != adapter.token
+                ? IBEP20(rewardToken).balanceOf(address(this))
+                : 0;
+
             _withdrawFromAdapter(
                 adapter.addr,
                 _tokenId,
                 IAdapter(adapter.addr).getWithdrawalAmount(_user, _tokenId)
             );
 
-            uint256 afterBalance = IBEP20(adapter.token).balanceOf(address(this));
-            if(rewardToken != address(0) && rewardToken != adapter.token) { // distribute reward
-                uint256 rewardAmount = IBEP20(rewardToken).balanceOf(address(this)) - beforeReward;
-                if(rewardAmount > 0) {
-                    uint256 taxAmount = rewardAmount * taxPercent / 1e4;
+            uint256 afterBalance = IBEP20(adapter.token).balanceOf(
+                address(this)
+            );
+            if (rewardToken != address(0) && rewardToken != adapter.token) {
+                // distribute reward
+                uint256 rewardAmount = IBEP20(rewardToken).balanceOf(
+                    address(this)
+                ) - beforeReward;
+                if (rewardAmount > 0) {
+                    uint256 taxAmount = (rewardAmount * taxPercent) / 1e4;
                     IBEP20(rewardToken).transfer(treasuryAddr, taxAmount);
 
                     // swap reward token to BNB
@@ -294,26 +340,43 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             }
 
             address routerAddr = IAdapter(adapter.addr).router();
-            if(routerAddr == address(0)) { // swap
+            if (routerAddr == address(0)) {
+                // swap
                 amountOut += _swapforBNB(
                     afterBalance - beforeBalance,
                     adapter.token,
                     swapRouter
                 );
-            } else { // withdraw lp and get BNB
+            } else {
+                // withdraw lp and get BNB
                 amountOut += _withdrawLPBNB(
-                    afterBalance - beforeBalance, 
-                    adapter.token, 
+                    afterBalance - beforeBalance,
+                    adapter.token,
                     routerAddr
                 );
+
+                // Convert rewards to BNB
+                if (IAdapter(adapter.addr).rewardToken() != address(0)) {
+                    uint256 rewards = _getRewards(
+                        _tokenId,
+                        msg.sender,
+                        adapter.addr
+                    );
+                    amountOut += _swapforBNB(
+                        rewards,
+                        IAdapter(adapter.addr).rewardToken(),
+                        swapRouter
+                    );
+                }
             }
 
-            userAdapterInfo[_user][_tokenId][adapter.addr] = 0;
-        }   
+            userAdapterInfos[_user][_tokenId][adapter.addr].amount = 0;
+            adapterInfos[_tokenId][adapter.addr].totalStaked -= userAmount;
+        }
 
         userInfo[_user][ybnft][_tokenId] -= userAmount;
 
-        if(amountOut > 0) payable(_user).transfer(amountOut);
+        if (amountOut != 0) payable(_user).transfer(amountOut);
         emit WithdrawBNB(_user, ybnft, _tokenId, userAmount);
     }
 
@@ -341,9 +404,13 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         uint256 _amount
     ) internal {
         address repayToken = IAdapter(_adapterAddr).repayToken();
+        address rewardToken = IAdapter(_adapterAddr).rewardToken();
+
         uint256 repayTokenAmountBefore = repayToken != address(0)
-            // ? IBEP20(IAdapter(_adapterAddr).strategy()).balanceOf(address(this))
             ? IBEP20(repayToken).balanceOf(address(this))
+            : 0;
+        uint256 rewardTokenAmountBefore = rewardToken != address(0)
+            ? IBEP20(rewardToken).balanceOf(address(this))
             : 0;
 
         IBEP20(_token).safeApprove(
@@ -359,8 +426,10 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         require(success, "Error: Deposit internal issue");
 
         uint256 repayTokenAmountAfter = repayToken != address(0)
-            // ? IBEP20(IAdapter(_adapterAddr).strategy()).balanceOf(address(this))
             ? IBEP20(repayToken).balanceOf(address(this))
+            : 0;
+        uint256 rewardTokenAmountAfter = rewardToken != address(0)
+            ? IBEP20(rewardToken).balanceOf(address(this))
             : 0;
 
         if (repayToken != address(0)) {
@@ -373,6 +442,18 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 _tokenId,
                 repayTokenAmountAfter - repayTokenAmountBefore
             );
+        } else if (rewardToken != address(0)) {
+            if (rewardTokenAmountAfter - rewardTokenAmountBefore != 0) {
+                AdapterInfo storage adapter = adapterInfos[_tokenId][
+                    _adapterAddr
+                ];
+
+                if (adapter.totalStaked != 0)
+                    adapter.accTokenPerShare +=
+                        ((rewardTokenAmountAfter - rewardTokenAmountBefore) *
+                            1e12) /
+                        adapter.totalStaked;
+            }
         } else {
             IAdapter(_adapterAddr).increaseWithdrawalAmount(
                 msg.sender,
@@ -392,11 +473,35 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         uint256 _tokenId,
         uint256 _amount
     ) internal {
+        address rewardToken = IAdapter(_adapterAddr).rewardToken();
+
+        uint256 rewardTokenAmountBefore = rewardToken != address(0)
+            ? IBEP20(rewardToken).balanceOf(address(this))
+            : 0;
+
         (address to, uint256 value, bytes memory callData) = IAdapterManager(
             adapterManager
         ).getWithdrawCallData(_adapterAddr, _amount);
 
         (bool success, ) = to.call{value: value}(callData);
+
+        uint256 rewardTokenAmountAfter = rewardToken != address(0)
+            ? IBEP20(rewardToken).balanceOf(address(this))
+            : 0;
+
+        if (rewardToken != address(0)) {
+            if (rewardTokenAmountAfter - rewardTokenAmountBefore != 0) {
+                AdapterInfo storage adapter = adapterInfos[_tokenId][
+                    _adapterAddr
+                ];
+
+                if (adapter.accTokenPerShare != 0)
+                    adapter.accTokenPerShare +=
+                        ((rewardTokenAmountAfter - rewardTokenAmountBefore) *
+                            1e12) /
+                        adapter.totalStaked;
+            }
+        }
 
         // update storage data on adapter
         IAdapter(_adapterAddr).increaseWithdrawalAmount(
@@ -460,7 +565,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
      * @param _outToken  address of outToken
      * @param _router  address of router
      */
-    function _swapOnRouuterBNB(
+    function _swapOnRouterBNB(
         uint256 _amountIn,
         address _outToken,
         address _router
@@ -468,12 +573,9 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         address[] memory path = _getPaths(wbnb, _outToken);
         uint256 beforeBalance = IBEP20(_outToken).balanceOf(address(this));
         IPancakeRouter(_router)
-        .swapExactETHForTokensSupportingFeeOnTransferTokens{value: _amountIn} (
-            0,
-            path,
-            address(this),
-            block.timestamp + 2 hours
-        );
+            .swapExactETHForTokensSupportingFeeOnTransferTokens{
+            value: _amountIn
+        }(0, path, address(this), block.timestamp + 2 hours);
 
         uint256 afterBalance = IBEP20(_outToken).balanceOf(address(this));
         amountOut = afterBalance - beforeBalance;
@@ -496,13 +598,13 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         IBEP20(_inToken).approve(address(_router), _amountIn);
 
         IPancakeRouter(_router)
-        .swapExactTokensForETHSupportingFeeOnTransferTokens (
-            _amountIn,
-            0,
-            path,
-            address(this),
-            block.timestamp + 2 hours
-        );
+            .swapExactTokensForETHSupportingFeeOnTransferTokens(
+                _amountIn,
+                0,
+                path,
+                address(this),
+                block.timestamp + 2 hours
+            );
 
         uint256 afterBalance = address(this).balance;
         amountOut = afterBalance - beforeBalance;
@@ -526,25 +628,25 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
         uint256 token0Amount = _amountIn / 2;
         uint256 token1Amount = _amountIn - token0Amount;
-        if(token0 != _inToken) {
+        if (token0 != _inToken) {
             token0Amount = _swapOnPKS(token0Amount, _inToken, token0);
         }
 
-        if(token1 != _inToken) {
+        if (token1 != _inToken) {
             token1Amount = _swapOnPKS(token1Amount, _inToken, token1);
         }
 
-        if(token0Amount > 0 && token1Amount > 0) {
+        if (token0Amount != 0 && token1Amount != 0) {
             IBEP20(token0).safeApprove(_router, token0Amount);
             IBEP20(token1).safeApprove(_router, token1Amount);
-            (,, amountOut) = IPancakeRouter(_router).addLiquidity(
-                token0, 
-                token1, 
-                token0Amount, 
-                token1Amount, 
-                0, 
-                0, 
-                address(this), 
+            (, , amountOut) = IPancakeRouter(_router).addLiquidity(
+                token0,
+                token1,
+                token0Amount,
+                token1Amount,
+                0,
+                0,
+                address(this),
                 block.timestamp + 2 hours
             );
         }
@@ -566,35 +668,37 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
         uint256 token0Amount = _amountIn / 2;
         uint256 token1Amount = _amountIn / 2;
-        if(token0 != wbnb) {
-            token0Amount = _swapOnRouuterBNB(token0Amount, token0, _router);
+        if (token0 != wbnb) {
+            token0Amount = _swapOnRouterBNB(token0Amount, token0, _router);
             IBEP20(token0).safeApprove(_router, token0Amount);
         }
 
-        if(token1 != wbnb) {
-            token1Amount = _swapOnRouuterBNB(token1Amount, token1, _router);
+        if (token1 != wbnb) {
+            token1Amount = _swapOnRouterBNB(token1Amount, token1, _router);
             IBEP20(token1).safeApprove(_router, token1Amount);
         }
 
-        if(token0Amount > 0 && token1Amount > 0) {
-            if(token0 == wbnb || token1 == wbnb) {
-                (,, amountOut) = IPancakeRouter(_router).addLiquidityETH{value: token0 == wbnb ? token0Amount : token1Amount} (
+        if (token0Amount != 0 && token1Amount != 0) {
+            if (token0 == wbnb || token1 == wbnb) {
+                (, , amountOut) = IPancakeRouter(_router).addLiquidityETH{
+                    value: token0 == wbnb ? token0Amount : token1Amount
+                }(
                     token0 == wbnb ? token1 : token0,
-                    token0 == wbnb ? token1Amount : token0Amount, 
-                    0, 
-                    0, 
-                    address(this), 
+                    token0 == wbnb ? token1Amount : token0Amount,
+                    0,
+                    0,
+                    address(this),
                     block.timestamp + 2 hours
                 );
             } else {
-                (,, amountOut) = IPancakeRouter(_router).addLiquidity(
-                    token0, 
-                    token1, 
-                    token0Amount, 
-                    token1Amount, 
-                    0, 
-                    0, 
-                    address(this), 
+                (, , amountOut) = IPancakeRouter(_router).addLiquidity(
+                    token0,
+                    token1,
+                    token0Amount,
+                    token1Amount,
+                    0,
+                    0,
+                    address(this),
                     block.timestamp + 2 hours
                 );
             }
@@ -617,29 +721,31 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
         IBEP20(_pairToken).safeApprove(_router, _amountIn);
 
-        if(token0 == wbnb || token1 == wbnb) {
+        if (token0 == wbnb || token1 == wbnb) {
             address tokenAddr = token0 == wbnb ? token1 : token0;
-            (uint256 amountToken, uint256 amountETH) = IPancakeRouter(_router).removeLiquidityETH(
-                tokenAddr, 
-                _amountIn, 
-                0, 
-                0, 
-                address(this), 
-                block.timestamp + 2 hours
-            );
+            (uint256 amountToken, uint256 amountETH) = IPancakeRouter(_router)
+                .removeLiquidityETH(
+                    tokenAddr,
+                    _amountIn,
+                    0,
+                    0,
+                    address(this),
+                    block.timestamp + 2 hours
+                );
 
             amountOut = amountETH;
             amountOut += _swapforBNB(amountToken, tokenAddr, _router);
         } else {
-            (uint256 amountA, uint256 amountB) = IPancakeRouter(_router).removeLiquidity(
-                token0, 
-                token1, 
-                _amountIn, 
-                0, 
-                0, 
-                address(this), 
-                block.timestamp + 2 hours
-            );
+            (uint256 amountA, uint256 amountB) = IPancakeRouter(_router)
+                .removeLiquidity(
+                    token0,
+                    token1,
+                    _amountIn,
+                    0,
+                    0,
+                    address(this),
+                    block.timestamp + 2 hours
+                );
 
             amountOut += _swapforBNB(amountA, token0, _router);
             amountOut += _swapforBNB(amountB, token1, _router);
@@ -647,25 +753,77 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     }
 
     /**
-     * @notice GET reward tokens and reward amount
-     * @param _user  user address
-     * @param _tokenId  tokenId
+     * @notice Get current rewards amount in BNB
+     * @param _account user account address
+     * @param _tokenId NFT token id
      */
-    function getReward(
-        address _user,
-        uint256 _tokenId
-    ) external view returns(address[] memory tokens, uint256[] memory rewards) {
-        IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
+    function pendingReward(address _account, uint256 _tokenId)
+        external
+        returns (uint256)
+    {
+        IYBNFT.Adapter[] memory ybnftAapters = IYBNFT(ybnft).getAdapterInfo(
             _tokenId
         );
 
-        tokens = new address[](adapterInfo.length);
-        rewards = new uint256[](adapterInfo.length);
-        for (uint8 i = 0; i < adapterInfo.length; i++) {
-            IYBNFT.Adapter memory adapter = adapterInfo[i];
-            tokens[i] = IAdapter(adapter.addr).rewardToken();
-            rewards[i] = IAdapter(adapter.addr).getReward(_user);
+        uint256 rewards;
+
+        for (uint8 i = 0; i < ybnftAapters.length; i++) {
+            IYBNFT.Adapter memory adapter = ybnftAapters[i];
+            AdapterInfo memory adapterInfo = adapterInfos[_tokenId][
+                adapter.addr
+            ];
+
+            if (
+                IAdapter(adapter.addr).rewardToken() != address(0) &&
+                adapterInfo.totalStaked != 0 &&
+                adapterInfo.accTokenPerShare != 0
+            ) {
+                UserAdapterInfo memory userAdapterInfo = userAdapterInfos[
+                    _account
+                ][_tokenId][adapter.addr];
+
+                uint256 updatedAccTokenPerShare = adapterInfo.accTokenPerShare +
+                    ((IAdapter(adapter.addr).pendingReward() * 1e12) /
+                        adapterInfo.totalStaked);
+
+                uint256 tokenRewards = ((updatedAccTokenPerShare -
+                    userAdapterInfo.userShares) * userAdapterInfo.amount) /
+                    1e12;
+
+                rewards += IPancakeRouter(swapRouter).getAmountsOut(
+                    tokenRewards,
+                    _getPaths(IAdapter(adapter.addr).rewardToken(), wbnb)
+                )[1];
+            }
         }
+
+        return rewards;
+    }
+
+    /**
+     * @notice Get current rewards amount
+     * @param _adapterAddr  address of Adapter
+     * @param _account user account address
+     */
+    function _getRewards(
+        uint256 _tokenId,
+        address _account,
+        address _adapterAddr
+    ) internal returns (uint256) {
+        AdapterInfo memory adapter = adapterInfos[_tokenId][_adapterAddr];
+        UserAdapterInfo memory userAdapterInfo = userAdapterInfos[_account][
+            _tokenId
+        ][_adapterAddr];
+
+        if (
+            IAdapter(_adapterAddr).rewardToken() == address(0) ||
+            adapter.totalStaked == 0 ||
+            adapter.accTokenPerShare == 0
+        ) return 0;
+
+        return
+            ((adapter.accTokenPerShare - userAdapterInfo.userShares) *
+                userAdapterInfo.amount) / 1e12;
     }
 
     receive() external payable {}
