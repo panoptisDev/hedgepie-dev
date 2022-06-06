@@ -6,11 +6,7 @@ interface IAdapter {
 
     function stakingToken() external view returns (address);
 
-    function rewardToken() external view returns (address);
-
     function poolID() external view returns (address);
-
-    function router() external view returns (address);
 
     function strategy() external view returns (address strategy);
 
