@@ -8,6 +8,10 @@ interface IAdapter {
 
     function repayToken() external view returns (address);
 
+    function rewardToken() external view returns (address);
+
+    function router() external view returns (address);
+
     function getAdapterStrategy(uint256 _adapter)
         external
         view
@@ -35,6 +39,8 @@ interface IAdapter {
             uint256 value,
             bytes memory data
         );
+
+    function getReward(address _user) external view returns (uint256);
 
     function increaseWithdrawalAmount(
         address _user,

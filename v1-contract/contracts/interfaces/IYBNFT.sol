@@ -14,6 +14,7 @@ interface IYBNFT {
 
     function getAdapterInfo(uint256 tokenId)
         external
+        view
         returns (Adapter[] memory);
 
     function exists(uint256) external returns (bool);
