@@ -8,9 +8,9 @@ const unlockAccount = async (address) => {
     return hre.ethers.provider.getSigner(address);
 };
 
-describe("ApeswapLPAdapter Integration Test", function () {
+describe.only("ApeswapLPAdapter Integration Test", function () {
   before("Deploy contract", async function () {
-    const [owner, alice] = await ethers.getSigners();
+    const [owner, alice, bob] = await ethers.getSigners();
 
     const performanceFee = 50;
     const wbnb = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
@@ -20,8 +20,9 @@ describe("ApeswapLPAdapter Integration Test", function () {
     const swapRouter = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // pks rounter address
     const lpToken = "0x51e6D27FA57373d8d4C256231241053a70Cb1d93" // BUSD-WBNB LP
 
-    this.alice = alice;
     this.owner = owner;
+    this.alice = alice;
+    this.bob = bob;
     this.apeRouter = "0xcF0feBd3f17CEf5b47b0cD257aCf6025c5BFf3b7";
 
     // Deploy Apeswap LP Adapter contract
@@ -138,7 +139,7 @@ describe("ApeswapLPAdapter Integration Test", function () {
         ).to.be.revertedWith("Error: Amount can not be 0")
     });
 
-    it("(4) deposit should success", async function () {
+    it("(4) deposit should success for Alice", async function () {
         const depositAmount = ethers.utils.parseEther("10");
         await this.investor.connect(this.alice).depositBNB(
           this.alice.address,
@@ -164,51 +165,73 @@ describe("ApeswapLPAdapter Integration Test", function () {
         const depositAmount1 = Number(userInfo) / Math.pow(10, 18);
         expect(depositAmount1).to.eq(10);
     }).timeout(50000000);
+
+    it("(4) deposit should success for Bob", async function () {
+      const depositAmount = ethers.utils.parseEther("20");
+      const bobAddr = this.bob.address;
+      await this.investor.connect(this.bob).depositBNB(
+        bobAddr,
+        1,
+        depositAmount,
+        { 
+          gasPrice: 21e9,
+          value: depositAmount
+        }
+      );
+
+      const userInfo = await this.investor.userInfo(bobAddr, this.ybNft.address, 1);
+      const depositAmount1 = Number(userInfo) / Math.pow(10, 18);
+      expect(depositAmount1).to.eq(10);
+    }).timeout(50000000);
   });
 
   describe("withdrawBNB() function test", function () {
     it("(1)should be reverted when nft tokenId is invalid", async function () {
-        // withdraw to nftID: 3
-        await expect(
-          this.investor.withdrawBNB(
-            this.owner.address,
-            3,
-            { gasPrice: 21e9 }
-          )
-        ).to.be.revertedWith("Error: nft tokenId is invalid")
-      });
-  
-      it("(2)should be reverted when caller is not matched", async function () {
-        // deposit to nftID: 1
-        await expect(
-          this.investor.withdrawBNB(
-            this.alice.address,
-            1,
-            { gasPrice: 21e9 }
-          )
-        ).to.be.revertedWith("Error: Caller is not matched")
-      });
-  
-      it("(3)should receive the BNB successfully after withdraw function", async function () {
-        // withdraw from nftId: 1
-        const aliceAddr = this.alice.address;
-        const beforeBNB = await ethers.provider.getBalance(aliceAddr);
-  
-        await this.investor.connect(this.alice).withdrawBNB(
-          aliceAddr,
+      // withdraw to nftID: 3
+      await expect(
+        this.investor.withdrawBNB(
+          this.owner.address,
+          3,
+          { gasPrice: 21e9 }
+        )
+      ).to.be.revertedWith("Error: nft tokenId is invalid")
+    });
+
+    it("(2)should be reverted when caller is not matched", async function () {
+      // deposit to nftID: 1
+      await expect(
+        this.investor.withdrawBNB(
+          this.alice.address,
           1,
           { gasPrice: 21e9 }
-        );
-  
-        const afterBNB = await ethers.provider.getBalance(aliceAddr);
-  
-        expect(
-          BigNumber.from(afterBNB).gt(BigNumber.from(beforeBNB))
-        ).to.eq(true);
-
-        const userInfo = await this.investor.userInfo(aliceAddr, this.ybNft.address, 1);
-        const depositAmount1 = Number(userInfo) / Math.pow(10, 18);
-        expect(depositAmount1).to.eq(0);
-      }).timeout(50000000);
+        )
+      ).to.be.revertedWith("Error: Caller is not matched")
     });
+
+    it("(3)should receive the BNB successfully after withdraw function for Alice", async function () {
+      // withdraw from nftId: 1
+      const aliceAddr = this.alice.address;
+      const beforeBNB = await ethers.provider.getBalance(aliceAddr);
+
+      await this.investor.connect(this.alice).withdrawBNB(
+        aliceAddr,
+        1,
+        { gasPrice: 21e9 }
+      );
+
+      const afterBNB = await ethers.provider.getBalance(aliceAddr);
+
+      expect(
+        BigNumber.from(afterBNB).gt(BigNumber.from(beforeBNB))
+      ).to.eq(true);
+
+      const aliceInfo = await this.investor.userInfo(aliceAddr, this.ybNft.address, 1);
+      const aliceDeposit = Number(aliceInfo) / Math.pow(10, 18);
+      expect(aliceDeposit).to.eq(0);
+
+      const bobInfo = await this.investor.userInfo(this.bob.address, this.ybNft.address, 1);
+      const bobDeposit = Number(bobInfo) / Math.pow(10, 18);
+      expect(bobDeposit).to.eq(0);
+    }).timeout(50000000);
+  });
 });

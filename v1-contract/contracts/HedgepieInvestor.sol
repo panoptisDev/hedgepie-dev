@@ -525,7 +525,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         address token1 = IPancakePair(_pairToken).token1();
 
         uint256 token0Amount = _amountIn / 2;
-        uint256 token1Amount = _amountIn / 2;
+        uint256 token1Amount = _amountIn - token0Amount;
         if(token0 != _inToken) {
             token0Amount = _swapOnPKS(token0Amount, _inToken, token0);
         }
