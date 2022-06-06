@@ -256,6 +256,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         uint256 amountOut;
         for (uint8 i = 0; i < adapterInfo.length; i++) {
             IYBNFT.Adapter memory adapter = adapterInfo[i];
+
             _withdrawFromAdapter(
                 adapter.addr,
                 _tokenId,
@@ -362,16 +363,21 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                         msg.sender,
                         adapter.addr
                     );
-                    amountOut += _swapforBNB(
-                        rewards,
-                        IAdapter(adapter.addr).rewardToken(),
-                        swapRouter
-                    );
+
+                    if (rewards != 0) {
+                        amountOut += _swapforBNB(
+                            rewards,
+                            IAdapter(adapter.addr).rewardToken(),
+                            swapRouter
+                        );
+                    }
                 }
             }
 
+            adapterInfos[_tokenId][adapter.addr]
+                .totalStaked -= userAdapterInfos[_user][_tokenId][adapter.addr]
+                .amount;
             userAdapterInfos[_user][_tokenId][adapter.addr].amount = 0;
-            adapterInfos[_tokenId][adapter.addr].totalStaked -= userAmount;
         }
 
         userInfo[_user][ybnft][_tokenId] -= userAmount;
@@ -454,6 +460,12 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                             1e12) /
                         adapter.totalStaked;
             }
+
+            IAdapter(_adapterAddr).increaseWithdrawalAmount(
+                msg.sender,
+                _tokenId,
+                _amount
+            );
         } else {
             IAdapter(_adapterAddr).increaseWithdrawalAmount(
                 msg.sender,
