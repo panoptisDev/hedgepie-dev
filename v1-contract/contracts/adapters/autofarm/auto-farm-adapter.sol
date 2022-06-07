@@ -11,35 +11,20 @@ interface IMasterChef {
 }
 
 contract AutoFarmAdapter is Ownable {
-    // LP Token address
-    address public stakingToken;
-
-    // Auto token address
-    address public rewardToken;
-
-    // Address(0)
-    address public repayToken;
-
-    // AutoFarm MasterChef
-    address public strategy;
-
-    // Pool ID
     uint256 public poolID;
-
-    // Router address
+    address public stakingToken;
+    address public rewardToken;
+    address public repayToken;
+    address public strategy;
     address public router;
-
-    // Name
     string public name;
-
-    // Investor contract address
     address public investor;
-
-    // Swap path for token0
-    address[] public path;
 
     // user => nft id => withdrawal amount
     mapping(address => mapping(uint256 => uint256)) public withdrawalAmount;
+
+    // inToken => outToken => paths
+    mapping(address => mapping(address => address[])) public paths;
 
     modifier onlyInvestor() {
         require(msg.sender == investor, "Error: Caller is not investor");
@@ -52,7 +37,6 @@ contract AutoFarmAdapter is Ownable {
      * @param _stakingToken  address of staking token
      * @param _rewardToken  address of reward token
      * @param _router  address of DEX router
-     * @param _poolID  poolID of MasterChef
      * @param _name  adatper name
      */
     constructor(
@@ -60,8 +44,6 @@ contract AutoFarmAdapter is Ownable {
         address _stakingToken,
         address _rewardToken,
         address _router,
-        uint256 _poolID,
-        address[] memory _path0,
         string memory _name
     ) {
         stakingToken = _stakingToken;
@@ -69,8 +51,6 @@ contract AutoFarmAdapter is Ownable {
         strategy = _strategy;
         name = _name;
         router = _router;
-        poolID = _poolID;
-        path = _path0;
     }
 
     /**
@@ -138,13 +118,6 @@ contract AutoFarmAdapter is Ownable {
     }
 
     /**
-     * @notice Get path
-     */
-    function getPaths() external view onlyInvestor returns (address[] memory) {
-        return path;
-    }
-
-    /**
      * @notice Increase withdrwal amount
      * @param _user  user address
      * @param _nftId  nftId
@@ -165,5 +138,77 @@ contract AutoFarmAdapter is Ownable {
     function setInvestor(address _investor) external onlyOwner {
         require(_investor != address(0), "Error: Investor zero address");
         investor = _investor;
+    }
+
+    /**
+     * @notice Set poolId
+     * @param _poolID pool in masterchef
+     */
+    function setPoolID(uint256 _poolID) external onlyOwner {
+        poolID = _poolID;
+    }
+
+    /**
+     * @notice Get path
+     * @param _inToken token address of inToken
+     * @param _outToken token address of outToken
+     */
+    function getPaths(address _inToken, address _outToken)
+        external
+        view
+        onlyInvestor
+        returns (address[] memory)
+    {
+        require(
+            paths[_inToken][_outToken].length > 1,
+            "Path length is not valid"
+        );
+        require(
+            paths[_inToken][_outToken][0] == _inToken,
+            "Path is not existed"
+        );
+        require(
+            paths[_inToken][_outToken][paths[_inToken][_outToken].length - 1] ==
+                _inToken,
+            "Path is not existed"
+        );
+
+        return paths[_inToken][_outToken];
+    }
+
+    /**
+     * @notice Set paths from inToken to outToken
+     * @param _inToken token address of inToken
+     * @param _outToken token address of outToken
+     * @param _paths swapping paths
+     */
+    function setPath(
+        address _inToken,
+        address _outToken,
+        address[] memory _paths
+    ) external onlyOwner {
+        require(_paths.length > 1, "Invalid paths length");
+        require(_inToken == _paths[0], "Invalid inToken address");
+        require(
+            _outToken == _paths[_paths.length - 1],
+            "Invalid inToken address"
+        );
+
+        uint8 i;
+
+        for (i = 0; i < _paths.length; i++) {
+            if (i < paths[_inToken][_outToken].length) {
+                paths[_inToken][_outToken][i] = _paths[i];
+            } else {
+                paths[_inToken][_outToken].push(_paths[i]);
+            }
+        }
+
+        if (paths[_inToken][_outToken].length > _paths.length)
+            for (
+                i = 0;
+                i < paths[_inToken][_outToken].length - _paths.length;
+                i++
+            ) paths[_inToken][_outToken].pop();
     }
 }

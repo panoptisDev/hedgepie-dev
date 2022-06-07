@@ -2,7 +2,10 @@
 pragma solidity ^0.8.4;
 
 interface IAdapter {
-    function getPaths() external view returns (address[][] memory);
+    function getPaths(address _inToken, address _outToken)
+        external
+        view
+        returns (address[] memory);
 
     function stakingToken() external view returns (address);
 
