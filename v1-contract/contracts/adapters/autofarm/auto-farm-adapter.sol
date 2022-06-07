@@ -8,6 +8,11 @@ interface IMasterChef {
         external
         view
         returns (uint256);
+
+    function userInfo(uint256 pid, address user)
+        external
+        view
+        returns (uint256, uint256);
 }
 
 contract AutoFarmAdapter is Ownable {
@@ -16,6 +21,7 @@ contract AutoFarmAdapter is Ownable {
     address public rewardToken;
     address public repayToken;
     address public strategy;
+    address public vStrategy;
     address public router;
     string public name;
     address public investor;
@@ -34,6 +40,7 @@ contract AutoFarmAdapter is Ownable {
     /**
      * @notice Construct
      * @param _strategy  address of strategy
+     * @param _vStrategy  address of vault strategy
      * @param _stakingToken  address of staking token
      * @param _rewardToken  address of reward token
      * @param _router  address of DEX router
@@ -41,6 +48,7 @@ contract AutoFarmAdapter is Ownable {
      */
     constructor(
         address _strategy,
+        address _vStrategy,
         address _stakingToken,
         address _rewardToken,
         address _router,
@@ -49,6 +57,7 @@ contract AutoFarmAdapter is Ownable {
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
         strategy = _strategy;
+        vStrategy = _vStrategy;
         name = _name;
         router = _router;
     }
@@ -115,6 +124,13 @@ contract AutoFarmAdapter is Ownable {
      */
     function pendingReward() external view returns (uint256 reward) {
         reward = IMasterChef(strategy).pendingAUTO(poolID, msg.sender);
+    }
+
+    /**
+     * @notice Get pending shares
+     */
+    function pendingShares() external view returns (uint256 shares) {
+        (shares, ) = IMasterChef(strategy).userInfo(poolID, msg.sender);
     }
 
     /**
