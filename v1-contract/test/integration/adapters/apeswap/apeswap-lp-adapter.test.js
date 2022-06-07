@@ -83,6 +83,7 @@ describe.only("ApeswapLPAdapter Integration Test", function () {
 
     // Set adapter manager in investor
     await this.investor.setAdapterManager(this.adapterManager.address);
+    await this.investor.setTreasury(this.owner.address, 300);
 
     // Set investor in vAdapter
     await this.aAdapter.setInvestor(this.investor.address);
@@ -181,7 +182,7 @@ describe.only("ApeswapLPAdapter Integration Test", function () {
 
       const userInfo = await this.investor.userInfo(bobAddr, this.ybNft.address, 1);
       const depositAmount1 = Number(userInfo) / Math.pow(10, 18);
-      expect(depositAmount1).to.eq(10);
+      expect(depositAmount1).to.eq(20);
     }).timeout(50000000);
   });
 
@@ -231,7 +232,7 @@ describe.only("ApeswapLPAdapter Integration Test", function () {
 
       const bobInfo = await this.investor.userInfo(this.bob.address, this.ybNft.address, 1);
       const bobDeposit = Number(bobInfo) / Math.pow(10, 18);
-      expect(bobDeposit).to.eq(0);
+      expect(bobDeposit).to.eq(20);
     }).timeout(50000000);
   });
 });

@@ -516,7 +516,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         }
 
         // update storage data on adapter
-        IAdapter(_adapterAddr).increaseWithdrawalAmount(
+        IAdapter(_adapterAddr).setWithdrawalAmount(
             msg.sender,
             _tokenId,
             0
