@@ -56,5 +56,11 @@ interface IAdapter {
         uint256 _amount
     ) external;
 
+    function setWithdrawalAmount(
+        address _user,
+        uint256 _nftId,
+        uint256 _amount
+    ) external;
+
     function setInvestor(address _investor) external;
 }
