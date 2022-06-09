@@ -13,9 +13,6 @@ import "./interfaces/IPancakePair.sol";
 import "./interfaces/IPancakeRouter.sol";
 import "./interfaces/IPancakePair.sol";
 
-// repayToken == stakingToken ===> vault
-// rewardToken != address(0)  ===> Farm Pool
-
 contract HedgepieInvestor is Ownable, ReentrancyGuard {
     using SafeBEP20 for IBEP20;
 
@@ -468,7 +465,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         rewardTokenAmount[0] = rewardToken != address(0)
             ? IBEP20(rewardToken).balanceOf(address(this))
             : 0;
-        shares[0] = repayToken == stakingToken
+        shares[0] = rewardToken == stakingToken
             ? IAdapter(_adapterAddr).pendingShares()
             : 0;
 
@@ -490,11 +487,11 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         rewardTokenAmount[1] = rewardToken != address(0)
             ? IBEP20(rewardToken).balanceOf(address(this))
             : 0;
-        shares[1] = repayToken == stakingToken
+        shares[1] = rewardToken == stakingToken
             ? IAdapter(_adapterAddr).pendingShares()
             : 0;
 
-        if (repayToken == stakingToken) {
+        if (rewardToken == stakingToken) {
             require(shares[1] > shares[0], "Error: Deposit failed");
 
             userAdapterInfos[msg.sender][_tokenId][_adapterAddr].userShares +=

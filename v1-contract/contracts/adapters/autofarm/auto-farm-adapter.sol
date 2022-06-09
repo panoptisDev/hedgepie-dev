@@ -185,7 +185,7 @@ contract AutoFarmAdapter is Ownable {
         );
         require(
             paths[_inToken][_outToken][paths[_inToken][_outToken].length - 1] ==
-                _inToken,
+                _outToken,
             "Path is not existed"
         );
 
