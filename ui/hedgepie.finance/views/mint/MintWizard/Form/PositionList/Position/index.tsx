@@ -63,7 +63,7 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
         position: 'relative',
         [`@media screen and (min-width: 900px)`]: {
           flexDirection: 'row',
-          gap: 20,
+          gap: 0,
         },
       }}
     >
@@ -88,8 +88,8 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
             alignItems: 'center',
             backgroundColor: '#fff',
             // paddingLeft: 16,
+            marginLeft: 15,
             paddingRight: 16,
-            marginLeft: 35,
             [`@media screen and (min-width: 900px)`]: {
               paddingLeft: 10,
             },

@@ -97,6 +97,21 @@ export const styles = {
       opacity: 0.7,
     },
   },
+  withdraw_yield_button: {
+    backgroundColor: '#fff',
+    border: '2px solid #e3bc20',
+    borderRadius: '50px',
+    color: '#e3bc20',
+    fontFamily: 'Noto Sans',
+    height: '3rem',
+    width: '100%',
+    fontWeight: '600',
+    ':hover': {
+      backgroundColor: '#fff',
+      cursor: 'pointer',
+      opacity: 0.7,
+    },
+  },
   flex_details_container: {
     flexDirection: 'column',
     gap: '1rem',

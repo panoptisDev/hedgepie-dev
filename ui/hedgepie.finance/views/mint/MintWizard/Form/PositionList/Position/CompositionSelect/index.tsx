@@ -13,7 +13,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
   const handleProtocolSelect = (option) => {
     console.log(JSON.stringify(option))
     if (option !== protocol) {
-      setPool({ name: 'Select Pool..' })
+      setPool({ name: 'Pool' })
     }
     setProtocol(option)
     console.log('formData' + JSON.stringify(formData))
@@ -79,7 +79,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
         isSearchable={false}
         options={protocol ? protocol.pools : []}
         placeholder=""
-        value={pool ? pool : { name: 'Select Pool..' }}
+        value={pool ? pool : { name: 'Pool' }}
         onChange={handlePoolSelect}
         components={{
           Option: CustomOption,

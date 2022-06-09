@@ -12,6 +12,7 @@ import queryString from 'query-string'
 import { useYBNFTMint } from 'hooks/useYBNFTMint'
 import { useAdapterManager } from 'hooks/useAdapterManager'
 import Link from 'next/link'
+import Yield from './Yield'
 
 // TODO : Define the props type to get the NFT details in setState and useEffect and display in the UI
 type Props = {}
@@ -225,7 +226,7 @@ const ViewContents = (props: Props) => {
                     />
                   </div> */}
                     <ActionStake tokenId={tokenId} />
-
+                    <Yield />
                     <Flex sx={styles.flex_details_container as ThemeUICSSObject}>
                       <Text sx={styles.details_title_text as ThemeUICSSObject}>DETAILS:</Text>
                       {details.map((detail) => (
