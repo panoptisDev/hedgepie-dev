@@ -872,7 +872,8 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
      * @param _tokenId NFT token id
      */
     function pendingReward(address _account, uint256 _tokenId)
-        external
+        public
+        view
         returns (uint256)
     {
         IYBNFT.Adapter[] memory ybnftAapters = IYBNFT(ybnft).getAdapterInfo(
