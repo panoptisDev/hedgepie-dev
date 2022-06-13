@@ -13,6 +13,9 @@ contract ApeswapVaultAdapter is Ownable {
     string public name;
     address public investor;
 
+    // inToken => outToken => paths
+    mapping(address => mapping(address => address[])) public paths;
+
     // user => nft id => withdrawal amount
     mapping(address => mapping(uint256 => uint256)) public withdrawalAmount;
 
@@ -45,6 +48,70 @@ contract ApeswapVaultAdapter is Ownable {
     }
 
     /**
+     * @notice Get path
+     * @param _inToken token address of inToken
+     * @param _outToken token address of outToken
+     */
+    function getPaths(address _inToken, address _outToken)
+        external
+        view
+        onlyInvestor
+        returns (address[] memory)
+    {
+        require(
+            paths[_inToken][_outToken].length > 1,
+            "Path length is not valid"
+        );
+        require(
+            paths[_inToken][_outToken][0] == _inToken,
+            "Path is not existed"
+        );
+        require(
+            paths[_inToken][_outToken][paths[_inToken][_outToken].length - 1] ==
+                _inToken,
+            "Path is not existed"
+        );
+
+        return paths[_inToken][_outToken];
+    }
+
+    /**
+     * @notice Set paths from inToken to outToken
+     * @param _inToken token address of inToken
+     * @param _outToken token address of outToken
+     * @param _paths swapping paths
+     */
+    function setPath(
+        address _inToken,
+        address _outToken,
+        address[] memory _paths
+    ) external onlyOwner {
+        require(_paths.length > 1, "Invalid paths length");
+        require(_inToken == _paths[0], "Invalid inToken address");
+        require(
+            _outToken == _paths[_paths.length - 1],
+            "Invalid inToken address"
+        );
+
+        uint8 i;
+
+        for (i = 0; i < _paths.length; i++) {
+            if (i < paths[_inToken][_outToken].length) {
+                paths[_inToken][_outToken][i] = _paths[i];
+            } else {
+                paths[_inToken][_outToken].push(_paths[i]);
+            }
+        }
+
+        if (paths[_inToken][_outToken].length > _paths.length)
+            for (
+                i = 0;
+                i < paths[_inToken][_outToken].length - _paths.length;
+                i++
+            ) paths[_inToken][_outToken].pop();
+    }
+
+    /**
      * @notice Get withdrwal amount
      * @param _user  user address
      * @param _nftId  nftId
@@ -72,7 +139,11 @@ contract ApeswapVaultAdapter is Ownable {
     {
         to = strategy;
         value = 0;
-        data = abi.encodeWithSignature("deposit(uint256,uint256)", pid, _amount);
+        data = abi.encodeWithSignature(
+            "deposit(uint256,uint256)",
+            pid,
+            _amount
+        );
     }
 
     /**
@@ -90,7 +161,11 @@ contract ApeswapVaultAdapter is Ownable {
     {
         to = strategy;
         value = 0;
-        data = abi.encodeWithSignature("withdraw(uint256,uint256)", pid, _amount);
+        data = abi.encodeWithSignature(
+            "withdraw(uint256,uint256)",
+            pid,
+            _amount
+        );
     }
 
     /**
@@ -134,7 +209,7 @@ contract ApeswapVaultAdapter is Ownable {
      * @notice Get pending reward
      * @param _user  address of investor
      */
-    function getReward(address _user) external view returns(uint256) {
+    function getReward(address _user) external view returns (uint256) {
         return 0;
     }
 }
