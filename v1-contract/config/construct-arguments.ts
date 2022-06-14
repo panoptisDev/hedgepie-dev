@@ -46,8 +46,8 @@ export const apeswapLpAdapterArgs = {
 export const autoFarmAdapterArgs = {
   strategy: "0x0895196562C7868C5Be92459FaE7f877ED450452", // Autofarm masterchef
   vStrategy: "0xcFF7815e0e85a447b0C21C94D25434d1D0F718D1", // Autofarm WBNB-Cake strategy
-  stakingToken: "0x10ED43C718714eb63d5aA57B78B54704E256024E", // WBNB-Cake LP
-  rewardToken: "0x10ED43C718714eb63d5aA57B78B54704E256024E", // WBNB-Cake LP
+  stakingToken: "0x0ed7e52944161450477ee417de9cd3a859b14fd0", // WBNB-Cake LP
+  rewardToken: "0x0ed7e52944161450477ee417de9cd3a859b14fd0", // WBNB-Cake LP
   router: "0x10ED43C718714eb63d5aA57B78B54704E256024E", // PKS router
   name: "AutoFarm::WBNB-CAKE"
 };
