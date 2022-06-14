@@ -50,7 +50,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
         isSearchable={false}
         options={availableProtocols}
         placeholder=""
-        value={protocol ? protocol : 'Select Protocol'}
+        value={value.composition ? value.composition : 'Select Protocol'}
         onChange={handleProtocolSelect}
         components={{
           Option: CustomOption,
@@ -92,7 +92,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
         isSearchable={false}
         options={protocol ? protocol.pools : []}
         placeholder=""
-        value={pool ? pool : { name: 'Pool' }}
+        value={value.pool ? value.pool : { name: 'Pool' }}
         onChange={handlePoolSelect}
         components={{
           Option: CustomOption,

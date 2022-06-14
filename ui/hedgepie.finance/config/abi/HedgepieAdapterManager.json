@@ -26,6 +26,7 @@
     "outputs": [
       { "internalType": "address", "name": "addr", "type": "address" },
       { "internalType": "string", "name": "name", "type": "string" },
+      { "internalType": "address", "name": "stakingToken", "type": "address" },
       { "internalType": "bool", "name": "status", "type": "bool" }
     ],
     "stateMutability": "view",
@@ -53,6 +54,7 @@
         "components": [
           { "internalType": "address", "name": "addr", "type": "address" },
           { "internalType": "string", "name": "name", "type": "string" },
+          { "internalType": "address", "name": "stakingToken", "type": "address" },
           { "internalType": "bool", "name": "status", "type": "bool" }
         ],
         "internalType": "struct HedgepieAdapterManager.AdapterInfo[]",

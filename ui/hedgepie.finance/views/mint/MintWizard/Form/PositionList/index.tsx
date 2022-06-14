@@ -14,7 +14,7 @@ const PositionList = () => {
       positions: [
         ...formData.positions,
         {
-          composition: { name: 'Select a Strategy..' },
+          composition: { name: 'Protocol' },
           weight: 1,
           locked: false,
         },

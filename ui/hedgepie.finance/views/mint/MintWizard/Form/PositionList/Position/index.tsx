@@ -68,11 +68,7 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
       }}
     >
       <Box sx={{ flex: '1 1 0' }}>
-        <CompositionSelect
-          value={data.composition}
-          onProtocolSelect={handleProtocolSelect}
-          onPoolSelect={handlePoolSelect}
-        />
+        <CompositionSelect value={data} onProtocolSelect={handleProtocolSelect} onPoolSelect={handlePoolSelect} />
       </Box>
       <Box
         sx={{

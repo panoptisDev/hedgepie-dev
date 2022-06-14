@@ -5,6 +5,7 @@ import {
   depositOnYBNFT,
   depositBNBOnYBNFT,
   withdrawFromYBNFT,
+  withdrawBNBFromYBNFT,
   approveToken,
   fetchAllowance,
   fetchBalance,
@@ -26,8 +27,9 @@ export const useInvestor = () => {
   )
 
   const handleWithdraw = useCallback(
-    async (ybnftId, token) => {
-      const txHash = await withdrawFromYBNFT(investorContract, account, ybnftId, token)
+    async (ybnftId, amount) => {
+      // const txHash = await withdrawFromYBNFT(investorContract, account, ybnftId, token)
+      const txHash = await withdrawBNBFromYBNFT(investorContract, account, ybnftId)
 
       console.info(txHash)
     },

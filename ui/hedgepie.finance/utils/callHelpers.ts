@@ -62,6 +62,16 @@ export const depositBNBOnYBNFT = async (ybnftInvestorContract, account, ybnftId,
     })
 }
 
+// These are the functions currently used for Deposit and Withdraw BNB
+export const withdrawBNBFromYBNFT = async (ybnftInvestorContract, account, ybnftId) => {
+  return ybnftInvestorContract.methods
+    .withdrawBNB(account, ybnftId)
+    .send({ to: account })
+    .on('transactionHash', (tx) => {
+      return tx.transactionHash
+    })
+}
+
 export const withdrawFromYBNFT = async (ybnftInvestorContract, account, ybnftId, amount) => {
   return ybnftInvestorContract.methods
     .withdrawBNB(account, ybnftId, amount)
@@ -72,7 +82,7 @@ export const withdrawFromYBNFT = async (ybnftInvestorContract, account, ybnftId,
 }
 
 export const fetchBalance = async (ybnftInvestorContract, account, ybnftId) => {
-  const balance = ybnftInvestorContract.methods.userInfo(account, getYBNFTAddress(), ybnftId).call()
+  const balance = await ybnftInvestorContract.methods.userInfo(account, await getYBNFTAddress(), ybnftId).call()
   return balance
 }
 

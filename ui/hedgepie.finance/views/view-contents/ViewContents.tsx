@@ -12,13 +12,18 @@ import queryString from 'query-string'
 import { useYBNFTMint } from 'hooks/useYBNFTMint'
 import { useAdapterManager } from 'hooks/useAdapterManager'
 import Link from 'next/link'
+import { getBNBPrice } from 'utils/getBNBPrice'
 import Yield from './Yield'
+
+import { useInvestor } from 'hooks/useInvestor'
+import { getBalanceInEther } from 'utils/formatBalance'
+import { useWeb3React } from '@web3-react/core'
 
 // TODO : Define the props type to get the NFT details in setState and useEffect and display in the UI
 type Props = {}
 
 type Badge = { title: string; value: string }
-type Strategy = { image: string; name: string; value: string; percentage: string }
+type Strategy = { image: string; name: string; value: string; percentage: string; per: number }
 type Detail = { title: string; value: any }
 
 const ViewContents = (props: Props) => {
@@ -33,6 +38,7 @@ const ViewContents = (props: Props) => {
   const [metadataURL, setMetadataURL] = useState<string>()
   const [imageURL, setImageURL] = useState<string>()
   const [description, setDescription] = useState<string>()
+  const [bnbPrice, setBNBPrice] = useState<any>()
 
   const { getTokenUri, getAllocations, getMaxTokenId } = useYBNFTMint()
   const { getAdapters } = useAdapterManager()
@@ -65,17 +71,17 @@ const ViewContents = (props: Props) => {
       console.log(adapters)
       let mappings = [] as Strategy[]
       for (let allocation of allocations) {
-        let obj = { name: '', percentage: '', image: '', value: '($100.00 USD)' }
+        let obj = { name: '', percentage: '', image: '', value: '', per: 0 }
         adapters.map((adapter) => {
           adapter.addr == allocation.addr ? (obj.name = adapter.name) : ''
         })
-
+        obj.per = allocation.allocation / 100
         obj.percentage = (allocation.allocation / 100).toString() + '%'
-        if (obj.name.toLowerCase().includes('venus')) {
-          obj.image = 'images/token-xvs.png'
+        if (obj.name.toLowerCase().includes('apeswap')) {
+          obj.image = 'images/apeswap.png'
         }
-        if (obj.name.toLowerCase().includes('pks')) {
-          obj.image = 'images/token-cake.png'
+        if (obj.name.toLowerCase().includes('autofarm')) {
+          obj.image = 'images/autofarm.png'
         }
         mappings.push(obj)
       }
@@ -187,7 +193,7 @@ const ViewContents = (props: Props) => {
                             <Image src={strategy.image} sx={styles.strategy_detail_image as ThemeUICSSObject} />
                             <Flex sx={styles.flex_strategy_detail_column as ThemeUICSSObject}>
                               <Text sx={styles.strategy_detail_quantity_text as ThemeUICSSObject}>{strategy.name}</Text>
-                              <Text sx={styles.strategy_detail_value_text as ThemeUICSSObject}>({strategy.value})</Text>
+                              {/* <Text sx={styles.strategy_detail_value_text as ThemeUICSSObject}>({strategy.value})</Text> */}
                               <Text sx={styles.strategy_detail_apy_text as ThemeUICSSObject}>
                                 Allocation: {strategy.percentage}
                               </Text>

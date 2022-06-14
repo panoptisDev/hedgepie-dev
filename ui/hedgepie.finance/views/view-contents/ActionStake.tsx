@@ -9,6 +9,7 @@ import { useInvestor } from 'hooks/useInvestor'
 import { getWBNBAddress } from 'utils/addressHelpers'
 import toast from '../../utils/toast'
 import { styles } from './styles'
+import { getBalanceInEther } from 'utils/formatBalance'
 
 const ActionStake = (props: any) => {
   const { onYBNFTDeposit, onYBNFTWithdraw, onYBNFTInvestorApprove, getAllowance, getBalance } = useInvestor()
@@ -40,6 +41,11 @@ const ActionStake = (props: any) => {
   }
 
   const handleStake = async () => {
+    console.log(amount.valueOf())
+    if (amount.valueOf() == 0) {
+      toast('Please input a Non-Zero value to Stake', 'warning')
+      return
+    }
     let txHash
     try {
       txHash = await onYBNFTDeposit(tokenId, amount)
@@ -51,9 +57,10 @@ const ActionStake = (props: any) => {
   }
 
   const handleUnstake = async () => {
+    if (!amount) return
     let txHash
     try {
-      txHash = await onYBNFTWithdraw(tokenId, getWBNBAddress())
+      txHash = await onYBNFTWithdraw(tokenId, amount)
       setCurrentStakedBalance()
     } catch (err) {
       console.log(err)
@@ -80,13 +87,13 @@ const ActionStake = (props: any) => {
 
   const setCurrentStakedBalance = async () => {
     let balance = await getBalance(tokenId)
-    setCurrentStaked(balance)
+    setCurrentStaked(getBalanceInEther(balance))
   }
 
   useEffect(() => {
-    if (!account) return
+    if (!account || !tokenId) return
     setCurrentStakedBalance()
-  }, [account])
+  }, [account, tokenId])
 
   const onChangeAmount = (e) => {
     setAmountString(e.target.value)
@@ -129,13 +136,15 @@ const ActionStake = (props: any) => {
       <Button sx={styles.unstake_button as ThemeUICSSObject} onClick={handleUnstake}>
         WITHDRAW
       </Button>
-      {currentStaked && (
+      {currentStaked ? (
         <Box
           sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '12rem' }}
         >
           <Text sx={{ fontSize: 24, fontWeight: 700, color: '#1799DE' }}>STAKED</Text>
           <Text sx={{ fontSize: 24, fontWeight: 700, color: '#1799DE' }}>{currentStaked} BNB</Text>
         </Box>
+      ) : (
+        ''
       )}
     </>
   )

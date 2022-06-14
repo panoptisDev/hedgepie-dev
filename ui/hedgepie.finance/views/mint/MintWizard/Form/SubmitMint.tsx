@@ -89,73 +89,8 @@ const SubmitMint = () => {
     return isValid
   }
 
-  const getIPFSUrlForMetadata = async () => {
-    let imgCID = '' as string | undefined
-    if (formData.artWorkFile) {
-      imgCID = await ipfs.uploadImageToIPFS(formData.artWorkFile, formData.nftName)
-    }
-    const nftMetadata = {
-      name: formData.nftName,
-      description: formData.description,
-      imageURL: imgCID ? 'https://' + imgCID + '.ipfs.dweb.link' + '/' + formData.artWorkFile.name : '',
-    }
-    const metadataCID = await ipfs.uploadMetadataToIPFS(nftMetadata, formData.nftName)
-
-    console.log('IMAGE IPFS LINK: ' + (imgCID ? 'https://' + imgCID + '.ipfs.dweb.link' : ''))
-    console.log('METADATA IPFS LINK: ' + 'https://' + metadataCID + '.ipfs.dweb.link')
-
-    toast('IMAGE CID : ' + imgCID)
-    toast('METADATA CID : ' + metadataCID)
-
-    return metadataCID
-  }
-
-  const populateTokenAddresses = async (positions) => {
-    console.log('positions123' + JSON.stringify(positions))
-    for (let position of positions) {
-      position.tokenAddress = await getTokenAddress(position.composition.name, position.pool.name)
-    }
-  }
-
-  const mintYBNFT = async (formData, ipfsUrl) => {
-    var allocations = [] as number[]
-    var tokenAddrs = [] as string[]
-    var adapterAddrs = [] as string[]
-
-    if (formData?.positions?.length) {
-      let positions = formData.positions
-      await populateTokenAddresses(positions)
-      for (let position of positions) {
-        allocations.push(position.weight * 100)
-        adapterAddrs.push(position?.pool?.address)
-        tokenAddrs.push(position.tokenAddress)
-      }
-    }
-    var performanceFee = formData.performanceFee * 100
-
-    console.log(
-      'MINTING YBNFT with PARAMS : ' +
-        JSON.stringify(allocations) +
-        ' ' +
-        JSON.stringify(tokenAddrs) +
-        ' ' +
-        JSON.stringify(adapterAddrs) +
-        ' ' +
-        performanceFee +
-        ' ' +
-        ipfsUrl,
-    )
-    try {
-      const txHash = await onYBNFTMint(allocations, tokenAddrs, adapterAddrs, performanceFee, ipfsUrl)
-      return txHash
-    } catch (err) {
-      toast('Transaction Error while minting YBNFT', 'warning')
-      console.log(JSON.stringify(err))
-    }
-  }
-
   const handleMint = async () => {
-    console.log(formData)
+    // console.log(formData)
     setDisabled(true)
     setPromptMessage('Validating the Entries')
     if (!validateMintEntries()) {
@@ -164,18 +99,20 @@ const SubmitMint = () => {
       return
     }
 
-    setPromptMessage('Uploading Image and YBNFT Metadata to IPFS')
-    const ipfsUrl = await getIPFSUrlForMetadata()
-    console.log('IPFS URL : ' + ipfsUrl)
-    // Create the needed Format of Positions
-    console.log('formData' + JSON.stringify(formData))
-    setPromptMessage('Minting YBNFT on BSC ...')
-    await mintYBNFT(formData, ipfsUrl)
-    toast(`YBNFT ${formData.nftName} Successfully Minted !! `)
+    // setPromptMessage('Uploading Image and YBNFT Metadata to IPFS')
+    // const ipfsUrl = await getIPFSUrlForMetadata()
+    // console.log('IPFS URL : ' + ipfsUrl)
+    // // Create the needed Format of Positions
+    // console.log('formData' + JSON.stringify(formData))
+    // setPromptMessage('Minting YBNFT on BSC ...')
+    // await mintYBNFT(formData, ipfsUrl)
+
+    // setPromptMessage('')
+    // setDisabled(false)
+
+    onMintTransactionModal()
     setPromptMessage('')
     setDisabled(false)
-
-    // onMintTransactionModal()
   }
 
   return (

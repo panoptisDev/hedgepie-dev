@@ -41,7 +41,7 @@ const MintContextProvider = ({ children }) => {
             let protocol = split[0]
             let pool = split[1]
             adapterOptions[protocol] = {}
-            adapterOptions[protocol][pool] = adapter.addr
+            adapterOptions[protocol][pool] = { addr: adapter.addr, token: adapter.stakingToken }
           }
         })
         console.log('options' + JSON.stringify(adapterOptions))
