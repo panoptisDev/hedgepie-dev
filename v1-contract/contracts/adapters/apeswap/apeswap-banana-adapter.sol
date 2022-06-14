@@ -3,11 +3,19 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract PancakeStakeAdapter is Ownable {
+interface IStrategy {
+    function pendingCake(uint256 _pid, address _user)
+        external
+        view
+        returns (uint256);
+}
+
+contract ApeswapBananaAdapter is Ownable {
     address public stakingToken;
     address public rewardToken;
     address public repayToken;
     address public strategy;
+    address public router;
     string public name;
     address public investor;
 
@@ -27,17 +35,22 @@ contract PancakeStakeAdapter is Ownable {
      * @param _strategy  address of strategy
      * @param _stakingToken  address of staking token
      * @param _rewardToken  address of reward token
+     * @param _repayToken  address of repay token
      * @param _name  adatper name
      */
     constructor(
         address _strategy,
         address _stakingToken,
         address _rewardToken,
+        address _repayToken,
+        address _router,
         string memory _name
     ) {
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
+        repayToken = _repayToken;
         strategy = _strategy;
+        router = _router;
         name = _name;
     }
 
@@ -133,7 +146,7 @@ contract PancakeStakeAdapter is Ownable {
     {
         to = strategy;
         value = 0;
-        data = abi.encodeWithSignature("deposit(uint256)", _amount);
+        data = abi.encodeWithSignature("enterStaking(uint256)", _amount);
     }
 
     /**
@@ -151,7 +164,7 @@ contract PancakeStakeAdapter is Ownable {
     {
         to = strategy;
         value = 0;
-        data = abi.encodeWithSignature("withdraw(uint256)", _amount);
+        data = abi.encodeWithSignature("leaveStaking(uint256)", _amount);
     }
 
     /**
@@ -169,11 +182,33 @@ contract PancakeStakeAdapter is Ownable {
     }
 
     /**
+     * @notice Set withdrwal amount
+     * @param _user  user address
+     * @param _nftId  nftId
+     * @param _amount  amount of withdrawal
+     */
+    function setWithdrawalAmount(
+        address _user,
+        uint256 _nftId,
+        uint256 _amount
+    ) external onlyInvestor {
+        withdrawalAmount[_user][_nftId] = _amount;
+    }
+
+    /**
      * @notice Set investor
      * @param _investor  address of investor
      */
     function setInvestor(address _investor) external onlyOwner {
         require(_investor != address(0), "Error: Investor zero address");
         investor = _investor;
+    }
+
+    /**
+     * @notice Get pending reward
+     * @param _user  address of investor
+     */
+    function getReward(address _user) external view returns (uint256) {
+        return IStrategy(strategy).pendingCake(0, _user);
     }
 }

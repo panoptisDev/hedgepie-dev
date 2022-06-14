@@ -24,6 +24,4 @@ interface IAdapterManager {
             uint256 value,
             bytes memory data
         );
-
-    function adapters(address _adapter) external view returns (bool);
 }

@@ -83,7 +83,7 @@ contract YBNFT is BEP721, Ownable {
         address[] calldata _adapterAddrs,
         uint256 _performanceFee,
         string memory _tokenURI
-    ) external onlyOwner {
+    ) external {
         require(
             _performanceFee < 1000,
             "Performance fee should be less than 10%"

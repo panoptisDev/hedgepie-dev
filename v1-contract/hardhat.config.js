@@ -49,7 +49,7 @@ module.exports = {
   },
   etherscan: {
     // bnb network
-    apiKey: process.env.BSCSCAN_API_KEY
+    apiKey: process.env.BSCSCAN_API_KEY,
   },
   typechain: {
     outDir: "typechain",
