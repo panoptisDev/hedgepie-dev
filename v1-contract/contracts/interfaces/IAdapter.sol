@@ -2,7 +2,10 @@
 pragma solidity ^0.8.4;
 
 interface IAdapter {
-    function getPaths() external view returns (address[][] memory);
+    function getPaths(address _inToken, address _outToken)
+        external
+        view
+        returns (address[] memory);
 
     function stakingToken() external view returns (address);
 
@@ -10,7 +13,11 @@ interface IAdapter {
 
     function strategy() external view returns (address strategy);
 
+    function vStrategy() external view returns (address vStrategy);
+
     function pendingReward() external view returns (uint256 reward);
+
+    function pendingShares() external view returns (uint256 shares);
 
     function name() external view returns (string memory);
 
@@ -51,6 +58,12 @@ interface IAdapter {
     function getReward(address _user) external view returns (uint256);
 
     function increaseWithdrawalAmount(
+        address _user,
+        uint256 _nftId,
+        uint256 _amount
+    ) external;
+
+    function setWithdrawalAmount(
         address _user,
         uint256 _nftId,
         uint256 _amount
