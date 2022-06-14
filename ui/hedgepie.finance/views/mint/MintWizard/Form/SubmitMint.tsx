@@ -7,13 +7,15 @@ import toast from 'utils/toast'
 import { useYBNFTMint } from 'hooks/useYBNFTMint'
 import { useModal } from 'widgets/Modal'
 import MintTransactionModal from './MintTransactionModal'
+import { useAdapterManager } from 'hooks/useAdapterManager'
 
 const SubmitMint = () => {
-  const { formData } = React.useContext(MintWizardContext)
+  const { formData, strategies } = React.useContext(MintWizardContext)
   const { account } = useWeb3React()
   const { onYBNFTMint } = useYBNFTMint()
   const [disabled, setDisabled] = useState(false)
   const [onMintTransactionModal] = useModal(<MintTransactionModal formData={formData} />, false)
+  const { getTokenAddress } = useAdapterManager()
 
   const [promptMessage, setPromptMessage] = useState('')
 
@@ -88,21 +90,31 @@ const SubmitMint = () => {
   }
 
   const getIPFSUrlForMetadata = async () => {
-    const imgCID = await ipfs.uploadImageToIPFS(formData.artWorkFile, formData.nftName)
+    let imgCID = '' as string | undefined
+    if (formData.artWorkFile) {
+      imgCID = await ipfs.uploadImageToIPFS(formData.artWorkFile, formData.nftName)
+    }
     const nftMetadata = {
       name: formData.nftName,
       description: formData.description,
-      imageURL: 'https://' + imgCID + '.ipfs.dweb.link' + '/' + formData.artWorkFile.name,
+      imageURL: imgCID ? 'https://' + imgCID + '.ipfs.dweb.link' + '/' + formData.artWorkFile.name : '',
     }
     const metadataCID = await ipfs.uploadMetadataToIPFS(nftMetadata, formData.nftName)
 
-    console.log('IMAGE IPFS LINK: ' + 'https://' + imgCID + '.ipfs.dweb.link')
+    console.log('IMAGE IPFS LINK: ' + (imgCID ? 'https://' + imgCID + '.ipfs.dweb.link' : ''))
     console.log('METADATA IPFS LINK: ' + 'https://' + metadataCID + '.ipfs.dweb.link')
 
     toast('IMAGE CID : ' + imgCID)
     toast('METADATA CID : ' + metadataCID)
 
     return metadataCID
+  }
+
+  const populateTokenAddresses = async (positions) => {
+    console.log('positions123' + JSON.stringify(positions))
+    for (let position of positions) {
+      position.tokenAddress = await getTokenAddress(position.composition.name, position.pool.name)
+    }
   }
 
   const mintYBNFT = async (formData, ipfsUrl) => {
@@ -112,13 +124,11 @@ const SubmitMint = () => {
 
     if (formData?.positions?.length) {
       let positions = formData.positions
+      await populateTokenAddresses(positions)
       for (let position of positions) {
         allocations.push(position.weight * 100)
-        adapterAddrs.push(position?.composition?.address)
-        // TODO : Get the Token Addresses through the adapters in the contract and set them here
-        position?.composition?.name === 'PKS-STAKE-GAL-ADAPTER'
-          ? tokenAddrs.push('0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82')
-          : tokenAddrs.push('0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56')
+        adapterAddrs.push(position?.pool?.address)
+        tokenAddrs.push(position.tokenAddress)
       }
     }
     var performanceFee = formData.performanceFee * 100
@@ -145,28 +155,27 @@ const SubmitMint = () => {
   }
 
   const handleMint = async () => {
+    console.log(formData)
     setDisabled(true)
-    // TODO
-    // setPromptMessage('Validating the Entries')
-    // if (!validateMintEntries()) {
-    //   setPromptMessage('')
-    //   setDisabled(false)
-    //   return
-    // }
+    setPromptMessage('Validating the Entries')
+    if (!validateMintEntries()) {
+      setPromptMessage('')
+      setDisabled(false)
+      return
+    }
 
-    // setPromptMessage('Uploading Image and YBNFT Metadata to IPFS')
-    // const ipfsUrl = await getIPFSUrlForMetadata()
-    // console.log('IPFS URL : ' + ipfsUrl)
-    // //TODO : Set the metadata CID with the contract and minted nft address and store
-    // // Create the needed Format of Positions
-    // console.log('formData' + JSON.stringify(formData))
-    // setPromptMessage('Minting YBNFT on BSC ...')
-    // await mintYBNFT(formData, ipfsUrl)
-    // toast(`YBNFT ${formData.nftName} Successfully Minted !! `)
-    // setPromptMessage('')
+    setPromptMessage('Uploading Image and YBNFT Metadata to IPFS')
+    const ipfsUrl = await getIPFSUrlForMetadata()
+    console.log('IPFS URL : ' + ipfsUrl)
+    // Create the needed Format of Positions
+    console.log('formData' + JSON.stringify(formData))
+    setPromptMessage('Minting YBNFT on BSC ...')
+    await mintYBNFT(formData, ipfsUrl)
+    toast(`YBNFT ${formData.nftName} Successfully Minted !! `)
+    setPromptMessage('')
     setDisabled(false)
 
-    onMintTransactionModal()
+    // onMintTransactionModal()
   }
 
   return (

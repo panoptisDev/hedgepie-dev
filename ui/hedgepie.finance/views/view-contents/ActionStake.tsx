@@ -1,5 +1,5 @@
 import React, { useState, useEffect } from 'react'
-import { Box, Input, Button, ThemeUICSSObject } from 'theme-ui'
+import { Box, Input, Button, ThemeUICSSObject, Text } from 'theme-ui'
 import BigNumber from 'bignumber.js'
 import { useWeb3React } from '@web3-react/core'
 import { getBalanceInWei } from 'utils/formatBalance'
@@ -11,16 +11,18 @@ import toast from '../../utils/toast'
 import { styles } from './styles'
 
 const ActionStake = (props: any) => {
-  const { onYBNFTDeposit, onYBNFTWithdraw, onYBNFTInvestorApprove, getAllowance } = useInvestor()
+  const { onYBNFTDeposit, onYBNFTWithdraw, onYBNFTInvestorApprove, getAllowance, getBalance } = useInvestor()
   const { tokenId } = props
 
   const [disabled, setDisabled] = useState(false)
   const [amount, setAmount] = useState<number | BigNumber>(0.0)
   const [amountString, setAmountString] = useState('0.00')
 
+  const [currentStaked, setCurrentStaked] = useState<any>()
+
   const [invalidAmount, setInvalidAmount] = useState(false)
   const { account } = useWeb3React()
-  const [approved, setApproved] = useState(false)
+  const [approved, setApproved] = useState(true)
 
   useEffect(() => {
     setDisabled(invalidAmount || !account)
@@ -40,7 +42,8 @@ const ActionStake = (props: any) => {
   const handleStake = async () => {
     let txHash
     try {
-      txHash = await onYBNFTDeposit(tokenId, getWBNBAddress(), amount)
+      txHash = await onYBNFTDeposit(tokenId, amount)
+      setCurrentStakedBalance()
     } catch (err) {
       console.log(err)
     }
@@ -51,6 +54,7 @@ const ActionStake = (props: any) => {
     let txHash
     try {
       txHash = await onYBNFTWithdraw(tokenId, getWBNBAddress())
+      setCurrentStakedBalance()
     } catch (err) {
       console.log(err)
     }
@@ -72,6 +76,16 @@ const ActionStake = (props: any) => {
       }
     }
     checkIfAlreadyApproved()
+  }, [account])
+
+  const setCurrentStakedBalance = async () => {
+    let balance = await getBalance(tokenId)
+    setCurrentStaked(balance)
+  }
+
+  useEffect(() => {
+    if (!account) return
+    setCurrentStakedBalance()
   }, [account])
 
   const onChangeAmount = (e) => {
@@ -115,6 +129,14 @@ const ActionStake = (props: any) => {
       <Button sx={styles.unstake_button as ThemeUICSSObject} onClick={handleUnstake}>
         WITHDRAW
       </Button>
+      {currentStaked && (
+        <Box
+          sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '12rem' }}
+        >
+          <Text sx={{ fontSize: 24, fontWeight: 700, color: '#1799DE' }}>STAKED</Text>
+          <Text sx={{ fontSize: 24, fontWeight: 700, color: '#1799DE' }}>{currentStaked} BNB</Text>
+        </Box>
+      )}
     </>
   )
 }

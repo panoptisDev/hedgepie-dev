@@ -10,6 +10,9 @@ import {
   getInvestorAddress,
   getAdapterManagerAddress,
   getWBNBAddress,
+  // getBNBAddress,
+  getApeSwapLPAddress,
+  getAutoFarmLPAddress,
 } from 'utils/addressHelpers'
 import erc20Abi from 'config/abi/Erc20.json'
 import masterChefAbi from 'config/abi/HedgepieMasterChef.json'
@@ -17,6 +20,10 @@ import ybnftAbi from 'config/abi/HedgepieYBNFT.json'
 import investorAbi from 'config/abi/HedgepieInvestor.json'
 import adapterManagerAbi from 'config/abi/HedgepieAdapterManager.json'
 import wBNBAbi from 'config/abi/wBNB.json'
+import apeSwapLPAdapterAbi from 'config/abi/ApeSwapLPAdapter.json'
+import autoFarmLPAdapterAbi from 'config/abi/AutoFarmLPAdapter.json'
+
+// import bnbAbi from 'config/abi/BNB.json'
 
 const useContract = (abi: AbiItem, address: string, contractOptions?: ContractOptions) => {
   const web3 = useWeb3()
@@ -68,5 +75,20 @@ export const useAdapterManagerContract = () => {
 export const useWBNBContract = () => {
   return useContract(wBNBAbi as unknown as AbiItem, getWBNBAddress())
 }
+
+// ApeSwap Adapter token contract
+export const useApeSwapLPAdapterContract = () => {
+  return useContract(apeSwapLPAdapterAbi as unknown as AbiItem, getApeSwapLPAddress())
+}
+
+// AutoFarm Adapter token contract
+export const useAutoFarmLPAdapterContract = () => {
+  return useContract(autoFarmLPAdapterAbi as unknown as AbiItem, getAutoFarmLPAddress())
+}
+
+// // BNB token contract
+// export const useBNBContract = () => {
+//   return useContract(bnbAbi as unknown as AbiItem, getWBNBAddress())
+// }
 
 export default useContract

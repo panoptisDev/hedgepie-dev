@@ -7,8 +7,21 @@ import { Box } from 'theme-ui'
 
 const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
   const { strategies, formData } = useContext(MintWizardContext)
+  const [availableProtocols, setAvailableProtocols] = useState<any>([])
   const [protocol, setProtocol] = useState<any>({ name: 'Protocol' })
   const [pool, setPool] = useState<any>({ name: 'Pool' })
+
+  useEffect(() => {
+    var protos = [] as any[]
+    for (let key in strategies) {
+      let pools = [] as any[]
+      for (let p in strategies[key]) {
+        pools.push({ name: p, address: strategies[key][p] })
+      }
+      protos.push({ name: key, pools: pools })
+    }
+    setAvailableProtocols(protos)
+  }, [strategies])
 
   const handleProtocolSelect = (option) => {
     console.log(JSON.stringify(option))
@@ -35,7 +48,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
         classNamePrefix="select"
         name="color"
         isSearchable={false}
-        options={strategies}
+        options={availableProtocols}
         placeholder=""
         value={protocol ? protocol : 'Select Protocol'}
         onChange={handleProtocolSelect}

@@ -28,6 +28,7 @@ const LeaderBoard = () => {
     const fetchLeaderboardData = async () => {
       setLoading(true)
       const maxTokenId = await getMaxTokenId()
+      console.log(maxTokenId)
       let tokens = [] as TokenInfo[]
       for (let i = 1; i <= maxTokenId; i++) {
         const tokenUri = await getTokenUri(i)

@@ -226,7 +226,7 @@ const ViewContents = (props: Props) => {
                     />
                   </div> */}
                     <ActionStake tokenId={tokenId} />
-                    <Yield />
+                    {/* <Yield /> */}
                     <Flex sx={styles.flex_details_container as ThemeUICSSObject}>
                       <Text sx={styles.details_title_text as ThemeUICSSObject}>DETAILS:</Text>
                       {details.map((detail) => (

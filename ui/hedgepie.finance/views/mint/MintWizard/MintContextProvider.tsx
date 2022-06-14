@@ -33,17 +33,18 @@ const MintContextProvider = ({ children }) => {
       try {
         const adapters = await getAdapters()
         console.log('adapter' + JSON.stringify(adapters))
-        // var adapterOptions = [] as AdapterOption[]
-        // adapters.map((adapter) => {
-        //   console.log(adapter)
-        //   adapterOptions.push({ icon: '', name: adapter.name, type: '', address: adapter.addr })
-        // })
-
-        var adapterOptions = [
-          { icon: '', name: 'Protocol 1', type: '', address: '', pools: [{ name: 'Pool1' }, { name: 'Pool2' }] },
-          { icon: '', name: 'Protocol 2', type: '', address: '', pools: [{ name: 'Pool3' }, { name: 'Pool4' }] },
-        ]
-
+        var adapterOptions = {}
+        adapters.map((adapter) => {
+          console.log(adapter)
+          if (adapter.name.includes('::')) {
+            let split = adapter.name.split('::')
+            let protocol = split[0]
+            let pool = split[1]
+            adapterOptions[protocol] = {}
+            adapterOptions[protocol][pool] = adapter.addr
+          }
+        })
+        console.log('options' + JSON.stringify(adapterOptions))
         setStrategies(adapterOptions)
       } catch (err) {
         console.log('err' + JSON.stringify(err))

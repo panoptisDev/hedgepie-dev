@@ -15,16 +15,16 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
     })
   }
 
-  const handlePoolSelect = (pools) => {
+  const handlePoolSelect = (pool) => {
     onUpdate({
       ...data,
-      pools,
+      pool,
     })
   }
 
   const handleChangeWeight = (e) => {
     let newValue = parseInt(e.target.value, 10) || 0
-    if (newValue < 100) {
+    if (newValue <= 100) {
       onUpdate({
         ...data,
         weight: newValue.toString(),
@@ -133,11 +133,11 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
                       padding: 0,
                       textAlign: 'right',
                       pr: 2,
-                      width: 50,
+                      width: 65,
                     }}
                     type="number"
                     min={0}
-                    max={99}
+                    max={100}
                     value={data.weight}
                     onChange={handleChangeWeight}
                   />

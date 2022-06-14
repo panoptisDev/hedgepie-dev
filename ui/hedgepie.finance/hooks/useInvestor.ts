@@ -1,7 +1,15 @@
 import { useCallback, useRef } from 'react'
 import { useWeb3React } from '@web3-react/core'
 import { useInvestorContract, useWBNBContract } from 'hooks/useContract'
-import { depositOnYBNFT, withdrawFromYBNFT, approveToken, fetchAllowance } from 'utils/callHelpers'
+import {
+  depositOnYBNFT,
+  depositBNBOnYBNFT,
+  withdrawFromYBNFT,
+  approveToken,
+  fetchAllowance,
+  fetchBalance,
+} from 'utils/callHelpers'
+import { getBalanceAmount } from 'utils/formatBalance'
 
 export const useInvestor = () => {
   const { account } = useWeb3React()
@@ -9,8 +17,9 @@ export const useInvestor = () => {
   const wBNBContract = useWBNBContract()
 
   const handleDeposit = useCallback(
-    async (ybnftId, token, amount) => {
-      const txHash = await depositOnYBNFT(investorContract, account, ybnftId, token, amount)
+    async (ybnftId, amount) => {
+      // const txHash = await depositOnYBNFT(investorContract, account, ybnftId, token, amount)
+      const txHash = await depositBNBOnYBNFT(investorContract, account, ybnftId, amount)
       console.info(txHash)
     },
     [account, investorContract],
@@ -35,10 +44,19 @@ export const useInvestor = () => {
     return allowance
   }, [account, investorContract])
 
+  const getBalance = useCallback(
+    async (ybnftId) => {
+      const balance = await fetchBalance(investorContract, account, ybnftId)
+      return balance
+    },
+    [account, investorContract],
+  )
+
   return {
     onYBNFTDeposit: handleDeposit,
     onYBNFTWithdraw: handleWithdraw,
     onYBNFTInvestorApprove: handleApprove,
     getAllowance: getAllowance,
+    getBalance: getBalance,
   }
 }

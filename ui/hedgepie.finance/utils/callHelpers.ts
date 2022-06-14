@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import { getInvestorAddress } from './addressHelpers'
+import { getInvestorAddress, getYBNFTAddress } from './addressHelpers'
 
 export const approveToken = async (tokenContract, masterChefContract, account) => {
   return tokenContract.methods
@@ -52,18 +52,38 @@ export const depositOnYBNFT = async (ybnftInvestorContract, account, ybnftId, to
     })
 }
 
-export const withdrawFromYBNFT = async (ybnftInvestorContract, account, ybnftId, token) => {
+// These are the functions currently used for Deposit and Withdraw BNB
+export const depositBNBOnYBNFT = async (ybnftInvestorContract, account, ybnftId, amount) => {
   return ybnftInvestorContract.methods
-    .withdraw(account, ybnftId, token)
-    .send({ from: account })
+    .depositBNB(account, ybnftId, amount)
+    .send({ from: account, value: amount })
     .on('transactionHash', (tx) => {
       return tx.transactionHash
     })
 }
 
+export const withdrawFromYBNFT = async (ybnftInvestorContract, account, ybnftId, amount) => {
+  return ybnftInvestorContract.methods
+    .withdrawBNB(account, ybnftId, amount)
+    .send({ from: account, value: amount })
+    .on('transactionHash', (tx) => {
+      return tx.transactionHash
+    })
+}
+
+export const fetchBalance = async (ybnftInvestorContract, account, ybnftId) => {
+  const balance = ybnftInvestorContract.methods.userInfo(account, getYBNFTAddress(), ybnftId).call()
+  return balance
+}
+
 export const fetchAdapters = async (adapterManagerContract) => {
   const adapters = await adapterManagerContract.methods.getAdapters().call()
   return adapters
+}
+
+export const fetchTokenAddress = async (adapterContract) => {
+  const tokenAddress = await adapterContract.methods.stakingToken().call()
+  return tokenAddress
 }
 
 export const fetchMaxTokenId = async (ybnftMintContract) => {

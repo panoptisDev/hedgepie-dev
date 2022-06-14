@@ -24,7 +24,7 @@ const PositionList = () => {
 
   useEffect(() => {
     console.log('strategies' + JSON.stringify(strategies))
-    if (strategies?.length && !formData?.positions.length) {
+    if (Object.keys(strategies)?.length && !formData?.positions.length) {
       handleAdd()
     }
   }, [strategies])

@@ -39,6 +39,14 @@ export const getWBNBAddress = () => {
   return getAddress(addresses.wBNB)
 }
 
+export const getApeSwapLPAddress = () => {
+  return getAddress(addresses.ApeswapLPAdapter)
+}
+
+export const getAutoFarmLPAddress = () => {
+  return getAddress(addresses.AutoFarmLpAdapter)
+}
+
 export const getTokenName = (address: string) => {
   if (address.toLowerCase() === getHpieAddress().toLowerCase()) return 'HPIE'
   if (address.toLowerCase() === getHpieLpAddress().toLowerCase()) return 'HPIE-LP'
