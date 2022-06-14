@@ -20,7 +20,8 @@
     "deploy:masterChef": "npx hardhat run deploy/masterChef.ts --network bscTestnet",
     "deploy:ybnft": "npx hardhat run deploy/ybnft.ts --network bscTestnet",
     "deploy:multicall": "npx hardhat run deploy/multicall.ts --network bscTestnet",
-    "deploy:all:mainnet": "npx hardhat run deploy/deploy.ts --network bsc"
+    "deploy:all:mainnet": "npx hardhat run deploy/deploy.ts --network bsc",
+    "deploy:all:mainnet1": "npx hardhat run deploy/deploy1.ts --network bsc"
   },
   "repository": {
     "type": "git",

@@ -32,5 +32,26 @@ export const pksGalStakeAdapterArgs = {
   name: "PKS-STAKE-GAL-ADAPTER",
 };
 
+// apeswap LP adapter
+export const apeswapLpAdapterArgs = {
+  pid: 3,
+  strategy: "0x5c8D727b265DBAfaba67E050f2f739cAeEB4A6F9",  // MasterApe
+  stakingToken: "0x51e6D27FA57373d8d4C256231241053a70Cb1d93", // Apeswap BUSD-WBNB LP
+  rewardToken: "0x603c7f932ED1fc6575303D8Fb018fDCBb0f39a95",  // Banana token
+  router: "0xcF0feBd3f17CEf5b47b0cD257aCf6025c5BFf3b7",  // Apeswap router
+  name: "ApeSwap::BUSD-WBNB"
+};
+
+// autoFarm LP adapter
+export const autoFarmAdapterArgs = {
+  strategy: "0x0895196562C7868C5Be92459FaE7f877ED450452", // Autofarm masterchef
+  vStrategy: "0xcFF7815e0e85a447b0C21C94D25434d1D0F718D1", // Autofarm WBNB-Cake strategy
+  stakingToken: "0x10ED43C718714eb63d5aA57B78B54704E256024E", // WBNB-Cake LP
+  rewardToken: "0x10ED43C718714eb63d5aA57B78B54704E256024E", // WBNB-Cake LP
+  router: "0x10ED43C718714eb63d5aA57B78B54704E256024E", // PKS router
+  name: "AutoFarm::WBNB-CAKE"
+};
+
+
 
 export const ybnftArgs = {}
