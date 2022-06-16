@@ -8,6 +8,7 @@ contract HedgepieAdapterManager is Ownable {
     struct AdapterInfo {
         address addr;
         string name;
+        address stakingToken;
         bool status;
     }
 
@@ -117,6 +118,7 @@ contract HedgepieAdapterManager is Ownable {
             AdapterInfo({
                 addr: _adapter,
                 name: IAdapter(_adapter).name(),
+                stakingToken: IAdapter(_adapter).stakingToken(),
                 status: true
             })
         );

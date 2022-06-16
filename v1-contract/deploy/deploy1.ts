@@ -32,7 +32,7 @@ async function deploy() {
   );
 
   // deploy Autofarm Lp adater contract
-  const autoFarmLpAdapter = await hre.ethers.getContractFactory("ApeswapLPAdapter");
+  const autoFarmLpAdapter = await hre.ethers.getContractFactory("AutoFarmAdapter");
   const autoFarmLpAdapterInstance = await autoFarmLpAdapter.deploy(
     autoFarmAdapterArgs.strategy,
     autoFarmAdapterArgs.vStrategy,
@@ -80,7 +80,7 @@ async function deploy() {
 
   // setting configuration
   log.info(`Setting configuration...`);
-  adapterManagerInstance.addAdapter(apeswapLpAdapterAddress);
+  await adapterManagerInstance.addAdapter(apeswapLpAdapterAddress);
   adapterManagerInstance.addAdapter(autoFarmLpAdapterAddress);
   adapterManagerInstance.setInvestor(investorAddress);
   investorInstance.setAdapterManager(adapterManagerAddress);
@@ -98,25 +98,27 @@ async function deploy() {
 
 async function main() {
   // const { apeswapLpAdapter, autofarmLpAdapter, ybnft, investor, adapterManager } = await deploy();
-  // // verify Apeswap lp adapter contract
-  // await verify({
-  //   contractName: "ApeswapLPAdapter",
-  //   address: apeswapLpAdapter,
-  //   constructorArguments: apeswapLpAdapterArgValues,
-  //   contractPath: "contracts/adapters/apeswap/apeswap-lp-adapter.sol:ApeswapLPAdapter",
-  // });
 
-  // // verify Autofarm lp adapter contract
-  // await verify({
-  //   contractName: "AutoFarmAdapter",
-  //   address: autofarmLpAdapter,
-  //   constructorArguments: autoFarmAdapterArgValues,
-  //   contractPath: "contracts/adapters/autofarm/auto-farm-adapter.sol:AutoFarmAdapter",
-  // });
+  const apeswapLpAdapter = "0x80D8EC205716a8a407433D4Ed44cd16a57131162";
+  const autofarmLpAdapter = "0x7428943E183e08794D5129b9676853638cAe1d3E";
+  const ybnft = "0xFb32CafDfF9d80597152E5caC818747886e8B956";
+  const investor = "0x4e2F09FfA5926F94aa61765fC4311b152104fE8A";
+  const adapterManager = '0x53C49bfAdd9ff9219522d1528504a899d007DfF3';
+  // verify Apeswap lp adapter contract
+  await verify({
+    contractName: "ApeswapLPAdapter",
+    address: apeswapLpAdapter,
+    constructorArguments: apeswapLpAdapterArgValues,
+    contractPath: "contracts/adapters/apeswap/apeswap-lp-adapter.sol:ApeswapLPAdapter",
+  });
 
-  const ybnft = "0x43F29Ecfd739Bb2E0f7E7860b56c5cb90edb54f5"
-  const investor = "0x2a51D665c3fA888666EB68EA7908ccB66E6EbAD3"
-  const adapterManager = "0x1b369FE56aE5989F8005cCAe8978eD2fd2bA5EFd"
+  // verify Autofarm lp adapter contract
+  await verify({
+    contractName: "AutoFarmAdapter",
+    address: autofarmLpAdapter,
+    constructorArguments: autoFarmAdapterArgValues,
+    contractPath: "contracts/adapters/autofarm/auto-farm-adapter.sol:AutoFarmAdapter",
+  });
 
   // verify ybnft contract
   await verify({

@@ -4,8 +4,8 @@ const { ethers } = require("hardhat");
 const BigNumber = ethers.BigNumber;
 
 const unlockAccount = async (address) => {
-    await hre.network.provider.send("hardhat_impersonateAccount", [address]);
-    return hre.ethers.provider.getSigner(address);
+  await hre.network.provider.send("hardhat_impersonateAccount", [address]);
+  return hre.ethers.provider.getSigner(address);
 };
 
 describe("ApeswapLPAdapter Integration Test", function () {
@@ -64,20 +64,20 @@ describe("ApeswapLPAdapter Integration Test", function () {
     // Mint NFTs
     // tokenID: 1
     await this.ybNft.mint(
-        [10000],
-        [lpToken],
-        [this.aAdapter.address],
-        performanceFee,
-        "test tokenURI1"
+      [10000],
+      [lpToken],
+      [this.aAdapter.address],
+      performanceFee,
+      "test tokenURI1"
     );
-  
+
     // tokenID: 2
     await this.ybNft.mint(
-        [10000],
-        [lpToken],
-        [this.aAdapter.address],
-        performanceFee,
-        "test tokenURI2"
+      [10000],
+      [lpToken],
+      [this.aAdapter.address],
+      performanceFee,
+      "test tokenURI2"
     );
 
     // Add Venus Adapter to AdapterManager
@@ -92,6 +92,8 @@ describe("ApeswapLPAdapter Integration Test", function () {
 
     // Set investor in vAdapter
     await this.aAdapter.setInvestor(this.investor.address);
+    await this.aAdapter.setPath("0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c", "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56", ["0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c", "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56"]);
+    await this.aAdapter.setPath("0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56", "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c", ["0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56", "0xbb4cdb9cbd36b01bd1cbaebf2de08d9173bc095c"]);
 
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
@@ -102,84 +104,84 @@ describe("ApeswapLPAdapter Integration Test", function () {
     this.lpContract = await ethers.getContractAt("VBep20Interface", lpToken);
   });
 
-  describe("depositBNB function test", function() {
+  describe("depositBNB function test", function () {
     it("(1)should be reverted when nft tokenId is invalid", async function () {
-        // deposit to nftID: 3
-        const depositAmount = ethers.utils.parseEther("1");
-        await expect(
-          this.investor.connect(this.owner).depositBNB(
-            this.owner.address,
-            3,
-            depositAmount.toString(),
-            { 
-              gasPrice: 21e9,
-              value: depositAmount
-            }
-          )
-        ).to.be.revertedWith("Error: nft tokenId is invalid")
-    });
-
-    it("(2)should be reverted when caller is not matched", async function () {
-        // deposit to nftID: 1
-        const depositAmount = ethers.utils.parseEther("1");
-        await expect(
-          this.investor.depositBNB(
-            this.alice.address,
-            1,
-            depositAmount.toString(),
-            { gasPrice: 21e9 }
-          )
-        ).to.be.revertedWith("Error: Caller is not matched")
-    });
-
-    it("(3)should be reverted when amount is 0", async function () {
-        // deposit to nftID: 1
-        const depositAmount = ethers.utils.parseEther("0")
-        await expect(
-          this.investor.depositBNB(
-            this.owner.address,
-            1,
-            depositAmount.toString(),
-            { gasPrice: 21e9 }
-          )
-        ).to.be.revertedWith("Error: Amount can not be 0")
-    });
-
-    it("(4) deposit should success for Alice", async function () {
-        const depositAmount = ethers.utils.parseEther("10");
-        await expect(this.investor.connect(this.alice).depositBNB(
-          this.aliceAddr,
-          1,
-          depositAmount,
-          { 
+      // deposit to nftID: 3
+      const depositAmount = ethers.utils.parseEther("1");
+      await expect(
+        this.investor.connect(this.owner).depositBNB(
+          this.owner.address,
+          3,
+          depositAmount.toString(),
+          {
             gasPrice: 21e9,
             value: depositAmount
           }
-        )).to.emit(this.investor, 'DepositBNB')
+        )
+      ).to.be.revertedWith("Error: nft tokenId is invalid")
+    });
+
+    it("(2)should be reverted when caller is not matched", async function () {
+      // deposit to nftID: 1
+      const depositAmount = ethers.utils.parseEther("1");
+      await expect(
+        this.investor.depositBNB(
+          this.alice.address,
+          1,
+          depositAmount.toString(),
+          { gasPrice: 21e9 }
+        )
+      ).to.be.revertedWith("Error: Caller is not matched")
+    });
+
+    it("(3)should be reverted when amount is 0", async function () {
+      // deposit to nftID: 1
+      const depositAmount = ethers.utils.parseEther("0")
+      await expect(
+        this.investor.depositBNB(
+          this.owner.address,
+          1,
+          depositAmount.toString(),
+          { gasPrice: 21e9 }
+        )
+      ).to.be.revertedWith("Error: Amount can not be 0")
+    });
+
+    it("(4) deposit should success for Alice", async function () {
+      const depositAmount = ethers.utils.parseEther("10");
+      await expect(this.investor.connect(this.alice).depositBNB(
+        this.aliceAddr,
+        1,
+        depositAmount,
+        {
+          gasPrice: 21e9,
+          value: depositAmount
+        }
+      )).to.emit(this.investor, 'DepositBNB')
         .withArgs(this.aliceAddr, this.ybNft.address, 1, depositAmount);
 
-        // const txInfo = await this.investor.connect(this.alice).callStatic._getLPBNB(
-        //   depositAmount,
-        //   this.lpToken,
-        //   this.lpRouter,
-        //   {
-        //     value: depositAmount
-        //   }
-        // );
-        // console.log(txInfo);
-        
-        const aliceInfo = await this.investor.userInfo(this.aliceAddr, this.ybNft.address, 1);
-        const aliceDeposit = Number(aliceInfo) / Math.pow(10, 18);
-        expect(aliceDeposit).to.eq(10);
+      // const txInfo = await this.investor.connect(this.alice).callStatic._getLPBNB(
+      //   depositAmount,
+      //   this.lpToken,
+      //   this.lpRouter,
+      //   {
+      //     value: depositAmount
+      //   }
+      // );
+      // console.log(txInfo);
 
-        const aliceAdapterInfos = await this.investor.userAdapterInfos(this.aliceAddr, 1, this.aAdapter.address);
-        expect(BigNumber.from(aliceAdapterInfos.amount).gt(0)).to.eq(true);
+      const aliceInfo = await this.investor.userInfo(this.aliceAddr, this.ybNft.address, 1);
+      const aliceDeposit = Number(aliceInfo) / Math.pow(10, 18);
+      expect(aliceDeposit).to.eq(10);
 
-        const adapterInfos = await this.investor.adapterInfos(1, this.aAdapter.address);
-        expect(BigNumber.from(adapterInfos.totalStaked).sub(BigNumber.from(aliceAdapterInfos.amount))).to.eq(0);
+      const aliceAdapterInfos = await this.investor.userAdapterInfos(this.aliceAddr, 1, this.aAdapter.address);
+      expect(BigNumber.from(aliceAdapterInfos.amount).gt(0)).to.eq(true);
 
-        const aliceWithdrable = await this.aAdapter.getWithdrawalAmount(this.aliceAddr, 1);
-        expect(BigNumber.from(aliceWithdrable)).to.eq(BigNumber.from(aliceAdapterInfos.amount));
+      const adapterInfos = await this.investor.adapterInfos(1, this.aAdapter.address);
+      expect(BigNumber.from(adapterInfos.totalStaked).sub(BigNumber.from(aliceAdapterInfos.amount))).to.eq(0);
+
+      const aliceWithdrable = await this.aAdapter.getWithdrawalAmount(this.aliceAddr, 1);
+      expect(BigNumber.from(aliceWithdrable)).to.eq(BigNumber.from(aliceAdapterInfos.amount));
     }).timeout(50000000);
 
     it("(5) deposit should success for Bob", async function () {
@@ -191,12 +193,12 @@ describe("ApeswapLPAdapter Integration Test", function () {
         this.bobAddr,
         1,
         depositAmount,
-        { 
+        {
           gasPrice: 21e9,
           value: depositAmount
         }
       )).to.emit(this.investor, 'DepositBNB')
-      .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
+        .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
 
       const bobInfo = await this.investor.userInfo(this.bobAddr, this.ybNft.address, 1);
       const bobDeposit = Number(bobInfo) / Math.pow(10, 18);
@@ -221,12 +223,12 @@ describe("ApeswapLPAdapter Integration Test", function () {
         this.tomAddr,
         1,
         depositAmount,
-        { 
+        {
           gasPrice: 21e9,
           value: depositAmount
         }
       )).to.emit(this.investor, 'DepositBNB')
-      .withArgs(this.tomAddr, this.ybNft.address, 1, depositAmount);
+        .withArgs(this.tomAddr, this.ybNft.address, 1, depositAmount);
 
       const tomInfo = await this.investor.userInfo(this.tomAddr, this.ybNft.address, 1);
       const tomDeposit = Number(tomInfo) / Math.pow(10, 18);
