@@ -1,5 +1,5 @@
 const { assert, expect } = require("chai");
-const { ethers } = require("hardhat");
+const { ethers, network } = require("hardhat");
 
 const BigNumber = ethers.BigNumber;
 
@@ -8,18 +8,33 @@ const unlockAccount = async (address) => {
   return hre.ethers.provider.getSigner(address);
 };
 
-describe("AutoFarmAdapter Integration Test", function () {
+function encode(types, values) {
+  return ethers.utils.defaultAbiCoder.encode(types, values);
+}
+
+async function doubleWantLockedTotal(address, slot, current) {
+  await network.provider.send("hardhat_setStorageAt", [
+    address,
+    slot,
+    encode(["uint256"], [BigNumber.from(current).mul(2).toString()]),
+  ]);
+}
+
+describe("AutoFarmAdapter Vault Integration Test", function () {
   before("Deploy contract", async function () {
     const [owner, alice, bob, carol] = await ethers.getSigners();
 
     const performanceFee = 50;
     this.wbnb = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
+    this.cake = "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82";
     this.Banana = "0x603c7f932ED1fc6575303D8Fb018fDCBb0f39a95";
     this.whaleAddr = "0x41772edd47d9ddf9ef848cdb34fe76143908c7ad";
     this.strategy = "0x0895196562C7868C5Be92459FaE7f877ED450452"; // MasterChef
+    this.vStrategy = "0xcFF7815e0e85a447b0C21C94D25434d1D0F718D1"; // vStrategy of vault
+    this.stakingToken = "0x0ed7e52944161450477ee417de9cd3a859b14fd0"; // WBNB-Cake LP
+    this.rewardToken = "0x0ed7e52944161450477ee417de9cd3a859b14fd0"; // AUTOv2 token
     this.swapRouter = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // pks router address
-    this.rewardToken = "0xa184088a740c695E156F91f5cC086a06bb78b827"; // AUTOv2 token
-    this.lpToken = "0x0ed7e52944161450477ee417de9cd3a859b14fd0"; // WBNB-Cake LP
+    this.name = "AutoFarm: WBNB-CAKE";
     this.poolID = 619;
 
     this.alice = alice;
@@ -28,22 +43,26 @@ describe("AutoFarmAdapter Integration Test", function () {
     this.owner = owner;
     this.apeRouter = "0xcF0feBd3f17CEf5b47b0cD257aCf6025c5BFf3b7";
 
+    console.log("Owner: ", this.owner.address);
+
     // Deploy Apeswap LP Adapter contract
     const AutoFarmAdapter = await ethers.getContractFactory("AutoFarmAdapter");
     this.aAdapter = await AutoFarmAdapter.deploy(
       this.strategy,
-      this.lpToken,
+      this.vStrategy,
+      this.stakingToken,
       this.rewardToken,
       this.swapRouter,
-      this.poolID,
-      [this.wbnb, "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82"], //WBNB & Cake
-      "WBNB-Cake LP Adapter"
+      this.name
     );
     await this.aAdapter.deployed();
+    await this.aAdapter.setPoolID(this.poolID);
+    console.log("AutoFarm Adapter: ", this.aAdapter.address);
 
     // Deploy YBNFT contract
     const ybNftFactory = await ethers.getContractFactory("YBNFT");
     this.ybNft = await ybNftFactory.deploy();
+    console.log("YBNFT: ", this.ybNft.address);
 
     // Deploy Investor contract
     const investorFactory = await ethers.getContractFactory("HedgepieInvestor");
@@ -52,12 +71,14 @@ describe("AutoFarmAdapter Integration Test", function () {
       this.swapRouter,
       this.wbnb
     );
+    console.log("Investor: ", this.investor.address);
 
     // Deploy Adaptor Manager contract
     const adapterManager = await ethers.getContractFactory(
       "HedgepieAdapterManager"
     );
     this.adapterManager = await adapterManager.deploy();
+    console.log("AdapterManager: ", this.adapterManager.address);
 
     // set investor
     await this.aAdapter.setInvestor(this.investor.address);
@@ -66,7 +87,7 @@ describe("AutoFarmAdapter Integration Test", function () {
     // tokenID: 1
     await this.ybNft.mint(
       [10000],
-      [this.lpToken],
+      [this.stakingToken],
       [this.aAdapter.address],
       performanceFee,
       "test tokenURI1"
@@ -75,7 +96,7 @@ describe("AutoFarmAdapter Integration Test", function () {
     // tokenID: 2
     await this.ybNft.mint(
       [10000],
-      [this.lpToken],
+      [this.stakingToken],
       [this.aAdapter.address],
       performanceFee,
       "test tokenURI2"
@@ -93,16 +114,19 @@ describe("AutoFarmAdapter Integration Test", function () {
     // Set investor in vAdapter
     await this.aAdapter.setInvestor(this.investor.address);
 
-    console.log("Owner: ", this.owner.address);
-    console.log("Investor: ", this.investor.address);
-    console.log("Strategy: ", this.strategy);
-    console.log("AutoFarmAdapter: ", this.aAdapter.address);
-
     // this.whaleWallet = await unlockAccount(whaleAddr);
     this.lpContract = await ethers.getContractAt(
       "VBep20Interface",
-      this.lpToken
+      this.stakingToken
     );
+
+    this.ctVStrategy = await ethers.getContractAt(
+      "IVaultStrategy",
+      this.vStrategy
+    );
+
+    this.aAdapter.setPath(this.cake, this.wbnb, [this.cake, this.wbnb]);
+    this.aAdapter.setPath(this.wbnb, this.cake, [this.wbnb, this.cake]);
   });
 
   describe("depositBNB function test", function () {
@@ -181,6 +205,13 @@ describe("AutoFarmAdapter Integration Test", function () {
 
     it("(3) should receive the BNB successfully after withdraw function", async function () {
       // withdraw from nftId: 1
+
+      await doubleWantLockedTotal(
+        this.vStrategy,
+        "0xe",
+        await this.ctVStrategy.wantLockedTotal()
+      );
+
       const aliceAddr = this.alice.address;
       const beforeBNB = await ethers.provider.getBalance(aliceAddr);
 
@@ -190,9 +221,11 @@ describe("AutoFarmAdapter Integration Test", function () {
 
       const afterBNB = await ethers.provider.getBalance(aliceAddr);
 
-      expect(BigNumber.from(afterBNB).gt(BigNumber.from(beforeBNB))).to.eq(
-        true
-      );
+      expect(
+        BigNumber.from(afterBNB).gt(
+          BigNumber.from(beforeBNB).add(BigNumber.from(10).pow(18))
+        )
+      ).to.eq(true);
 
       const userInfo = await this.investor.userInfo(
         aliceAddr,
