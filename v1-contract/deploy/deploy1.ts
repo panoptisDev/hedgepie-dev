@@ -2,7 +2,7 @@ import hre from "hardhat";
 import { Logger } from "tslog";
 import "@nomiclabs/hardhat-ethers";
 import { verify } from "../utils";
-import { apeswapLpAdapterArgs, autoFarmAdapterArgs } from "../config/construct-arguments";
+import { apeswapFarmLpAdapterArgs, autoFarmAdapterArgs } from "../config/construct-arguments";
 
 const log: Logger = new Logger();
 const PKS_ROUTER = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
@@ -11,24 +11,24 @@ const BUSD = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
 const CAKE = "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82";
 const GAL = "0xe4Cc45Bb5DBDA06dB6183E8bf016569f40497Aa5";
 
-const apeswapLpAdapterArgValues = Object.values(apeswapLpAdapterArgs);
+const apeswapFarmLpAdapterArgValues = Object.values(apeswapFarmLpAdapterArgs);
 const autoFarmAdapterArgValues = Object.values(autoFarmAdapterArgs);
 
 async function deploy() {
   // deploy apeswap adapter contract
-  const apeswapLpAdaper = await hre.ethers.getContractFactory("ApeswapLPAdapter");
+  const apeswapLpAdaper = await hre.ethers.getContractFactory("ApeswapFarmLPAdapter");
   const apeswapLpAdaperInstance = await apeswapLpAdaper.deploy(
-    apeswapLpAdapterArgs.pid,
-    apeswapLpAdapterArgs.strategy,
-    apeswapLpAdapterArgs.stakingToken,
-    apeswapLpAdapterArgs.rewardToken,
-    apeswapLpAdapterArgs.router,
-    apeswapLpAdapterArgs.name
+    apeswapFarmLpAdapterArgs.pid,
+    apeswapFarmLpAdapterArgs.strategy,
+    apeswapFarmLpAdapterArgs.stakingToken,
+    apeswapFarmLpAdapterArgs.rewardToken,
+    apeswapFarmLpAdapterArgs.router,
+    apeswapFarmLpAdapterArgs.name
   );
   await apeswapLpAdaperInstance.deployed();
-  const apeswapLpAdapterAddress = apeswapLpAdaperInstance.address;
+  const apeswapFarmLpAdapterAddress = apeswapLpAdaperInstance.address;
   log.info(
-    `ApeswapLPAdapter contract was successfully deployed on network: ${hre.network.name}, address: ${apeswapLpAdapterAddress}`
+    `ApeswapFarmLPAdapter contract was successfully deployed on network: ${hre.network.name}, address: ${apeswapFarmLpAdapterAddress}`
   );
 
   // deploy Autofarm Lp adater contract
@@ -80,7 +80,7 @@ async function deploy() {
 
   // setting configuration
   log.info(`Setting configuration...`);
-  await adapterManagerInstance.addAdapter(apeswapLpAdapterAddress);
+  await adapterManagerInstance.addAdapter(apeswapFarmLpAdapterAddress);
   adapterManagerInstance.addAdapter(autoFarmLpAdapterAddress);
   adapterManagerInstance.setInvestor(investorAddress);
   investorInstance.setAdapterManager(adapterManagerAddress);
@@ -88,7 +88,7 @@ async function deploy() {
   autoFarmLpAdapterInstance.setInvestor(investorAddress);
 
   return {
-    apeswapLpAdapter: apeswapLpAdapterAddress,
+    apeswapFarmLpAdapter: apeswapFarmLpAdapterAddress,
     autofarmLpAdapter: autoFarmLpAdapterAddress,
     ybnft: ybnftAddress,
     investor: investorAddress,
@@ -97,19 +97,19 @@ async function deploy() {
 }
 
 async function main() {
-  // const { apeswapLpAdapter, autofarmLpAdapter, ybnft, investor, adapterManager } = await deploy();
+  // const { apeswapFarmLpAdapter, autofarmLpAdapter, ybnft, investor, adapterManager } = await deploy();
 
-  const apeswapLpAdapter = "0x80D8EC205716a8a407433D4Ed44cd16a57131162";
+  const apeswapFarmLpAdapter = "0x80D8EC205716a8a407433D4Ed44cd16a57131162";
   const autofarmLpAdapter = "0x7428943E183e08794D5129b9676853638cAe1d3E";
   const ybnft = "0xFb32CafDfF9d80597152E5caC818747886e8B956";
   const investor = "0x4e2F09FfA5926F94aa61765fC4311b152104fE8A";
   const adapterManager = '0x53C49bfAdd9ff9219522d1528504a899d007DfF3';
   // verify Apeswap lp adapter contract
   await verify({
-    contractName: "ApeswapLPAdapter",
-    address: apeswapLpAdapter,
-    constructorArguments: apeswapLpAdapterArgValues,
-    contractPath: "contracts/adapters/apeswap/apeswap-lp-adapter.sol:ApeswapLPAdapter",
+    contractName: "ApeswapFarmLPAdapter",
+    address: apeswapFarmLpAdapter,
+    constructorArguments: apeswapFarmLpAdapterArgValues,
+    contractPath: "contracts/adapters/apeswap/apeswap-farm-lp-adapter.sol:ApeswapFarmLPAdapter",
   });
 
   // verify Autofarm lp adapter contract

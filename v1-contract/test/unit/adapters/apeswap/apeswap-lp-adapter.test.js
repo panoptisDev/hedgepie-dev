@@ -1,7 +1,7 @@
 const { assert, expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("ApeswapLPAdapter Unit Test", function () {
+describe("ApeswapFarmLPAdapter Unit Test", function () {
   before("Deploy contract", async function () {
     const [owner, investor, alice] = await ethers.getSigners();
 
@@ -13,7 +13,7 @@ describe("ApeswapLPAdapter Unit Test", function () {
     this.banana = "0x603c7f932ED1fc6575303D8Fb018fDCBb0f39a95";
 
     // Deploy Apeswap LP Adapter contract
-    const ApeLPAdapter = await ethers.getContractFactory("ApeswapLPAdapter");
+    const ApeLPAdapter = await ethers.getContractFactory("ApeswapFarmLPAdapter");
     this.aAdapter = await ApeLPAdapter.deploy(
       3, // pid
       this.strategy,
@@ -29,7 +29,7 @@ describe("ApeswapLPAdapter Unit Test", function () {
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
     console.log("Strategy: ", this.strategy);
-    console.log("ApeswapLPAdapter: ", this.aAdapter.address);
+    console.log("ApeswapFarmLPAdapter: ", this.aAdapter.address);
   });
 
   describe("should set correct state variable", function () {
@@ -60,32 +60,32 @@ describe("ApeswapLPAdapter Unit Test", function () {
     });
   });
 
-  describe("should increase withdrawal amount from only investor", function() {
+  describe("should increase withdrawal amount from only investor", function () {
     it("revert not from investor", async function () {
-        await expect(
-          this.aAdapter.connect(this.alice).increaseWithdrawalAmount(
-            this.alice.address,
-            1,
-            ethers.utils.parseUnits("1")
-          )
-        ).to.be.revertedWith("Error: Caller is not investor");
+      await expect(
+        this.aAdapter.connect(this.alice).increaseWithdrawalAmount(
+          this.alice.address,
+          1,
+          ethers.utils.parseUnits("1")
+        )
+      ).to.be.revertedWith("Error: Caller is not investor");
     });
 
-    it("test increaseWithdrawalAmount functinon", async function() {
-        await this.aAdapter.connect(this.investor).increaseWithdrawalAmount(
-            this.alice.address,
-            1,
-            ethers.utils.parseUnits("1")
-        );
+    it("test increaseWithdrawalAmount functinon", async function () {
+      await this.aAdapter.connect(this.investor).increaseWithdrawalAmount(
+        this.alice.address,
+        1,
+        ethers.utils.parseUnits("1")
+      );
 
-        const nft1Amount = Number(await this.aAdapter.getWithdrawalAmount(this.alice.address, 1)) / Math.pow(10, 18);
-        expect(nft1Amount).to.eq(1);
+      const nft1Amount = Number(await this.aAdapter.getWithdrawalAmount(this.alice.address, 1)) / Math.pow(10, 18);
+      expect(nft1Amount).to.eq(1);
 
-        const nft2Amount = Number(await this.aAdapter.getWithdrawalAmount(this.alice.address, 2)) / Math.pow(10, 18);
-        expect(nft2Amount).to.eq(0);
+      const nft2Amount = Number(await this.aAdapter.getWithdrawalAmount(this.alice.address, 2)) / Math.pow(10, 18);
+      expect(nft2Amount).to.eq(0);
 
-        const nftAmount = Number(await this.aAdapter.getWithdrawalAmount(this.investor.address, 1)) / Math.pow(10, 18);
-        expect(nftAmount).to.eq(0);
+      const nftAmount = Number(await this.aAdapter.getWithdrawalAmount(this.investor.address, 1)) / Math.pow(10, 18);
+      expect(nftAmount).to.eq(0);
     });
   });
 

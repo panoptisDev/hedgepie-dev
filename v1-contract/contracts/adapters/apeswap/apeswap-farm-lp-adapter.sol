@@ -2,6 +2,7 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
+import "hardhat/console.sol";
 
 interface IStrategy {
     function pendingCake(uint256 _pid, address _user)
@@ -10,12 +11,13 @@ interface IStrategy {
         returns (uint256);
 }
 
-contract ApeswapLPAdapter is Ownable {
+contract ApeswapFarmLPAdapter is Ownable {
     uint256 pid;
     address public stakingToken;
     address public rewardToken;
     address public repayToken;
     address public strategy;
+    address public vStrategy;
     address public router;
     string public name;
     address public investor;

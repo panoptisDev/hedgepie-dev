@@ -345,7 +345,8 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 // withdraw lp and get BNB
                 if (
                     IAdapter(adapter.addr).rewardToken() ==
-                    IAdapter(adapter.addr).stakingToken()
+                    IAdapter(adapter.addr).stakingToken() &&
+                    IAdapter(adapter.addr).vStrategy() != address(0)
                 ) {
                     // Get fee to BNB
                     uint256 _vAmount = (userAdapter.userShares *
@@ -573,7 +574,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
         // Vault case - recalculate want token withdrawal amount for user
         uint256 _vAmount;
-        if (rewardToken == stakingToken) {
+        if (rewardToken == stakingToken && vStrategy != address(0)) {
             _vAmount =
                 (userAdapter.userShares *
                     IVaultStrategy(vStrategy).wantLockedTotal()) /

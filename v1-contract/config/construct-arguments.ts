@@ -33,7 +33,7 @@ export const pksGalStakeAdapterArgs = {
 };
 
 // apeswap LP adapter
-export const apeswapLpAdapterArgs = {
+export const apeswapFarmLpAdapterArgs = {
   pid: 3,
   strategy: "0x5c8D727b265DBAfaba67E050f2f739cAeEB4A6F9",  // MasterApe
   stakingToken: "0x51e6D27FA57373d8d4C256231241053a70Cb1d93", // Apeswap BUSD-WBNB LP
