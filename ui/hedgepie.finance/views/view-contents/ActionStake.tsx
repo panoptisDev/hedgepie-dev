@@ -49,6 +49,7 @@ const ActionStake = (props: any) => {
     let txHash
     try {
       txHash = await onYBNFTDeposit(tokenId, amount)
+      toast(`${amountString} BNB successfully staked on YBNFT #${tokenId} !!`)
       setCurrentStakedBalance()
     } catch (err) {
       console.log(err)
@@ -57,10 +58,10 @@ const ActionStake = (props: any) => {
   }
 
   const handleUnstake = async () => {
-    if (!amount) return
     let txHash
     try {
-      txHash = await onYBNFTWithdraw(tokenId, amount)
+      txHash = await onYBNFTWithdraw(tokenId)
+      toast(`${currentStaked} BNB successfully withdrawn on YBNFT #${tokenId} !!`)
       setCurrentStakedBalance()
     } catch (err) {
       console.log(err)

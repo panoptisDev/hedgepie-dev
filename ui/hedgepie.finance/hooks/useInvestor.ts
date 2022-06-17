@@ -27,7 +27,7 @@ export const useInvestor = () => {
   )
 
   const handleWithdraw = useCallback(
-    async (ybnftId, amount) => {
+    async (ybnftId) => {
       // const txHash = await withdrawFromYBNFT(investorContract, account, ybnftId, token)
       const txHash = await withdrawBNBFromYBNFT(investorContract, account, ybnftId)
 

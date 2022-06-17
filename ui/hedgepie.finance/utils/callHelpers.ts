@@ -66,7 +66,7 @@ export const depositBNBOnYBNFT = async (ybnftInvestorContract, account, ybnftId,
 export const withdrawBNBFromYBNFT = async (ybnftInvestorContract, account, ybnftId) => {
   return ybnftInvestorContract.methods
     .withdrawBNB(account, ybnftId)
-    .send({ to: account })
+    .send({ from: account })
     .on('transactionHash', (tx) => {
       return tx.transactionHash
     })
