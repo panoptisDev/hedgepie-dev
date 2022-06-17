@@ -48,7 +48,7 @@ const ActionStake = (props: any) => {
     }
     let txHash
     try {
-      txHash = await onYBNFTDeposit(tokenId, amount)
+      txHash = await onYBNFTDeposit(tokenId, amount.toString())
       toast(`${amountString} BNB successfully staked on YBNFT #${tokenId} !!`)
       setCurrentStakedBalance()
     } catch (err) {

@@ -84,7 +84,7 @@ const MintTransactionModal = ({ formData, onDismiss = () => null }) => {
     if (amount == 0) return
     let txHash
     try {
-      txHash = await onYBNFTDeposit(await getMaxTokenId(), amount)
+      txHash = await onYBNFTDeposit(await getMaxTokenId(), amount.toString())
     } catch (err) {
       console.log(err)
       return false
