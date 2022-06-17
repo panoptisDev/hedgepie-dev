@@ -3,7 +3,8 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
-contract AlpacaAutoVaultAdapter is Ownable {
+contract AlpacaStakeAdapter is Ownable {
+    uint256 public pid;
     address public stakingToken;
     address public rewardToken;
     address public repayToken;
@@ -11,8 +12,6 @@ contract AlpacaAutoVaultAdapter is Ownable {
     address public router;
     string public name;
     address public investor;
-
-    address public constant WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
 
     // inToken => outToken => paths
     mapping(address => mapping(address => address[])) public paths;
@@ -27,6 +26,7 @@ contract AlpacaAutoVaultAdapter is Ownable {
 
     /**
      * @notice Construct
+     * @param _pid  number of pID
      * @param _strategy  address of strategy
      * @param _stakingToken  address of staking token
      * @param _rewardToken  address of reward token
@@ -34,6 +34,7 @@ contract AlpacaAutoVaultAdapter is Ownable {
      * @param _name  adatper name
      */
     constructor(
+        uint256 _pid,
         address _strategy,
         address _stakingToken,
         address _rewardToken,
@@ -44,6 +45,7 @@ contract AlpacaAutoVaultAdapter is Ownable {
         rewardToken = _rewardToken;
         repayToken = _repayToken;
         strategy = _strategy;
+        pid = _pid;
         name = _name;
     }
 
@@ -74,15 +76,12 @@ contract AlpacaAutoVaultAdapter is Ownable {
         )
     {
         to = strategy;
-        value = stakingToken == WBNB ? _amount : 0;
-        uint256 tokenAmount = stakingToken == WBNB ? 0 : _amount;
+        value = 0;
         data = abi.encodeWithSignature(
-            "deposit(uint256,uint256,address,uint256,bytes)",
-            tokenAmount,
-            _amount,
+            "deposit(address,uint256,uint256)",
             investor,
-            0,
-            ""
+            pid,
+            _amount
         );
     }
 
@@ -102,11 +101,10 @@ contract AlpacaAutoVaultAdapter is Ownable {
         to = strategy;
         value = 0;
         data = abi.encodeWithSignature(
-            "withdraw(uint256,uint256,uint256,bytes)",
-            _amount,
-            0,
-            0,
-            ""
+            "withdraw(address,uint256,uint256)",
+            investor,
+            pid,
+            _amount
         );
     }
 
