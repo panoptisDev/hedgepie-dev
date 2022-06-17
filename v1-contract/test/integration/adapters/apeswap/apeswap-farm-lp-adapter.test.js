@@ -44,7 +44,7 @@ describe("ApeswapFarmLPAdapter Integration Test", function () {
       lpToken,
       Banana,
       this.apeRouter,
-      "BUSD-WBNB::Farm::BUSD-WBNB"
+      "Apeswap::Farm::BUSD-WBNB"
     );
     await this.aAdapter.deployed();
 

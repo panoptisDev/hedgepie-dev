@@ -8,6 +8,7 @@ const log: Logger = new Logger();
 const PKS_ROUTER = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
 const WBNB = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
 const BUSD = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
+const BANANA = "0x603c7f932ED1fc6575303D8Fb018fDCBb0f39a95";
 const CAKE = "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82";
 const GAL = "0xe4Cc45Bb5DBDA06dB6183E8bf016569f40497Aa5";
 
@@ -80,12 +81,35 @@ async function deploy() {
 
   // setting configuration
   log.info(`Setting configuration...`);
+
+  // === adapterManager contract config
+  // add apapters to adapterManager contract
   await adapterManagerInstance.addAdapter(apeswapFarmLpAdapterAddress);
-  adapterManagerInstance.addAdapter(autoFarmLpAdapterAddress);
-  adapterManagerInstance.setInvestor(investorAddress);
-  investorInstance.setAdapterManager(adapterManagerAddress);
-  apeswapLpAdaperInstance.setInvestor(investorAddress);
-  autoFarmLpAdapterInstance.setInvestor(investorAddress);
+  await adapterManagerInstance.addAdapter(autoFarmLpAdapterAddress);
+  // set investor to adapterManager contract
+  await adapterManagerInstance.setInvestor(investorAddress);
+
+  // === set investor contract config
+  // set adapterManager contract address
+  await investorInstance.setAdapterManager(adapterManagerAddress);
+
+  // === set apeswapFarmLp adapter contract config
+  // set investor
+  await apeswapLpAdaperInstance.setInvestor(investorAddress);
+  // set path
+  await apeswapLpAdaperInstance.setPath(WBNB, BUSD, [WBNB, BUSD]);
+  await apeswapLpAdaperInstance.setPath(BUSD, WBNB, [BUSD, WBNB]);
+  await apeswapLpAdaperInstance.setPath(WBNB, BANANA, [WBNB, BANANA]);
+  await apeswapLpAdaperInstance.setPath(BANANA, WBNB, [BANANA, WBNB]);
+
+  // === set autoFarmVaultLp adapter contract config
+  // set investor
+  await autoFarmLpAdapterInstance.setInvestor(investorAddress);
+  // set path
+  await autoFarmLpAdapterInstance.setPath(WBNB, CAKE, [WBNB, CAKE]);
+  await autoFarmLpAdapterInstance.setPath(CAKE, WBNB, [CAKE, WBNB]);
+  // set poolId
+  await autoFarmLpAdapterInstance.setPoolId(619);
 
   return {
     apeswapFarmLpAdapter: apeswapFarmLpAdapterAddress,
@@ -97,13 +121,8 @@ async function deploy() {
 }
 
 async function main() {
-  // const { apeswapFarmLpAdapter, autofarmLpAdapter, ybnft, investor, adapterManager } = await deploy();
+  const { apeswapFarmLpAdapter, autofarmLpAdapter, ybnft, investor, adapterManager } = await deploy();
 
-  const apeswapFarmLpAdapter = "0x80D8EC205716a8a407433D4Ed44cd16a57131162";
-  const autofarmLpAdapter = "0x7428943E183e08794D5129b9676853638cAe1d3E";
-  const ybnft = "0xFb32CafDfF9d80597152E5caC818747886e8B956";
-  const investor = "0x4e2F09FfA5926F94aa61765fC4311b152104fE8A";
-  const adapterManager = '0x53C49bfAdd9ff9219522d1528504a899d007DfF3';
   // verify Apeswap lp adapter contract
   await verify({
     contractName: "ApeswapFarmLPAdapter",
