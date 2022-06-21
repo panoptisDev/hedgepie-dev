@@ -31,7 +31,7 @@ const ViewContents = (props: Props) => {
   const [badges, setBadges] = useState([] as Badge[])
   const [strategies, setStrategies] = useState([] as Strategy[])
   const [details, setDetails] = useState([] as Detail[])
-  const [stakeAmount, setStakeAmount] = useState('')
+  const [staked, setStaked] = useState<number>()
   const [owner, setOwner] = useState({ name: 'OWNER', image: 'images/owner.png' })
   const router = useRouter()
   const [tokenId, setTokenId] = useState<string>()
@@ -123,6 +123,19 @@ const ViewContents = (props: Props) => {
   // }, [])
 
   useEffect(() => {
+    if (staked && staked > 0) {
+      var obj = {} as any
+      var newArr = [] as any[]
+      strategies.forEach((s) => {
+        obj = { ...s }
+        obj.value = ((s.per / 100) * staked).toFixed(4)
+        newArr.push(obj)
+      })
+      setStrategies(newArr)
+    }
+  }, [staked])
+
+  useEffect(() => {
     setDetails([
       {
         title: 'Contract Address',
@@ -193,7 +206,11 @@ const ViewContents = (props: Props) => {
                             <Image src={strategy.image} sx={styles.strategy_detail_image as ThemeUICSSObject} />
                             <Flex sx={styles.flex_strategy_detail_column as ThemeUICSSObject}>
                               <Text sx={styles.strategy_detail_quantity_text as ThemeUICSSObject}>{strategy.name}</Text>
-                              {/* <Text sx={styles.strategy_detail_value_text as ThemeUICSSObject}>({strategy.value})</Text> */}
+                              {strategy.value && (
+                                <Text sx={styles.strategy_detail_value_text as ThemeUICSSObject}>
+                                  ({strategy.value} BNB)
+                                </Text>
+                              )}
                               <Text sx={styles.strategy_detail_apy_text as ThemeUICSSObject}>
                                 Allocation: {strategy.percentage}
                               </Text>
@@ -215,23 +232,7 @@ const ViewContents = (props: Props) => {
                       Stake BNB to join the YB-NFT strategy
                     </Text>
 
-                    {/* Button Input Stake */}
-                    {/* <div sx={styles.div_button_input as ThemeUICSSObject}>
-                    <Flex sx={styles.flex_button_badge as ThemeUICSSObject}>
-                      <Button sx={styles.stake_button as ThemeUICSSObject}>STAKE</Button>
-                      <Badge sx={styles.max_badge as ThemeUICSSObject}>MAX</Badge>
-                    </Flex>
-                    <Input
-                      sx={styles.stake_input as ThemeUICSSObject}
-                      onChange={(e) => {
-                        setStakeAmount(e.target.value)
-                      }}
-                      maxLength={6}
-                      placeholder="0.00"
-                      defaultValue="0.00"
-                    />
-                  </div> */}
-                    <ActionStake tokenId={tokenId} />
+                    <ActionStake tokenId={tokenId} setStaked={setStaked} />
                     {/* <Yield /> */}
                     <Flex sx={styles.flex_details_container as ThemeUICSSObject}>
                       <Text sx={styles.details_title_text as ThemeUICSSObject}>DETAILS:</Text>

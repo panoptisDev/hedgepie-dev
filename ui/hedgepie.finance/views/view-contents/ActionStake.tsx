@@ -13,7 +13,7 @@ import { getBalanceInEther } from 'utils/formatBalance'
 
 const ActionStake = (props: any) => {
   const { onYBNFTDeposit, onYBNFTWithdraw, onYBNFTInvestorApprove, getAllowance, getBalance } = useInvestor()
-  const { tokenId } = props
+  const { tokenId, setStaked } = props
 
   const [disabled, setDisabled] = useState(false)
   const [amount, setAmount] = useState<number | BigNumber>(0.0)
@@ -89,6 +89,7 @@ const ActionStake = (props: any) => {
   const setCurrentStakedBalance = async () => {
     let balance = await getBalance(tokenId)
     setCurrentStaked(getBalanceInEther(balance))
+    setStaked(getBalanceInEther(balance))
   }
 
   useEffect(() => {
