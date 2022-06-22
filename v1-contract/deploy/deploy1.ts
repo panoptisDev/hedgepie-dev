@@ -2,37 +2,38 @@ import hre from "hardhat";
 import { Logger } from "tslog";
 import "@nomiclabs/hardhat-ethers";
 import { verify } from "../utils";
-import { apeswapLpAdapterArgs, autoFarmAdapterArgs } from "../config/construct-arguments";
+import { apeswapFarmLpAdapterArgs, autoFarmAdapterArgs } from "../config/construct-arguments";
 
 const log: Logger = new Logger();
 const PKS_ROUTER = "0x10ED43C718714eb63d5aA57B78B54704E256024E";
 const WBNB = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
 const BUSD = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
+const BANANA = "0x603c7f932ED1fc6575303D8Fb018fDCBb0f39a95";
 const CAKE = "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82";
 const GAL = "0xe4Cc45Bb5DBDA06dB6183E8bf016569f40497Aa5";
 
-const apeswapLpAdapterArgValues = Object.values(apeswapLpAdapterArgs);
+const apeswapFarmLpAdapterArgValues = Object.values(apeswapFarmLpAdapterArgs);
 const autoFarmAdapterArgValues = Object.values(autoFarmAdapterArgs);
 
 async function deploy() {
   // deploy apeswap adapter contract
-  const apeswapLpAdaper = await hre.ethers.getContractFactory("ApeswapLPAdapter");
+  const apeswapLpAdaper = await hre.ethers.getContractFactory("ApeswapFarmLPAdapter");
   const apeswapLpAdaperInstance = await apeswapLpAdaper.deploy(
-    apeswapLpAdapterArgs.pid,
-    apeswapLpAdapterArgs.strategy,
-    apeswapLpAdapterArgs.stakingToken,
-    apeswapLpAdapterArgs.rewardToken,
-    apeswapLpAdapterArgs.router,
-    apeswapLpAdapterArgs.name
+    apeswapFarmLpAdapterArgs.pid,
+    apeswapFarmLpAdapterArgs.strategy,
+    apeswapFarmLpAdapterArgs.stakingToken,
+    apeswapFarmLpAdapterArgs.rewardToken,
+    apeswapFarmLpAdapterArgs.router,
+    apeswapFarmLpAdapterArgs.name
   );
   await apeswapLpAdaperInstance.deployed();
-  const apeswapLpAdapterAddress = apeswapLpAdaperInstance.address;
+  const apeswapFarmLpAdapterAddress = apeswapLpAdaperInstance.address;
   log.info(
-    `ApeswapLPAdapter contract was successfully deployed on network: ${hre.network.name}, address: ${apeswapLpAdapterAddress}`
+    `ApeswapFarmLPAdapter contract was successfully deployed on network: ${hre.network.name}, address: ${apeswapFarmLpAdapterAddress}`
   );
 
   // deploy Autofarm Lp adater contract
-  const autoFarmLpAdapter = await hre.ethers.getContractFactory("ApeswapLPAdapter");
+  const autoFarmLpAdapter = await hre.ethers.getContractFactory("AutoFarmAdapter");
   const autoFarmLpAdapterInstance = await autoFarmLpAdapter.deploy(
     autoFarmAdapterArgs.strategy,
     autoFarmAdapterArgs.vStrategy,
@@ -80,15 +81,38 @@ async function deploy() {
 
   // setting configuration
   log.info(`Setting configuration...`);
-  adapterManagerInstance.addAdapter(apeswapLpAdapterAddress);
-  adapterManagerInstance.addAdapter(autoFarmLpAdapterAddress);
-  adapterManagerInstance.setInvestor(investorAddress);
-  investorInstance.setAdapterManager(adapterManagerAddress);
-  apeswapLpAdaperInstance.setInvestor(investorAddress);
-  autoFarmLpAdapterInstance.setInvestor(investorAddress);
+
+  // === adapterManager contract config
+  // add apapters to adapterManager contract
+  await adapterManagerInstance.addAdapter(apeswapFarmLpAdapterAddress);
+  await adapterManagerInstance.addAdapter(autoFarmLpAdapterAddress);
+  // set investor to adapterManager contract
+  await adapterManagerInstance.setInvestor(investorAddress);
+
+  // === set investor contract config
+  // set adapterManager contract address
+  await investorInstance.setAdapterManager(adapterManagerAddress);
+
+  // === set apeswapFarmLp adapter contract config
+  // set investor
+  await apeswapLpAdaperInstance.setInvestor(investorAddress);
+  // set path
+  await apeswapLpAdaperInstance.setPath(WBNB, BUSD, [WBNB, BUSD]);
+  await apeswapLpAdaperInstance.setPath(BUSD, WBNB, [BUSD, WBNB]);
+  await apeswapLpAdaperInstance.setPath(WBNB, BANANA, [WBNB, BANANA]);
+  await apeswapLpAdaperInstance.setPath(BANANA, WBNB, [BANANA, WBNB]);
+
+  // === set autoFarmVaultLp adapter contract config
+  // set investor
+  await autoFarmLpAdapterInstance.setInvestor(investorAddress);
+  // set path
+  await autoFarmLpAdapterInstance.setPath(WBNB, CAKE, [WBNB, CAKE]);
+  await autoFarmLpAdapterInstance.setPath(CAKE, WBNB, [CAKE, WBNB]);
+  // set poolId
+  await autoFarmLpAdapterInstance.setPoolId(619);
 
   return {
-    apeswapLpAdapter: apeswapLpAdapterAddress,
+    apeswapFarmLpAdapter: apeswapFarmLpAdapterAddress,
     autofarmLpAdapter: autoFarmLpAdapterAddress,
     ybnft: ybnftAddress,
     investor: investorAddress,
@@ -97,26 +121,23 @@ async function deploy() {
 }
 
 async function main() {
-  // const { apeswapLpAdapter, autofarmLpAdapter, ybnft, investor, adapterManager } = await deploy();
-  // // verify Apeswap lp adapter contract
-  // await verify({
-  //   contractName: "ApeswapLPAdapter",
-  //   address: apeswapLpAdapter,
-  //   constructorArguments: apeswapLpAdapterArgValues,
-  //   contractPath: "contracts/adapters/apeswap/apeswap-lp-adapter.sol:ApeswapLPAdapter",
-  // });
+  const { apeswapFarmLpAdapter, autofarmLpAdapter, ybnft, investor, adapterManager } = await deploy();
 
-  // // verify Autofarm lp adapter contract
-  // await verify({
-  //   contractName: "AutoFarmAdapter",
-  //   address: autofarmLpAdapter,
-  //   constructorArguments: autoFarmAdapterArgValues,
-  //   contractPath: "contracts/adapters/autofarm/auto-farm-adapter.sol:AutoFarmAdapter",
-  // });
+  // verify Apeswap lp adapter contract
+  await verify({
+    contractName: "ApeswapFarmLPAdapter",
+    address: apeswapFarmLpAdapter,
+    constructorArguments: apeswapFarmLpAdapterArgValues,
+    contractPath: "contracts/adapters/apeswap/apeswap-farm-lp-adapter.sol:ApeswapFarmLPAdapter",
+  });
 
-  const ybnft = "0x43F29Ecfd739Bb2E0f7E7860b56c5cb90edb54f5"
-  const investor = "0x2a51D665c3fA888666EB68EA7908ccB66E6EbAD3"
-  const adapterManager = "0x1b369FE56aE5989F8005cCAe8978eD2fd2bA5EFd"
+  // verify Autofarm lp adapter contract
+  await verify({
+    contractName: "AutoFarmAdapter",
+    address: autofarmLpAdapter,
+    constructorArguments: autoFarmAdapterArgValues,
+    contractPath: "contracts/adapters/autofarm/auto-farm-adapter.sol:AutoFarmAdapter",
+  });
 
   // verify ybnft contract
   await verify({

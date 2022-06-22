@@ -345,7 +345,8 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 // withdraw lp and get BNB
                 if (
                     IAdapter(adapter.addr).rewardToken() ==
-                    IAdapter(adapter.addr).stakingToken()
+                    IAdapter(adapter.addr).stakingToken() &&
+                    IAdapter(adapter.addr).vStrategy() != address(0)
                 ) {
                     // Get fee to BNB
                     uint256 _vAmount = (userAdapter.userShares *
@@ -573,7 +574,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
         // Vault case - recalculate want token withdrawal amount for user
         uint256 _vAmount;
-        if (rewardToken == stakingToken) {
+        if (rewardToken == stakingToken && vStrategy != address(0)) {
             _vAmount =
                 (userAdapter.userShares *
                     IVaultStrategy(vStrategy).wantLockedTotal()) /
@@ -590,7 +591,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             ? IBEP20(rewardToken).balanceOf(address(this))
             : 0;
 
-        if (rewardToken != address(0)) {
+        if (rewardToken != address(0) && rewardToken != stakingToken) {
             if (rewardTokenAmount[1] - rewardTokenAmount[0] != 0) {
                 AdapterInfo storage adapter = adapterInfos[_tokenId][
                     _adapterAddr
@@ -604,11 +605,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         }
 
         // update storage data on adapter
-        IAdapter(_adapterAddr).setWithdrawalAmount(
-            msg.sender,
-            _tokenId,
-            0
-        );
+        IAdapter(_adapterAddr).setWithdrawalAmount(msg.sender, _tokenId, 0);
         require(success, "Error: Withdraw internal issue");
     }
 
