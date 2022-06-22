@@ -112,16 +112,6 @@ const ViewContents = (props: Props) => {
     ])
   }, [])
 
-  // useEffect(() => {
-  //   setStrategies([
-  //     { image: 'images/tako.svg', name: '1.9', value: '($1,213.95 USD)', percentage: '40%' },
-  //     { image: 'images/mountain.png', name: '2.2', value: '($2,430.95 USD)', percentage: '100%' },
-  //     { image: 'images/veto.png', name: '3.1', value: '($450.87 USD)', percentage: '200%' },
-  //     { image: 'images/tako.svg', name: '0.8', value: '($121.95 USD)', percentage: '80%' },
-  //     { image: 'images/tako.svg', name: '1.9', value: '($1,130.95 USD)', percentage: '25%' },
-  //   ])
-  // }, [])
-
   useEffect(() => {
     if (staked && staked > 0) {
       var obj = {} as any

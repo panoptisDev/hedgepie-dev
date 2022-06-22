@@ -28,6 +28,12 @@ const MintContextProvider = ({ children }) => {
   const [strategies, setStrategies] = useState<any>([])
   const [bnbPrice, setBNBPrice] = useState(0)
 
+  const getIcon = (protocol) => {
+    let protoStr = protocol.toLowerCase()
+    if (protoStr.includes('apeswap')) return 'images/apeswap.png'
+    else if (protoStr.includes('autofarm')) return 'images/autofarm.png'
+  }
+
   useEffect(() => {
     const getCompositionOptions = async () => {
       try {
@@ -41,6 +47,7 @@ const MintContextProvider = ({ children }) => {
             let protocol = split[0]
             let pool = split[1]
             adapterOptions[protocol] = {}
+            adapterOptions[protocol]['icon'] = getIcon(protocol)
             adapterOptions[protocol][pool] = { addr: adapter.addr, token: adapter.stakingToken }
           }
         })

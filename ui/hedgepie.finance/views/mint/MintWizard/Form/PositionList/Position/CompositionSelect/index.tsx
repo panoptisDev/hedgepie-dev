@@ -15,10 +15,12 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
     var protos = [] as any[]
     for (let key in strategies) {
       let pools = [] as any[]
+      let icon = ''
       for (let p in strategies[key]) {
-        pools.push({ name: p, address: strategies[key][p] })
+        if (p === 'icon') icon = strategies[key][p]
+        else pools.push({ name: p, address: strategies[key][p] })
       }
-      protos.push({ name: key, pools: pools })
+      protos.push({ name: key, pools: pools, icon: icon })
     }
     setAvailableProtocols(protos)
   }, [strategies])
@@ -42,7 +44,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'row', gap: '0.6rem' }}>
+    <Box sx={{ display: 'flex', flexDirection: 'row', gap: '0.6rem', marginRight: '3rem' }}>
       <Select
         instanceId={`composition-${1}`}
         classNamePrefix="select"
@@ -59,7 +61,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
         styles={{
           control: () => ({
             height: 60,
-            width: 200,
+            width: 212,
             borderRadius: 62,
             backgroundColor: '#fff',
             display: 'flex',
@@ -101,7 +103,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
         styles={{
           control: () => ({
             height: 60,
-            width: 155,
+            width: 140,
             borderRadius: 62,
             backgroundColor: '#fff',
             display: 'flex',

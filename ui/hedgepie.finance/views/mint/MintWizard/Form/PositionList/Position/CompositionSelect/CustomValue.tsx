@@ -20,8 +20,8 @@ const CustomValue = (props) => {
           <Image
             src={data.icon}
             sx={{
-              width: 40,
-              height: 40,
+              width: 50,
+              height: 50,
               [`@media screen and (min-width: 500px)`]: {
                 width: 40,
                 height: 40,
@@ -43,6 +43,7 @@ const CustomValue = (props) => {
               fontWeight: 600,
               color: '#0A3F5C',
               ml: 1,
+              width: 'max-content',
               [`@media screen and (min-width: 500px)`]: {
                 fontSize: 20,
                 ml: 3,
