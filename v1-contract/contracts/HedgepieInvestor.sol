@@ -13,6 +13,8 @@ import "./interfaces/IPancakePair.sol";
 import "./interfaces/IPancakeRouter.sol";
 import "./interfaces/IPancakePair.sol";
 
+import "hardhat/console.sol";
+
 contract HedgepieInvestor is Ownable, ReentrancyGuard {
     using SafeBEP20 for IBEP20;
 
@@ -470,7 +472,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             ? IAdapter(_adapterAddr).pendingShares()
             : 0;
 
-        IBEP20(_token).safeApprove(
+        IBEP20(_token).approve(
             IAdapterManager(adapterManager).getAdapterStrat(_adapterAddr),
             _amount
         );
@@ -636,7 +638,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         address _inToken,
         address _outToken
     ) internal returns (uint256 amountOut) {
-        IBEP20(_inToken).safeApprove(swapRouter, _amountIn);
+        IBEP20(_inToken).approve(swapRouter, _amountIn);
         address[] memory path = _getPaths(_adapter, _inToken, _outToken);
         uint256[] memory amounts = IPancakeRouter(swapRouter)
             .swapExactTokensForTokens(
@@ -734,8 +736,9 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         }
 
         if (token0Amount != 0 && token1Amount != 0) {
-            IBEP20(token0).safeApprove(_router, token0Amount);
-            IBEP20(token1).safeApprove(_router, token1Amount);
+            IBEP20(token0).approve(_router, token0Amount);
+            IBEP20(token1).approve(_router, token1Amount);
+
             (, , amountOut) = IPancakeRouter(_router).addLiquidity(
                 token0,
                 token1,
@@ -774,7 +777,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 token0,
                 _router
             );
-            IBEP20(token0).safeApprove(_router, token0Amount);
+            IBEP20(token0).approve(_router, token0Amount);
         }
 
         if (token1 != wbnb) {
@@ -784,7 +787,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 token1,
                 _router
             );
-            IBEP20(token1).safeApprove(_router, token1Amount);
+            IBEP20(token1).approve(_router, token1Amount);
         }
 
         if (token0Amount != 0 && token1Amount != 0) {
@@ -830,7 +833,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         address token0 = IPancakePair(_pairToken).token0();
         address token1 = IPancakePair(_pairToken).token1();
 
-        IBEP20(_pairToken).safeApprove(_router, _amountIn);
+        IBEP20(_pairToken).approve(_router, _amountIn);
 
         if (token0 == wbnb || token1 == wbnb) {
             address tokenAddr = token0 == wbnb ? token1 : token0;
