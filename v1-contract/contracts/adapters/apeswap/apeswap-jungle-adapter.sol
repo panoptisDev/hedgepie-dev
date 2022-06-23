@@ -12,6 +12,7 @@ contract ApeswapJungleAdapter is Ownable {
     address public rewardToken;
     address public repayToken;
     address public strategy;
+    address public vStrategy;
     address public router;
     string public name;
     address public investor;
@@ -69,7 +70,7 @@ contract ApeswapJungleAdapter is Ownable {
         );
         require(
             paths[_inToken][_outToken][paths[_inToken][_outToken].length - 1] ==
-                _inToken,
+                _outToken,
             "Path is not existed"
         );
 
