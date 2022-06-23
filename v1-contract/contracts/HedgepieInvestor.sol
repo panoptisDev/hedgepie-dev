@@ -13,8 +13,6 @@ import "./interfaces/IPancakePair.sol";
 import "./interfaces/IPancakeRouter.sol";
 import "./interfaces/IPancakePair.sol";
 
-import "hardhat/console.sol";
-
 contract HedgepieInvestor is Ownable, ReentrancyGuard {
     using SafeBEP20 for IBEP20;
 
