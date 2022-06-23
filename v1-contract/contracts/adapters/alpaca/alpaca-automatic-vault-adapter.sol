@@ -8,6 +8,7 @@ contract AlpacaAutoVaultAdapter is Ownable {
     address public rewardToken;
     address public repayToken;
     address public strategy;
+    address public vStrategy;
     address public router;
     string public name;
     address public investor;
@@ -75,11 +76,10 @@ contract AlpacaAutoVaultAdapter is Ownable {
     {
         to = strategy;
         value = stakingToken == WBNB ? _amount : 0;
-        uint256 tokenAmount = stakingToken == WBNB ? 0 : _amount;
         data = abi.encodeWithSignature(
             "deposit(uint256,uint256,address,uint256,bytes)",
-            tokenAmount,
-            _amount,
+            stakingToken == WBNB ? 0 : _amount,
+            value,
             investor,
             0,
             ""

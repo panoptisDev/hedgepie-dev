@@ -9,6 +9,7 @@ contract AlpacaStakeAdapter is Ownable {
     address public rewardToken;
     address public repayToken;
     address public strategy;
+    address public vStrategy;
     address public router;
     string public name;
     address public investor;
@@ -30,7 +31,6 @@ contract AlpacaStakeAdapter is Ownable {
      * @param _strategy  address of strategy
      * @param _stakingToken  address of staking token
      * @param _rewardToken  address of reward token
-     * @param _repayToken  address of reward token
      * @param _name  adatper name
      */
     constructor(
@@ -38,12 +38,10 @@ contract AlpacaStakeAdapter is Ownable {
         address _strategy,
         address _stakingToken,
         address _rewardToken,
-        address _repayToken,
         string memory _name
     ) {
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
-        repayToken = _repayToken;
         strategy = _strategy;
         pid = _pid;
         name = _name;

@@ -8,6 +8,7 @@ contract AlpacaLendAdapter is Ownable {
     address public rewardToken;
     address public repayToken;
     address public strategy;
+    address public vStrategy;
     address public router;
     string public name;
     address public investor;
