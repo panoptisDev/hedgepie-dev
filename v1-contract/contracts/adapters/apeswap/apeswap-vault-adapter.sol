@@ -9,6 +9,7 @@ contract ApeswapVaultAdapter is Ownable {
     address public rewardToken;
     address public repayToken;
     address public strategy;
+    address public vStrategy;
     address public router;
     string public name;
     address public investor;
@@ -34,6 +35,7 @@ contract ApeswapVaultAdapter is Ownable {
     constructor(
         uint256 _pid,
         address _strategy,
+        address _vStrategy,
         address _stakingToken,
         address _rewardToken,
         address _router,
@@ -43,6 +45,7 @@ contract ApeswapVaultAdapter is Ownable {
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
         strategy = _strategy;
+        vStrategy = _vStrategy;
         router = _router;
         name = _name;
     }
@@ -68,7 +71,7 @@ contract ApeswapVaultAdapter is Ownable {
         );
         require(
             paths[_inToken][_outToken][paths[_inToken][_outToken].length - 1] ==
-                _inToken,
+                _outToken,
             "Path is not existed"
         );
 
