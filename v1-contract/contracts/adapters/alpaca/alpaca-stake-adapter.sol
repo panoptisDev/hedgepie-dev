@@ -3,11 +3,24 @@ pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
 
+interface IMasterChef {
+    function pendingAlpaca(uint256 pid, address user)
+        external
+        view
+        returns (uint256);
+
+    function userInfo(uint256 pid, address user)
+        external
+        view
+        returns (uint256, uint256);
+}
+
 contract AlpacaStakeAdapter is Ownable {
     uint256 public pid;
     address public stakingToken;
     address public rewardToken;
     address public repayToken;
+    address public wrapToken;
     address public strategy;
     address public vStrategy;
     address public router;
@@ -31,6 +44,7 @@ contract AlpacaStakeAdapter is Ownable {
      * @param _strategy  address of strategy
      * @param _stakingToken  address of staking token
      * @param _rewardToken  address of reward token
+     * @param _wrapToken  address of wrap token
      * @param _name  adatper name
      */
     constructor(
@@ -38,11 +52,13 @@ contract AlpacaStakeAdapter is Ownable {
         address _strategy,
         address _stakingToken,
         address _rewardToken,
+        address _wrapToken,
         string memory _name
     ) {
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
         strategy = _strategy;
+        wrapToken = _wrapToken;
         pid = _pid;
         name = _name;
     }
@@ -141,6 +157,20 @@ contract AlpacaStakeAdapter is Ownable {
     function setInvestor(address _investor) external onlyOwner {
         require(_investor != address(0), "Error: Investor zero address");
         investor = _investor;
+    }
+
+    /**
+     * @notice Get pending AUTO token reward
+     */
+    function pendingReward() external view returns (uint256 reward) {
+        reward = IMasterChef(strategy).pendingAlpaca(pid, msg.sender);
+    }
+
+    /**
+     * @notice Get pending shares
+     */
+    function pendingShares() external view returns (uint256 shares) {
+        (shares, ) = IMasterChef(strategy).userInfo(pid, msg.sender);
     }
 
     /**

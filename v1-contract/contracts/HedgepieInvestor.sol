@@ -212,15 +212,32 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             address routerAddr = IAdapter(adapter.addr).router();
             if (routerAddr == address(0)) {
                 if(adapter.token == wbnb) {
-                    unchecked{ amountOut = amountIn; }
+                    amountOut = amountIn;
                 } else {
-                    // swap
-                    amountOut = _swapOnRouterBNB(
-                        adapter.addr,
-                        amountIn,
-                        adapter.token,
-                        swapRouter
-                    );
+                    address wrapToken = IAdapter(adapter.addr).wrapToken();
+                    if(wrapToken == address(0)) {
+                        // swap
+                        amountOut = _swapOnRouterBNB(
+                            adapter.addr,
+                            amountIn,
+                            adapter.token,
+                            swapRouter
+                        );
+                    } else {
+                        // swap
+                        amountOut = _swapOnRouterBNB(
+                            adapter.addr,
+                            amountIn,
+                            wrapToken,
+                            swapRouter
+                        );
+
+                        // wrap
+                        uint256 beforeWrap = IBEP20(adapter.token).balanceOf(address(this));
+                        IBEP20(wrapToken).approve(adapter.token, amountOut);
+                        IWrap(adapter.token).deposit(amountOut);
+                        unchecked { amountOut = IBEP20(adapter.token).balanceOf(address(this)) - beforeWrap; }
+                    }
                 }
             } else {
                 // get lp
@@ -337,21 +354,34 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             balances[1] = adapter.token == wbnb ? address(this).balance : IBEP20(adapter.token).balanceOf(address(this));
             if (IAdapter(adapter.addr).router() == address(0)) {
                 if(adapter.token == wbnb) {
-                    unchecked {
-                        amountOut = balances[1] - balances[0];    
-                    }
+                    unchecked { amountOut = balances[1] - balances[0]; }
                 } else {
-                    // swap
-                    amountOut += _swapforBNB(
-                        adapter.addr,
-                        balances[1] - balances[0],
-                        adapter.token,
-                        swapRouter
-                    );
+                    address wrapToken = IAdapter(adapter.addr).wrapToken();
+                    if(wrapToken == address(0)) {
+                        // swap
+                        amountOut += _swapforBNB(
+                            adapter.addr,
+                            balances[1] - balances[0],
+                            adapter.token,
+                            swapRouter
+                        );
+                    } else {
+                        // unwrap
+                        uint256 beforeUnwrap = IBEP20(wrapToken).balanceOf(address(this));
+                        IWrap(adapter.token).withdraw(balances[1] - balances[0]);
+                        unchecked { beforeUnwrap = IBEP20(wrapToken).balanceOf(address(this)) - beforeUnwrap; }
+
+                        // swap
+                        amountOut += _swapforBNB(
+                            adapter.addr,
+                            beforeUnwrap,
+                            wrapToken,
+                            swapRouter
+                        );
+                    }
                 }
             } else {
                 uint256 taxAmount;
-
                 // withdraw lp and get BNB
                 if (
                     IAdapter(adapter.addr).rewardToken() ==

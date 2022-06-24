@@ -3,7 +3,7 @@ const { ethers } = require("hardhat");
 
 const BigNumber = ethers.BigNumber;
 
-describe.only("AlpacaAutoVaultAdapter Integration Test", function () {
+describe("AlpacaAutoVaultAdapter Integration Test", function () {
   before("Deploy contract", async function () {
     const [owner, alice, bob, tom] = await ethers.getSigners();
 

@@ -7,6 +7,7 @@ contract AlpacaAutoVaultAdapter is Ownable {
     address public stakingToken;
     address public rewardToken;
     address public repayToken;
+    address public wrapToken;
     address public strategy;
     address public vStrategy;
     address public router;

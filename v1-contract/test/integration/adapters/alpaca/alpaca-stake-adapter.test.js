@@ -10,8 +10,9 @@ describe("AlpacaStakeAdapter Integration Test", function () {
     const performanceFee = 50;
     const wbnb = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
     const strategy = "0xA625AB01B08ce023B2a342Dbb12a16f2C8489A8F"; // FairLaunch
-    const stakingToken = "0x6F695Bd5FFD25149176629f8491A5099426Ce7a7" // sALPACA
-    const rewardToken = "0x8F0528cE5eF7B51152A59745bEfDD91D97091d2F"; // ibBNB
+    const stakingToken = "0xfF693450dDa65df7DD6F45B4472655A986b147Eb" // ibCake
+    const rewardToken = "0xfF693450dDa65df7DD6F45B4472655A986b147Eb"; // ibBNB
+    const wrapToken = "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82"; // Cake
     const swapRouter = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // pks rounter address
 
     this.owner = owner;
@@ -26,11 +27,12 @@ describe("AlpacaStakeAdapter Integration Test", function () {
     // Deploy Alpada Stake Adapter contract
     const AlpacaAdapter = await ethers.getContractFactory("AlpacaStakeAdapter");
     this.aAdapter = await AlpacaAdapter.deploy(
-      5, // pid
+      28, // pid
       strategy,
       stakingToken,
       rewardToken,
-      "Alpaca:: sALPACA Stake"
+      wrapToken,
+      "Alpaca:: ibCake Stake"
     );
     await this.aAdapter.deployed();
 
@@ -52,6 +54,9 @@ describe("AlpacaStakeAdapter Integration Test", function () {
 
     // set investor
     await this.aAdapter.setInvestor(this.investor.address);
+
+    await this.aAdapter.setPath(wbnb, wrapToken, [wbnb, wrapToken]);
+    await this.aAdapter.setPath(wrapToken, wbnb, [wrapToken, wbnb]);
 
     // Mint NFTs
     // tokenID: 1
@@ -222,8 +227,7 @@ describe("AlpacaStakeAdapter Integration Test", function () {
       expect(BigNumber.from(afterAdapterInfos.totalStaked).sub(tomAdapterInfos.amount)).to.eq(BigNumber.from(beforeAdapterInfos.totalStaked));
 
       const tomWithdrable = await this.aAdapter.getWithdrawalAmount(this.tomAddr, 1);
-      // expect(BigNumber.from(tomWithdrable)).to.eq(BigNumber.from(tomAdapterInfos.amount));
-      expect(BigNumber.from(tomWithdrable)).to.eq(BigNumber.from(0));
+      expect(BigNumber.from(tomWithdrable)).to.eq(BigNumber.from(tomAdapterInfos.amount));
     }).timeout(50000000);
   });
 
