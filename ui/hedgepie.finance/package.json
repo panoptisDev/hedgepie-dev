@@ -10,9 +10,6 @@
     "cypress": "cypress open",
     "cypress:headless": "cypress run"
   },
-  "engines": {
-    "node": "16.14.0"
-  },
   "dependencies": {
     "@binance-chain/bsc-connector": "^1.0.0",
     "@emotion/react": "^11.7.1",
