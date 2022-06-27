@@ -39,17 +39,17 @@ const PositionList = () => {
     })
   }
 
-  const handleDelete = (index) => {
-    setFormData({
-      ...formData,
-      positions: formData.positions.filter((d, i) => i !== index),
-    })
-  }
-
   const handleLock = (index) => {
     setFormData({
       ...formData,
       positions: formData.positions.map((d, i) => (i === index ? { ...d, locked: !d.locked } : d)),
+    })
+  }
+
+  const handleDelete = (index) => {
+    setFormData({
+      ...formData,
+      positions: formData.positions.filter((d, i) => i !== index),
     })
   }
 
