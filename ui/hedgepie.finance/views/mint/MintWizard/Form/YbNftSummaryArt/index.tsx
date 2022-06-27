@@ -78,8 +78,8 @@ const YbNftSummaryArt = () => {
       <Box
         sx={{
           fontSize: 14,
-          padding: '10px 10px',
           borderTop: '1px solid #D8D8D8',
+          padding: '10px 10px',
           [`@media screen and (min-width: 400px)`]: {
             fontSize: 16,
           },
