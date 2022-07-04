@@ -331,7 +331,18 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             );
 
             balances[1] = IBEP20(adapter.token).balanceOf(address(this));
+
             if (IAdapter(adapter.addr).router() == address(0)) {
+                if (
+                    IAdapter(adapter.addr).rewardToken() ==
+                    IAdapter(adapter.addr).stakingToken()
+                ) {
+                    balances[1] += IAdapter(adapter.addr).getWithdrawalAmount(
+                        msg.sender,
+                        _tokenId
+                    );
+                }
+
                 // swap
                 amountOut += _swapforBNB(
                     adapter.addr,
@@ -466,7 +477,8 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         rewardTokenAmount[0] = rewardToken != address(0)
             ? IBEP20(rewardToken).balanceOf(address(this))
             : 0;
-        shares[0] = rewardToken == stakingToken
+        shares[0] = rewardToken == stakingToken &&
+            IAdapter(_adapterAddr).vStrategy() != address(0)
             ? IAdapter(_adapterAddr).pendingShares()
             : 0;
 
@@ -488,11 +500,15 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         rewardTokenAmount[1] = rewardToken != address(0)
             ? IBEP20(rewardToken).balanceOf(address(this))
             : 0;
-        shares[1] = rewardToken == stakingToken
+        shares[1] = rewardToken == stakingToken &&
+            IAdapter(_adapterAddr).vStrategy() != address(0)
             ? IAdapter(_adapterAddr).pendingShares()
             : 0;
 
-        if (rewardToken == stakingToken) {
+        if (
+            rewardToken == stakingToken &&
+            IAdapter(_adapterAddr).vStrategy() != address(0)
+        ) {
             require(shares[1] > shares[0], "Error: Deposit failed");
 
             userAdapterInfos[msg.sender][_tokenId][_adapterAddr].userShares +=
@@ -516,6 +532,10 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             );
         } else if (rewardToken != address(0)) {
             // Farm Pool
+
+            if (rewardToken == stakingToken) {
+                rewardTokenAmount[1] += _amount;
+            }
 
             if (rewardTokenAmount[1] - rewardTokenAmount[0] != 0) {
                 AdapterInfo storage adapter = adapterInfos[_tokenId][
@@ -591,7 +611,11 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             ? IBEP20(rewardToken).balanceOf(address(this))
             : 0;
 
-        if (rewardToken != address(0) && rewardToken != stakingToken) {
+        if (rewardToken == stakingToken) rewardTokenAmount[1] += _amount;
+        if (
+            (rewardToken != address(0) && rewardToken != stakingToken) ||
+            vStrategy == address(0)
+        ) {
             if (rewardTokenAmount[1] - rewardTokenAmount[0] != 0) {
                 AdapterInfo storage adapter = adapterInfos[_tokenId][
                     _adapterAddr
