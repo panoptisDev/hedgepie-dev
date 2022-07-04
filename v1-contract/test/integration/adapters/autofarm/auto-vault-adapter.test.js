@@ -20,7 +20,7 @@ async function doubleWantLockedTotal(address, slot, current) {
   ]);
 }
 
-describe("AutoFarmAdapter Vault Integration Test", function () {
+describe("AutoVaultAdapter Integration Test", function () {
   before("Deploy contract", async function () {
     const [owner, alice, bob, carol] = await ethers.getSigners();
 
@@ -46,7 +46,7 @@ describe("AutoFarmAdapter Vault Integration Test", function () {
     console.log("Owner: ", this.owner.address);
 
     // Deploy Apeswap LP Adapter contract
-    const AutoFarmAdapter = await ethers.getContractFactory("AutoFarmAdapter");
+    const AutoFarmAdapter = await ethers.getContractFactory("AutoVaultAdapter");
     this.aAdapter = await AutoFarmAdapter.deploy(
       this.strategy,
       this.vStrategy,

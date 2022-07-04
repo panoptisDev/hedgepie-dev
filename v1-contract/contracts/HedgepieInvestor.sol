@@ -621,7 +621,11 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             ? IBEP20(rewardToken).balanceOf(address(this))
             : 0;
 
-        if (rewardToken != address(0) && rewardToken != stakingToken) {
+        if (rewardToken == stakingToken) rewardTokenAmount[1] += _amount;
+        if (
+            (rewardToken != address(0) && rewardToken != stakingToken) ||
+            vStrategy == address(0)
+        ) {
             if (rewardTokenAmount[1] - rewardTokenAmount[0] != 0) {
                 AdapterInfo storage adapter = adapterInfos[_tokenId][
                     _adapterAddr
