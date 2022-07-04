@@ -19,7 +19,7 @@ describe("BiswapFarmLPAdapter Integration Test", function () {
     const whaleAddr = "0x41772edd47d9ddf9ef848cdb34fe76143908c7ad";
     const strategy = "0xDbc1A13490deeF9c3C12b44FE77b503c1B061739"; // MasterChef Biswap
     const swapRouter = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // pks rounter address
-    const lpToken = "0x2b30c317ceDFb554Ec525F85E79538D59970BEb0"; // BUSD-WBNB LP
+    const lpToken = bsw; // BUSD-WBNB LP
 
     this.wbnb = wbnb;
     this.usdt = usdt;
@@ -29,7 +29,7 @@ describe("BiswapFarmLPAdapter Integration Test", function () {
     this.alice = alice;
     this.bob = bob;
     this.tom = tom;
-    this.biRouter = "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8";
+    this.biRouter = "0x0000000000000000000000000000000000000000";
 
     this.bobAddr = bob.address;
     this.aliceAddr = alice.address;
@@ -42,7 +42,7 @@ describe("BiswapFarmLPAdapter Integration Test", function () {
     // Deploy Biswap LP Adapter contract
     const BiLPAdapter = await ethers.getContractFactory("BiSwapFarmLPAdapter");
     this.aAdapter = await BiLPAdapter.deploy(
-      9, // pid
+      0, // pid
       strategy,
       lpToken,
       this.bsw,

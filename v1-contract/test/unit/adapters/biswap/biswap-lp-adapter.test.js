@@ -8,9 +8,10 @@ describe("BiswapFarmLPAdapter Unit Test", function () {
     this.alice = alice;
     this.owner = owner;
     this.investor = investor;
-    this.strategy = "0x965F527D9159dCe6288a2219DB51fc6Eef120dD1"; // BiSwap Masterchef
-    this.lpToken = "0x2b30c317ceDFb554Ec525F85E79538D59970BEb0"; // BUSD-WBNB LP
+    this.strategy = "0xDbc1A13490deeF9c3C12b44FE77b503c1B061739"; // BiSwap Masterchef
+    this.lpToken = "0x2b30c317ceDFb554Ec525F85E79538D59970BEb0"; // USDT-BSW LP
     this.bsw = "0x965F527D9159dCe6288a2219DB51fc6Eef120dD1";
+    this.biswapRouter = "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8";
 
     // Deploy Biswap LP Adapter contract
     const BiLPAdapter = await ethers.getContractFactory("BiSwapFarmLPAdapter");
@@ -19,6 +20,7 @@ describe("BiswapFarmLPAdapter Unit Test", function () {
       this.strategy,
       this.lpToken,
       this.bsw,
+      this.biswapRouter,
       "USDT-BSW LP Adapter"
     );
     await this.aAdapter.deployed();
