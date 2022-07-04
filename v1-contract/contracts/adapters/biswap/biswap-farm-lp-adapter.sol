@@ -10,7 +10,7 @@ interface IStrategy {
         returns (uint256);
 }
 
-contract ApeswapFarmLPAdapter is Ownable {
+contract BiSwapFarmLPAdapter is Ownable {
     uint256 pid;
     address public stakingToken;
     address public rewardToken;
