@@ -3,19 +3,7 @@ const { ethers } = require("hardhat");
 
 const BigNumber = ethers.BigNumber;
 
-function encode(types, values) {
-  return ethers.utils.defaultAbiCoder.encode(types, values);
-}
-
-async function doubleWantLockedTotal(address, slot, current) {
-  await network.provider.send("hardhat_setStorageAt", [
-    address,
-    slot,
-    encode(["uint256"], [BigNumber.from(current).mul(2).toString()]),
-  ]);
-}
-
-describe.only("ApeswapVaultAdapter Integration Test", function () {
+describe("ApeswapVaultAdapter Integration Test", function () {
   before("Deploy contract", async function () {
     const [owner, alice, bob, tom] = await ethers.getSigners();
 
