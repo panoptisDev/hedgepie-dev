@@ -16,7 +16,7 @@ describe("BeltVaultStakingAdapter Integration Test", function () {
     const swapRouter = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // pks rounter address
     const rewardToken = "0xE0e514c71282b6f4e823703a39374Cf58dc3eA4f" // Belt Token
 
-    this.owner = owner;
+    this.owner = owner; 
     this.alice = alice;
     this.bob = bob;
     this.tom = tom;
