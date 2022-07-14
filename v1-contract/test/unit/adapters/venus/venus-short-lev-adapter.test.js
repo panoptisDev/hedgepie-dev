@@ -1,14 +1,14 @@
 const { assert, expect } = require("chai");
 const { ethers } = require("hardhat");
 
-describe("BiswapFarmLPAdapter Unit Test", function () {
+describe("VenusShortLevAdapter Unit Test", function () {
   before("Deploy contract", async function () {
     const [owner, investor, alice] = await ethers.getSigners();
 
     this.alice = alice;
     this.owner = owner;
     this.investor = investor;
-    this.strategy = "0x95c78222b3d6e262426483d42cfa53685a67ab9d"; // Venus BUSD
+    this.strategy = "0x95c78222B3D6e262426483D42CfA53685A67Ab9D"; // Venus BUSD
 
     // Deploy Biswap LP Adapter contract
     const VenusAdapter = await ethers.getContractFactory(
@@ -53,6 +53,27 @@ describe("BiswapFarmLPAdapter Unit Test", function () {
   describe("should get devest call data", function () {
     it("should get devest call data properly", async function () {
       const result = await this.aAdapter.getDevestCallData("0");
+      expect(!!result).to.eq(true);
+    });
+  });
+
+  describe("should get enterMarket call data", function () {
+    it("should get devest call data properly", async function () {
+      const result = await this.aAdapter.getEnterMarketCallData();
+      expect(!!result).to.eq(true);
+    });
+  });
+
+  describe("should get loan call data", function () {
+    it("should get devest call data properly", async function () {
+      const result = await this.aAdapter.getLoanCallData("0");
+      expect(!!result).to.eq(true);
+    });
+  });
+
+  describe("should get deloan call data", function () {
+    it("should get devest call data properly", async function () {
+      const result = await this.aAdapter.getDeLoanCallData("0");
       expect(!!result).to.eq(true);
     });
   });
