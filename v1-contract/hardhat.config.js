@@ -14,10 +14,11 @@ module.exports = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
+      allowUnlimitedContractSize: true,
       forking: {
         url: "https://bsc-dataseed4.binance.org/",
         enabled: true,
-        // blockNumber: 17849149,
+        // blockNumber: 19543182,
       },
     },
     local: {
