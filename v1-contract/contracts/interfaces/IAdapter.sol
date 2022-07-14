@@ -13,6 +13,12 @@ interface IAdapter {
         view
         returns (address[] memory);
 
+    function isEntered() external view returns (bool);
+
+    function isLeverage() external view returns (bool);
+
+    function borrowRate() external view returns (uint256);
+
     function stakingToken() external view returns (address);
 
     function poolID() external view returns (address);
@@ -63,6 +69,33 @@ interface IAdapter {
             bytes memory data
         );
 
+    function getEnterMarketCallData()
+        external
+        view
+        returns (
+            address to,
+            uint256 value,
+            bytes memory data
+        );
+
+    function getLoanCallData(uint256 _amount)
+        external
+        view
+        returns (
+            address to,
+            uint256 value,
+            bytes memory data
+        );
+
+    function getDeLoanCallData(uint256 _amount)
+        external
+        view
+        returns (
+            address to,
+            uint256 value,
+            bytes memory data
+        );
+
     function getReward(address _user) external view returns (uint256);
 
     function increaseWithdrawalAmount(
@@ -76,6 +109,8 @@ interface IAdapter {
         uint256 _nftId,
         uint256 _amount
     ) external;
+
+    function setIsEntered(bool _isEntered) external;
 
     function setInvestor(address _investor) external;
 }

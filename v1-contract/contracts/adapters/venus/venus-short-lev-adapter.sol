@@ -17,6 +17,14 @@ contract VenusShortLevAdapter is Ownable {
     string public name;
     address public investor;
 
+    address public wrapToken;
+
+    uint256 public borrowRate; // 10,000 Max
+
+    bool public isLeverage;
+
+    bool public isEntered;
+
     // inToken => outToken => paths
     mapping(address => mapping(address => address[])) public paths;
 
@@ -31,8 +39,6 @@ contract VenusShortLevAdapter is Ownable {
     /**
      * @notice Construct
      * @param _strategy  address of strategy
-     * @param _stakingToken  address of staking token
-     * @param _rewardToken  address of reward token
      * @param _name  adatper name
      */
     constructor(address _strategy, string memory _name) {
@@ -46,10 +52,12 @@ contract VenusShortLevAdapter is Ownable {
         );
 
         stakingToken = VBep20Interface(_strategy).underlying();
-        rewardToken = _strategy;
+        repayToken = _strategy;
         strategy = _strategy;
-        router = _router;
         name = _name;
+
+        isLeverage = true;
+        borrowRate = 8000;
     }
 
     /**
@@ -77,9 +85,11 @@ contract VenusShortLevAdapter is Ownable {
             bytes memory data
         )
     {
+        address[] memory _vTokens = new address[](1);
+        _vTokens[0] = strategy;
         to = VBep20Interface(strategy).comptroller();
         value = 0;
-        data = abi.encodeWithSignature("enterMarkets(address[])", [strategy]);
+        data = abi.encodeWithSignature("enterMarkets(address[])", _vTokens);
     }
 
     /**
@@ -98,6 +108,24 @@ contract VenusShortLevAdapter is Ownable {
         to = strategy;
         value = 0;
         data = abi.encodeWithSignature("borrow(uint256)", _amount);
+    }
+
+    /**
+     * @notice Get de-loan market calldata
+     * @param _amount  amount of loan
+     */
+    function getDeLoanCallData(uint256 _amount)
+        external
+        view
+        returns (
+            address to,
+            uint256 value,
+            bytes memory data
+        )
+    {
+        to = strategy;
+        value = 0;
+        data = abi.encodeWithSignature("repayBorrow(uint256)", _amount);
     }
 
     /**
@@ -162,6 +190,14 @@ contract VenusShortLevAdapter is Ownable {
         uint256 _amount
     ) external onlyInvestor {
         withdrawalAmount[_user][_nftId] = _amount;
+    }
+
+    /**
+     * @notice Set withdrwal amount
+     * @param _isEntered entered status
+     */
+    function setIsEntered(bool _isEntered) external onlyInvestor {
+        isEntered = _isEntered;
     }
 
     /**
@@ -242,6 +278,6 @@ contract VenusShortLevAdapter is Ownable {
      * @param _user  address of investor
      */
     function getReward(address _user) external view returns (uint256) {
-        return IStrategy(strategy).pendingBSW(pid, _user);
+        return 0;
     }
 }
