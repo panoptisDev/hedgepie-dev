@@ -8,7 +8,7 @@ const unlockAccount = async (address) => {
   return hre.ethers.provider.getSigner(address);
 };
 
-describe("VenusShortLevAdapter Integration Test", function () {
+describe("VenusLongLevAdapter Integration Test", function () {
   before("Deploy contract", async function () {
     const [owner, alice, bob, tom] = await ethers.getSigners();
 
@@ -35,9 +35,9 @@ describe("VenusShortLevAdapter Integration Test", function () {
     this.busdToken = await ethers.getContractAt("IBEP20", this.busd);
     this.vBusd = await ethers.getContractAt("IBEP20", vBusd);
 
-    // Deploy VenusShortLev Adapter contract
-    const VenusShotLevAdapter = await ethers.getContractFactory("VenusShortLevAdapter");
-    this.aAdapter = await VenusShotLevAdapter.deploy(this.vBusd.address, "Venus::BUSD Short Leverage Adapter");
+    // Deploy VenusLongLev Adapter contract
+    const VenusShotLevAdapter = await ethers.getContractFactory("VenusLongLevAdapter");
+    this.aAdapter = await VenusShotLevAdapter.deploy(this.vBusd.address, "Venus::BUSD Long Leverage Adapter");
     await this.aAdapter.deployed();
 
     // Deploy YBNFT contract
@@ -80,7 +80,7 @@ describe("VenusShortLevAdapter Integration Test", function () {
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
     console.log("Strategy: ", this.vBusd.address);
-    console.log("VenusShortLevAdapter: ", this.aAdapter.address);
+    console.log("VenusLongLevAdapter: ", this.aAdapter.address);
 
     this.whaleWallet = await unlockAccount(whaleAddr);
   });
