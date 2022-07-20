@@ -122,65 +122,6 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     }
 
     /**
-     * @notice Deposit fund
-     * @param _user  user address
-     * @param _tokenId  YBNft token id
-     * @param _token  token address
-     * @param _amount  token amount
-     */
-    function deposit(
-        address _user,
-        uint256 _tokenId,
-        address _token,
-        uint256 _amount
-    ) external shouldMatchCaller(_user) nonReentrant {
-        require(_amount != 0, "Error: Amount can not be 0");
-        require(
-            IYBNFT(ybnft).exists(_tokenId),
-            "Error: nft tokenId is invalid"
-        );
-
-        IBEP20(_token).safeTransferFrom(_user, address(this), _amount);
-
-        IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
-            _tokenId
-        );
-
-        for (uint8 i = 0; i < adapterInfo.length; i++) {
-            IYBNFT.Adapter memory adapter = adapterInfo[i];
-
-            uint256 amountIn = (_amount * adapter.allocation) / 1e4;
-            uint256 amountOut;
-            address routerAddr = IAdapter(adapter.addr).router();
-            if (routerAddr == address(0)) {
-                // swap
-                amountOut = _swapOnPKS(
-                    adapter.addr,
-                    amountIn,
-                    _token,
-                    adapter.token
-                );
-            } else {
-                // get lp
-                amountOut = _getLP(
-                    adapter.addr,
-                    amountIn,
-                    _token,
-                    adapter.token,
-                    routerAddr
-                );
-            }
-
-            // deposit to adapter
-            _depositToAdapter(adapter.token, adapter.addr, _tokenId, amountOut);
-            userAdapterInfos[_user][_tokenId][adapter.addr].amount += amountOut;
-        }
-
-        userInfo[_user][ybnft][_tokenId] += _amount;
-        emit Deposit(_user, ybnft, _tokenId, _amount);
-    }
-
-    /**
      * @notice Deposit with BNB
      * @param _user  user address
      * @param _tokenId  YBNft token id
@@ -269,55 +210,6 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             payable(_user).transfer(afterBalance - beforeBalance);
 
         emit DepositBNB(_user, ybnft, _tokenId, _amount);
-    }
-
-    /**
-     * @notice Withdraw fund
-     * @param _user  user address
-     * @param _tokenId  YBNft token id
-     * @param _token  token address
-     */
-    function withdraw(
-        address _user,
-        uint256 _tokenId,
-        address _token
-    ) public shouldMatchCaller(_user) nonReentrant {
-        uint256 userAmount = userInfo[_user][ybnft][_tokenId];
-        require(
-            IYBNFT(ybnft).exists(_tokenId),
-            "Error: nft tokenId is invalid"
-        );
-        require(userAmount != 0, "Error: Amount should be greater than 0");
-
-        IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
-            _tokenId
-        );
-
-        uint256 amountOut;
-        for (uint8 i = 0; i < adapterInfo.length; i++) {
-            IYBNFT.Adapter memory adapter = adapterInfo[i];
-
-            _withdrawFromAdapter(
-                adapter.addr,
-                _tokenId,
-                IAdapter(adapter.addr).getWithdrawalAmount(msg.sender, _tokenId)
-            );
-
-            // swap
-            amountOut += _swapOnPKS(
-                adapter.addr,
-                userAdapterInfos[_user][_tokenId][adapter.addr].amount,
-                adapter.token,
-                _token
-            );
-
-            userAdapterInfos[_user][_tokenId][adapter.addr].amount = 0;
-        }
-
-        userInfo[_user][ybnft][_tokenId] -= userAmount;
-
-        IBEP20(_token).safeTransfer(_user, amountOut);
-        emit Withdraw(_user, ybnft, _tokenId, userAmount);
     }
 
     /**
@@ -557,8 +449,8 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
         // Venus short leverage
         if (IAdapter(_adapterAddr).isLeverage()) {
-            require(afterAmount > beforeAmount, "Error: Borrow failed");
-            _borrowAsset(_adapterAddr, _tokenId, _amount);
+            require(afterAmount > beforeAmount, "Error: Supply failed");
+            _leverageAsset(_adapterAddr, _tokenId, _amount);
         } else {
             if (repayToken != address(0)) {
                 require(afterAmount > beforeAmount, "Error: Deposit failed");
@@ -647,7 +539,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         }
 
         if (IAdapter(_adapterAddr).isLeverage()) {
-            _repayAsset(_adapterAddr, _amount);
+            _repayAsset(_adapterAddr, _tokenId);
         } else {
             (
                 address to,
@@ -942,7 +834,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         }
     }
 
-    function _borrowAsset(
+    function _leverageAsset(
         address _adapterAddr,
         uint256 _tokenId,
         uint256 _amount
@@ -966,54 +858,125 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             );
         }
 
-        uint256 beforeAmount = IBEP20(IAdapter(_adapterAddr).stakingToken())
-            .balanceOf(address(this));
-
-        (address to, uint256 value, bytes memory callData) = IAdapterManager(
-            adapterManager
-        ).getLoanCallData(
-                _adapterAddr,
-                (_amount * IAdapter(_adapterAddr).borrowRate()) / 10000
-            );
-
-        (bool success, bytes memory data) = to.call{value: value}(callData);
-        require(success, "Error: Borrow internal issue");
-
-        uint256 afterAmount = IBEP20(IAdapter(_adapterAddr).stakingToken())
-            .balanceOf(address(this));
-
-        require(beforeAmount < afterAmount, "Error: Borrow failed");
-
         IAdapter(_adapterAddr).increaseWithdrawalAmount(
             msg.sender,
             _tokenId,
             _amount
         );
+
+        uint256 beforeAmount;
+        uint256 afterAmount;
+        uint256 value;
+        address to;
+        bool success;
+        bytes memory callData;
+        bytes memory data;
+
+        for (uint256 i = 0; i < IAdapter(_adapterAddr).DEEPTH(); i++) {
+            beforeAmount = IBEP20(IAdapter(_adapterAddr).stakingToken())
+                .balanceOf(address(this));
+
+            (to, value, callData) = IAdapterManager(adapterManager)
+                .getLoanCallData(
+                    _adapterAddr,
+                    (_amount * IAdapter(_adapterAddr).borrowRate()) / 10000
+                );
+
+            (success, data) = to.call{value: value}(callData);
+            require(success, "Error: Borrow internal issue");
+
+            afterAmount = IBEP20(IAdapter(_adapterAddr).stakingToken())
+                .balanceOf(address(this));
+            require(beforeAmount < afterAmount, "Error: Borrow failed");
+
+            _amount = afterAmount - beforeAmount;
+
+            IBEP20(IAdapter(_adapterAddr).stakingToken()).approve(
+                IAdapterManager(adapterManager).getAdapterStrat(_adapterAddr),
+                _amount
+            );
+
+            (to, value, callData) = IAdapterManager(adapterManager)
+                .getDepositCallData(_adapterAddr, _amount);
+            (success, data) = to.call{value: value}(callData);
+            require(success, "Error: Re-deposit internal issue");
+
+            IAdapter(_adapterAddr).increaseWithdrawalAmount(
+                msg.sender,
+                _tokenId,
+                _amount,
+                i + 1
+            );
+            userAdapterInfos[msg.sender][_tokenId][_adapterAddr]
+                .amount += _amount;
+            adapterInfos[_tokenId][_adapterAddr].totalStaked += _amount;
+        }
     }
 
-    function _repayAsset(address _adapterAddr, uint256 _amount) internal {
+    function _repayAsset(address _adapterAddr, uint256 _tokenId) internal {
         require(
             IAdapter(_adapterAddr).isEntered(),
             "Error: Not entered market"
         );
 
-        (address to, uint256 value, bytes memory callData) = IAdapterManager(
-            adapterManager
-        ).getDeLoanCallData(
-                _adapterAddr,
-                (_amount * IAdapter(_adapterAddr).borrowRate()) / 10000
+        uint256 _amount;
+        uint256 bAmt;
+        uint256 aAmt;
+        address to;
+        uint256 value;
+        bytes memory callData;
+        bool success;
+
+        for (uint256 i = IAdapter(_adapterAddr).DEEPTH(); i > 0; i--) {
+            _amount = IAdapter(_adapterAddr).stackWithdrawalAmounts(
+                msg.sender,
+                _tokenId,
+                i
             );
 
-        (bool success, ) = to.call{value: value}(callData);
+            bAmt = IBEP20(IAdapter(_adapterAddr).stakingToken()).balanceOf(
+                address(this)
+            );
 
-        require(success, "Error: DeLoan internal issue");
+            (to, value, callData) = IAdapterManager(adapterManager)
+                .getWithdrawCallData(_adapterAddr, _amount);
+            (success, ) = to.call{value: value}(callData);
+            require(success, "Error: Devest internal issue");
 
+            aAmt = IBEP20(IAdapter(_adapterAddr).stakingToken()).balanceOf(
+                address(this)
+            );
+            require(aAmt - bAmt == _amount, "Error: Devest failed");
+
+            IBEP20(IAdapter(_adapterAddr).stakingToken()).approve(
+                IAdapterManager(adapterManager).getAdapterStrat(_adapterAddr),
+                _amount
+            );
+
+            (to, value, callData) = IAdapterManager(adapterManager)
+                .getDeLoanCallData(_adapterAddr, _amount);
+            (success, ) = to.call{value: value}(callData);
+            require(success, "Error: DeLoan internal issue");
+        }
+
+        _amount = IAdapter(_adapterAddr).stackWithdrawalAmounts(
+            msg.sender,
+            _tokenId,
+            0
+        );
+
+        bAmt = IBEP20(IAdapter(_adapterAddr).stakingToken()).balanceOf(
+            address(this)
+        );
         (to, value, callData) = IAdapterManager(adapterManager)
-            .getWithdrawCallData(_adapterAddr, _amount);
-
+            .getWithdrawCallData(_adapterAddr, (_amount * 9999) / 10000);
         (success, ) = to.call{value: value}(callData);
-
         require(success, "Error: Devest internal issue");
+        aAmt = IBEP20(IAdapter(_adapterAddr).stakingToken()).balanceOf(
+            address(this)
+        );
+
+        require(bAmt < aAmt, "Error: Devest failed");
     }
 
     /**

@@ -13,6 +13,14 @@ interface IAdapter {
         view
         returns (address[] memory);
 
+    function stackWithdrawalAmounts(
+        address _user,
+        uint256 _tokenId,
+        uint256 _index
+    ) external view returns (uint256);
+
+    function DEEPTH() external view returns (uint8);
+
     function isEntered() external view returns (bool);
 
     function isLeverage() external view returns (bool);
@@ -102,6 +110,13 @@ interface IAdapter {
         address _user,
         uint256 _nftId,
         uint256 _amount
+    ) external;
+
+    function increaseWithdrawalAmount(
+        address _user,
+        uint256 _nftId,
+        uint256 _amount,
+        uint256 _deepid
     ) external;
 
     function setWithdrawalAmount(

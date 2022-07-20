@@ -6,7 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 import "./interface/VBep20Interface.sol";
 import "./interface/ComptrollerInterface.sol";
 
-contract VenusShortLevAdapter is Ownable {
+contract VenusLongLevAdapter is Ownable {
     uint256 pid;
     address public stakingToken;
     address public rewardToken;
@@ -21,7 +21,7 @@ contract VenusShortLevAdapter is Ownable {
 
     uint256 public borrowRate; // 10,000 Max
 
-    uint256 public constant DEEPTH = 1;
+    uint256 public constant DEEPTH = 3;
 
     bool public isLeverage;
 
