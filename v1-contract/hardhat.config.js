@@ -5,10 +5,8 @@ require("@nomiclabs/hardhat-waffle");
 require("@typechain/hardhat");
 require("dotenv-extended").load();
 
-if (!process.env.TESTNET_PRIVKEY)
-  throw new Error("TESTNET_PRIVKEY missing from .env file");
-if (!process.env.MAINNET_PRIVKEY)
-  throw new Error("MAINNET_PRIVKEY missing from .env file");
+if (!process.env.TESTNET_PRIVKEY) throw new Error("TESTNET_PRIVKEY missing from .env file");
+if (!process.env.MAINNET_PRIVKEY) throw new Error("MAINNET_PRIVKEY missing from .env file");
 
 module.exports = {
   defaultNetwork: "hardhat",
@@ -16,9 +14,9 @@ module.exports = {
     hardhat: {
       allowUnlimitedContractSize: true,
       forking: {
-        url: "https://bsc-dataseed4.binance.org/",
+        url: "https://bsc-dataseed1.binance.org/",
         enabled: true,
-        // blockNumber: 19543182,
+        // blockNumber: 19717000,
       },
     },
     local: {
