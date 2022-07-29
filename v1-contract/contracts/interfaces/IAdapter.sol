@@ -21,6 +21,8 @@ interface IAdapter {
 
     function DEEPTH() external view returns (uint8);
 
+    function isVault() external view returns (bool);
+
     function isEntered() external view returns (bool);
 
     function isLeverage() external view returns (bool);

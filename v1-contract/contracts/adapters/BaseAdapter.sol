@@ -32,6 +32,8 @@ abstract contract BaseAdapter is Ownable {
 
     bool public isEntered;
 
+    bool public isVault;
+
     // inToken => outToken => paths
     mapping(address => mapping(address => address[])) public paths;
 

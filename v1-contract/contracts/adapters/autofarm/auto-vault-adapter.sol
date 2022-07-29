@@ -39,6 +39,7 @@ contract AutoVaultAdapter is BaseAdapter {
         vStrategy = _vStrategy;
         name = _name;
         router = _router;
+        isVault = true;
     }
 
     /**

@@ -46,6 +46,20 @@ contract VenusLendAdapter is BaseAdapter {
     }
 
     /**
+     * @notice Set withdrwal amount
+     * @param _user  user address
+     * @param _nftId  nftId
+     * @param _amount  amount of withdrawal
+     */
+    function setWithdrawalAmount(
+        address _user,
+        uint256 _nftId,
+        uint256 _amount
+    ) external onlyInvestor {
+        withdrawalAmount[_user][_nftId] = _amount;
+    }
+
+    /**
      * @notice Get invest calldata
      * @param _amount  amount of invest
      */

@@ -404,21 +404,20 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         uint256 _tokenId,
         uint256 _amount
     ) internal {
-        uint256 beforeAmount;
-        uint256 afterAmount;
+        uint256[2] memory amounts;
+        address[3] memory addrs;
+        addrs[0] = IAdapter(_adapterAddr).stakingToken();
+        addrs[1] = IAdapter(_adapterAddr).repayToken();
+        addrs[2] = IAdapter(_adapterAddr).rewardToken();
 
-        address stakingToken = IAdapter(_adapterAddr).stakingToken();
-        address repayToken = IAdapter(_adapterAddr).repayToken();
-        address rewardToken = IAdapter(_adapterAddr).rewardToken();
-
-        beforeAmount = repayToken != address(0)
-            ? IBEP20(repayToken).balanceOf(address(this))
+        amounts[0] = addrs[1] != address(0)
+            ? IBEP20(addrs[1]).balanceOf(address(this))
             : (
-                rewardToken == stakingToken
+                IAdapter(_adapterAddr).isVault()
                     ? IAdapter(_adapterAddr).pendingShares()
                     : (
-                        rewardToken != address(0)
-                            ? IBEP20(rewardToken).balanceOf(address(this))
+                        addrs[2] != address(0)
+                            ? IBEP20(addrs[2]).balanceOf(address(this))
                             : 0
                     )
             );
@@ -435,52 +434,54 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         (bool success, bytes memory data) = to.call{value: value}(callData);
         require(success, "Error: Deposit internal issue");
 
-        afterAmount = repayToken != address(0)
-            ? IBEP20(repayToken).balanceOf(address(this))
+        amounts[1] = addrs[1] != address(0)
+            ? IBEP20(addrs[1]).balanceOf(address(this))
             : (
-                rewardToken == stakingToken
+                IAdapter(_adapterAddr).isVault()
                     ? IAdapter(_adapterAddr).pendingShares()
                     : (
-                        rewardToken != address(0)
-                            ? IBEP20(rewardToken).balanceOf(address(this))
+                        addrs[2] != address(0)
+                            ? IBEP20(addrs[2]).balanceOf(address(this))
                             : 0
                     )
             );
 
         // Venus short leverage
         if (IAdapter(_adapterAddr).isLeverage()) {
-            require(afterAmount > beforeAmount, "Error: Supply failed");
+            require(amounts[1] > amounts[0], "Error: Supply failed");
             _leverageAsset(_adapterAddr, _tokenId, _amount);
         } else {
-            if (repayToken != address(0)) {
-                require(afterAmount > beforeAmount, "Error: Deposit failed");
+            if (addrs[1] != address(0)) {
+                require(amounts[1] > amounts[0], "Error: Deposit failed");
                 IAdapter(_adapterAddr).increaseWithdrawalAmount(
                     msg.sender,
                     _tokenId,
-                    afterAmount - beforeAmount
+                    amounts[1] - amounts[0]
                 );
-            } else if (rewardToken == stakingToken) {
-                require(afterAmount > beforeAmount, "Error: Deposit failed");
+            } else if (IAdapter(_adapterAddr).isVault()) {
+                require(amounts[1] > amounts[0], "Error: Deposit failed");
 
                 userAdapterInfos[msg.sender][_tokenId][_adapterAddr]
-                    .userShares += afterAmount - beforeAmount;
+                    .userShares += amounts[1] - amounts[0];
 
                 IAdapter(_adapterAddr).increaseWithdrawalAmount(
                     msg.sender,
                     _tokenId,
-                    afterAmount - beforeAmount
+                    amounts[1] - amounts[0]
                 );
-            } else if (rewardToken != address(0)) {
+            } else if (addrs[2] != address(0)) {
                 // Farm Pool
-                if (afterAmount - beforeAmount != 0) {
-                    AdapterInfo storage adapter = adapterInfos[_tokenId][
-                        _adapterAddr
-                    ];
+                AdapterInfo storage adapter = adapterInfos[_tokenId][
+                    _adapterAddr
+                ];
+                uint256 rewardAmount = addrs[2] == addrs[0]
+                    ? amounts[1] + _amount - amounts[0]
+                    : amounts[1] - amounts[0];
 
-                    if (adapter.totalStaked != 0)
-                        adapter.accTokenPerShare +=
-                            ((afterAmount - beforeAmount) * 1e12) /
-                            adapter.totalStaked;
+                if (rewardAmount != 0 && adapter.totalStaked != 0) {
+                    adapter.accTokenPerShare +=
+                        (rewardAmount * 1e12) /
+                        adapter.totalStaked;
                 }
 
                 if (
@@ -531,7 +532,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
         // Vault case - recalculate want token withdrawal amount for user
         uint256 _vAmount;
-        if (rewardToken == stakingToken && vStrategy != address(0)) {
+        if (IAdapter(_adapterAddr).isVault()) {
             _vAmount =
                 (userAdapter.userShares *
                     IVaultStrategy(vStrategy).wantLockedTotal()) /
