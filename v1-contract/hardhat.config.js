@@ -5,22 +5,18 @@ require("@nomiclabs/hardhat-waffle");
 require("@typechain/hardhat");
 require("dotenv-extended").load();
 
-
-
-if (!process.env.TESTNET_PRIVKEY)
-  throw new Error("TESTNET_PRIVKEY missing from .env file");
-if (!process.env.MAINNET_PRIVKEY)
-  throw new Error("MAINNET_PRIVKEY missing from .env file");
-
+if (!process.env.TESTNET_PRIVKEY) throw new Error("TESTNET_PRIVKEY missing from .env file");
+if (!process.env.MAINNET_PRIVKEY) throw new Error("MAINNET_PRIVKEY missing from .env file");
 
 module.exports = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
-      chainId: 31337,
+      allowUnlimitedContractSize: true,
       forking: {
-        url: `https://eth-mainnet.alchemyapi.io/v2/${process.env.ALCHEMY_KEY}`,
-        blockNumber: 10207859,
+        url: "https://bsc-dataseed1.binance.org/",
+        enabled: true,
+        // blockNumber: 19717000,
       },
     },
     local: {
@@ -41,17 +37,18 @@ module.exports = {
       gasPrice: 200000000000,
       accounts: [process.env.TESTNET_PRIVKEY],
     },
-    // bsc-testnet
+    bsc: {
+      url: "https://bsc-dataseed.binance.org/",
+      accounts: [process.env.MAINNET_PRIVKEY],
+    },
     bscTestnet: {
       url: `https://data-seed-prebsc-1-s1.binance.org:8545`,
       accounts: [process.env.TESTNET_PRIVKEY],
     },
   },
   etherscan: {
-    apiKey: {
-      mainnet: process.env.ETHERSCAN_API_KEY,
-      bscTestnet: process.env.BSCSCAN_API_KEY
-    }
+    // bnb network
+    apiKey: process.env.BSCSCAN_API_KEY,
   },
   typechain: {
     outDir: "typechain",
@@ -62,6 +59,9 @@ module.exports = {
     cache: "./cache",
     sources: "./contracts",
     tests: "./test",
+  },
+  mocha: {
+    timeout: 20000000,
   },
   solidity: {
     compilers: [
@@ -85,7 +85,7 @@ module.exports = {
             runs: 200,
           },
         },
-      }
-    ]
-  }
+      },
+    ],
+  },
 };

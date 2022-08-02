@@ -3,29 +3,31 @@ import { Box } from 'theme-ui'
 import MintWizardContext from 'contexts/MintWizardContext'
 
 const SummaryLegend = () => {
-
   const { formData, wizard } = React.useContext(MintWizardContext)
   const [data, setData] = React.useState<any>([])
 
   React.useEffect(() => {
     const allocated = Math.min(100, parseInt(formData.allocated || 0))
-    let legendData = wizard.order === 2 ? [
-      {
-        key: 'summary-artwork',
-        title: 'Artwork',
-        status: formData.artWorkUrl ? 'Set' : 'Not set'
-      }
-    ] : []
+    let legendData =
+      wizard.order === 2
+        ? [
+            {
+              key: 'summary-artwork',
+              title: 'Artwork',
+              status: formData.artWorkUrl ? 'Set' : 'Not set',
+            },
+          ]
+        : []
     legendData.push({
       key: 'summary-allocated',
       title: `${allocated}%`,
-      status: 'Allocated'
+      status: 'Allocated',
     })
     if (allocated > 0 && allocated < 100) {
       legendData.push({
         key: 'summary-unallocated',
         title: `${100 - allocated}%`,
-        status: 'Unallocated'
+        status: 'Unallocated',
       })
     }
     setData(legendData)
@@ -34,7 +36,7 @@ const SummaryLegend = () => {
   return (
     <Box as="table">
       <Box as="tbody">
-        {data.map(d =>
+        {data.map((d) => (
           <Box as="tr" key={d.status}>
             <Box
               as="td"
@@ -47,7 +49,7 @@ const SummaryLegend = () => {
                 [`@media screen and (min-width: 400px)`]: {
                   paddingRight: 24,
                   fontSize: 20,
-                }
+                },
               }}
             >
               {d.title}
@@ -61,13 +63,13 @@ const SummaryLegend = () => {
                 fontWeight: 700,
                 [`@media screen and (min-width: 400px)`]: {
                   fontSize: 20,
-                }
+                },
               }}
             >
               {d.status}
             </Box>
           </Box>
-        )}
+        ))}
       </Box>
     </Box>
   )

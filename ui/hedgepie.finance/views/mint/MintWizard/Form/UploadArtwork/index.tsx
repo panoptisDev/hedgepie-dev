@@ -3,7 +3,6 @@ import { Box, Input } from 'theme-ui'
 import MintWizardContext from 'contexts/MintWizardContext'
 
 const UploadArtwork = () => {
-
   const { formData, setFormData } = React.useContext(MintWizardContext)
 
   const handleChange = (e) => {
@@ -14,15 +13,15 @@ const UploadArtwork = () => {
         setFormData({
           ...formData,
           artWorkFile: file,
-          artWorkUrl: e.target.result
+          artWorkUrl: e.target.result,
         })
-      };
+      }
       reader.readAsDataURL(file)
     } else {
       setFormData({
         ...formData,
         artWorkFile: null,
-        artWorkUrl: ''
+        artWorkUrl: '',
       })
     }
   }
@@ -35,7 +34,7 @@ const UploadArtwork = () => {
         borderRadius: 8,
         [`@media screen and (min-width: 500px)`]: {
           padding: 24,
-        }
+        },
       }}
     >
       <Box
@@ -45,7 +44,7 @@ const UploadArtwork = () => {
           color: '#16103A',
           [`@media screen and (min-width: 500px)`]: {
             fontSize: 24,
-          }
+          },
         }}
       >
         Upload Artwork
@@ -56,8 +55,8 @@ const UploadArtwork = () => {
           fontWeight: 500,
           color: '#DF4886',
           [`@media screen and (min-width: 500px)`]: {
-            fontSize: 16
-          }
+            fontSize: 16,
+          },
         }}
       >
         Associate an illustration or file?
@@ -68,11 +67,13 @@ const UploadArtwork = () => {
           mt: 22,
           color: '#8E8DA0',
           [`@media screen and (min-width: 500px)`]: {
-            fontSize: 16
-          }
+            fontSize: 16,
+          },
         }}
       >
-        It is a long established fact that a reader will be distracted by the readable content of a page when looking at its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as opposed to using 'Content here, content here', making it look like readable English.
+        It is a long established fact that a reader will be distracted by the readable content of a page when looking at
+        its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as
+        opposed to using 'Content here, content here', making it look like readable English.
       </Box>
       <Box mt={24}>
         <Box as="label">
@@ -83,7 +84,7 @@ const UploadArtwork = () => {
               width: 0,
               height: 0,
               padding: 0,
-              opacity: 0
+              opacity: 0,
             }}
             onChange={handleChange}
           />
@@ -102,11 +103,11 @@ const UploadArtwork = () => {
               transition: 'all .2s',
               cursor: 'pointer',
               '&:hover': {
-                backgroundColor: '#16103AEE'
+                backgroundColor: '#16103AEE',
               },
               '&:active': {
-                backgroundColor: '#16103A'
-              }
+                backgroundColor: '#16103A',
+              },
             }}
           >
             UPLOAD

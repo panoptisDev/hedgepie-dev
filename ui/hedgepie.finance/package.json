@@ -10,6 +10,9 @@
     "cypress": "cypress open",
     "cypress:headless": "cypress run"
   },
+  "engines": {
+    "node": "16.14.0"
+  },
   "dependencies": {
     "@binance-chain/bsc-connector": "^1.0.0",
     "@emotion/react": "^11.7.1",
@@ -45,6 +48,7 @@
     "web3-core-helpers": "^1.7.1",
     "web3-eth-contract": "^1.7.1",
     "web3-utils": "^1.7.1",
+    "web3.storage": "^4.2.0",
     "web3modal": "^1.9.5"
   },
   "devDependencies": {

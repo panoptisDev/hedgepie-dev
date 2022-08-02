@@ -4,12 +4,10 @@ import * as d3 from 'd3'
 import MintWizardContext from 'contexts/MintWizardContext'
 
 const PieChart = () => {
-
   const { formData } = React.useContext(MintWizardContext)
   const rootRef = React.useRef<any>(null)
 
   const drawChart = () => {
-
     // dimension
     const width = rootRef.current.clientWidth
     const radius = width / 2
@@ -21,18 +19,24 @@ const PieChart = () => {
     const colors = ['#C92144', '#A11D2B']
 
     // arc
-    const arcs = d3.pie().padAngle(0).sort(null).value((i: any) => values[i])(indexes)
+    const arcs = d3
+      .pie()
+      .padAngle(0)
+      .sort(null)
+      .value((i: any) => values[i])(indexes)
     const arc: any = d3.arc().innerRadius(0).outerRadius(radius)
 
     // svg
-    const svg = d3.select(rootRef.current)
+    const svg = d3
+      .select(rootRef.current)
       .attr('width', width)
       .attr('height', width)
       .attr('viewBox', [-width / 2, -width / 2, width, width])
 
     svg.selectAll('g').remove()
 
-    svg.append('g')
+    svg
+      .append('g')
       .selectAll('path')
       .attr('stroke-width', 0)
       .data(arcs)
@@ -56,7 +60,7 @@ const PieChart = () => {
     <Box
       sx={{
         position: 'relative',
-        paddingBottom: '100%'
+        paddingBottom: '100%',
       }}
     >
       <Box
@@ -84,10 +88,9 @@ const PieChart = () => {
             as="svg"
             ref={rootRef}
             sx={{
-              width: '100%'
+              width: '100%',
             }}
-          >
-          </Box>
+          ></Box>
         </Box>
       </Box>
     </Box>

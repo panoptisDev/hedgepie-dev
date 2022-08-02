@@ -5,10 +5,9 @@ import MintWizardNav from './MintWizardNav'
 import MintWizardNavVertical from './MintWizardNavVertical'
 import FormPosition from './Form/FormPosition'
 import FormPerformanceFee from './Form/FormPerformanceFee'
-import FormArtName from './Form/FormArtName'
+import FormArtNameAndSubmit from './Form/FormArtNameAndSubmit'
 
 const MintWizard = () => {
-
   const { wizard } = React.useContext(MintWizardContext)
 
   return (
@@ -32,7 +31,7 @@ const MintWizard = () => {
             height: 120,
             fontSize: 32,
             padding: '0 46px',
-          }
+          },
         }}
       >
         YB NFT Minting
@@ -42,28 +41,28 @@ const MintWizard = () => {
           padding: 20,
           [`@media screen and (min-width: 800px)`]: {
             padding: 40,
-          }
+          },
         }}
       >
         <MintWizardNav
           sx={{
             display: 'none',
             [`@media screen and (min-width: 800px)`]: {
-              display: 'block'
-            }
+              display: 'block',
+            },
           }}
         />
         <MintWizardNavVertical
           sx={{
             display: 'block',
             [`@media screen and (min-width: 800px)`]: {
-              display: 'none'
-            }
+              display: 'none',
+            },
           }}
         />
         {wizard.order === 0 && <FormPosition />}
         {wizard.order === 1 && <FormPerformanceFee />}
-        {wizard.order === 2 && <FormArtName />}
+        {wizard.order === 2 && <FormArtNameAndSubmit />}
       </Box>
     </Box>
   )

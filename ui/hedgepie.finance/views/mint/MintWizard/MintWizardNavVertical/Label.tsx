@@ -9,22 +9,20 @@ type Props = {
 }
 
 const Label = ({ index, label, active }: Props) => {
-
   const { wizard, setWizard } = React.useContext(MintWizardContext)
 
   const handleNavigate = () => {
     if (wizard.order !== index) {
       setWizard({
         ...wizard,
-        order: index
+        order: index,
       })
     }
   }
 
   return (
-    <Box
-    >
-      {index > 0 &&
+    <Box>
+      {index > 0 && (
         <Box
           sx={{
             marginLeft: 20,
@@ -33,15 +31,15 @@ const Label = ({ index, label, active }: Props) => {
             backgroundColor: '#1799DE',
           }}
         />
-      }
+      )}
       <Box
         sx={{
           display: 'flex',
-          alignItems: 'center'
+          alignItems: 'center',
         }}
       >
         <Box
-          className='wizard-nav-item'
+          className="wizard-nav-item"
           sx={{
             display: 'flex',
             alignItems: 'center',
@@ -57,10 +55,10 @@ const Label = ({ index, label, active }: Props) => {
             transition: 'all .2s',
             flexShrink: 0,
             '&:hover': {
-              backgroundColor: '#1799DE11'
+              backgroundColor: '#1799DE11',
             },
             '&:active': {
-              backgroundColor: '#1799DE33'
+              backgroundColor: '#1799DE33',
             },
           }}
           onClick={handleNavigate}
@@ -74,7 +72,7 @@ const Label = ({ index, label, active }: Props) => {
             fontSize: 12,
             [`@media screen and (min-width: 400px)`]: {
               fontSize: 16,
-            }
+            },
           }}
         >
           {label}

@@ -8,7 +8,7 @@ const YbNftSummaryChart = () => {
     <Box
       sx={{
         border: '1px solid #D8D8D8',
-        borderRadius: 8
+        borderRadius: 8,
       }}
     >
       <Box
@@ -16,7 +16,7 @@ const YbNftSummaryChart = () => {
           padding: '14px 14px',
           [`@media screen and (min-width: 400px)`]: {
             padding: '24px 34px',
-          }
+          },
         }}
       >
         <Box
@@ -27,21 +27,21 @@ const YbNftSummaryChart = () => {
             fontWeight: 700,
             [`@media screen and (min-width: 400px)`]: {
               fontSize: 24,
-            }
+            },
           }}
         >
           YB NFT Summary
         </Box>
         <Box
           sx={{
-            marginTop: 22
+            marginTop: 22,
           }}
         >
           <PieChart />
         </Box>
         <Box
           sx={{
-            marginTop: 18
+            marginTop: 18,
           }}
         >
           <SummaryLegend />
@@ -54,11 +54,12 @@ const YbNftSummaryChart = () => {
           borderTop: '1px solid #D8D8D8',
           [`@media screen and (min-width: 400px)`]: {
             padding: '20px 34px',
-            fontSize: 16
-          }
+            fontSize: 16,
+          },
         }}
       >
-        Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit voluptas, a, suscipit delectus ipsa harum voluptatibus eius hic quae et aliquam obcaecati aliquid modi assumenda ex mollitia unde, ut porro?
+        Lorem ipsum dolor sit amet consectetur adipisicing elit. Odit voluptas, a, suscipit delectus ipsa harum
+        voluptatibus eius hic quae et aliquam obcaecati aliquid modi assumenda ex mollitia unde, ut porro?
       </Box>
     </Box>
   )

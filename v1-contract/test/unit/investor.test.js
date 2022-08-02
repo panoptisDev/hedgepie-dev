@@ -61,9 +61,6 @@ describe("Investor contract test:", () => {
 
   describe("deposit function test", () => {
     it("should be succeeded", async () => {
-      console.log('111--->msg.sender', account1.address)
-      console.log('111--->manager', adapterManager.address)
-      console.log('111--->strategy', strategy1.address)
       await investor.connect(account1).mockTest(strategy1.address)
     });
   });

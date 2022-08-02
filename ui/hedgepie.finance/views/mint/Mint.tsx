@@ -3,7 +3,6 @@ import { Box, Image } from 'theme-ui'
 import MintWizard from './MintWizard'
 
 const Mint = () => {
-
   return (
     <Box
       sx={{
@@ -21,13 +20,13 @@ const Mint = () => {
           },
           [`@media screen and (min-width: 992px)`]: {
             top: -197,
-          }
+          },
         }}
       >
         <Box
           sx={{
             maxWidth: 1200,
-            margin: '0 auto'
+            margin: '0 auto',
           }}
         >
           <Image
@@ -38,8 +37,8 @@ const Mint = () => {
                 width: 300,
               },
               [`@media screen and (min-width: 992px)`]: {
-                width: 'auto'
-              }
+                width: 'auto',
+              },
             }}
           />
         </Box>
@@ -68,15 +67,15 @@ const Mint = () => {
           height: 200,
           width: '100%',
           [`@media screen and (min-width: 1200px)`]: {
-            height: 300
-          }
+            height: 300,
+          },
         }}
       >
         <Box
           sx={{
             maxWidth: 1200,
             margin: '0 auto',
-            position: 'relative'
+            position: 'relative',
           }}
         >
           <Image
@@ -88,12 +87,12 @@ const Mint = () => {
               right: 0,
               [`@media screen and (min-width: 600px)`]: {
                 width: 300,
-                right: -40
+                right: -40,
               },
               [`@media screen and (min-width: 1200px)`]: {
                 width: 400,
-                right: -200
-              }
+                right: -200,
+              },
             }}
           />
         </Box>

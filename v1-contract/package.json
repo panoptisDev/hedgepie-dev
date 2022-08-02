@@ -7,15 +7,25 @@
     "build": "npx hardhat compile",
     "lint": "npx solhint contracts/*.sol",
     "test": "npx hardhat test --network hardhat",
-    "test:vault": "npx hardhat test ./test/unit/vault.js --network hardhat",
-    "test:ybnft": "npx hardhat test ./test/unit/ybnft.js --network hardhat",
-    "test:investor": "npx hardhat test ./test/unit/investor.js --network hardhat",
+    "test:unit:vault": "npx hardhat test ./test/unit/vault.test.js --network hardhat",
+    "test:unit:ybnft": "npx hardhat test ./test/unit/ybnft.test.js --network hardhat",
+    "test:unit:investor": "npx hardhat test ./test/unit/investor.test.js --network hardhat",
+    "test:unit:pks-adapter": "npx hardhat test ./test/unit/adapters/pks/pks-stake-adapter.test.js --network hardhat",
+    "test:unit:venus-adapter": "npx hardhat test ./test/unit/adapters/venus/venus-lend-adapter.test.js --network hardhat",
+    "test:integration:pks-stake-adapter": "npx hardhat test ./test/integration/adapters/pks/pks-stake-adapter.test.js --network hardhat",
+    "test:integration:venus-lend-adapter": "npx hardhat test ./test/integration/adapters/venus/venus-lend-adapter.test.js --network hardhat",
+    "test:integration:apeswap-farm-lp-adapter": "npx hardhat test ./test/integration/adapters/apeswap/apeswap-farm-lp-adapter.test.js --network hardhat",
+    "test:integration:apeswap-jungle-adapter": "npx hardhat test ./test/integration/adapters/apeswap/apeswap-jungle-adapter.test.js --network hardhat",
+    "test:integration:apeswap-vault-adapter": "npx hardhat test ./test/integration/adapters/apeswap/apeswap-vault-adapter.test.js --network hardhat",
+    "test:integration:autofarm-vault-adapter": "npx hardhat test ./test/integration/adapters/autofarm/auto-vault-adapter.test.js --network hardhat",
     "deploy:mockBEP20": "npx hardhat run deploy/mockBEP20.ts --network bscTestnet",
     "deploy:mockLP": "npx hardhat run deploy/mockLP.ts --network bscTestnet",
     "deploy:vault": "npx hardhat run deploy/vault.ts --network bscTestnet",
     "deploy:masterChef": "npx hardhat run deploy/masterChef.ts --network bscTestnet",
     "deploy:ybnft": "npx hardhat run deploy/ybnft.ts --network bscTestnet",
-    "deploy:multicall": "npx hardhat run deploy/multicall.ts --network bscTestnet"
+    "deploy:multicall": "npx hardhat run deploy/multicall.ts --network bscTestnet",
+    "deploy:all:mainnet": "npx hardhat run deploy/deploy.ts --network bsc",
+    "deploy:all:mainnet1": "npx hardhat run deploy/deploy1.ts --network bsc"
   },
   "repository": {
     "type": "git",
@@ -33,6 +43,7 @@
     "@nomiclabs/hardhat-etherscan": "^3.0.0",
     "@openzeppelin/contracts": "^4.5.0",
     "@openzeppelin/hardhat-upgrades": "^1.14.0",
+    "@openzeppelin/test-helpers": "^0.5.15",
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.1.0",
     "@types/node": "^17.0.21",
@@ -56,7 +67,7 @@
     "chai": "^4.3.4",
     "ethereum-waffle": "^3.4.0",
     "ethers": "^5.5.2",
-    "hardhat": "^2.8.0",
+    "hardhat": "^2.10.1",
     "typechain": "^6.1.0"
   }
 }

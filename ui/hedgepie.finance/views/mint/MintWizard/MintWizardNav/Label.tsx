@@ -9,14 +9,13 @@ type Props = {
 }
 
 const Label = ({ index, label, active }: Props) => {
-
   const { wizard, setWizard } = React.useContext(MintWizardContext)
 
   const handleNavigate = () => {
     if (wizard.order !== index) {
       setWizard({
         ...wizard,
-        order: index
+        order: index,
       })
     }
   }
@@ -26,10 +25,10 @@ const Label = ({ index, label, active }: Props) => {
       sx={{
         display: 'flex',
         alignItems: 'center',
-        marginTop: 50
+        marginTop: 50,
       }}
     >
-      {index > 0 &&
+      {index > 0 && (
         <Box
           sx={{
             height: '1px',
@@ -37,14 +36,14 @@ const Label = ({ index, label, active }: Props) => {
             backgroundColor: '#1799DE',
           }}
         />
-      }
+      )}
       <Box
         sx={{
-          position: 'relative'
+          position: 'relative',
         }}
       >
         <Box
-          className='wizard-nav-item'
+          className="wizard-nav-item"
           sx={{
             display: 'flex',
             alignItems: 'center',
@@ -60,10 +59,10 @@ const Label = ({ index, label, active }: Props) => {
             cursor: 'pointer',
             transition: 'all .2s',
             '&:hover': {
-              backgroundColor: '#1799DE11'
+              backgroundColor: '#1799DE11',
             },
             '&:active': {
-              backgroundColor: '#1799DE33'
+              backgroundColor: '#1799DE33',
             },
           }}
           onClick={handleNavigate}
@@ -79,7 +78,7 @@ const Label = ({ index, label, active }: Props) => {
             justifyContent: 'center',
             width: 0,
             whiteSpace: 'nowrap',
-            color: active ? '#000' : '#ccc'
+            color: active ? '#000' : '#ccc',
           }}
         >
           {label}

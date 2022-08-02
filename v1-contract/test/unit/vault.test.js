@@ -6,7 +6,8 @@ describe("Vault(MasterChef) contract test", () => {
     // accounts
     let deployer, account1, account2;
     let vaultContract;
-    let mocklp;
+    let mocklp1;
+    let mocklp2;
     let mockToken;
 
     before(async () => {
@@ -14,9 +15,12 @@ describe("Vault(MasterChef) contract test", () => {
 
         // prepare mock token and mock lp
         const MockLP = await ethers.getContractFactory("MockLP");
-        mocklp = await MockLP.deploy("Mock LP", "mLP", utils.parseUnits("1000000"));
-        await mocklp.deployed();
-        console.log(`mock lp is deployed to ${mocklp.address}`);
+        mocklp1 = await MockLP.deploy("Mock LP1", "mLP1", utils.parseUnits("1000000"));
+        mocklp2 = await MockLP.deploy("Mock LP2", "mLP2", utils.parseUnits("1000000"));
+        await mocklp1.deployed();
+        await mocklp2.deployed();
+        console.log(`mock lp1 is deployed to ${mocklp1.address}`);
+        console.log(`mock lp2 is deployed to ${mocklp2.address}`);
 
         const MockToken = await ethers.getContractFactory("MockBEP20");
         mockToken = await MockToken.deploy("Mock Token", "mTT", utils.parseUnits("1000000"));
@@ -26,7 +30,7 @@ describe("Vault(MasterChef) contract test", () => {
         // vault contract prepare
         const VaultContract = await ethers.getContractFactory("HedgepieMasterChef");
         vaultContract = await VaultContract.deploy(
-            mocklp.address, // lp address
+            mocklp1.address, // lp address
             mockToken.address, // reward token
             utils.parseUnits("4"), // block emission
             deployer.address // reward hodler
@@ -35,15 +39,19 @@ describe("Vault(MasterChef) contract test", () => {
         console.log("vaultContract deployed to: " + vaultContract.address);
 
         // mint mock and lp token to user1
-        await mocklp.connect(account1).mint(utils.parseUnits("10000"));
+        await mocklp1.connect(account1).mint(utils.parseUnits("10000"));
+        await mocklp2.connect(account1).mint(utils.parseUnits("10000"));
         await mockToken.connect(account1).mint(utils.parseUnits("10000"));
 
         // approve tokens first
-        await mocklp.connect(deployer).approve(vaultContract.address, utils.parseUnits("1000000000"));
+        await mocklp1.connect(deployer).approve(vaultContract.address, utils.parseUnits("1000000000"));
+        await mocklp2.connect(deployer).approve(vaultContract.address, utils.parseUnits("1000000000"));
         await mockToken.connect(deployer).approve(vaultContract.address, utils.parseUnits("1000000000"));
-        await mocklp.connect(account1).approve(vaultContract.address, utils.parseUnits("1000000000"));
+        await mocklp1.connect(account1).approve(vaultContract.address, utils.parseUnits("1000000000"));
+        await mocklp2.connect(account1).approve(vaultContract.address, utils.parseUnits("1000000000"));
         await mockToken.connect(account1).approve(vaultContract.address, utils.parseUnits("1000000000"));
-        await mocklp.connect(account2).approve(vaultContract.address, utils.parseUnits("1000000000"));
+        await mocklp1.connect(account2).approve(vaultContract.address, utils.parseUnits("1000000000"));
+        await mocklp2.connect(account2).approve(vaultContract.address, utils.parseUnits("1000000000"));
         await mockToken.connect(account2).approve(vaultContract.address, utils.parseUnits("1000000000"));
     });
 
@@ -54,11 +62,11 @@ describe("Vault(MasterChef) contract test", () => {
         });
 
         it("add pool can be called by only owner", async () => {
-            await expect(vaultContract.connect(account1).add(1000, mocklp.address, false)).to.be.revertedWith(
+            await expect(vaultContract.connect(account1).add(1000, mocklp2.address)).to.be.revertedWith(
                 'Ownable: caller is not the owner'
             );
 
-            await vaultContract.connect(deployer).add(1000, mocklp.address, false);
+            await vaultContract.connect(deployer).add(1000, mocklp2.address);
         });
 
         it("pool length should be 2", async () => {
@@ -73,7 +81,7 @@ describe("Vault(MasterChef) contract test", () => {
             expect(allocValue).to.be.equal(1000);
 
             // update alloc number to 2000
-            await vaultContract.connect(deployer).set(1, 1500, true);
+            await vaultContract.connect(deployer).set(1, 1500);
 
             // new alloc value should be 1500
             const newPoolInfo = await vaultContract.poolInfo(1);
@@ -83,17 +91,17 @@ describe("Vault(MasterChef) contract test", () => {
 
         it("update multiplier", async () => {
             // can be called only owner
-            await expect(vaultContract.connect(account1).updateMultiplier(2)).to.be.revertedWith(
+            await expect(vaultContract.connect(account1).updateMultiplier(200)).to.be.revertedWith(
                 'Ownable: caller is not the owner'
             );
 
             const beforeMultiplier = Number(await vaultContract.BONUS_MULTIPLIER());
-            expect(beforeMultiplier).to.be.equal(1);
+            expect(beforeMultiplier).to.be.equal(100);
 
-            await vaultContract.connect(deployer).updateMultiplier(2);
+            await vaultContract.connect(deployer).updateMultiplier(200);
 
             const newMultiplier = Number(await vaultContract.BONUS_MULTIPLIER());
-            expect(newMultiplier).to.be.equal(2);
+            expect(newMultiplier).to.be.equal(200);
         });
     });
 
