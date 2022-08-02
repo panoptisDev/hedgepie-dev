@@ -3,18 +3,16 @@ const { ethers } = require("hardhat");
 
 const BigNumber = ethers.BigNumber;
 
-describe.only("BeltVaultStakingAdapter Integration Test", function () {
+describe("BeefyLPVaultAdapter Integration Test", function () {
   before("Deploy contract", async function () {
     const [owner, alice, bob, tom] = await ethers.getSigners();
 
     const performanceFee = 50;
     const wbnb = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
-    // const strategy = "0xa8Bb71facdd46445644C277F9499Dd22f6F0A30C"; // beltBNB
-    // const stakingToken = wbnb;
-    const stakingToken = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56"; // BUSD
-    const strategy = "0x9171Bf7c050aC8B4cf7835e51F7b4841DFB2cCD0"; // beltBUSD
+    const stakingToken = "0xDA8ceb724A06819c0A5cDb4304ea0cB27F8304cF"; // Biswap USDT-BUSD LP
+    const strategy = "0x164fb78cAf2730eFD63380c2a645c32eBa1C52bc"; // Moo BiSwap USDT-BUSD
     const swapRouter = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // pks rounter address
-    const rewardToken = "0xE0e514c71282b6f4e823703a39374Cf58dc3eA4f" // Belt Token
+    const routerAddr = "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8" // Biswap router
 
     this.owner = owner; 
     this.alice = alice;
@@ -25,14 +23,13 @@ describe.only("BeltVaultStakingAdapter Integration Test", function () {
     this.aliceAddr = alice.address;
     this.tomAddr = tom.address;
 
-    // Deploy Alpada Stake Adapter contract
-    const beltAdapter = await ethers.getContractFactory("BeltVaultAdapter");
-    this.aAdapter = await beltAdapter.deploy(
+    // Deploy Beefy LP Vault Adapter contract
+    const beefyAdapter = await ethers.getContractFactory("BeefyVaultAdapter");
+    this.aAdapter = await beefyAdapter.deploy(
       strategy,
       stakingToken,
-      rewardToken,
-      strategy,
-      "Belt::BNB Vault"
+      routerAddr,
+      "Beefy::Biswap USDT-BUSD LP"
     );
     await this.aAdapter.deployed();
 
@@ -51,12 +48,6 @@ describe.only("BeltVaultStakingAdapter Integration Test", function () {
     // Deploy Adaptor Manager contract
     const adapterManager = await ethers.getContractFactory("HedgepieAdapterManager");
     this.adapterManager = await adapterManager.deploy();
-
-    // set investor
-    await this.aAdapter.setInvestor(this.investor.address);
-
-    await this.aAdapter.setPath(wbnb, stakingToken, [wbnb, stakingToken]);
-    await this.aAdapter.setPath(stakingToken, wbnb, [stakingToken, wbnb]);
 
     // Mint NFTs
     // tokenID: 1
@@ -90,13 +81,17 @@ describe.only("BeltVaultStakingAdapter Integration Test", function () {
     // Set investor in vAdapter
     await this.aAdapter.setInvestor(this.investor.address);
 
-    // await this.aAdapter.setPath(wbnb, stakingToken, [wbnb, stakingToken]);
-    // await this.aAdapter.setPath(stakingToken, wbnb, [stakingToken, wbnb]);
+    const USDT = "0x55d398326f99059fF775485246999027B3197955";
+    const BUSD = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
+    await this.aAdapter.setPath(wbnb, USDT, [wbnb, USDT]);
+    await this.aAdapter.setPath(USDT, wbnb, [USDT, wbnb]);
+    await this.aAdapter.setPath(wbnb, BUSD, [wbnb, BUSD]);
+    await this.aAdapter.setPath(BUSD, wbnb, [BUSD, wbnb]);
 
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
     console.log("Strategy: ", strategy);
-    console.log("BeltVaultStakeAdapter: ", this.aAdapter.address);
+    console.log("BeefyLPVaultAdapter: ", this.aAdapter.address);
 
     this.repayToken = await ethers.getContractAt("VBep20Interface", strategy);
   });
