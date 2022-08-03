@@ -1042,7 +1042,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         uint256 _tokenId,
         address _account,
         address _adapterAddr
-    ) internal returns (uint256) {
+    ) internal view returns (uint256) {
         AdapterInfo memory adapter = adapterInfos[_tokenId][_adapterAddr];
         UserAdapterInfo memory userAdapterInfo = userAdapterInfos[_account][
             _tokenId
