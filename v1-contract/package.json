@@ -6,12 +6,6 @@
   "scripts": {
     "build": "npx hardhat compile",
     "lint": "npx solhint contracts/*.sol",
-    "test": "npx hardhat test --network hardhat",
-    "test:unit:vault": "npx hardhat test ./test/unit/vault.test.js --network hardhat",
-    "test:unit:ybnft": "npx hardhat test ./test/unit/ybnft.test.js --network hardhat",
-    "test:unit:investor": "npx hardhat test ./test/unit/investor.test.js --network hardhat",
-    "test:unit:pks-adapter": "npx hardhat test ./test/unit/adapters/pks/pks-stake-adapter.test.js --network hardhat",
-    "test:unit:venus-adapter": "npx hardhat test ./test/unit/adapters/venus/venus-lend-adapter.test.js --network hardhat",
     "test:integration:pks-stake-adapter": "npx hardhat test ./test/integration/adapters/pks/pks-stake-adapter.test.js --network hardhat",
     "test:integration:venus-lend-adapter": "npx hardhat test ./test/integration/adapters/venus/venus-lend-adapter.test.js --network hardhat",
     "test:integration:apeswap-farm-lp-adapter": "npx hardhat test ./test/integration/adapters/apeswap/apeswap-farm-lp-adapter.test.js --network hardhat",
