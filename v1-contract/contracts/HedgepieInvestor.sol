@@ -99,14 +99,6 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     }
 
     /**
-     * @notice Throws if sender and user address is not matched
-     */
-    modifier shouldMatchCaller(address _user) {
-        require(_user == msg.sender, "Error: Caller is not matched");
-        _;
-    }
-
-    /**
      * @notice Set treasury address and percent
      * @param _treasury  treasury address
      * @param _percent  user address
@@ -132,7 +124,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         address _user,
         uint256 _tokenId,
         uint256 _amount
-    ) external payable shouldMatchCaller(_user) nonReentrant {
+    ) external payable nonReentrant {
         require(_amount != 0, "Error: Amount can not be 0");
         require(msg.value == _amount, "Error: Insufficient BNB");
         require(
@@ -220,7 +212,6 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
      */
     function withdrawBNB(address _user, uint256 _tokenId)
         external
-        shouldMatchCaller(_user)
         nonReentrant
     {
         require(
