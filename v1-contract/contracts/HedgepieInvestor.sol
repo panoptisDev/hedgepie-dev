@@ -200,7 +200,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
         uint256 afterBalance = address(this).balance;
         if (afterBalance > beforeBalance)
-            payable(_user).transfer(afterBalance - beforeBalance);
+            payable(_user).call{value: afterBalance - beforeBalance}("");
 
         emit DepositBNB(_user, ybnft, _tokenId, _amount);
     }
@@ -369,7 +369,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
         userInfo[_user][ybnft][_tokenId] -= userAmount;
 
-        if (amountOut != 0) payable(_user).transfer(amountOut);
+        if (amountOut != 0) payable(_user).call{value: amountOut}("");
         emit WithdrawBNB(_user, ybnft, _tokenId, userAmount);
     }
 
