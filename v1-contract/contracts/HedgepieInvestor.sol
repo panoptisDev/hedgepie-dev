@@ -116,6 +116,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         onlyOwner
     {
         require(_treasury != address(0), "Invalid address");
+        require(_percent < 1000, "Invalid tax percent");
 
         treasuryAddr = _treasury;
         taxPercent = _percent;
