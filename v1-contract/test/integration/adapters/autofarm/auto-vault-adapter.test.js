@@ -143,20 +143,7 @@ describe("AutoVaultAdapter Integration Test", function () {
       ).to.be.revertedWith("Error: nft tokenId is invalid");
     });
 
-    it("(2) should be reverted when caller is not matched", async function () {
-      // deposit to nftID: 1
-      const depositAmount = ethers.utils.parseEther("1");
-      await expect(
-        this.investor.depositBNB(
-          this.alice.address,
-          1,
-          depositAmount.toString(),
-          { gasPrice: 21e9 }
-        )
-      ).to.be.revertedWith("Error: Caller is not matched");
-    });
-
-    it("(3) should be reverted when amount is 0", async function () {
+    it("(2) should be reverted when amount is 0", async function () {
       // deposit to nftID: 1
       const depositAmount = ethers.utils.parseEther("0");
       await expect(
@@ -169,7 +156,7 @@ describe("AutoVaultAdapter Integration Test", function () {
       ).to.be.revertedWith("Error: Amount can not be 0");
     });
 
-    it("(4) deposit should success", async function () {
+    it("(3) deposit should success", async function () {
       const depositAmount = ethers.utils.parseEther("10");
       await this.investor
         .connect(this.alice)
@@ -196,14 +183,7 @@ describe("AutoVaultAdapter Integration Test", function () {
       ).to.be.revertedWith("Error: nft tokenId is invalid");
     });
 
-    it("(2) should be reverted when caller is not matched", async function () {
-      // deposit to nftID: 1
-      await expect(
-        this.investor.withdrawBNB(this.alice.address, 1, { gasPrice: 21e9 })
-      ).to.be.revertedWith("Error: Caller is not matched");
-    });
-
-    it("(3) should receive the BNB successfully after withdraw function", async function () {
+    it("(2) should receive the BNB successfully after withdraw function", async function () {
       // withdraw from nftId: 1
 
       await doubleWantLockedTotal(

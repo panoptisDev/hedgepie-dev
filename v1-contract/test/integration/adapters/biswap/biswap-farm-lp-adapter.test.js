@@ -131,20 +131,7 @@ describe("BiswapFarmLPAdapter Integration Test", function () {
       ).to.be.revertedWith("Error: nft tokenId is invalid");
     });
 
-    it("(2) should be reverted when caller is not matched", async function () {
-      // deposit to nftID: 1
-      const depositAmount = ethers.utils.parseEther("1");
-      await expect(
-        this.investor.depositBNB(
-          this.alice.address,
-          1,
-          depositAmount.toString(),
-          { gasPrice: 21e9 }
-        )
-      ).to.be.revertedWith("Error: Caller is not matched");
-    });
-
-    it("(3) should be reverted when amount is 0", async function () {
+    it("(2) should be reverted when amount is 0", async function () {
       // deposit to nftID: 1
       const depositAmount = ethers.utils.parseEther("0");
       await expect(
@@ -157,7 +144,7 @@ describe("BiswapFarmLPAdapter Integration Test", function () {
       ).to.be.revertedWith("Error: Amount can not be 0");
     });
 
-    it("(4) deposit should success for Alice", async function () {
+    it("(3) deposit should success for Alice", async function () {
       const depositAmount = ethers.utils.parseEther("10");
       await expect(
         this.investor
@@ -205,7 +192,7 @@ describe("BiswapFarmLPAdapter Integration Test", function () {
       expect(BigNumber.from(this.accTokenPerShare)).to.eq(BigNumber.from(0));
     });
 
-    it("(5) deposit should success for Bob", async function () {
+    it("(4) deposit should success for Bob", async function () {
       const beforeAdapterInfos = await this.investor.adapterInfos(
         1,
         this.aAdapter.address
@@ -281,14 +268,7 @@ describe("BiswapFarmLPAdapter Integration Test", function () {
       ).to.be.revertedWith("Error: nft tokenId is invalid");
     });
 
-    it("(2) revert when caller is not matched", async function () {
-      // deposit to nftID: 1
-      await expect(
-        this.investor.withdrawBNB(this.alice.address, 1, { gasPrice: 21e9 })
-      ).to.be.revertedWith("Error: Caller is not matched");
-    });
-
-    it("(3) should receive the BNB successfully after withdraw function for Alice", async function () {
+    it("(2) should receive the BNB successfully after withdraw function for Alice", async function () {
       // withdraw from nftId: 1
       const beforeBNB = await ethers.provider.getBalance(this.aliceAddr);
 
@@ -344,7 +324,7 @@ describe("BiswapFarmLPAdapter Integration Test", function () {
       ).accTokenPerShare;
     });
 
-    it("(4) should receive the BNB successfully after withdraw function for Bob", async function () {
+    it("(3) should receive the BNB successfully after withdraw function for Bob", async function () {
       // withdraw from nftId: 1
       const beforeBNB = await ethers.provider.getBalance(this.bobAddr);
 
