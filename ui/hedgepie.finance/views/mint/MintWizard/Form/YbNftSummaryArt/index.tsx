@@ -16,8 +16,9 @@ const YbNftSummaryArt = () => {
   return (
     <Box
       sx={{
-        border: '1px solid #D8D8D8',
+        border: '1px solid #FEF2D7',
         borderRadius: 8,
+        backgroundColor: '#FEF2D7',
       }}
     >
       <Box

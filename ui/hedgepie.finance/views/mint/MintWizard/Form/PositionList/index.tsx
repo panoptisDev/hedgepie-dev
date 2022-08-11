@@ -87,21 +87,36 @@ const PositionList = () => {
         <Button
           variant="info"
           sx={{
-            borderRadius: 40,
-            height: 64,
             cursor: 'pointer',
-            transition: 'all .2s',
-            display: 'flex',
-            alignItems: 'center',
-            justifyContent: 'center',
-            border: '1px solid #1799DE',
-            maxWidth: 180,
-            width: '100%',
-            padding: 0,
           }}
           onClick={handleAdd}
         >
-          Add Position
+          <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
+            <div
+              style={{
+                fontWeight: 600,
+                fontSize: '16px',
+                lineHeight: '14px',
+                textAlign: 'center',
+                textTransform: 'uppercase',
+                letterSpacing: '1px',
+                color: '#1380B9',
+              }}
+            >
+              ADD POSITION
+            </div>
+            <div
+              style={{
+                fontSize: '32px',
+                backgroundColor: '#D1EBF8',
+                paddingRight: '5px',
+                paddingLeft: '5px',
+                borderRadius: 4,
+              }}
+            >
+              +
+            </div>
+          </div>
         </Button>
       </Box>
     </Box>

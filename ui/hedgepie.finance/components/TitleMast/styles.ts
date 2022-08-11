@@ -20,5 +20,6 @@ export const styles = {
     fontSize: 40,
     fontWeight: 'bold',
     textAlign: 'center',
+    color:'#1799DE'
   },
 }

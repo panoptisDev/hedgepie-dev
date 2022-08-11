@@ -14,6 +14,7 @@ const YbNftSummaryChart = () => {
       sx={{
         border: '1px solid #D8D8D8',
         borderRadius: 8,
+        backgroundColor: '#FEF2D7',
       }}
     >
       <Box

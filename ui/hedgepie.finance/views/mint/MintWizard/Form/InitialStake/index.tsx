@@ -28,7 +28,7 @@ const InitialStake = () => {
         sx={{
           fontSize: 16,
           fontWeight: 700,
-          color: '#16103A',
+          color: '#1380B9',
           [`@media screen and (min-width: 500px)`]: {
             fontSize: 24,
           },
@@ -39,8 +39,8 @@ const InitialStake = () => {
       <Box
         sx={{
           fontSize: 12,
-          fontWeight: 500,
-          color: '#DF4886',
+          fontWeight: 600,
+          color: '#3B3969',
           [`@media screen and (min-width: 500px)`]: {
             fontSize: 16,
           },

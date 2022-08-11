@@ -125,16 +125,11 @@ const SubmitMint = () => {
           height: 64,
           width: '100%',
           border: '1px solid #1799DE',
-          borderRadius: 40,
+          borderRadius: 6,
           padding: 0,
           cursor: 'pointer',
           transition: 'all .2s',
-          opacity: disabled ? 0.7 : 1,
-          display: 'flex',
-          flexDirection: 'row',
-          alignItems: 'center',
-          justifyContent: 'center',
-          gap: '0.3rem',
+          fontSize: '20px',
         }}
         onClick={handleMint}
         disabled={disabled}

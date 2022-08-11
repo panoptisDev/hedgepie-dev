@@ -40,7 +40,7 @@ const UploadArtwork = () => {
         sx={{
           fontSize: 16,
           fontWeight: 700,
-          color: '#16103A',
+          color: '#1380B9',
           [`@media screen and (min-width: 500px)`]: {
             fontSize: 24,
           },
@@ -51,8 +51,8 @@ const UploadArtwork = () => {
       <Box
         sx={{
           fontSize: 12,
-          fontWeight: 500,
-          color: '#DF4886',
+          fontWeight: 600,
+          color: '#3B3969',
           [`@media screen and (min-width: 500px)`]: {
             fontSize: 16,
           },
@@ -96,9 +96,9 @@ const UploadArtwork = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: '#16103A',
+              backgroundColor: '#1799DE',
               color: '#fff',
-              borderRadius: 64,
+              borderRadius: 8,
               transition: 'all .2s',
               cursor: 'pointer',
               '&:hover': {

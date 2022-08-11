@@ -29,7 +29,7 @@ const Mint = () => {
             margin: '0 auto',
           }}
         >
-          <Image
+          {/* <Image
             src="/images/hedgehog-head.png"
             sx={{
               width: 200,
@@ -40,14 +40,15 @@ const Mint = () => {
                 width: 'auto',
               },
             }}
-          />
+          /> */}
         </Box>
       </Box>
       <Box
         sx={{
           position: 'relative',
           padding: '0 16px',
-          paddingTop: 80,
+          paddingTop: 0,
+          marginTop: '-40px',
           paddingBottom: 40,
           overflow: 'hidden',
         }}

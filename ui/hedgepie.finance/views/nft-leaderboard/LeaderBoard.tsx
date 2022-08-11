@@ -89,14 +89,22 @@ const LeaderBoard = () => {
     <Box sx={styles.leaderboard_container as ThemeUICSSObject}>
       <Box sx={styles.leaderboard_inner_container as ThemeUICSSObject}>
         <LotterySearch onSearch={handleSearch} />
-        <LotteryTable data={sorted} onSort={handleSort} sortKey={sortKey} />
-        {loading ? (
-          <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.5rem' }}>
-            <Spinner />
-          </Box>
-        ) : (
-          ''
-        )}
+        <div
+          style={{
+            background: 'linear-gradient(137.62deg, rgba(252, 143, 143, 0.1) 0.17%, rgba(143, 143, 252, 0.3) 110.51%)',
+            padding: '20px',
+            marginTop: '20px',
+          }}
+        >
+          <LotteryTable data={sorted} onSort={handleSort} sortKey={sortKey} />
+          {loading ? (
+            <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.5rem' }}>
+              <Spinner />
+            </Box>
+          ) : (
+            ''
+          )}
+        </div>
         {/* <LotteryLoad onLoad={handleLoad} /> */}
       </Box>
     </Box>

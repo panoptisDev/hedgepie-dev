@@ -6,9 +6,8 @@ export const styles = {
   },
   leaderboard_inner_container: {
     width: '100%',
-    maxWidth: 1200,
+    maxWidth: 1300,
     borderRadius: 8,
-    overflow: 'hidden',
     boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
   },
   lottery_load_container: {
@@ -77,10 +76,13 @@ export const styles = {
     cursor: 'pointer',
   },
   lottery_table_details_btn: {
-    border: '1px solid #1799DE',
+    border: '3px solid #1799DE',
     borderRadius: 40,
     padding: '10px 20px',
     cursor: 'pointer',
     transition: 'all .2s',
+    color:"#14114B",
+    fontWeight:"600",
+    fontSize:"14px"
   },
 }

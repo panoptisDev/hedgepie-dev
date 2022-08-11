@@ -39,14 +39,15 @@ const FormInitialStake = () => {
               height: 64,
               width: '100%',
               border: '1px solid #1799DE',
-              borderRadius: 40,
+              borderRadius: 6,
               padding: 0,
               cursor: 'pointer',
               transition: 'all .2s',
+              fontSize: '20px',
             }}
             onClick={handleNext}
           >
-            NEXT STEP
+            Next Step
           </Button>
         </Box>
       </Box>
