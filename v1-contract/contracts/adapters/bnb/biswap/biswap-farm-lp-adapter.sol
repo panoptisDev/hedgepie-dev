@@ -1,21 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../BaseAdapter.sol";
+import "../../BaseAdapter.sol";
 
-interface IMasterChef {
-    function pendingAlpaca(uint256 pid, address user)
+interface IStrategy {
+    function pendingBSW(uint256 _pid, address _user)
         external
         view
         returns (uint256);
-
-    function userInfo(uint256 pid, address user)
-        external
-        view
-        returns (uint256, uint256);
 }
 
-contract PancakeStakeAdapter is BaseAdapter {
+contract BiSwapFarmLPAdapter is BaseAdapter {
     /**
      * @notice Construct
      * @param _strategy  address of strategy
@@ -24,14 +19,18 @@ contract PancakeStakeAdapter is BaseAdapter {
      * @param _name  adatper name
      */
     constructor(
+        uint256 _pid,
         address _strategy,
         address _stakingToken,
         address _rewardToken,
+        address _router,
         string memory _name
     ) {
+        pid = _pid;
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
         strategy = _strategy;
+        router = _router;
         name = _name;
     }
 
@@ -63,7 +62,14 @@ contract PancakeStakeAdapter is BaseAdapter {
     {
         to = strategy;
         value = 0;
-        data = abi.encodeWithSignature("deposit(uint256)", _amount);
+        if (pid == 0)
+            data = abi.encodeWithSignature("enterStaking(uint256)", _amount);
+        else
+            data = abi.encodeWithSignature(
+                "deposit(uint256,uint256)",
+                pid,
+                _amount
+            );
     }
 
     /**
@@ -81,7 +87,14 @@ contract PancakeStakeAdapter is BaseAdapter {
     {
         to = strategy;
         value = 0;
-        data = abi.encodeWithSignature("withdraw(uint256)", _amount);
+        if (pid == 0)
+            data = abi.encodeWithSignature("leaveStaking(uint256)", _amount);
+        else
+            data = abi.encodeWithSignature(
+                "withdraw(uint256,uint256)",
+                pid,
+                _amount
+            );
     }
 
     /**
@@ -113,16 +126,10 @@ contract PancakeStakeAdapter is BaseAdapter {
     }
 
     /**
-     * @notice Get pending AUTO token reward
+     * @notice Get pending reward
+     * @param _user  address of investor
      */
-    function pendingReward() external view override returns (uint256 reward) {
-        reward = IMasterChef(strategy).pendingAlpaca(pid, msg.sender);
-    }
-
-    /**
-     * @notice Get pending shares
-     */
-    function pendingShares() external view override returns (uint256 shares) {
-        (shares, ) = IMasterChef(strategy).userInfo(pid, msg.sender);
+    function getReward(address _user) external view override returns (uint256) {
+        return IStrategy(strategy).pendingBSW(pid, _user);
     }
 }

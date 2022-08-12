@@ -1,31 +1,43 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../BaseAdapter.sol";
+import "../../BaseAdapter.sol";
 
-interface IStrategy {
-    function pendingReward(address _user) external view returns (uint256);
+interface IMasterChef {
+    function pendingAlpaca(uint256 pid, address user)
+        external
+        view
+        returns (uint256);
+
+    function userInfo(uint256 pid, address user)
+        external
+        view
+        returns (uint256, uint256);
 }
 
-contract ApeswapPoolAdapter is BaseAdapter {
+contract AlpacaStakeAdapter is BaseAdapter {
     /**
      * @notice Construct
+     * @param _pid  number of pID
      * @param _strategy  address of strategy
      * @param _stakingToken  address of staking token
      * @param _rewardToken  address of reward token
+     * @param _wrapToken  address of wrap token
      * @param _name  adatper name
      */
     constructor(
+        uint256 _pid,
         address _strategy,
         address _stakingToken,
         address _rewardToken,
-        address _router,
+        address _wrapToken,
         string memory _name
     ) {
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
         strategy = _strategy;
-        router = _router;
+        wrapToken = _wrapToken;
+        pid = _pid;
         name = _name;
     }
 
@@ -57,7 +69,12 @@ contract ApeswapPoolAdapter is BaseAdapter {
     {
         to = strategy;
         value = 0;
-        data = abi.encodeWithSignature("deposit(uint256)", _amount);
+        data = abi.encodeWithSignature(
+            "deposit(address,uint256,uint256)",
+            investor,
+            pid,
+            _amount
+        );
     }
 
     /**
@@ -75,7 +92,12 @@ contract ApeswapPoolAdapter is BaseAdapter {
     {
         to = strategy;
         value = 0;
-        data = abi.encodeWithSignature("withdraw(uint256)", _amount);
+        data = abi.encodeWithSignature(
+            "withdraw(address,uint256,uint256)",
+            investor,
+            pid,
+            _amount
+        );
     }
 
     /**
@@ -107,10 +129,16 @@ contract ApeswapPoolAdapter is BaseAdapter {
     }
 
     /**
-     * @notice Get pending reward
-     * @param _user  address of investor
+     * @notice Get pending AUTO token reward
      */
-    function getReward(address _user) external view override returns (uint256) {
-        return IStrategy(strategy).pendingReward(_user);
+    function pendingReward() external view override returns (uint256 reward) {
+        reward = IMasterChef(strategy).pendingAlpaca(pid, msg.sender);
+    }
+
+    /**
+     * @notice Get pending shares
+     */
+    function pendingShares() external view override returns (uint256 shares) {
+        (shares, ) = IMasterChef(strategy).userInfo(pid, msg.sender);
     }
 }

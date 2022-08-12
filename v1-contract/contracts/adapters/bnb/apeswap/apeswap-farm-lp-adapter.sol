@@ -1,45 +1,37 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../BaseAdapter.sol";
+import "../../BaseAdapter.sol";
 
-interface IMasterChef {
-    function pendingAUTO(uint256 pid, address user)
+interface IStrategy {
+    function pendingCake(uint256 _pid, address _user)
         external
         view
         returns (uint256);
-
-    function userInfo(uint256 pid, address user)
-        external
-        view
-        returns (uint256, uint256);
 }
 
-contract AutoVaultAdapter is BaseAdapter {
+contract ApeswapFarmLPAdapter is BaseAdapter {
     /**
      * @notice Construct
      * @param _strategy  address of strategy
-     * @param _vStrategy  address of vault strategy
      * @param _stakingToken  address of staking token
      * @param _rewardToken  address of reward token
-     * @param _router  address of DEX router
      * @param _name  adatper name
      */
     constructor(
+        uint256 _pid,
         address _strategy,
-        address _vStrategy,
         address _stakingToken,
         address _rewardToken,
         address _router,
         string memory _name
     ) {
+        pid = _pid;
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
         strategy = _strategy;
-        vStrategy = _vStrategy;
-        name = _name;
         router = _router;
-        isVault = true;
+        name = _name;
     }
 
     /**
@@ -78,7 +70,7 @@ contract AutoVaultAdapter is BaseAdapter {
     }
 
     /**
-     * @notice Get devest calldata`
+     * @notice Get devest calldata
      * @param _amount  amount of devest
      */
     function getDevestCallData(uint256 _amount)
@@ -97,20 +89,6 @@ contract AutoVaultAdapter is BaseAdapter {
             pid,
             _amount
         );
-    }
-
-    /**
-     * @notice Get pending AUTO token reward
-     */
-    function pendingReward() external view override returns (uint256 reward) {
-        reward = IMasterChef(strategy).pendingAUTO(pid, msg.sender);
-    }
-
-    /**
-     * @notice Get pending shares
-     */
-    function pendingShares() external view override returns (uint256 shares) {
-        (shares, ) = IMasterChef(strategy).userInfo(pid, msg.sender);
     }
 
     /**
@@ -142,10 +120,10 @@ contract AutoVaultAdapter is BaseAdapter {
     }
 
     /**
-     * @notice Set poolId
-     * @param _pid pool in masterchef
+     * @notice Get pending reward
+     * @param _user  address of investor
      */
-    function setPoolID(uint256 _pid) external onlyOwner {
-        pid = _pid;
+    function getReward(address _user) external view override returns (uint256) {
+        return IStrategy(strategy).pendingCake(pid, _user);
     }
 }

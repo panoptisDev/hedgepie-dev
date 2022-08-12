@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../BaseAdapter.sol";
+import "../../BaseAdapter.sol";
 
 interface IMasterChef {
     function pendingAlpaca(uint256 pid, address user)
@@ -15,29 +15,23 @@ interface IMasterChef {
         returns (uint256, uint256);
 }
 
-contract AlpacaStakeAdapter is BaseAdapter {
+contract PancakeStakeAdapter is BaseAdapter {
     /**
      * @notice Construct
-     * @param _pid  number of pID
      * @param _strategy  address of strategy
      * @param _stakingToken  address of staking token
      * @param _rewardToken  address of reward token
-     * @param _wrapToken  address of wrap token
      * @param _name  adatper name
      */
     constructor(
-        uint256 _pid,
         address _strategy,
         address _stakingToken,
         address _rewardToken,
-        address _wrapToken,
         string memory _name
     ) {
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
         strategy = _strategy;
-        wrapToken = _wrapToken;
-        pid = _pid;
         name = _name;
     }
 
@@ -69,12 +63,7 @@ contract AlpacaStakeAdapter is BaseAdapter {
     {
         to = strategy;
         value = 0;
-        data = abi.encodeWithSignature(
-            "deposit(address,uint256,uint256)",
-            investor,
-            pid,
-            _amount
-        );
+        data = abi.encodeWithSignature("deposit(uint256)", _amount);
     }
 
     /**
@@ -92,12 +81,7 @@ contract AlpacaStakeAdapter is BaseAdapter {
     {
         to = strategy;
         value = 0;
-        data = abi.encodeWithSignature(
-            "withdraw(address,uint256,uint256)",
-            investor,
-            pid,
-            _amount
-        );
+        data = abi.encodeWithSignature("withdraw(uint256)", _amount);
     }
 
     /**
