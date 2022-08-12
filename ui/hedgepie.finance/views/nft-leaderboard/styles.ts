@@ -3,13 +3,14 @@ export const styles = {
     padding: '100px 16px',
     display: 'flex',
     justifyContent: 'center',
-    marginTop:'-100px'
+    marginTop:'-100px',
   },
   leaderboard_inner_container: {
     width: '100%',
     maxWidth: 1300,
     borderRadius: 8,
     boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
+    backgroundColor:'#fff'
   },
   lottery_load_container: {
     display: 'flex',
