@@ -88,10 +88,10 @@ const LeaderBoard = () => {
   return (
     <Box sx={styles.leaderboard_container as ThemeUICSSObject}>
       <Box sx={styles.leaderboard_inner_container as ThemeUICSSObject}>
-        <LotterySearch onSearch={handleSearch} />
+        {/* <LotterySearch onSearch={handleSearch} /> */}
         <div
           style={{
-            background: 'linear-gradient(137.62deg, rgba(252, 143, 143, 0.1) 0.17%, rgba(143, 143, 252, 0.3) 110.51%)',
+            // background: 'linear-gradient(137.62deg, rgba(252, 143, 143, 0.1) 0.17%, rgba(143, 143, 252, 0.3) 110.51%)',
             padding: '20px',
             marginTop: '20px',
           }}

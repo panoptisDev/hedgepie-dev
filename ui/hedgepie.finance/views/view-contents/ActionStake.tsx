@@ -109,41 +109,41 @@ const ActionStake = (props: any) => {
 
   return (
     <>
-      <Box sx={{ border: '2px solid #1799DE', borderRadius: '35px' }}>
-        <Box className="mobile-action" sx={styles.vault_action_button_container_mobile as ThemeUICSSObject}>
-          <ActionStakeButton
-            onStake={handleStake}
-            isDisabled={disabled}
-            onApprove={handleApprove}
-            approved={approved}
-          />
-        </Box>
-        <Box sx={styles.vault_action_container_desktop as ThemeUICSSObject}>
-          <Box className="desktop-action" sx={styles.vault_action_button_container_desktop as ThemeUICSSObject}>
-            <ActionStakeButton onStake={handleStake} isDisabled={false} onApprove={handleApprove} approved={approved} />
-          </Box>
-
-          <Input
-            sx={styles.vault_action_input as ThemeUICSSObject}
-            placeholder="0.0"
-            value={amountString}
-            type="number"
-            pattern="/^[0-9.]+$/"
-            onChange={onChangeAmount}
-            id="amount-input"
-            onKeyPress={onInputKeyPress}
-          />
-        </Box>
+      {/* <Box className="mobile-action" sx={styles.vault_action_button_container_mobile as ThemeUICSSObject}>
+        <ActionStakeButton onStake={handleStake} isDisabled={disabled} onApprove={handleApprove} approved={approved} />
+      </Box> */}
+      <Box sx={styles.vault_action_container_desktop as ThemeUICSSObject}>
+        <Input
+          sx={styles.vault_action_input as ThemeUICSSObject}
+          placeholder="0.0"
+          value={amountString}
+          type="number"
+          pattern="/^[0-9.]+$/"
+          onChange={onChangeAmount}
+          id="amount-input"
+          onKeyPress={onInputKeyPress}
+        />
+        {/* <Box className="desktop-action" sx={styles.vault_action_button_container_desktop as ThemeUICSSObject}> */}
+        <ActionStakeButton onStake={handleStake} isDisabled={false} onApprove={handleApprove} approved={approved} />
+        {/* </Box> */}
+        <Button sx={styles.unstake_button as ThemeUICSSObject} onClick={handleUnstake}>
+          WITHDRAW
+        </Button>
       </Box>
-      <Button sx={styles.unstake_button as ThemeUICSSObject} onClick={handleUnstake}>
-        WITHDRAW
-      </Button>
+
       {currentStaked ? (
         <Box
-          sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '12rem' }}
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '8rem',
+            marginTop: '20px',
+          }}
         >
-          <Text sx={{ fontSize: 24, fontWeight: 700, color: '#1799DE' }}>STAKED</Text>
-          <Text sx={{ fontSize: 24, fontWeight: 700, color: '#1799DE' }}>{currentStaked} BNB</Text>
+          <Text sx={{ fontSize: 21, fontWeight: 700, color: '#FFF' }}>STAKED</Text>
+          <Text sx={{ fontSize: 21, fontWeight: 600, color: '#FFF' }}>{currentStaked} BNB</Text>
         </Box>
       ) : (
         ''

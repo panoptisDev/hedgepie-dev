@@ -3,6 +3,7 @@ export const styles = {
     padding: '100px 16px',
     display: 'flex',
     justifyContent: 'center',
+    marginTop:'-100px'
   },
   leaderboard_inner_container: {
     width: '100%',
@@ -42,6 +43,7 @@ export const styles = {
     paddingRight: 24,
     fontSize: 14,
     marginTop: [12, 0],
+    marginLeft:'auto'
   },
   lottery_search_finished_rounds: {
     fontSize: 24,
@@ -49,6 +51,8 @@ export const styles = {
   },
   lottery_table: {
     overflow: 'auto',
+    borderRadius:'8px',
+    backgroundcolor:'#fff',
     '& th': {
       textAlign: 'left',
       padding: 20,

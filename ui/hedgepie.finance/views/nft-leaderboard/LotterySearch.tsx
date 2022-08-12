@@ -15,7 +15,7 @@ const LotterySearch = ({ onSearch }: any) => {
         placeholder="Search by name, symbol, address ..."
         onChange={handleChange}
       />
-      <Box sx={styles.lottery_search_finished_rounds as ThemeUICSSObject}>Finished Rounds</Box>
+      {/* <Box sx={styles.lottery_search_finished_rounds as ThemeUICSSObject}>Finished Rounds</Box> */}
     </Box>
   )
 }

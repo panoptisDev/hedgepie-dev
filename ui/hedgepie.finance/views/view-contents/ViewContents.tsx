@@ -106,9 +106,9 @@ const ViewContents = (props: Props) => {
   // Setting badges,strategies with the default values, which should later be taken from the props
   useEffect(() => {
     setBadges([
-      { title: 'Collective APY', value: '500%' },
-      { title: 'TLV', value: '$5000' },
-      { title: 'Participants', value: '487' },
+      { title: 'COLLECTIVE APY:', value: '500%' },
+      { title: 'TLV:', value: '$5000' },
+      { title: 'Participants:', value: '487' },
     ])
   }, [])
 
@@ -132,7 +132,7 @@ const ViewContents = (props: Props) => {
         value: (
           <Link href="https://bscscan.com/address/0xdf5926C9A457d61c72C1dbcBce140c1548fAE87b">
             <a target="_blank" rel="noopener noreferrer">
-              0xdf5926C9A457d61c72C1dbcBce140c1548fAE87b
+              Contract on BSCScan
             </a>
           </Link>
         ),
@@ -166,75 +166,87 @@ const ViewContents = (props: Props) => {
               <Flex sx={styles.flex_start_container as ThemeUICSSObject}>
                 <Flex sx={styles.flex_start_inner_container as ThemeUICSSObject}>
                   <Flex sx={styles.flex_nft_name_container as ThemeUICSSObject}>
-                    <Flex>
-                      <Flex sx={styles.flex_column as ThemeUICSSObject}>
-                        <Text sx={styles.series_name_text as ThemeUICSSObject}>NFT Name</Text>
-                        {ybnftName ? (
-                          <Text sx={styles.nft_name_text as ThemeUICSSObject}>{ybnftName}</Text>
-                        ) : (
-                          <Spinner />
-                        )}
-                        {description ? <Text sx={styles.nft_desc_text as ThemeUICSSObject}>{description}</Text> : ''}
+                    <Flex sx={{ flexDirection: 'column', gap: '10px' }}>
+                      <Flex>
+                        <Flex sx={styles.flex_column as ThemeUICSSObject}>
+                          <Text sx={styles.series_name_text as ThemeUICSSObject}>SERIES NAME</Text>
+                          {ybnftName ? (
+                            <Text sx={styles.nft_name_text as ThemeUICSSObject}>{ybnftName}</Text>
+                          ) : (
+                            <Spinner />
+                          )}
+                          {description ? <Text sx={styles.nft_desc_text as ThemeUICSSObject}>{description}</Text> : ''}
+                        </Flex>
+                      </Flex>
+                      <Flex sx={styles.flex_badges_row as ThemeUICSSObject}>
+                        {badges.map((badge) => (
+                          <Flex sx={styles.flex_badge_container as ThemeUICSSObject}>
+                            <Text sx={styles.badge_title_text as ThemeUICSSObject}>{badge.title}</Text>
+                            <Text sx={styles.badge_value_text}>{badge.value}</Text>
+                          </Flex>
+                        ))}
                       </Flex>
                     </Flex>
-                    <Flex sx={styles.flex_badges_row as ThemeUICSSObject}>
-                      {badges.map((badge) => (
-                        <Flex sx={styles.flex_badge_container as ThemeUICSSObject}>
-                          <Text sx={styles.badge_title_text as ThemeUICSSObject}>{badge.title}</Text>
-                          <Text sx={styles.badge_value_text}>{badge.value}</Text>
-                        </Flex>
-                      ))}
+                    <Flex sx={styles.flex_owner_details_container as ThemeUICSSObject}>
+                      {/* <Text sx={styles.owner_name_text as ThemeUICSSObject}>{owner.name}</Text> */}
+                      {imageURL ? <Image src={imageURL} sx={styles.owner_image as ThemeUICSSObject} /> : ''}
                     </Flex>
                   </Flex>
                   {/* Strategy Composition */}
-                  <Flex sx={styles.flex_strategy_container as ThemeUICSSObject}>
-                    <Text sx={styles.strategy_title_text as ThemeUICSSObject}>Strategy Composition</Text>
-                    <Flex sx={styles.flex_strategy_inner_container as ThemeUICSSObject}>
-                      {strategies &&
-                        strategies.map((strategy) => (
-                          <Flex sx={styles.flex_strategy_details_container as ThemeUICSSObject}>
-                            <Image src={strategy.image} sx={styles.strategy_detail_image as ThemeUICSSObject} />
-                            <Flex sx={styles.flex_strategy_detail_column as ThemeUICSSObject}>
-                              <Text sx={styles.strategy_detail_quantity_text as ThemeUICSSObject}>{strategy.name}</Text>
-                              {strategy.value && (
-                                <Text sx={styles.strategy_detail_value_text as ThemeUICSSObject}>
-                                  ({strategy.value} BNB)
+                  <Flex>
+                    <Flex sx={styles.flex_strategy_container as ThemeUICSSObject}>
+                      <Text sx={styles.strategy_title_text as ThemeUICSSObject}>Strategy Composition</Text>
+                      <Flex sx={styles.flex_strategy_inner_container as ThemeUICSSObject}>
+                        {strategies &&
+                          strategies.map((strategy) => (
+                            <Flex sx={styles.flex_strategy_details_container as ThemeUICSSObject}>
+                              <Image src={strategy.image} sx={styles.strategy_detail_image as ThemeUICSSObject} />
+                              <Flex sx={styles.flex_strategy_detail_column as ThemeUICSSObject}>
+                                <Text sx={styles.strategy_detail_quantity_text as ThemeUICSSObject}>
+                                  {strategy.name}
                                 </Text>
-                              )}
-                              <Text sx={styles.strategy_detail_apy_text as ThemeUICSSObject}>
-                                Allocation: {strategy.percentage}
-                              </Text>
+                                {strategy.value && (
+                                  <Text sx={styles.strategy_detail_value_text as ThemeUICSSObject}>
+                                    ({strategy.value} BNB)
+                                  </Text>
+                                )}
+                                <Text sx={styles.strategy_detail_apy_text as ThemeUICSSObject}>
+                                  Allocation: {strategy.percentage}
+                                </Text>
+                              </Flex>
                             </Flex>
-                          </Flex>
-                        ))}{' '}
-                      {!strategies || !strategies.length ? <Spinner /> : ''}
+                          ))}{' '}
+                        {!strategies || !strategies.length ? <Spinner /> : ''}
+                      </Flex>
                     </Flex>
-                  </Flex>
-                </Flex>
-                <Flex sx={styles.flex_right_container as ThemeUICSSObject}>
-                  <Flex sx={styles.flex_owner_details_container as ThemeUICSSObject}>
-                    <Text sx={styles.owner_name_text as ThemeUICSSObject}>{owner.name}</Text>
-                    {imageURL ? <Image src={imageURL} sx={styles.owner_image as ThemeUICSSObject} /> : ''}
-                  </Flex>
-                  {/* Staking Details */}
-                  <Flex sx={styles.flex_staking_details as ThemeUICSSObject}>
-                    <Text sx={styles.staking_sub_title_text as ThemeUICSSObject}>
-                      Stake BNB to join the YB-NFT strategy
-                    </Text>
 
-                    <ActionStake tokenId={tokenId} setStaked={setStaked} />
-                    {/* <Yield /> */}
-                    <Flex sx={styles.flex_details_container as ThemeUICSSObject}>
-                      <Text sx={styles.details_title_text as ThemeUICSSObject}>DETAILS:</Text>
-                      {details.map((detail) => (
-                        <Flex sx={styles.flex_inner_details_container as ThemeUICSSObject}>
-                          <Text sx={styles.inner_details_title_text as ThemeUICSSObject}>{detail.title}:</Text>
-                          <Text sx={styles.inner_details_value_text as ThemeUICSSObject}>{detail.value}</Text>
-                        </Flex>
-                      ))}
+                    <Flex sx={styles.flex_staking_details as ThemeUICSSObject}>
+                      <Text sx={styles.staking_sub_title_text as ThemeUICSSObject}>
+                        Stake BNB to join the YB-NFT strategy
+                      </Text>
+                      <Flex
+                        style={{
+                          flexDirection: 'column',
+                          backgroundColor: '#FD5298',
+                          borderRadius: '24px',
+                          padding: '3rem 2rem 3rem 2rem',
+                        }}
+                      >
+                        <ActionStake tokenId={tokenId} setStaked={setStaked} />
+                        {/* <Yield /> */}
+                      </Flex>
                     </Flex>
                   </Flex>
+                  <Flex sx={styles.flex_details_container as ThemeUICSSObject}>
+                    {details.map((detail) => (
+                      <Flex sx={styles.flex_inner_details_container as ThemeUICSSObject}>
+                        <Text sx={styles.inner_details_title_text as ThemeUICSSObject}>{detail.title}</Text>
+                        <Text sx={styles.inner_details_value_text as ThemeUICSSObject}>{detail.value}</Text>
+                      </Flex>
+                    ))}
+                  </Flex>
                 </Flex>
+                <Flex sx={styles.flex_right_container as ThemeUICSSObject}>{/* Staking Details */}</Flex>
               </Flex>
             </Flex>
           </Flex>

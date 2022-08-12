@@ -32,7 +32,7 @@ const ActionStakeButton = ({ onStake, isDisabled, onApprove, approved }) => {
         </Button>
       ) : (
         <Button sx={styles.vault_action_button as ThemeUICSSObject} onClick={onPresentConnectModal}>
-          Connect Wallet
+          CONNECT WALLET
         </Button>
       )}
     </>

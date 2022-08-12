@@ -1,7 +1,7 @@
 import React, { ReactNode } from 'react'
 import Head from 'next/head'
 import { theme } from 'themes/theme'
-import { ThemeProvider } from 'theme-ui'
+import { Box, Image, ThemeProvider } from 'theme-ui'
 import { Header } from 'components/Header'
 import { TitleMast } from 'components/TitleMast'
 import { Footer } from 'components/Footer'
@@ -21,6 +21,19 @@ const HedgePieFinance = (props: Props) => {
   return (
     <ThemeProvider theme={theme}>
       <Header dark={props.dark} overlay={props.overlayHeader} />
+      <Image
+        style={{
+          position: 'absolute',
+          top: 0,
+          left: 0,
+          width: '100%',
+          height: '100%',
+          objectFit: 'cover',
+          objectPosition: 'right',
+          zIndex: -1,
+        }}
+        src="/images/backdesign.svg"
+      />
       {title && <TitleMast title={title} />}
       <Head>
         <title>Hedge Pie</title>

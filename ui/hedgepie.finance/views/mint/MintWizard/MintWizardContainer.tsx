@@ -17,6 +17,7 @@ const MintWizard = () => {
         borderRadius: 8,
         overflow: 'hidden',
         boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
+        backgroundColor: '#fff',
       }}
     >
       <Box
@@ -29,7 +30,7 @@ const MintWizard = () => {
           fontSize: 16,
           backgroundColor: '#14114B',
           color: '#fff',
-          borderRadius: 16,
+          borderRadius: 14,
           [`@media screen and (min-width: 800px)`]: {
             height: 95,
             fontSize: 32,
