@@ -1,13 +1,13 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
+import "../../BaseAdapter.sol";
 import "./interface/VBep20Interface.sol";
 import "./interface/ComptrollerInterface.sol";
-import "../BaseAdapter.sol";
 
-contract VenusShortLevAdapter is BaseAdapter {
+contract VenusLongLevAdapter is BaseAdapter {
     // user => nft id => withdrawal amounts stack
-    mapping(address => mapping(uint256 => uint256[2]))
+    mapping(address => mapping(uint256 => uint256[4]))
         public stackWithdrawalAmounts;
 
     /**
@@ -32,7 +32,7 @@ contract VenusShortLevAdapter is BaseAdapter {
 
         isLeverage = true;
         borrowRate = 7900;
-        DEEPTH = 1;
+        DEEPTH = 3;
     }
 
     /**

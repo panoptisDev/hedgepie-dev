@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../BaseAdapter.sol";
+import "../../BaseAdapter.sol";
 
 contract BeefyVaultAdapter is BaseAdapter {
     /**
@@ -29,7 +29,7 @@ contract BeefyVaultAdapter is BaseAdapter {
      * @notice Get invest calldata
      * @param _amount  amount of invest
      */
-    function getInvestCallData(uint256 _amount) 
+    function getInvestCallData(uint256 _amount)
         external
         view
         returns (

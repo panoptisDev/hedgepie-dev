@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../BaseAdapter.sol";
+import "../../BaseAdapter.sol";
 
 contract BeltVaultAdapter is BaseAdapter {
     address public constant WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;

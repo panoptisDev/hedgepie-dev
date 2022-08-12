@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../BaseAdapter.sol";
+import "../../BaseAdapter.sol";
 
 interface IStrategy {
     function pendingCake(uint256 _pid, address _user)
@@ -10,26 +10,25 @@ interface IStrategy {
         returns (uint256);
 }
 
-contract ApeswapBananaAdapter is BaseAdapter {
+contract PancakeSwapFarmLPAdapter is BaseAdapter {
     /**
      * @notice Construct
      * @param _strategy  address of strategy
      * @param _stakingToken  address of staking token
      * @param _rewardToken  address of reward token
-     * @param _repayToken  address of repay token
      * @param _name  adatper name
      */
     constructor(
+        uint256 _pid,
         address _strategy,
         address _stakingToken,
         address _rewardToken,
-        address _repayToken,
         address _router,
         string memory _name
     ) {
+        pid = _pid;
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
-        repayToken = _repayToken;
         strategy = _strategy;
         router = _router;
         name = _name;
@@ -63,7 +62,11 @@ contract ApeswapBananaAdapter is BaseAdapter {
     {
         to = strategy;
         value = 0;
-        data = abi.encodeWithSignature("enterStaking(uint256)", _amount);
+        data = abi.encodeWithSignature(
+            "deposit(uint256,uint256)",
+            pid,
+            _amount
+        );
     }
 
     /**
@@ -81,7 +84,11 @@ contract ApeswapBananaAdapter is BaseAdapter {
     {
         to = strategy;
         value = 0;
-        data = abi.encodeWithSignature("leaveStaking(uint256)", _amount);
+        data = abi.encodeWithSignature(
+            "withdraw(uint256,uint256)",
+            pid,
+            _amount
+        );
     }
 
     /**
@@ -117,6 +124,6 @@ contract ApeswapBananaAdapter is BaseAdapter {
      * @param _user  address of investor
      */
     function getReward(address _user) external view override returns (uint256) {
-        return IStrategy(strategy).pendingCake(0, _user);
+        return IStrategy(strategy).pendingCake(pid, _user);
     }
 }

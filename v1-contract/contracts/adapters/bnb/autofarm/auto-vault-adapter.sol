@@ -1,22 +1,33 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../BaseAdapter.sol";
+import "../../BaseAdapter.sol";
 
-interface IStrategy {
-    function pendingReward(address _user) external view returns (uint256);
+interface IMasterChef {
+    function pendingAUTO(uint256 pid, address user)
+        external
+        view
+        returns (uint256);
+
+    function userInfo(uint256 pid, address user)
+        external
+        view
+        returns (uint256, uint256);
 }
 
-contract ApeswapJungleAdapter is BaseAdapter {
+contract AutoVaultAdapter is BaseAdapter {
     /**
      * @notice Construct
      * @param _strategy  address of strategy
+     * @param _vStrategy  address of vault strategy
      * @param _stakingToken  address of staking token
      * @param _rewardToken  address of reward token
+     * @param _router  address of DEX router
      * @param _name  adatper name
      */
     constructor(
         address _strategy,
+        address _vStrategy,
         address _stakingToken,
         address _rewardToken,
         address _router,
@@ -25,8 +36,10 @@ contract ApeswapJungleAdapter is BaseAdapter {
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
         strategy = _strategy;
-        router = _router;
+        vStrategy = _vStrategy;
         name = _name;
+        router = _router;
+        isVault = true;
     }
 
     /**
@@ -57,11 +70,15 @@ contract ApeswapJungleAdapter is BaseAdapter {
     {
         to = strategy;
         value = 0;
-        data = abi.encodeWithSignature("deposit(uint256)", _amount);
+        data = abi.encodeWithSignature(
+            "deposit(uint256,uint256)",
+            pid,
+            _amount
+        );
     }
 
     /**
-     * @notice Get devest calldata
+     * @notice Get devest calldata`
      * @param _amount  amount of devest
      */
     function getDevestCallData(uint256 _amount)
@@ -75,7 +92,25 @@ contract ApeswapJungleAdapter is BaseAdapter {
     {
         to = strategy;
         value = 0;
-        data = abi.encodeWithSignature("withdraw(uint256)", _amount);
+        data = abi.encodeWithSignature(
+            "withdraw(uint256,uint256)",
+            pid,
+            _amount
+        );
+    }
+
+    /**
+     * @notice Get pending AUTO token reward
+     */
+    function pendingReward() external view override returns (uint256 reward) {
+        reward = IMasterChef(strategy).pendingAUTO(pid, msg.sender);
+    }
+
+    /**
+     * @notice Get pending shares
+     */
+    function pendingShares() external view override returns (uint256 shares) {
+        (shares, ) = IMasterChef(strategy).userInfo(pid, msg.sender);
     }
 
     /**
@@ -107,10 +142,10 @@ contract ApeswapJungleAdapter is BaseAdapter {
     }
 
     /**
-     * @notice Get pending reward
-     * @param _user  address of investor
+     * @notice Set poolId
+     * @param _pid pool in masterchef
      */
-    function getReward(address _user) external view override returns (uint256) {
-        return IStrategy(strategy).pendingReward(_user);
+    function setPoolID(uint256 _pid) external onlyOwner {
+        pid = _pid;
     }
 }

@@ -1,30 +1,31 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../BaseAdapter.sol";
+import "../../BaseAdapter.sol";
 
-contract AlpacaLendAdapter is BaseAdapter {
-    address public constant WBNB = 0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c;
+interface IStrategy {
+    function pendingReward(address _user) external view returns (uint256);
+}
 
+contract ApeswapJungleAdapter is BaseAdapter {
     /**
      * @notice Construct
      * @param _strategy  address of strategy
      * @param _stakingToken  address of staking token
      * @param _rewardToken  address of reward token
-     * @param _repayToken  address of reward token
      * @param _name  adatper name
      */
     constructor(
         address _strategy,
         address _stakingToken,
         address _rewardToken,
-        address _repayToken,
+        address _router,
         string memory _name
     ) {
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
-        repayToken = _repayToken;
         strategy = _strategy;
+        router = _router;
         name = _name;
     }
 
@@ -55,7 +56,7 @@ contract AlpacaLendAdapter is BaseAdapter {
         )
     {
         to = strategy;
-        value = stakingToken == WBNB ? _amount : 0;
+        value = 0;
         data = abi.encodeWithSignature("deposit(uint256)", _amount);
     }
 
@@ -103,5 +104,13 @@ contract AlpacaLendAdapter is BaseAdapter {
         uint256 _amount
     ) external onlyInvestor {
         withdrawalAmount[_user][_nftId] = _amount;
+    }
+
+    /**
+     * @notice Get pending reward
+     * @param _user  address of investor
+     */
+    function getReward(address _user) external view override returns (uint256) {
+        return IStrategy(strategy).pendingReward(_user);
     }
 }
