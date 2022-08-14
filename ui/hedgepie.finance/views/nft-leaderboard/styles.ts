@@ -10,7 +10,7 @@ export const styles = {
     maxWidth: 1300,
     borderRadius: 8,
     boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
-    backgroundColor:'#fff'
+    background:'linear-gradient(137.62deg, rgba(252, 143, 143, 0.1) 0.17%, rgba(143, 143, 252, 0.3) 110.51%)'
   },
   lottery_load_container: {
     display: 'flex',

@@ -9,7 +9,7 @@ import chainParams from './chainParams'
 const POLLING_INTERVAL = 12000
 const chainId = parseInt(process.env.REACT_APP_CHAIN_ID || '97', 10)
 
-const injected = new InjectedConnector({ supportedChainIds: [chainId] })
+const injected = new InjectedConnector({ supportedChainIds: [chainId,137,1] })
 
 const walletconnect = new WalletConnectConnector({
   rpc: { [chainId]: chainParams?.[chainId]?.rpcUrls[0] },

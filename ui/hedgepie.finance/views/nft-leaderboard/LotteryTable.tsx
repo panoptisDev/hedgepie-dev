@@ -21,7 +21,7 @@ const LotteryTable = ({ data, onSort, sortKey }: any) => {
       <table
         style={{
           width: '100%',
-          borderSpacing: 0,
+          borderSpacing: '0 18px',
         }}
       >
         <thead
@@ -175,8 +175,8 @@ const LotteryTable = ({ data, onSort, sortKey }: any) => {
         </thead>
         <tbody>
           {data.map((d: TokenInfo, i: number) => (
-            <tr key={d.tokenId} style={{ backgroundColor: 'white' }}>
-              <td style={{}}>
+            <tr key={d.tokenId} style={{ backgroundColor: 'white', borderRadius: '30px' }}>
+              <td style={{ borderBottomLeftRadius: '30px' }}>
                 <Box sx={{ width: '100%', textAlign: 'center' }}>
                   <Image src={d.imageURL} sx={{ width: 60, boxShadow: '#ccc 0px 3px 3px 2px' }} />
                 </Box>
@@ -240,7 +240,7 @@ const LotteryTable = ({ data, onSort, sortKey }: any) => {
               >
                 $430,000 USD
               </td>
-              <td style={{}}>
+              <td style={{ borderBottomRightRadius: '30px' }}>
                 <Button
                   variant="info"
                   sx={styles.lottery_table_details_btn as ThemeUICSSObject}

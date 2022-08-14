@@ -23,13 +23,12 @@ export const styles = {
     alignItems: 'center',
   },
   connect_wallet_btn_container: {
-    border: '1px solid #1799DE',
-    borderRadius: 40,
     height: 64,
     cursor: 'pointer',
     transition: 'all .2s',
     display: 'flex',
     alignItems: 'center',
+    padding:'-100px'
   },
   mobile_menu_btn: {
     border: '1px solid #1799DE',
