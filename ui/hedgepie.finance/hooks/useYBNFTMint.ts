@@ -20,7 +20,6 @@ export const useYBNFTMint = () => {
       )
 
       console.info(txHash)
-      console.log(txHash)
       return txHash
     },
     [account, ybnftMintContract],

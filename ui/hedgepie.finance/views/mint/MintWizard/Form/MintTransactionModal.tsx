@@ -12,9 +12,6 @@ const MintTransactionModal = ({ formData, onDismiss = () => null }) => {
   const { onYBNFTMint, getMaxTokenId } = useYBNFTMint()
   const { onYBNFTDeposit } = useInvestor()
   const { setCloseOnOverlayClick } = useContext(Context)
-  useEffect(() => {
-    console.log('formData' + JSON.stringify(formData))
-  }, [formData])
 
   const steps = ['Uploading NFT Image and Metadata to IPFS', 'Minting YBNFT', 'Staking Initial Amount']
   const [currentStep, setCurrentStep] = useState(0)
@@ -78,7 +75,6 @@ const MintTransactionModal = ({ formData, onDismiss = () => null }) => {
   }
 
   const stakeInitialAmount = async () => {
-    console.log(formData)
     if (!formData.initialStake) return false
     let amount = formData.initialStake ? getBalanceInWei(Number.parseFloat(formData.initialStake)) : 0
     if (amount == 0) return

@@ -63,7 +63,6 @@ const MintContextProvider = ({ children }) => {
 
   useEffect(() => {
     const fetchBNBPrice = async () => {
-      console.log('getting bnb price from mint')
       const bnbPrice = (await getBNBPrice()) as number
       setBNBPrice(bnbPrice)
     }

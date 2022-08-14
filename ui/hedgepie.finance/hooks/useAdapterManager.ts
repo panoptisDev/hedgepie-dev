@@ -21,7 +21,6 @@ export const useAdapterManager = () => {
 
   const getTokenAddress = async (protocol, pool) => {
     const tokenAddress = await fetchTokenAddress(getContract(protocol, pool))
-    console.log(tokenAddress)
     return tokenAddress
   }
 

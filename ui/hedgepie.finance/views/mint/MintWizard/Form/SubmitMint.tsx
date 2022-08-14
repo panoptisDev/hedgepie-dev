@@ -20,8 +20,6 @@ const SubmitMint = () => {
   const [promptMessage, setPromptMessage] = useState('')
 
   const validateMintEntries = () => {
-    console.log(JSON.stringify(formData) + ' ' + account)
-
     const duplicatesInPositions = (positions) => {
       let positionNames = [] as string[]
       positions.forEach((position) => {
