@@ -31,7 +31,7 @@ const Label = ({ index, label, active }: Props) => {
       {index > 0 && (
         <Box
           sx={{
-            height: '1px',
+            height: '3px',
             width: 160,
             backgroundColor: '#1799DE',
           }}
@@ -50,20 +50,21 @@ const Label = ({ index, label, active }: Props) => {
             justifyContent: 'center',
             width: 74,
             height: 74,
-            border: '1px solid #1799DE',
-            color: active ? '#000' : '#CCC',
+            border: '3px solid #1799DE',
+            color: active ? '#1799DE' : index >= 0 && index < wizard.order ? '#fff' : '#CCC',
             borderRadius: '50%',
             fontSize: 36,
             fontWeight: 900,
             userSelect: 'none',
             cursor: 'pointer',
             transition: 'all .2s',
-            '&:hover': {
-              backgroundColor: '#1799DE11',
-            },
-            '&:active': {
-              backgroundColor: '#1799DE33',
-            },
+            // '&:hover': {
+            //   backgroundColor: '#1799DE11',
+            // },
+            // '&:active': {
+            //   backgroundColor: '#1799DE33',
+            // },
+            backgroundColor: index >= 0 && index < wizard.order ? '#1799DE' : '#fff',
           }}
           onClick={handleNavigate}
         >

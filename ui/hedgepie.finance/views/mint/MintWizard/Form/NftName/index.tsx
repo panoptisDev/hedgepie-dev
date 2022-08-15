@@ -27,7 +27,7 @@ const NftName = () => {
         sx={{
           fontSize: 16,
           fontWeight: 700,
-          color: '#16103A',
+          color: '#1380B9',
           [`@media screen and (min-width: 500px)`]: {
             fontSize: 24,
           },
@@ -38,8 +38,8 @@ const NftName = () => {
       <Box
         sx={{
           fontSize: 12,
-          fontWeight: 500,
-          color: '#DF4886',
+          fontWeight: 600,
+          color: '#3B3969',
           [`@media screen and (min-width: 500px)`]: {
             fontSize: 16,
           },
@@ -53,16 +53,16 @@ const NftName = () => {
           className="nft-name-input"
           sx={{
             height: 62,
-            width: '100%',
+            width: '80%',
             backgroundColor: '#fff',
-            borderRadius: 62,
+            borderRadius: 8,
             fontSize: 30,
             paddingLeft: 24,
             paddingRight: 24,
             border: 'none',
             outline: 'none',
           }}
-          placeholder="NFT Title ..."
+          // placeholder="NFT Title ..."
           value={formData.nftName}
           onChange={handleNameChange}
         />

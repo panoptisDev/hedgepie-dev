@@ -1,30 +1,29 @@
-import React from 'react'
+import React, { useEffect, useState } from 'react'
 import { Box, Input } from 'theme-ui'
 import MintWizardContext from 'contexts/MintWizardContext'
 
 const UploadArtwork = () => {
   const { formData, setFormData } = React.useContext(MintWizardContext)
+  const [file, setFile] = useState()
 
   const handleChange = (e) => {
-    if (e.target.files.length > 0) {
-      let reader = new FileReader()
-      const file = e.target.files[0]
-      reader.onload = function (e: any) {
-        setFormData({
-          ...formData,
-          artWorkFile: file,
-          artWorkUrl: e.target.result,
-        })
-      }
-      reader.readAsDataURL(file)
-    } else {
-      setFormData({
-        ...formData,
-        artWorkFile: null,
-        artWorkUrl: '',
-      })
+    if (e?.target?.files?.length > 0) {
+      setFile(e?.target?.files[0])
     }
   }
+
+  useEffect(() => {
+    if (file == null) return
+    let reader = new FileReader()
+    reader.onload = function (e: any) {
+      setFormData({
+        ...formData,
+        artWorkFile: file,
+        artWorkUrl: e.target.result,
+      })
+    }
+    reader.readAsDataURL(file as unknown as Blob)
+  }, [file])
 
   return (
     <Box
@@ -41,7 +40,7 @@ const UploadArtwork = () => {
         sx={{
           fontSize: 16,
           fontWeight: 700,
-          color: '#16103A',
+          color: '#1380B9',
           [`@media screen and (min-width: 500px)`]: {
             fontSize: 24,
           },
@@ -52,8 +51,8 @@ const UploadArtwork = () => {
       <Box
         sx={{
           fontSize: 12,
-          fontWeight: 500,
-          color: '#DF4886',
+          fontWeight: 600,
+          color: '#3B3969',
           [`@media screen and (min-width: 500px)`]: {
             fontSize: 16,
           },
@@ -97,9 +96,9 @@ const UploadArtwork = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: '#16103A',
+              backgroundColor: '#1799DE',
               color: '#fff',
-              borderRadius: 64,
+              borderRadius: 8,
               transition: 'all .2s',
               cursor: 'pointer',
               '&:hover': {

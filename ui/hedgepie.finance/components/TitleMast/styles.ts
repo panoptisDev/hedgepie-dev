@@ -1,11 +1,10 @@
 export const styles = {
   title_mast_container: {
     position: 'relative',
-    height: 200,
+    height: 180,
     display: 'flex',
     alignItems: 'center',
     justifyContent: 'center',
-    padding: 16,
   },
   title_mast_image: {
     position: 'absolute',
@@ -20,5 +19,6 @@ export const styles = {
     fontSize: 40,
     fontWeight: 'bold',
     textAlign: 'center',
+    color:'#1799DE'
   },
 }
