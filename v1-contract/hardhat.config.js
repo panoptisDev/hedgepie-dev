@@ -13,9 +13,11 @@ module.exports = {
   networks: {
     hardhat: {
       allowUnlimitedContractSize: true,
+      chainId: 31337,
       forking: {
-        url: "https://bsc-dataseed1.binance.org/",
+        // url: "https://bsc-dataseed1.binance.org/",
         enabled: true,
+        url: "https://bscrpc.com",
         // blockNumber: 19717000,
       },
     },
