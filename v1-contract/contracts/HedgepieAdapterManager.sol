@@ -169,6 +169,7 @@ contract HedgepieAdapterManager is Ownable {
      * @notice Add adapter
      * @param _adapter  adapter address
      */
+    /// #if_succeeds {:msg "Adapter not set correctly"} adapterInfo.length == old(adapterInfo.length) + 1;
     function addAdapter(address _adapter) external onlyOwner {
         require(_adapter != address(0), "Invalid adapter address");
 
@@ -199,6 +200,7 @@ contract HedgepieAdapterManager is Ownable {
      * @notice Set investor contract
      * @param _investor  investor address
      */
+    /// #if_succeeds {:msg "Investor not set correctly"} investor != old(investor);  
     function setInvestor(address _investor) external onlyOwner {
         require(_investor != address(0), "Invalid investor address");
         investor = _investor;

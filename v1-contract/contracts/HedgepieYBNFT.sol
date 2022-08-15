@@ -77,6 +77,7 @@ contract YBNFT is BEP721, Ownable {
      * @param _adapterTokens  token of adapters
      * @param _adapterAddrs  address of adapters
      */
+    /// #if_succeeds {:msg "Mint failed"} adapterInfo[_tokenIdPointer._value].length == _adapterAllocations.length;
     function mint(
         uint256[] calldata _adapterAllocations,
         address[] calldata _adapterTokens,

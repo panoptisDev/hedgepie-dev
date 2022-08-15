@@ -120,7 +120,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
      * @param _tokenId  YBNft token id
      * @param _amount  BNB amount
      */
-    /// #if_succeeds {:msg "userInfo not changed"} userInfo[_user][ybnft][_tokenId] < old(userInfo[_user][ybnft][_tokenId]);
+    /// #if_succeeds {:msg "userInfo not increased"} userInfo[_user][ybnft][_tokenId] > old(userInfo[_user][ybnft][_tokenId]);
     function depositBNB(
         address _user,
         uint256 _tokenId,
@@ -211,7 +211,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
      * @param _user  user address
      * @param _tokenId  YBNft token id
      */
-    /// #if_succeeds {:msg "userInfo not changed"} userInfo[_user][ybnft][_tokenId] > old(userInfo[_user][ybnft][_tokenId]);
+    /// #if_succeeds {:msg "userInfo not decreased"} userInfo[_user][ybnft][_tokenId] < old(userInfo[_user][ybnft][_tokenId]);
     function withdrawBNB(address _user, uint256 _tokenId)
         external
         nonReentrant
