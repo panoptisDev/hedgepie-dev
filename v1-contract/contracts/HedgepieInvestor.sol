@@ -103,6 +103,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
      * @param _treasury  treasury address
      * @param _percent  user address
      */
+    /// #if_succeeds {:msg "Treasury not updated"} taxPercent == _percent && treasuryAddr == _treasury;
     function setTreasury(address _treasury, uint256 _percent)
         external
         onlyOwner
@@ -379,6 +380,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
      * @notice Set strategy manager contract
      * @param _adapterManager  nft address
      */
+    /// #if_succeeds {:msg "Adapter manager not set"} adapterManager == _adapterManager;
     function setAdapterManager(address _adapterManager) external onlyOwner {
         require(_adapterManager != address(0), "Error: Invalid NFT address");
 
