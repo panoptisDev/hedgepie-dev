@@ -12,7 +12,7 @@ import queryString from 'query-string'
 import { useYBNFTMint } from 'hooks/useYBNFTMint'
 import { useAdapterManager } from 'hooks/useAdapterManager'
 import Link from 'next/link'
-import { getBNBPrice } from 'utils/getBNBPrice'
+import { getPrice } from 'utils/getTokenPrice'
 import Yield from './Yield'
 
 import { useInvestor } from 'hooks/useInvestor'

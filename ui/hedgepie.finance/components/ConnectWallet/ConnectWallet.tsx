@@ -22,7 +22,6 @@ const ConnectWallet = (props) => {
         setChainImg('/images/ethlogo.png')
         break
       case 137:
-        console.log('polypoly')
         setChainImg('/images/polygonlogo.png')
         break
       case 56:
