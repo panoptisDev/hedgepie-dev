@@ -201,7 +201,7 @@ contract HedgepieAdapterManager is Ownable {
      * @notice Set investor contract
      * @param _investor  investor address
      */
-    /// #if_succeeds {:msg "Investor not set correctly"} investor != old(investor);  
+    /// #if_succeeds {:msg "Investor not set correctly"} investor == _investor;
     function setInvestor(address _investor) external onlyOwner {
         require(_investor != address(0), "Invalid investor address");
         investor = _investor;
