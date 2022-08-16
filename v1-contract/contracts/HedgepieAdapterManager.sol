@@ -190,6 +190,7 @@ contract HedgepieAdapterManager is Ownable {
      * @param _adapterId  adapter id
      * @param _status  adapter status
      */
+    /// #if_succeeds {:msg "Status not updated"} adapterInfo[_adapterId].status == _status;
     function setAdapter(uint256 _adapterId, bool _status) external onlyOwner {
         require(_adapterId < adapterInfo.length, "Invalid adapter address");
 

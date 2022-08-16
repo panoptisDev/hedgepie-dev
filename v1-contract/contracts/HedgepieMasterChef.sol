@@ -188,6 +188,7 @@ contract HedgepieMasterChef is Ownable {
      * @notice Update multiplier. Can only be called by the owner.
      * @param _multiplierNumber  _multiplier value
      */
+    /// #if_succeeds {:msg "Multiplier not updated"} BONUS_MULTIPLIER == _multiplierNumber;
     function updateMultiplier(uint256 _multiplierNumber) public onlyOwner {
         require(_multiplierNumber >= 100, "Invalid multipler number");
         BONUS_MULTIPLIER = _multiplierNumber;
@@ -222,6 +223,7 @@ contract HedgepieMasterChef is Ownable {
     /**
      * @notice Update reward variables for all pools
      */
+    /// #if_succeeds {:msg "Pools not updated"} poolInfo.length == old(poolInfo.length);
     function massUpdatePools() public {
         uint256 length = poolInfo.length;
         for (uint256 pid = 0; pid < length; ++pid) {
