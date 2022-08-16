@@ -172,7 +172,7 @@ contract HedgepieMasterChef is Ownable {
      * @param _pid  pool id
      * @param _allocPoint  reward allocation point
      */
-    /// #if_succeeds {:msg "AllocPoint not updated"} totalAllocPoint = old(totalAllocPoint) - old(poolInfo[_pid].allocPoint) + _allocPoint;
+    /// #if_succeeds {:msg "AllocPoint not updated"} totalAllocPoint == old(totalAllocPoint) - old(poolInfo[_pid].allocPoint) + _allocPoint;
     function set(uint256 _pid, uint256 _allocPoint) public onlyOwner {
         massUpdatePools();
         uint256 prevAllocPoint = poolInfo[_pid].allocPoint;
