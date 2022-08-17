@@ -233,7 +233,7 @@ const ViewContents = (props: Props) => {
                         }}
                       >
                         <ActionStake tokenId={tokenId} setStaked={setStaked} />
-                        {/* <Yield /> */}
+                        <Yield />
                       </Flex>
                     </Flex>
                   </Flex>
