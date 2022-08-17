@@ -103,6 +103,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
      * @param _treasury  treasury address
      * @param _percent  user address
      */
+    /// #if_succeeds {:msg "Treasury not updated"} taxPercent == _percent && treasuryAddr == _treasury;
     function setTreasury(address _treasury, uint256 _percent)
         external
         onlyOwner
@@ -120,6 +121,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
      * @param _tokenId  YBNft token id
      * @param _amount  BNB amount
      */
+    /// #if_succeeds {:msg "userInfo not increased"} userInfo[_user][ybnft][_tokenId] > old(userInfo[_user][ybnft][_tokenId]);
     function depositBNB(
         address _user,
         uint256 _tokenId,
@@ -210,6 +212,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
      * @param _user  user address
      * @param _tokenId  YBNft token id
      */
+    /// #if_succeeds {:msg "userInfo not decreased"} userInfo[_user][ybnft][_tokenId] < old(userInfo[_user][ybnft][_tokenId]);
     function withdrawBNB(address _user, uint256 _tokenId)
         external
         nonReentrant
@@ -377,6 +380,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
      * @notice Set strategy manager contract
      * @param _adapterManager  nft address
      */
+    /// #if_succeeds {:msg "Adapter manager not set"} adapterManager == _adapterManager;
     function setAdapterManager(address _adapterManager) external onlyOwner {
         require(_adapterManager != address(0), "Error: Invalid NFT address");
 

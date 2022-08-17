@@ -18,6 +18,7 @@ contract HedgepieToken is
         _setupRole(DEFAULT_ADMIN_ROLE, msg.sender);
     }
 
+    /// #if_succeeds {:msg "totalSupply not increased"} totalSupply() == old(totalSupply());
     function mint(address _to, uint256 _amount) external onlyMintUser {
         require(
             totalSupply().add(_amount) <= _cap,
