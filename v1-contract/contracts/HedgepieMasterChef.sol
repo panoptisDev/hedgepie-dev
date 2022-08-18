@@ -146,6 +146,7 @@ contract HedgepieMasterChef is Ownable {
      * @param _allocPoint  reward allocation point
      * @param _lpToken  token address
      */
+    /// #if_succeeds {:msg "Pool not added"} poolInfo.length == old(poolInfo.length) + 1;
     function add(uint256 _allocPoint, IBEP20 _lpToken) public onlyOwner {
         require(address(_lpToken) != address(0), "Lp token: Zero address");
         for (uint256 i = 0; i < poolInfo.length; i++) {
@@ -171,6 +172,7 @@ contract HedgepieMasterChef is Ownable {
      * @param _pid  pool id
      * @param _allocPoint  reward allocation point
      */
+    /// #if_succeeds {:msg "AllocPoint not updated"} totalAllocPoint == old(totalAllocPoint) - old(poolInfo[_pid].allocPoint) + _allocPoint;
     function set(uint256 _pid, uint256 _allocPoint) public onlyOwner {
         massUpdatePools();
         uint256 prevAllocPoint = poolInfo[_pid].allocPoint;
@@ -186,6 +188,7 @@ contract HedgepieMasterChef is Ownable {
      * @notice Update multiplier. Can only be called by the owner.
      * @param _multiplierNumber  _multiplier value
      */
+    /// #if_succeeds {:msg "Multiplier not updated"} BONUS_MULTIPLIER == _multiplierNumber;
     function updateMultiplier(uint256 _multiplierNumber) public onlyOwner {
         require(_multiplierNumber >= 100, "Invalid multipler number");
         BONUS_MULTIPLIER = _multiplierNumber;
@@ -195,6 +198,7 @@ contract HedgepieMasterChef is Ownable {
      * @notice Update reward variables of the given pool to be up-to-date.
      * @param _pid  pool id
      */
+    /// #if_succeeds {:msg "Poolinfo not updated"} poolInfo[_pid].lastRewardBlock > old(poolInfo[_pid].lastRewardBlock);
     function updatePool(uint256 _pid) public {
         PoolInfo storage pool = poolInfo[_pid];
         if (block.number <= pool.lastRewardBlock) {
@@ -219,6 +223,7 @@ contract HedgepieMasterChef is Ownable {
     /**
      * @notice Update reward variables for all pools
      */
+    /// #if_succeeds {:msg "Pools not updated"} poolInfo.length == old(poolInfo.length);
     function massUpdatePools() public {
         uint256 length = poolInfo.length;
         for (uint256 pid = 0; pid < length; ++pid) {
@@ -231,6 +236,7 @@ contract HedgepieMasterChef is Ownable {
      * @param _pid  pool id
      * @param _amount  token amount
      */
+    /// #if_succeeds {:msg "Deposit failed"} userInfo[_pid][msg.sender].rewardDebt > old(userInfo[_pid][msg.sender].rewardDebt);
     function deposit(uint256 _pid, uint256 _amount) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
@@ -269,6 +275,7 @@ contract HedgepieMasterChef is Ownable {
      * @param _pid  pool id
      * @param _amount  token amount
      */
+    /// #if_succeeds {:msg "Withdraw failed"} userInfo[_pid][msg.sender].rewardDebt < old(userInfo[_pid][msg.sender].rewardDebt);
     function withdraw(uint256 _pid, uint256 _amount) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];
@@ -301,6 +308,7 @@ contract HedgepieMasterChef is Ownable {
      * @notice Withdraw without caring about rewards. EMERGENCY ONLY.
      * @param _pid  pool id
      */
+    /// #if_succeeds {:msg "EmergencyWithdraw failed"} userInfo[_pid][msg.sender].amount == 0;
     function emergencyWithdraw(uint256 _pid) public {
         PoolInfo storage pool = poolInfo[_pid];
         UserInfo storage user = userInfo[_pid][msg.sender];

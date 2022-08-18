@@ -81,6 +81,7 @@ contract AlpacaAUSDAdapter is BaseAdapter {
      * @param _nftId  nftId
      * @param _amount  amount of withdrawal
      */
+    /// #if_succeeds {:msg "withdrawalAmount not increased"} withdrawalAmount[_user][_nftId] == old(withdrawalAmount[_user][_nftId]) + _amount;
     function increaseWithdrawalAmount(
         address _user,
         uint256 _nftId,
