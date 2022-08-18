@@ -60,7 +60,7 @@ function Yield(props: any) {
             sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '9rem' }}
           >
             <Text sx={{ fontSize: 22, fontWeight: 700, color: '#fff' }}>YIELD</Text>
-            <Text sx={{ fontSize: 22, fontWeight: 700, color: '#fff' }}>0.05 BNB</Text>
+            <Text sx={{ fontSize: 22, fontWeight: 700, color: '#fff' }}>{reward}</Text>
           </Box>
           <Button sx={styles.withdraw_yield_button as ThemeUICSSObject} onClick={handleWithdrawYield}>
             CLAIM
