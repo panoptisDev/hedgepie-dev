@@ -23,6 +23,8 @@ interface IAdapter {
 
     function isVault() external view returns (bool);
 
+    function isReward() external view returns (bool);
+
     function isEntered() external view returns (bool);
 
     function isLeverage() external view returns (bool);
@@ -46,6 +48,8 @@ interface IAdapter {
     function repayToken() external view returns (address);
 
     function rewardToken() external view returns (address);
+
+    function rewardToken1() external view returns (address);
 
     function wrapToken() external view returns (address);
 
