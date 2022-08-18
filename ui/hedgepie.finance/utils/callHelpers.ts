@@ -72,6 +72,17 @@ export const withdrawBNBFromYBNFT = async (ybnftInvestorContract, account, ybnft
     })
 }
 
+// This is a function for Claiming which will be used once the claim function is updated.
+export const claimFromYBNFT = async (ybnftInvestorContract, account, ybnftId) => {
+  // return ybnftInvestorContract.methods
+  //   .claimFromYBNFT(account, ybnftId)
+  //   .send({ from: account })
+  //   .on('transactionHash', (tx) => {
+  //     return tx.transactionHash
+  //   })
+  return ""
+}
+
 export const withdrawFromYBNFT = async (ybnftInvestorContract, account, ybnftId, amount) => {
   return ybnftInvestorContract.methods
     .withdrawBNB(account, ybnftId, amount)
@@ -84,6 +95,11 @@ export const withdrawFromYBNFT = async (ybnftInvestorContract, account, ybnftId,
 export const fetchBalance = async (ybnftInvestorContract, account, ybnftId) => {
   const balance = await ybnftInvestorContract.methods.userInfo(account, await getYBNFTAddress(), ybnftId).call()
   return balance
+}
+
+export const fetchYield = async (ybnftInvestorContract, account, ybnftId) => {
+  const reward = await ybnftInvestorContract.methods.pendingReward(account, ybnftId).call()
+  return reward
 }
 
 export const fetchAdapters = async (adapterManagerContract) => {

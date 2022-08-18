@@ -104,7 +104,7 @@ export const styles = {
     color: '#fff',
     fontFamily: 'Noto Sans',
     height: '3rem',
-    width: '10rem',
+    width: '100%',
     fontWeight: '600',
     ':hover': {
       backgroundColor: '#fff',
