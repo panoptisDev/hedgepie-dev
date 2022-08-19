@@ -223,10 +223,6 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
                 ? address(this).balance
                 : IBEP20(adapter.token).balanceOf(address(this));
 
-            UserAdapterInfo storage userAdapter = userAdapterInfos[msg.sender][
-                _tokenId
-            ][adapter.addr];
-
             _withdrawFromAdapter(
                 adapter.addr,
                 _tokenId,
@@ -275,6 +271,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
                     }
                 }
             } else {
+                uint256 taxAmount;
                 amountOut += _withdrawLPMATIC(
                     adapter.addr,
                     balances[1] - balances[0],
@@ -443,11 +440,9 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
     ) internal {
         address stakingToken = IAdapter(_adapterAddr).stakingToken();
         address rewardToken = IAdapter(_adapterAddr).rewardToken();
-        uint256[2] memory rewardTokenAmount;
-        UserAdapterInfo memory userAdapter = userAdapterInfos[msg.sender][
-            _tokenId
-        ][_adapterAddr];
+        bool isReward = IAdapter(_adapterAddr).isReward();
 
+        uint256[2] memory rewardTokenAmount;
         rewardTokenAmount[0] = rewardToken != address(0)
             ? IBEP20(rewardToken).balanceOf(address(this))
             : 0;
@@ -463,6 +458,11 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
 
         (bool success, ) = to.call{value: value}(callData);
         require(success, "Error: Withdraw internal issue");
+
+        if(isReward) {
+            (to, value, callData) = IAdapterManager(adapterManager).getRewardCallData();
+            require(success, "Error: getReward internal issue");
+        }
 
         rewardTokenAmount[1] = rewardToken != address(0)
             ? IBEP20(rewardToken).balanceOf(address(this))

@@ -51,4 +51,13 @@ interface IAdapterManager {
             uint256 value,
             bytes memory data
         );
+
+    function getRewardCallData()
+        external
+        view
+        returns (
+            address to,
+            uint256 value,
+            bytes memory data
+        );
 }

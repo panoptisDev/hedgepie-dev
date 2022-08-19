@@ -405,9 +405,6 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             UserAdapterInfo storage userAdapter = userAdapterInfos[msg.sender][
                 _tokenId
             ][adapter.addr];
-            AdapterInfo memory adapterInfo = adapterInfos[_tokenId][
-                adapter.addr
-            ];
 
             uint256 rewards = _getRewards(_tokenId, msg.sender, adapter.addr);
             userAdapter.userShares = adapterInfos[_tokenId][adapter.addr]
