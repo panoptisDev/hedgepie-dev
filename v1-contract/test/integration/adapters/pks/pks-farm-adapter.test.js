@@ -12,7 +12,7 @@ describe("PancakeSwapFarmLPAdapter Integration Test", function () {
   before("Deploy contract", async function () {
     const [owner, alice, bob, tom] = await ethers.getSigners();
 
-    const performanceFee = 50;
+    const performanceFee = 100;
     const wbnb = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
     const usdt = "0x55d398326f99059ff775485246999027b3197955";
     const cake = "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82";
@@ -146,6 +146,11 @@ describe("PancakeSwapFarmLPAdapter Integration Test", function () {
     });
 
     it("(4) deposit should success for Bob", async function () {
+      // wait 40 mins
+      for (let i = 0; i < 7200; i++) {
+        await ethers.provider.send("evm_mine", []);
+      }
+
       const beforeAdapterInfos = await this.investor.adapterInfos(1, this.aAdapter.address);
       const depositAmount = ethers.utils.parseEther("20");
 
@@ -172,7 +177,6 @@ describe("PancakeSwapFarmLPAdapter Integration Test", function () {
       expect(BigNumber.from(bobWithdrable)).to.eq(BigNumber.from(bobAdapterInfos.amount));
 
       // Check accTokenPerShare Info
-      console.log(this.accTokenPerShare, (await this.investor.adapterInfos(1, this.aAdapter.address)).accTokenPerShare);
       expect(
         BigNumber.from((await this.investor.adapterInfos(1, this.aAdapter.address)).accTokenPerShare).gt(
           BigNumber.from(this.accTokenPerShare)
@@ -181,7 +185,18 @@ describe("PancakeSwapFarmLPAdapter Integration Test", function () {
       this.accTokenPerShare = (await this.investor.adapterInfos(1, this.aAdapter.address)).accTokenPerShare;
     });
 
-    it("(5) claim and pendingReward function", async function () {});
+    it("(5) claim and pendingReward function", async function () {
+      const beforeBNB = await ethers.provider.getBalance(this.aliceAddr);
+      const pending = await this.investor.pendingReward(this.aliceAddr, 1);
+
+      await this.investor.connect(this.alice).claim(1);
+      const gasPrice = await ethers.provider.getGasPrice();
+      const gas = await this.investor.connect(this.alice).estimateGas.claim(1);
+
+      const afterBNB = await ethers.provider.getBalance(this.aliceAddr);
+      const actualPending = afterBNB.sub(beforeBNB).add(gas.mul(gasPrice));
+      expect(pending).to.be.within(actualPending, actualPending.add(BigNumber.from(2e14)));
+    });
   });
 
   describe("withdrawBNB() function test", function () {
