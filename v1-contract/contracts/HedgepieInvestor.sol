@@ -413,7 +413,8 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             userAdapter.userShares = adapterInfos[_tokenId][adapter.addr]
                 .accTokenPerShare;
 
-            uint256 taxAmount = (rewards * taxPercent) / 1e4;
+            uint256 taxAmount = (rewards *
+                IYBNFT(ybnft).performanceFee(_tokenId)) / 1e4;
 
             if (taxAmount != 0) {
                 IBEP20(IAdapter(adapter.addr).rewardToken()).transfer(
