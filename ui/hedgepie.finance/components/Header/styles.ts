@@ -46,11 +46,11 @@ export const styles = {
     },
   },
   mobile_menu_connect_wallet: {
-    display: 'flex',
     alignItems: 'center',
     width: '100%',
     padding: '6px 24px',
     transition: 'all .2s',
+    display:['flex','none'],
     cursor: 'pointer',
     color: '#1799DE',
     '&:hover': {

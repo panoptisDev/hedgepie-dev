@@ -178,14 +178,14 @@ const ViewContents = (props: Props) => {
                           {description ? <Text sx={styles.nft_desc_text as ThemeUICSSObject}>{description}</Text> : ''}
                         </Flex>
                       </Flex>
-                      <Flex sx={styles.flex_badges_row as ThemeUICSSObject}>
+                      <Box sx={styles.flex_badges_row as ThemeUICSSObject}>
                         {badges.map((badge) => (
-                          <Flex sx={styles.flex_badge_container as ThemeUICSSObject}>
+                          <Box sx={styles.flex_badge_container as ThemeUICSSObject}>
                             <Text sx={styles.badge_title_text as ThemeUICSSObject}>{badge.title}</Text>
                             <Text sx={styles.badge_value_text}>{badge.value}</Text>
-                          </Flex>
+                          </Box>
                         ))}
-                      </Flex>
+                      </Box>
                     </Flex>
                     <Flex sx={styles.flex_owner_details_container as ThemeUICSSObject}>
                       {/* <Text sx={styles.owner_name_text as ThemeUICSSObject}>{owner.name}</Text> */}
@@ -193,7 +193,7 @@ const ViewContents = (props: Props) => {
                     </Flex>
                   </Flex>
                   {/* Strategy Composition */}
-                  <Flex>
+                  <Flex sx={{ flexDirection: ['column', 'column', 'row'] }}>
                     <Flex sx={styles.flex_strategy_container as ThemeUICSSObject}>
                       <Text sx={styles.strategy_title_text as ThemeUICSSObject}>Strategy Composition</Text>
                       <Flex sx={styles.flex_strategy_inner_container as ThemeUICSSObject}>
