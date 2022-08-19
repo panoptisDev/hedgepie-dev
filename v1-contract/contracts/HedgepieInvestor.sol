@@ -24,9 +24,15 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     struct AdapterInfo {
         uint256 accTokenPerShare;
         uint256 totalStaked;
+    }
+
+    struct NFTInfo {
         uint256 tvl;
         uint256 totalParticipant;
     }
+
+    // ybnft => nft id => NFTInfo
+    mapping(address => mapping(uint256 => NFTInfo)) public nftInfo;
 
     // user => ybnft => nft id => amount(Invested WBNB)
     mapping(address => mapping(address => mapping(uint256 => uint256)))
@@ -190,12 +196,12 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
             userAdapterInfos[_user][_tokenId][adapter.addr].amount += amountOut;
             adapterInfos[_tokenId][adapter.addr].totalStaked += amountOut;
-            adapterInfos[_tokenId][adapter.addr].tvl += amountIn;
-            if (userInfo[_user][ybnft][_tokenId] == 0) {
-                adapterInfos[_tokenId][adapter.addr].totalParticipant++;
-            }
         }
 
+        nftInfo[ybnft][_tokenId].tvl += _amount;
+        if (userInfo[_user][ybnft][_tokenId] == 0) {
+            nftInfo[ybnft][_tokenId].totalParticipant++;
+        }
         userInfo[_user][ybnft][_tokenId] += _amount;
 
         uint256 afterBalance = address(this).balance;
@@ -368,11 +374,14 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 .totalStaked -= userAdapterInfos[_user][_tokenId][adapter.addr]
                 .amount;
             userAdapterInfos[_user][_tokenId][adapter.addr].amount = 0;
-
-            adapterInfos[_tokenId][adapter.addr].tvl -= amountOut;
-            if (adapterInfos[_tokenId][adapter.addr].totalParticipant > 0)
-                adapterInfos[_tokenId][adapter.addr].totalParticipant--;
         }
+
+        if (nftInfo[ybnft][_tokenId].tvl < userAmount)
+            nftInfo[ybnft][_tokenId].tvl = 0;
+        else nftInfo[ybnft][_tokenId].tvl -= userAmount;
+
+        if (nftInfo[ybnft][_tokenId].totalParticipant > 0)
+            nftInfo[ybnft][_tokenId].totalParticipant--;
 
         userInfo[_user][ybnft][_tokenId] -= userAmount;
 
