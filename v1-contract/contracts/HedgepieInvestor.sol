@@ -24,6 +24,8 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     struct AdapterInfo {
         uint256 accTokenPerShare;
         uint256 totalStaked;
+        uint256 tvl;
+        uint256 totalParticipant;
     }
 
     // user => ybnft => nft id => amount(Invested WBNB)
@@ -50,7 +52,6 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     address public adapterManager;
 
     address public treasuryAddr;
-    uint256 public taxPercent;
 
     event Deposit(
         address indexed user,
@@ -101,18 +102,11 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     /**
      * @notice Set treasury address and percent
      * @param _treasury  treasury address
-     * @param _percent  user address
      */
-    /// #if_succeeds {:msg "Treasury not updated"} taxPercent == _percent && treasuryAddr == _treasury;
-    function setTreasury(address _treasury, uint256 _percent)
-        external
-        onlyOwner
-    {
+    /// #if_succeeds {:msg "Treasury not updated"} treasuryAddr == _treasury;
+    function setTreasury(address _treasury) external onlyOwner {
         require(_treasury != address(0), "Invalid address");
-        require(_percent < 1000, "Invalid tax percent");
-
         treasuryAddr = _treasury;
-        taxPercent = _percent;
     }
 
     /**
@@ -196,6 +190,10 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
             userAdapterInfos[_user][_tokenId][adapter.addr].amount += amountOut;
             adapterInfos[_tokenId][adapter.addr].totalStaked += amountOut;
+            adapterInfos[_tokenId][adapter.addr].tvl += amountIn;
+            if (userInfo[_user][ybnft][_tokenId] == 0) {
+                adapterInfos[_tokenId][adapter.addr].totalParticipant++;
+            }
         }
 
         userInfo[_user][ybnft][_tokenId] += _amount;
@@ -314,7 +312,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                                 IAdapter(adapter.addr).getWithdrawalAmount(
                                     _user,
                                     _tokenId
-                                )) * taxPercent) /
+                                )) * IYBNFT(ybnft).performanceFee(_tokenId)) /
                             1e4;
 
                         if (taxAmount != 0) {
@@ -344,7 +342,9 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                         adapter.addr
                     );
 
-                    taxAmount = (rewards * taxPercent) / 1e4;
+                    taxAmount =
+                        (rewards * IYBNFT(ybnft).performanceFee(_tokenId)) /
+                        1e4;
 
                     if (taxAmount != 0) {
                         IBEP20(IAdapter(adapter.addr).rewardToken()).transfer(
@@ -368,6 +368,10 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 .totalStaked -= userAdapterInfos[_user][_tokenId][adapter.addr]
                 .amount;
             userAdapterInfos[_user][_tokenId][adapter.addr].amount = 0;
+
+            adapterInfos[_tokenId][adapter.addr].tvl -= amountOut;
+            if (adapterInfos[_tokenId][adapter.addr].totalParticipant > 0)
+                adapterInfos[_tokenId][adapter.addr].totalParticipant--;
         }
 
         userInfo[_user][ybnft][_tokenId] -= userAmount;
