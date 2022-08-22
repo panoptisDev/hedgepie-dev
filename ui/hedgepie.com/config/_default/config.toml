@@ -1,0 +1,61 @@
+baseURL = "https://www.hedgepie.com/"
+title = 'Hedgepie'
+languageCode = "en"
+defaultContentLanguage = "en"
+theme = "hedgepie"
+enableRobotsTXT = true
+copyright="@ 2022 HedgePie"
+cloudinaryName="dalyoko"
+#landing page
+
+[author]
+  [author.default]
+    name = "Hedgepie"
+    location = "Hedgepie"
+    avatar =""
+    bio = ""
+    linkedin=""
+
+[sitemap]
+  changefreq = 'monthly'
+  filename = 'sitemap.xml'
+  priority = 0.7
+
+
+[taxonomies]
+    tag = "tags"
+
+[build]
+  writeStats = true
+
+[outputs]
+  home = ["HTML", "RSS"]
+  page = ["HTML"]
+  section = ["HTML", "RSS"]
+  taxonomy = ["HTML", "RSS"]
+  taxonomyTerm = ["HTML"]
+
+
+[markup]
+[markup.goldmark]
+    [markup.goldmark.extensions]
+      definitionList = true
+      footnote = true
+      linkify = true
+      strikethrough = true
+      table = true
+      taskList = true
+      typographer = true
+    [markup.goldmark.renderer]
+      unsafe = true
+
+[languages]
+  [languages.en]
+    languageName = 'English'
+    contentDir = 'content'
+    languageCode= "em"
+    weight = 1
+
+[module]
+[[module.imports]]
+path = "github.com/gohugoio/hugo-mod-heroicons"
