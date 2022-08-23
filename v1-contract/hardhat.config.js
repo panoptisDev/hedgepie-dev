@@ -13,7 +13,9 @@ module.exports = {
     hardhat: {
       allowUnlimitedContractSize: true,
       forking: {
-        url: "https://bscrpc.com",
+        url: "https://rpc.ankr.com/bsc",
+        // url: "https://bscrpc.com",
+        // url: "https://bsc-dataseed1.binance.org/",
         enabled: true,
         // blockNumber: 19717000,
       },
