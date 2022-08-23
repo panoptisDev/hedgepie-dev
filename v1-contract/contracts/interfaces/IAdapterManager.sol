@@ -52,7 +52,7 @@ interface IAdapterManager {
             bytes memory data
         );
 
-    function getRewardCallData()
+    function getRewardCallData(address _adapter)
         external
         view
         returns (

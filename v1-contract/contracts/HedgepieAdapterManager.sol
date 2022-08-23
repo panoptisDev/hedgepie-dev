@@ -107,6 +107,24 @@ contract HedgepieAdapterManager is Ownable {
     }
 
     /**
+     * @notice Get reward call data of adapter contract
+     * @param _adapter  adapter address
+     */
+    function getRewardCallData(address _adapter)
+        external
+        view
+        onlyActiveAdapter(_adapter)
+        onlyInvestor
+        returns (
+            address to,
+            uint256 value,
+            bytes memory data
+        )
+    {
+        return IAdapter(_adapter).getRewardCallData();
+    }
+
+    /**
      * @notice Get EnterMarket call data of adapter contract
      * @param _adapter  adapter address
      */
