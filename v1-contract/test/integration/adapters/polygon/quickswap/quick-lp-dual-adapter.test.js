@@ -3,7 +3,7 @@ const { ethers } = require("hardhat");
 
 const BigNumber = ethers.BigNumber;
 
-describe.only("QuickLPDualAdapter Integration Test", function () {
+describe("QuickLPDualAdapter Integration Test", function () {
   before("Deploy contract", async function () {
     const [owner, alice, bob, tom] = await ethers.getSigners();
 
@@ -66,7 +66,7 @@ describe.only("QuickLPDualAdapter Integration Test", function () {
 
     // Set adapter manager in investor
     await this.investor.setAdapterManager(this.adapterManager.address);
-    await this.investor.setTreasury(this.owner.address, 100);
+    await this.investor.setTreasury(this.owner.address);
 
     // Set investor in vAdapter
     await this.aAdapter.setInvestor(this.investor.address);

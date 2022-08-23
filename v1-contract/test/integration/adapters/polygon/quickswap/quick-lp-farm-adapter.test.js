@@ -64,7 +64,7 @@ describe("QuickLPFarmAdapter Integration Test", function () {
 
     // Set adapter manager in investor
     await this.investor.setAdapterManager(this.adapterManager.address);
-    await this.investor.setTreasury(this.owner.address, 100);
+    await this.investor.setTreasury(this.owner.address);
 
     // Set investor in vAdapter
     await this.aAdapter.setInvestor(this.investor.address);

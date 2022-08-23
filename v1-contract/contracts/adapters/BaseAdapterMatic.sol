@@ -20,8 +20,6 @@ abstract contract BaseAdapterMatic is Ownable {
 
     address public investor;
 
-    address public wrapToken;
-
     string public name;
 
     bool public isReward;
@@ -123,7 +121,7 @@ abstract contract BaseAdapterMatic is Ownable {
      * @notice Get pending token reward
      */
     function pendingReward() external view virtual returns (uint256 reward) {
-        return 0;
+        reward = 0;
     }
 
     /**

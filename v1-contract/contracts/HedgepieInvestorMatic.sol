@@ -18,12 +18,23 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
     struct UserAdapterInfo {
         uint256 amount;
         uint256 userShares;
+        uint256 userShares1;
     }
 
     struct AdapterInfo {
         uint256 accTokenPerShare;
         uint256 totalStaked;
+        uint256 accTokenPerShare1;
+        uint256 totalStaked1;
     }
+
+    struct NFTInfo {
+        uint256 tvl;
+        uint256 totalParticipant;
+    }
+
+    // ybnft => nft id => NFTInfo
+    mapping(address => mapping(uint256 => NFTInfo)) public nftInfo;
 
     // user => ybnft => nft id => amount(Invested WMATIC)
     mapping(address => mapping(address => mapping(uint256 => uint256)))
@@ -42,14 +53,13 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
     // swap router address
     address public swapRouter;
 
-    // wrapped MATIC address
-    address public wMATIC;
+    // wrapped matic address
+    address public wmatic;
 
     // strategy manager
     address public adapterManager;
 
     address public treasuryAddr;
-    uint256 public taxPercent;
 
     event DepositMATIC(
         address indexed user,
@@ -63,13 +73,14 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
         uint256 nftId,
         uint256 amount
     );
+    event Claimed(address indexed user, uint256 amount);
     event AdapterManagerChanged(address indexed user, address adapterManager);
 
     /**
      * @notice Construct
      * @param _ybnft  address of YBNFT
      * @param _swapRouter  address of pancakeswap router
-     * @param _wmatic  address of Wrapped Matic address
+     * @param _wmatic  address of Wrapped MATIC address
      */
     constructor(
         address _ybnft,
@@ -78,28 +89,21 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
     ) {
         require(_ybnft != address(0), "Error: YBNFT address missing");
         require(_swapRouter != address(0), "Error: swap router missing");
-        require(_wmatic != address(0), "Error: WMATIC missing");
+        require(_wmatic != address(0), "Error: wmatic missing");
 
         ybnft = _ybnft;
         swapRouter = _swapRouter;
-        wMATIC = _wmatic;
+        wmatic = _wmatic;
     }
 
     /**
      * @notice Set treasury address and percent
      * @param _treasury  treasury address
-     * @param _percent  user address
      */
-    /// #if_succeeds {:msg "Treasury not updated"} taxPercent == _percent && treasuryAddr == _treasury;
-    function setTreasury(address _treasury, uint256 _percent)
-        external
-        onlyOwner
-    {
+    /// #if_succeeds {:msg "Treasury not updated"} treasuryAddr == _treasury;
+    function setTreasury(address _treasury) external onlyOwner {
         require(_treasury != address(0), "Invalid address");
-        require(_percent < 1000, "Invalid tax percent");
-
         treasuryAddr = _treasury;
-        taxPercent = _percent;
     }
 
     /**
@@ -134,39 +138,16 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
             uint256 amountOut;
             address routerAddr = IAdapter(adapter.addr).router();
             if (routerAddr == address(0)) {
-                if (adapter.token == wMATIC) {
+                if (adapter.token == wmatic) {
                     amountOut = amountIn;
                 } else {
-                    address wrapToken = IAdapter(adapter.addr).wrapToken();
-                    if (wrapToken == address(0)) {
-                        // swap
-                        amountOut = _swapOnRouterMATIC(
-                            adapter.addr,
-                            amountIn,
-                            adapter.token,
-                            swapRouter
-                        );
-                    } else {
-                        // swap
-                        amountOut = _swapOnRouterMATIC(
-                            adapter.addr,
-                            amountIn,
-                            wrapToken,
-                            swapRouter
-                        );
-
-                        // wrap
-                        uint256 beforeWrap = IBEP20(adapter.token).balanceOf(
-                            address(this)
-                        );
-                        IBEP20(wrapToken).approve(adapter.token, amountOut);
-                        IWrap(adapter.token).deposit(amountOut);
-                        unchecked {
-                            amountOut =
-                                IBEP20(adapter.token).balanceOf(address(this)) -
-                                beforeWrap;
-                        }
-                    }
+                    // swap
+                    amountOut = _swapOnRouterMATIC(
+                        adapter.addr,
+                        amountIn,
+                        adapter.token,
+                        swapRouter
+                    );
                 }
             } else {
                 // get lp
@@ -185,11 +166,19 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
             adapterInfos[_tokenId][adapter.addr].totalStaked += amountOut;
         }
 
+        nftInfo[ybnft][_tokenId].tvl += _amount;
+        if (userInfo[_user][ybnft][_tokenId] == 0) {
+            nftInfo[ybnft][_tokenId].totalParticipant++;
+        }
         userInfo[_user][ybnft][_tokenId] += _amount;
 
         uint256 afterBalance = address(this).balance;
-        if (afterBalance > beforeBalance)
-            payable(_user).call{value: afterBalance - beforeBalance}("");
+        if (afterBalance > beforeBalance) {
+            (bool success, ) = payable(_user).call{
+                value: afterBalance - beforeBalance
+            }("");
+            require(success, "Error: Failed to send remained MATIC");
+        }
 
         emit DepositMATIC(_user, ybnft, _tokenId, _amount);
     }
@@ -217,11 +206,16 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
 
         uint256 amountOut;
         uint256[2] memory balances;
+
         for (uint8 i = 0; i < adapterInfo.length; i++) {
             IYBNFT.Adapter memory adapter = adapterInfo[i];
-            balances[0] = adapter.token == wMATIC
+            balances[0] = adapter.token == wmatic
                 ? address(this).balance
                 : IBEP20(adapter.token).balanceOf(address(this));
+
+            UserAdapterInfo storage userAdapter = userAdapterInfos[msg.sender][
+                _tokenId
+            ][adapter.addr];
 
             _withdrawFromAdapter(
                 adapter.addr,
@@ -229,46 +223,23 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
                 IAdapter(adapter.addr).getWithdrawalAmount(msg.sender, _tokenId)
             );
 
-            balances[1] = adapter.token == wMATIC
+            balances[1] = adapter.token == wmatic
                 ? address(this).balance
                 : IBEP20(adapter.token).balanceOf(address(this));
+
             if (IAdapter(adapter.addr).router() == address(0)) {
-                if (adapter.token == wMATIC) {
+                if (adapter.token == wmatic) {
                     unchecked {
-                        amountOut = balances[1] - balances[0];
+                        amountOut += balances[1] - balances[0];
                     }
                 } else {
-                    address wrapToken = IAdapter(adapter.addr).wrapToken();
-                    if (wrapToken == address(0)) {
-                        // swap
-                        amountOut += _swapforMATIC(
-                            adapter.addr,
-                            balances[1] - balances[0],
-                            adapter.token,
-                            swapRouter
-                        );
-                    } else {
-                        // unwrap
-                        uint256 beforeUnwrap = IBEP20(wrapToken).balanceOf(
-                            address(this)
-                        );
-                        IWrap(adapter.token).withdraw(
-                            balances[1] - balances[0]
-                        );
-                        unchecked {
-                            beforeUnwrap =
-                                IBEP20(wrapToken).balanceOf(address(this)) -
-                                beforeUnwrap;
-                        }
-
-                        // swap
-                        amountOut += _swapforMATIC(
-                            adapter.addr,
-                            beforeUnwrap,
-                            wrapToken,
-                            swapRouter
-                        );
-                    }
+                    // swap
+                    amountOut += _swapforMATIC(
+                        adapter.addr,
+                        balances[1] - balances[0],
+                        adapter.token,
+                        swapRouter
+                    );
                 }
             } else {
                 uint256 taxAmount;
@@ -281,13 +252,25 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
 
                 if (IAdapter(adapter.addr).rewardToken() != address(0)) {
                     // Convert rewards to MATIC
-                    uint256 rewards = _getRewards(
+                    (uint256 rewards, uint256 rewards1) = _getRewards(
                         _tokenId,
                         msg.sender,
                         adapter.addr
                     );
+                    if (
+                        rewards >
+                        IBEP20(IAdapter(adapter.addr).rewardToken()).balanceOf(
+                            address(this)
+                        )
+                    )
+                        rewards = IBEP20(IAdapter(adapter.addr).rewardToken())
+                            .balanceOf(address(this));
 
-                    taxAmount = (rewards * taxPercent) / 1e4;
+                    userAdapter.userShares = 0;
+
+                    taxAmount =
+                        (rewards * IYBNFT(ybnft).performanceFee(_tokenId)) /
+                        1e4;
 
                     if (taxAmount != 0) {
                         IBEP20(IAdapter(adapter.addr).rewardToken()).transfer(
@@ -304,10 +287,30 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
                             swapRouter
                         );
                     }
-                }
 
-                if (IAdapter(adapter.addr).rewardToken1() != address(0)) {
-                    // Convert 2nd rewards to MATIC
+                    userAdapter.userShares1 = 0;
+
+                    if(rewards1 != 0) {
+                        taxAmount =
+                            (rewards1 * IYBNFT(ybnft).performanceFee(_tokenId)) /
+                            1e4;
+
+                        if (taxAmount != 0) {
+                            IBEP20(IAdapter(adapter.addr).rewardToken1()).transfer(
+                                treasuryAddr,
+                                taxAmount
+                            );
+                        }
+
+                        if (rewards != 0) {
+                            amountOut += _swapforMATIC(
+                                adapter.addr,
+                                rewards1 - taxAmount,
+                                IAdapter(adapter.addr).rewardToken1(),
+                                swapRouter
+                            );
+                        }
+                    }
                 }
             }
 
@@ -317,10 +320,82 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
             userAdapterInfos[_user][_tokenId][adapter.addr].amount = 0;
         }
 
+        if (nftInfo[ybnft][_tokenId].tvl < userAmount)
+            nftInfo[ybnft][_tokenId].tvl = 0;
+        else nftInfo[ybnft][_tokenId].tvl -= userAmount;
+
+        if (nftInfo[ybnft][_tokenId].totalParticipant > 0)
+            nftInfo[ybnft][_tokenId].totalParticipant--;
+
         userInfo[_user][ybnft][_tokenId] -= userAmount;
 
-        if (amountOut != 0) payable(_user).call{value: amountOut}("");
+        if (amountOut != 0) {
+            (bool success, ) = payable(_user).call{value: amountOut}("");
+            require(success, "Error: Failed to send MATIC");
+        }
         emit WithdrawMATIC(_user, ybnft, _tokenId, userAmount);
+    }
+
+    /**
+     * @notice Claim
+     * @param _tokenId  YBNft token id
+     */
+    function claim(uint256 _tokenId) external nonReentrant {
+        require(
+            IYBNFT(ybnft).exists(_tokenId),
+            "Error: nft tokenId is invalid"
+        );
+        uint256 userAmount = userInfo[msg.sender][ybnft][_tokenId];
+        require(userAmount != 0, "Error: Amount should be greater than 0");
+
+        IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
+            _tokenId
+        );
+
+        uint256 amountOut;
+        for (uint8 i = 0; i < adapterInfo.length; i++) {
+            IYBNFT.Adapter memory adapter = adapterInfo[i];
+            UserAdapterInfo storage userAdapter = userAdapterInfos[msg.sender][
+                _tokenId
+            ][adapter.addr];
+
+            (uint256 rewards, uint256 rewards1) = _getRewards(_tokenId, msg.sender, adapter.addr);
+            userAdapter.userShares = adapterInfos[_tokenId][adapter.addr]
+                .accTokenPerShare;
+            userAdapter.userShares1 = adapterInfos[_tokenId][adapter.addr]
+                .accTokenPerShare1;
+
+            if (rewards != 0) {
+                amountOut += _swapforMATIC(
+                    adapter.addr,
+                    rewards,
+                    IAdapter(adapter.addr).rewardToken(),
+                    swapRouter
+                );
+            }
+
+            if (rewards1 != 0) {
+                amountOut += _swapforMATIC(
+                    adapter.addr,
+                    rewards1,
+                    IAdapter(adapter.addr).rewardToken1(),
+                    swapRouter
+                );
+            }
+        }
+
+        if (amountOut != 0) {
+            uint256 taxAmount = (amountOut *
+                IYBNFT(ybnft).performanceFee(_tokenId)) / 1e4;
+            (bool success, ) = payable(treasuryAddr).call{value: taxAmount}("");
+            require(success, "Error: Failed to send MATIC to Treasury");
+
+            (success, ) = payable(msg.sender).call{
+                value: amountOut - taxAmount
+            }("");
+            require(success, "Error: Failed to send MATIC");
+            emit Claimed(msg.sender, amountOut);
+        }
     }
 
     /**
@@ -357,8 +432,8 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
             ? IBEP20(addrs[1]).balanceOf(address(this))
             : (
                 addrs[2] != address(0)
-                ? IBEP20(addrs[2]).balanceOf(address(this))
-                : 0
+                    ? IBEP20(addrs[2]).balanceOf(address(this))
+                    : 0
             );
 
         IBEP20(_token).approve(
@@ -370,18 +445,18 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
             adapterManager
         ).getDepositCallData(_adapterAddr, _amount);
 
-        (bool success, ) = to.call{value: value}(callData);
+        (bool success,) = to.call{value: value}(callData);
         require(success, "Error: Deposit internal issue");
 
         amounts[1] = addrs[1] != address(0)
             ? IBEP20(addrs[1]).balanceOf(address(this))
             : (
                 addrs[2] != address(0)
-                ? IBEP20(addrs[2]).balanceOf(address(this))
-                : 0
+                    ? IBEP20(addrs[2]).balanceOf(address(this))
+                    : 0
             );
 
-        // Venus short leverage
+        
         if (addrs[1] != address(0)) {
             require(amounts[1] > amounts[0], "Error: Deposit failed");
             IAdapter(_adapterAddr).increaseWithdrawalAmount(
@@ -411,6 +486,9 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
                 userAdapterInfos[msg.sender][_tokenId][_adapterAddr]
                     .userShares = adapterInfos[_tokenId][_adapterAddr]
                     .accTokenPerShare;
+                userAdapterInfos[msg.sender][_tokenId][_adapterAddr]
+                    .userShares1 = adapterInfos[_tokenId][_adapterAddr]
+                    .accTokenPerShare1;
             }
 
             IAdapter(_adapterAddr).increaseWithdrawalAmount(
@@ -441,23 +519,23 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
         address rewardToken = IAdapter(_adapterAddr).rewardToken();
         address rewardToken1 = IAdapter(_adapterAddr).rewardToken1();
         bool isReward = IAdapter(_adapterAddr).isReward();
-
         uint256[4] memory rewardTokenAmount;
+
         rewardTokenAmount[0] = rewardToken != address(0)
             ? IBEP20(rewardToken).balanceOf(address(this))
             : 0;
         rewardTokenAmount[2] = rewardToken1 != address(0)
             ? IBEP20(rewardToken1).balanceOf(address(this))
             : 0;
-        
+
         (
             address to,
             uint256 value,
             bytes memory callData
         ) = IAdapterManager(adapterManager).getWithdrawCallData(
-            _adapterAddr,
-            _amount
-        );
+                _adapterAddr,
+                _amount
+            );
 
         (bool success, ) = to.call{value: value}(callData);
         require(success, "Error: Withdraw internal issue");
@@ -476,30 +554,29 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
             : 0;
 
         if (rewardToken == stakingToken) rewardTokenAmount[1] += _amount;
-        if (rewardToken != address(0) && rewardToken != stakingToken) {
-            if (rewardTokenAmount[1] - rewardTokenAmount[0] != 0) {
-                AdapterInfo storage adapter = adapterInfos[_tokenId][
-                    _adapterAddr
-                ];
-
-                if (adapter.accTokenPerShare != 0)
-                    adapter.accTokenPerShare +=
-                        ((rewardTokenAmount[1] - rewardTokenAmount[0]) * 1e12) /
-                        adapter.totalStaked;
-            }
-        }
-
         if (rewardToken1 == stakingToken) rewardTokenAmount[3] += _amount;
-        if (rewardToken1 != address(0) && rewardToken1 != stakingToken) {
-            if (rewardTokenAmount[3] - rewardTokenAmount[2] != 0) {
-                AdapterInfo storage adapter = adapterInfos[_tokenId][
-                    _adapterAddr
-                ];
+        if (
+            rewardToken != address(0) && rewardToken != stakingToken
+        ) {
+            AdapterInfo storage adapter = adapterInfos[_tokenId][
+                _adapterAddr
+            ];
 
-                if (adapter.accTokenPerShare != 0)
-                    adapter.accTokenPerShare +=
-                        ((rewardTokenAmount[3] - rewardTokenAmount[2]) * 1e12) /
-                        adapter.totalStaked;
+            if (rewardTokenAmount[1] - rewardTokenAmount[0] != 0 &&
+                adapter.accTokenPerShare != 0
+            ) {
+                adapter.accTokenPerShare +=
+                    ((rewardTokenAmount[1] - rewardTokenAmount[0]) * 1e12) /
+                    adapter.totalStaked;
+            }
+
+            if(rewardToken1 != address(0) && 
+                rewardTokenAmount[3] - rewardTokenAmount[2] != 0 &&
+                adapter.accTokenPerShare1 != 0
+            ) {
+                adapter.accTokenPerShare1 +=
+                    ((rewardTokenAmount[3] - rewardTokenAmount[2]) * 1e12) /
+                    adapter.totalStaked;
             }
         }
 
@@ -561,7 +638,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
         address _outToken,
         address _router
     ) internal returns (uint256 amountOut) {
-        address[] memory path = _getPaths(_adapter, wMATIC, _outToken);
+        address[] memory path = _getPaths(_adapter, wmatic, _outToken);
         uint256 beforeBalance = IBEP20(_outToken).balanceOf(address(this));
 
         IPancakeRouter(_router)
@@ -586,7 +663,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
         address _inToken,
         address _router
     ) internal returns (uint256 amountOut) {
-        address[] memory path = _getPaths(_adapter, _inToken, wMATIC);
+        address[] memory path = _getPaths(_adapter, _inToken, wmatic);
         uint256 beforeBalance = address(this).balance;
 
         IBEP20(_inToken).approve(address(_router), _amountIn);
@@ -666,7 +743,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
 
         uint256 token0Amount = _amountIn / 2;
         uint256 token1Amount = _amountIn / 2;
-        if (token0 != wMATIC) {
+        if (token0 != wmatic) {
             token0Amount = _swapOnRouterMATIC(
                 _adapter,
                 token0Amount,
@@ -676,7 +753,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
             IBEP20(token0).approve(_router, token0Amount);
         }
 
-        if (token1 != wMATIC) {
+        if (token1 != wmatic) {
             token1Amount = _swapOnRouterMATIC(
                 _adapter,
                 token1Amount,
@@ -687,12 +764,12 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
         }
 
         if (token0Amount != 0 && token1Amount != 0) {
-            if (token0 == wMATIC || token1 == wMATIC) {
+            if (token0 == wmatic || token1 == wmatic) {
                 (, , amountOut) = IPancakeRouter(_router).addLiquidityETH{
-                    value: token0 == wMATIC ? token0Amount : token1Amount
+                    value: token0 == wmatic ? token0Amount : token1Amount
                 }(
-                    token0 == wMATIC ? token1 : token0,
-                    token0 == wMATIC ? token1Amount : token0Amount,
+                    token0 == wmatic ? token1 : token0,
+                    token0 == wmatic ? token1Amount : token0Amount,
                     0,
                     0,
                     address(this),
@@ -731,8 +808,8 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
 
         IBEP20(_pairToken).approve(_router, _amountIn);
 
-        if (token0 == wMATIC || token1 == wMATIC) {
-            address tokenAddr = token0 == wMATIC ? token1 : token0;
+        if (token0 == wmatic || token1 == wmatic) {
+            address tokenAddr = token0 == wmatic ? token1 : token0;
             (uint256 amountToken, uint256 amountETH) = IPancakeRouter(_router)
                 .removeLiquidityETH(
                     tokenAddr,
@@ -800,24 +877,31 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
                 uint256 tokenRewards = ((updatedAccTokenPerShare -
                     userAdapterInfo.userShares) * userAdapterInfo.amount) /
                     1e12;
-                
+
                 rewards += IPancakeRouter(swapRouter).getAmountsOut(
                     tokenRewards,
                     _getPaths(
                         adapter.addr,
                         IAdapter(adapter.addr).rewardToken(),
-                        wMATIC
+                        wmatic
                     )
                 )[1];
 
-                address rewardToken1 = IAdapter(adapter.addr).rewardToken1();
-                if(rewardToken1 != address(0)) {
+                if(IAdapter(adapter.addr).rewardToken1() != address(0)) {
+                    updatedAccTokenPerShare = adapterInfo.accTokenPerShare1 +
+                        ((IAdapter(adapter.addr).pendingReward1() * 1e12) /
+                            adapterInfo.totalStaked);
+
+                    tokenRewards = ((updatedAccTokenPerShare -
+                        userAdapterInfo.userShares1) * userAdapterInfo.amount) /
+                        1e12;
+
                     rewards += IPancakeRouter(swapRouter).getAmountsOut(
                         tokenRewards,
                         _getPaths(
                             adapter.addr,
-                            rewardToken1,
-                            wMATIC
+                            IAdapter(adapter.addr).rewardToken1(),
+                            wmatic
                         )
                     )[1];
                 }
@@ -836,21 +920,22 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
         uint256 _tokenId,
         address _account,
         address _adapterAddr
-    ) internal view returns (uint256) {
+    ) internal view returns (uint256 _reward, uint256 _reward1) {
         AdapterInfo memory adapter = adapterInfos[_tokenId][_adapterAddr];
         UserAdapterInfo memory userAdapterInfo = userAdapterInfos[_account][
             _tokenId
         ][_adapterAddr];
 
         if (
-            IAdapter(_adapterAddr).rewardToken() == address(0) ||
-            adapter.totalStaked == 0 ||
-            adapter.accTokenPerShare == 0
-        ) return 0;
-
-        return
-            ((adapter.accTokenPerShare - userAdapterInfo.userShares) *
+            IAdapter(_adapterAddr).rewardToken() != address(0) &&
+            adapter.totalStaked != 0 &&
+            adapter.accTokenPerShare != 0
+        ) {
+            _reward = ((adapter.accTokenPerShare - userAdapterInfo.userShares) *
                 userAdapterInfo.amount) / 1e12;
+            _reward1 = ((adapter.accTokenPerShare1 - userAdapterInfo.userShares1) *
+                userAdapterInfo.amount) / 1e12;
+        }
     }
 
     receive() external payable {}

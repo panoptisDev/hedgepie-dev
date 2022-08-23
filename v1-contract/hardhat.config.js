@@ -12,9 +12,8 @@ module.exports = {
   networks: {
     hardhat: {
       allowUnlimitedContractSize: true,
-      chainId: 31337,
       forking: {
-        // url: "https://bscrpc.com", // url for BNB network
+        // url: "https://rpc.ankr.com/bsc", // url for BNB network
         url: "https://polygon-rpc.com", // url for Polygon network
         enabled: true,
         // blockNumber: 19717000,

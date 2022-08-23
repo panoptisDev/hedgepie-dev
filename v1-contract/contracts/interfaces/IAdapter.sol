@@ -41,6 +41,8 @@ interface IAdapter {
 
     function pendingReward() external view returns (uint256 reward);
 
+    function pendingReward1() external view returns (uint256 reward);
+
     function pendingShares() external view returns (uint256 shares);
 
     function name() external view returns (string memory);

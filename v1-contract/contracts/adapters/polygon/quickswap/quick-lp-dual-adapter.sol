@@ -3,6 +3,12 @@ pragma solidity ^0.8.4;
 
 import "../../BaseAdapterMatic.sol";
 
+interface IStakingDualRewards {
+    function userRewardPerTokenAPaid(address user) external view returns(uint256);
+
+    function userRewardPerTokenBPaid(address user) external view returns(uint256);
+}
+
 contract QuickLPDualAdapter is BaseAdapterMatic {
     /**
      * @notice Construct
@@ -82,5 +88,13 @@ contract QuickLPDualAdapter is BaseAdapterMatic {
         to = strategy;
         value = 0;
         data = abi.encodeWithSignature("getReward()");
+    }
+
+    function pendingReward() external view override returns (uint256 reward) {
+        reward = IStakingDualRewards(strategy).userRewardPerTokenAPaid(investor);
+    }
+
+    function pendingReward1() external view returns (uint256 reward) {
+        reward = IStakingDualRewards(strategy).userRewardPerTokenBPaid(investor);
     }
 }

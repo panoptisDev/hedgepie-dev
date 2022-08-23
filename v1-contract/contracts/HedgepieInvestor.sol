@@ -250,7 +250,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             if (IAdapter(adapter.addr).router() == address(0)) {
                 if (adapter.token == wbnb) {
                     unchecked {
-                        amountOut = balances[1] - balances[0];
+                        amountOut += balances[1] - balances[0];
                     }
                 } else {
                     address wrapToken = IAdapter(adapter.addr).wrapToken();
