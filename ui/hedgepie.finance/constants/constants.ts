@@ -47,3 +47,10 @@ export const NETWORKS: { [key: number]: INetwork } = {
     uri: () => 'https://speedy-nodes-nyc.moralis.io/1c8d8856c017266c637672dd/bsc/testnet',
   },
 }
+
+export const chainTokens = {
+  97: 'TBNB',
+  56: 'BNB',
+  137: 'MATIC',
+  1: 'ETH'
+}

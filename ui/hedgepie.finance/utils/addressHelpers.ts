@@ -23,16 +23,16 @@ export const getMulticallAddress = () => {
   return getAddress(addresses.mulltiCall)
 }
 
+export const getAdapterManagerAddress = () => {
+  return getAddress(addresses.adapterManager)
+}
+
 export const getYBNFTAddress = () => {
   return getAddress(addresses.ybnft)
 }
 
 export const getInvestorAddress = () => {
   return getAddress(addresses.investor)
-}
-
-export const getAdapterManagerAddress = () => {
-  return getAddress(addresses.adapterManager)
 }
 
 export const getWBNBAddress = () => {

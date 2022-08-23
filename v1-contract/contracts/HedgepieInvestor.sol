@@ -337,6 +337,15 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                         msg.sender,
                         adapter.addr
                     );
+                    if (
+                        rewards >
+                        IBEP20(IAdapter(adapter.addr).rewardToken()).balanceOf(
+                            address(this)
+                        )
+                    )
+                        rewards = IBEP20(IAdapter(adapter.addr).rewardToken())
+                            .balanceOf(address(this));
+
                     userAdapter.userShares = 0;
 
                     taxAmount =
@@ -410,20 +419,10 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             userAdapter.userShares = adapterInfos[_tokenId][adapter.addr]
                 .accTokenPerShare;
 
-            uint256 taxAmount = (rewards *
-                IYBNFT(ybnft).performanceFee(_tokenId)) / 1e4;
-
-            if (taxAmount != 0) {
-                IBEP20(IAdapter(adapter.addr).rewardToken()).transfer(
-                    treasuryAddr,
-                    taxAmount
-                );
-            }
-
             if (rewards != 0) {
                 amountOut += _swapforBNB(
                     adapter.addr,
-                    rewards - taxAmount,
+                    rewards,
                     IAdapter(adapter.addr).rewardToken(),
                     swapRouter
                 );
@@ -431,7 +430,14 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         }
 
         if (amountOut != 0) {
-            (bool success, ) = payable(msg.sender).call{value: amountOut}("");
+            uint256 taxAmount = (amountOut *
+                IYBNFT(ybnft).performanceFee(_tokenId)) / 1e4;
+            (bool success, ) = payable(treasuryAddr).call{value: taxAmount}("");
+            require(success, "Error: Failed to send BNB to Treasury");
+
+            (success, ) = payable(msg.sender).call{
+                value: amountOut - taxAmount
+            }("");
             require(success, "Error: Failed to send BNB");
             emit Claimed(msg.sender, amountOut);
         }

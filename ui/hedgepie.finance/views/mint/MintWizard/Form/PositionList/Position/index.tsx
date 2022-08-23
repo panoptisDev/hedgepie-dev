@@ -1,12 +1,38 @@
+import { useWeb3React } from '@web3-react/core'
 import MintWizardContext from 'contexts/MintWizardContext'
 import React, { useEffect, useContext, useState } from 'react'
 import { Box, Image, Button, Input, ThemeUICSSObject, Text } from 'theme-ui'
 import CompositionSelect from './CompositionSelect'
 
 const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
-  const { formData } = useContext(MintWizardContext)
+  const { formData, ethPrice, bnbPrice, maticPrice } = useContext(MintWizardContext)
   const [bnbValue, setBNBValue] = useState<any>()
   // const [usdValue, setUSDValue] = useState<any>()
+
+  const { account, chainId } = useWeb3React()
+  const [token, setToken] = useState('')
+  const [tokenPrice, setTokenPrice] = useState(0)
+
+  useEffect(() => {
+    switch (chainId) {
+      case 1:
+        setToken('ETH')
+        setTokenPrice(ethPrice)
+        break
+      case 137:
+        setToken('MATIC')
+        setTokenPrice(maticPrice)
+        break
+      case 56:
+        setToken('BNB')
+        setTokenPrice(bnbPrice)
+        break
+      case undefined:
+        setToken('BNB')
+        setTokenPrice(bnbPrice)
+        break
+    }
+  }, [chainId])
 
   const handleProtocolSelect = (composition) => {
     onUpdate({
@@ -151,7 +177,7 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
                     gap: '0.3rem',
                   }}
                 >
-                  <Text sx={{ fontSize: 15, fontWeight: 400 }}>{bnbValue ? bnbValue + ' BNB' : ''}</Text>
+                  <Text sx={{ fontSize: 15, fontWeight: 400 }}>{bnbValue ? bnbValue + ' ' + token : ''}</Text>
                   {/* <Text sx={{ fontSize: 14, fontWeight: 400 }}>{usdValue ? usdValue : ''}</Text> */}
                 </Box>
               ) : (
