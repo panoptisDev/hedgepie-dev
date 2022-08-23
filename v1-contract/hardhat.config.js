@@ -7,14 +7,13 @@ require("dotenv-extended").load();
 
 if (!process.env.TESTNET_PRIVKEY) throw new Error("TESTNET_PRIVKEY missing from .env file");
 if (!process.env.MAINNET_PRIVKEY) throw new Error("MAINNET_PRIVKEY missing from .env file");
-
 module.exports = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
       allowUnlimitedContractSize: true,
       forking: {
-        url: "https://bsc-dataseed1.binance.org/",
+        url: "https://bscrpc.com",
         enabled: true,
         // blockNumber: 19717000,
       },
