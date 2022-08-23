@@ -343,4 +343,15 @@ export const styles = {
       display: 'none',
     },
   },
+  yield_container: {
+    display: 'flex',
+    flexDirection: 'column',
+    alignItems: 'center',
+    justifyContent: 'center',
+    gap: '1rem',
+    marginTop: '1rem',
+    width: '100%',
+  },
+  yield_inner_container:{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '12rem' },
+  yield_inner_text:{ fontSize: 24, fontWeight: 700, color: '#e3bc20' }
 }

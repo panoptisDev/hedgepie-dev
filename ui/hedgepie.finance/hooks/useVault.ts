@@ -3,7 +3,7 @@ import { useWeb3React } from '@web3-react/core'
 import { useDispatch } from 'react-redux'
 import { useMasterchefContract } from 'hooks/useContract'
 import { fetchVaultGlobalDataAsync, fetchVaultPoolDataAsync, fetchVaultUserDataAsync } from 'state/actions'
-import { approveToken, stakeOnMasterChef, unstakeOnMasterChef } from 'utils/callHelpers'
+import { approveToken, stakeOnMasterChef, unstakeOnMasterChef } from 'utils/callHelpers/binance/callHelpers'
 
 export const useVault = () => {
   const dispatch = useDispatch()

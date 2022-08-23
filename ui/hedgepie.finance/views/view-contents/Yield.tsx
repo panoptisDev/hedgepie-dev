@@ -43,31 +43,15 @@ function Yield(props: any) {
   }, [account])
 
   return (
-    <>
-      {reward ? (
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            alignItems: 'center',
-            justifyContent: 'center',
-            gap: '1rem',
-            marginTop: '1rem',
-            width: '100%',
-          }}
-        >
-          <Box
-            sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '9rem' }}
-          >
-            <Text sx={{ fontSize: 22, fontWeight: 700, color: '#fff' }}>YIELD</Text>
-            <Text sx={{ fontSize: 22, fontWeight: 700, color: '#fff' }}>{reward}</Text>
-          </Box>
-          <Button sx={styles.withdraw_yield_button as ThemeUICSSObject} onClick={handleWithdrawYield}>
-            CLAIM
-          </Button>
-        </Box>
-      ) : null}
-    </>
+    <Box sx={styles.yield_container as ThemeUICSSObject}>
+      <Box sx={styles.yield_inner_container as ThemeUICSSObject}>
+        <Text sx={styles.yield_inner_text}>YIELD</Text>
+        <Text sx={styles.yield_inner_text}>500 BNB</Text>
+      </Box>
+      <Button sx={styles.withdraw_yield_button as ThemeUICSSObject} onClick={handleWithdrawYield}>
+        WITHDRAW YIELD
+      </Button>
+    </Box>
   )
 }
 

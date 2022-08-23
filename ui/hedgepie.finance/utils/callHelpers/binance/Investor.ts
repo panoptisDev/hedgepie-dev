@@ -1,5 +1,5 @@
 import { ethers } from 'ethers'
-import { getInvestorAddress, getYBNFTAddress } from './addressHelpers'
+import { getInvestorAddress, getYBNFTAddress } from '../../addressHelpers'
 
 export const approveToken = async (tokenContract, masterChefContract, account) => {
   return tokenContract.methods
@@ -72,17 +72,6 @@ export const withdrawBNBFromYBNFT = async (ybnftInvestorContract, account, ybnft
     })
 }
 
-// This is a function for Claiming which will be used once the claim function is updated.
-export const claimFromYBNFT = async (ybnftInvestorContract, account, ybnftId) => {
-  // return ybnftInvestorContract.methods
-  //   .claimFromYBNFT(account, ybnftId)
-  //   .send({ from: account })
-  //   .on('transactionHash', (tx) => {
-  //     return tx.transactionHash
-  //   })
-  return ""
-}
-
 export const withdrawFromYBNFT = async (ybnftInvestorContract, account, ybnftId, amount) => {
   return ybnftInvestorContract.methods
     .withdrawBNB(account, ybnftId, amount)
@@ -97,11 +86,6 @@ export const fetchBalance = async (ybnftInvestorContract, account, ybnftId) => {
   return balance
 }
 
-export const fetchYield = async (ybnftInvestorContract, account, ybnftId) => {
-  const reward = await ybnftInvestorContract.methods.pendingReward(account, ybnftId).call()
-  return reward
-}
-
 export const fetchAdapters = async (adapterManagerContract) => {
   const adapters = await adapterManagerContract.methods.getAdapters().call()
   return adapters
@@ -112,22 +96,26 @@ export const fetchTokenAddress = async (adapterContract) => {
   return tokenAddress
 }
 
-export const fetchMaxTokenId = async (ybnftMintContract) => {
-  const maxTokenId = await ybnftMintContract.methods.getCurrentTokenId().call()
-  return maxTokenId
-}
-
-export const fetchTokenUri = async (ybnftMintContract, tokenId) => {
-  const tokenUri = await ybnftMintContract.methods.tokenURI(tokenId).call()
-  return tokenUri
-}
-
-export const fetchAllocations = async (ybnftMintContract, tokenId) => {
-  const allocations = await ybnftMintContract.methods.getAdapterInfo(tokenId).call()
-  return allocations
-}
-
 export const fetchAllowance = async (wbnbContract, account) => {
-  const allowance = await wbnbContract.methods.allowance(account, getInvestorAddress()).call()
-  return allowance
+    const allowance = await wbnbContract.methods.allowance(account, getInvestorAddress()).call()
+    return allowance
+  }
+
+  export const fetchYield = async (ybnftInvestorContract, account, ybnftId) => {
+    const reward = await ybnftInvestorContract.methods.pendingReward(account, ybnftId).call()
+    return reward
+  }
+  
+  // This is a function for Claiming which will be used once the claim function is updated.
+export const claimFromYBNFT = async (ybnftInvestorContract, account, ybnftId) => {
+  // return ybnftInvestorContract.methods
+  //   .claimFromYBNFT(account, ybnftId)
+  //   .send({ from: account })
+  //   .on('transactionHash', (tx) => {
+  //     return tx.transactionHash
+  //   })
+  return ""
 }
+
+
+
