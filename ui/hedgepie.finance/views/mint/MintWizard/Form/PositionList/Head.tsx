@@ -17,7 +17,7 @@ const Head = () => {
       <Box sx={{ flex: '1 1 0' }}>
         <Box
           sx={{
-            fontSize: 16,
+            fontSize: 24,
             fontWeight: 700,
             color: '#1380B9',
             [`@media screen and (min-width: 500px)`]: {
@@ -33,7 +33,7 @@ const Head = () => {
             fontWeight: 500,
             color: '#8988A5',
             [`@media screen and (min-width: 500px)`]: {
-              fontSize: 16,
+              fontSize: 24,
             },
           }}
         >
@@ -43,7 +43,7 @@ const Head = () => {
       <Box sx={{ flex: '1 1 0' }}>
         <Box
           sx={{
-            fontSize: 16,
+            fontSize: 24,
             fontWeight: 700,
             color: '#1380B9',
             [`@media screen and (min-width: 500px)`]: {
@@ -59,7 +59,7 @@ const Head = () => {
             fontWeight: 500,
             color: '#8988A5',
             [`@media screen and (min-width: 500px)`]: {
-              fontSize: 16,
+              fontSize: 24,
             },
           }}
         >

@@ -1,15 +1,52 @@
-import React, { useContext, useState } from 'react'
+import React, { useContext, useEffect, useState } from 'react'
 import { Box, Input } from 'theme-ui'
 import MintWizardContext from 'contexts/MintWizardContext'
+import { useWeb3React } from '@web3-react/core'
 
 const InitialStake = () => {
-  const { formData, setFormData, bnbPrice } = useContext(MintWizardContext)
+  const { formData, setFormData, bnbPrice, ethPrice, maticPrice } = useContext(MintWizardContext)
+
+  const [token, setToken] = useState('')
+  const [tokenPrice, setTokenPrice] = useState(0)
+
+  const { account, chainId } = useWeb3React()
+
+  useEffect(() => {
+    switch (chainId) {
+      case 1:
+        setToken('ETH')
+        setTokenPrice(ethPrice)
+        break
+      case 137:
+        setToken('MATIC')
+        setTokenPrice(maticPrice)
+        break
+      case 56:
+        setToken('BNB')
+        setTokenPrice(bnbPrice)
+        break
+      case undefined:
+        setToken('BNB')
+        setTokenPrice(bnbPrice)
+        break
+    }
+  }, [chainId])
+
+  useEffect(() => {
+    // Update the value in USD on change of
+    if (formData.initialStake > 0) {
+      setFormData({
+        ...formData,
+        valueInUSD: Number(Number(Number(formData.initialStake) * tokenPrice).toFixed(4)),
+      })
+    }
+  }, [tokenPrice])
 
   const handleChange = (e) => {
     setFormData({
       ...formData,
       initialStake: e.target.value,
-      valueInUSD: Number(Number(Number(e.target.value) * bnbPrice).toFixed(4)),
+      valueInUSD: Number(Number(Number(e.target.value) * tokenPrice).toFixed(4)),
     })
   }
 
@@ -92,8 +129,9 @@ const InitialStake = () => {
             min={0}
             value={formData.initialStake}
             onChange={handleChange}
+            onWheel={(e) => e.currentTarget.blur()}
           />
-          BNB
+          {token}
         </Box>
         {formData.valueInUSD ? (
           <Box sx={{ color: '#0A3F5C', fontSize: 24, fontWeight: 400 }}>${formData.valueInUSD} USD</Box>

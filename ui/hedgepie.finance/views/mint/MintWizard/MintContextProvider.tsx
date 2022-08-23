@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import MintWizardContext from 'contexts/MintWizardContext'
 import { useAdapterManager } from 'hooks/useAdapterManager'
-import { getBNBPrice } from 'utils/getBNBPrice'
+import { getPrice } from 'utils/getTokenPrice'
+import { useWeb3React } from '@web3-react/core'
 
 interface AdapterOption {
   icon?: string
@@ -16,6 +17,7 @@ const MintContextProvider = ({ children }) => {
     forms: ['Initial Stake Amount', 'Choose positions & Widgets', 'Set Performance fee', 'Optional Art & Name'],
     order: 0,
   })
+  const { account, chainId } = useWeb3React()
   const [formData, setFormData] = React.useState({
     positions: [],
     performanceFee: 10,
@@ -26,7 +28,10 @@ const MintContextProvider = ({ children }) => {
     initialStake: 0,
   })
   const [strategies, setStrategies] = useState<any>([])
+  // We will be having the prices of all the tokens as we can use them as needed, for all adapter price calculations.
   const [bnbPrice, setBNBPrice] = useState(0)
+  const [ethPrice, setEthPrice] = useState(0)
+  const [maticPrice, setMaticPrice] = useState(0)
 
   const getIcon = (protocol) => {
     let protoStr = protocol.toLowerCase()
@@ -62,11 +67,12 @@ const MintContextProvider = ({ children }) => {
   }, [])
 
   useEffect(() => {
-    const fetchBNBPrice = async () => {
-      const bnbPrice = (await getBNBPrice()) as number
-      setBNBPrice(bnbPrice)
+    const fetchTokenPrice = async () => {
+      setBNBPrice((await getPrice('BNB')) as number)
+      setEthPrice((await getPrice('ETH')) as number)
+      setMaticPrice((await getPrice('MATIC')) as number)
     }
-    fetchBNBPrice()
+    fetchTokenPrice()
   }, [])
 
   const value = React.useMemo(
@@ -77,6 +83,10 @@ const MintContextProvider = ({ children }) => {
       setWizard,
       setFormData,
       bnbPrice,
+      maticPrice,
+      ethPrice,
+      account,
+      chainId,
     }),
     [wizard, formData, strategies, bnbPrice],
   )

@@ -36,7 +36,7 @@ export const styles = {
   series_name_text: { color: '#8988A5', fontSize: '16px', fontWeight: '600', letterSpacing:'0.15rem' },
   nft_name_text: { color: '#14114B', fontWeight: '360', fontSize: '32px', fontFamily:'Noto Sans', lineHeight:'32px' },
   nft_desc_text: { color: '#8E8DA0', fontSize: '16px', paddingLeft: 'px' },
-  flex_badges_row: { flexDirection: 'row', gap: '30px' },
+  flex_badges_row: { display:'flex',flexDirection: ['column','column','row'], gap: ['10px','10px','30px'] },
   flex_badge_container: {
     justifyContent: 'center',
     alignItems: 'center',
@@ -50,7 +50,7 @@ export const styles = {
     borderRadius: '10px',
     padding: '20px',
     gap: '20px',
-    width:'70%'
+    width:['100%','100%','70%']
   },
   strategy_title_text: { fontWeight: '600', fontSize: '22px', color:'#16103A',lineHeight:'24px' },
   flex_strategy_inner_container: { gap: '15px', flexWrap: 'wrap' },
@@ -98,22 +98,23 @@ export const styles = {
     },
   },
   withdraw_yield_button: {
-    backgroundColor: '#fff',
-    border: '2px solid #e3bc20',
-    borderRadius: '50px',
-    color: '#e3bc20',
+    backgroundColor: '#FD5298',
+    border: '4px solid #fff',
+    borderRadius: '5px',
+    color: '#fff',
     fontFamily: 'Noto Sans',
     height: '3rem',
     width: '100%',
     fontWeight: '600',
     ':hover': {
       backgroundColor: '#fff',
+      color:'#FD5298',
       cursor: 'pointer',
       opacity: 0.7,
     },
   },
   flex_details_container: {
-    flexDirection: 'row',
+    flexDirection: ['column','column','row'],
     gap: '1rem',
     alignSelf: 'flex-start',
     marginLeft: '1rem',

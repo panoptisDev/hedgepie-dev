@@ -23,6 +23,8 @@ contract YBNFT is BEP721, Ownable {
     mapping(uint256 => Adapter[]) public adapterInfo;
     // tokenId => performanceFee
     mapping(uint256 => uint256) public performanceFee;
+    
+    // tokenId => totalStaked
 
     event Mint(address indexed minter, uint256 indexed tokenId);
 

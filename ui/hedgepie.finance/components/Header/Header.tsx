@@ -3,10 +3,14 @@ import Link from 'next/link'
 import { Box, Image, Link as ThemeLink, Button, ThemeUICSSObject } from 'theme-ui'
 import { ArrowRight, Menu as MenuIcon } from 'react-feather'
 import { Menu, MenuItem, MenuDivider } from '@szhsin/react-menu'
+import { IoWalletOutline, IoWalletSharp } from 'react-icons/io5'
 import '@szhsin/react-menu/dist/index.css'
 import '@szhsin/react-menu/dist/transitions/slide.css'
 import { ConnectWallet } from 'components/ConnectWallet'
 import { styles } from './styles'
+import { useWeb3React } from '@web3-react/core'
+import useWalletModal from 'widgets/WalletModal/useWalletModal'
+import useAuth from 'hooks/useAuth'
 
 type Props = {
   overlay?: boolean
@@ -20,6 +24,9 @@ const MobileMenuLink = ({ href, children }) => (
 )
 
 const Header = ({ overlay = false, dark = true }: Props) => {
+  const { login, logout } = useAuth()
+  const { account, chainId } = useWeb3React()
+  const { onPresentConnectModal } = useWalletModal(login, logout)
   return (
     <Box
       className="header"
@@ -31,6 +38,7 @@ const Header = ({ overlay = false, dark = true }: Props) => {
         width: '100%',
         backgroundColor: dark ? '#16103A' : 'transparent',
         color: dark ? '#FFF' : '#000',
+        paddingRight: [0, 0, 10],
       }}
     >
       <Box sx={styles.header_inner_container as ThemeUICSSObject}>
@@ -59,25 +67,37 @@ const Header = ({ overlay = false, dark = true }: Props) => {
             <ConnectWallet isHeaderBtn />
           </Box>
         </Box>
-        <Menu
-          menuButton={
-            <Box sx={styles.mobile_menu_btn as ThemeUICSSObject}>
-              <MenuIcon />
-            </Box>
-          }
-          align="end"
-          transition
-          arrow
-        >
-          <MobileMenuLink href="/vault">Vault</MobileMenuLink>
-          <MobileMenuLink href="/nft-leaderboard">Leaderboard</MobileMenuLink>
-          <MobileMenuLink href="/mint">Mint</MobileMenuLink>
-          <MenuDivider />
+        <div style={{ display: 'flex', flexDirection: 'row', gap: '0px', marginLeft: 'auto' }}>
+          <Menu
+            menuButton={
+              <Box sx={styles.mobile_menu_btn as ThemeUICSSObject}>
+                <MenuIcon />
+              </Box>
+            }
+            align="end"
+            transition
+            arrow
+          >
+            {/* <MobileMenuLink href="/vault">Vault</MobileMenuLink> */}
+            <MobileMenuLink href="/nft-leaderboard">Leaderboard</MobileMenuLink>
+            <MobileMenuLink href="/mint">Mint</MobileMenuLink>
+          </Menu>
           <Box sx={styles.mobile_menu_connect_wallet as ThemeUICSSObject}>
-            <Box mr={2}>Connect Wallet</Box>
-            <ArrowRight />
+            <Box
+              mr={2}
+              onClick={() => {
+                if (account) return
+                onPresentConnectModal()
+              }}
+            >
+              {!account ? (
+                <IoWalletOutline style={{ width: 40, height: 40 }} />
+              ) : (
+                <IoWalletSharp style={{ width: 40, height: 40 }} />
+              )}
+            </Box>
           </Box>
-        </Menu>
+        </div>
       </Box>
     </Box>
   )
