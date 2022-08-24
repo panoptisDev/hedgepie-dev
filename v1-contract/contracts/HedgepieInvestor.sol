@@ -494,7 +494,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             adapterManager
         ).getDepositCallData(_adapterAddr, _amount);
 
-        (bool success, bytes memory data) = to.call{value: value}(callData);
+        (bool success,) = to.call{value: value}(callData);
         require(success, "Error: Deposit internal issue");
 
         amounts[1] = addrs[1] != address(0)

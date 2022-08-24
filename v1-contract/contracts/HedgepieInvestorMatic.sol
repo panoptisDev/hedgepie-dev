@@ -23,9 +23,8 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
 
     struct AdapterInfo {
         uint256 accTokenPerShare;
-        uint256 totalStaked;
         uint256 accTokenPerShare1;
-        uint256 totalStaked1;
+        uint256 totalStaked;
     }
 
     struct NFTInfo {
@@ -427,13 +426,15 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
         addrs[0] = IAdapter(_adapterAddr).stakingToken();
         addrs[1] = IAdapter(_adapterAddr).repayToken();
         addrs[2] = IAdapter(_adapterAddr).rewardToken();
+        bool isReward = IAdapter(_adapterAddr).isReward();
 
         amounts[0] = addrs[1] != address(0)
             ? IBEP20(addrs[1]).balanceOf(address(this))
             : (
-                addrs[2] != address(0)
-                    ? IBEP20(addrs[2]).balanceOf(address(this))
-                    : 0
+                isReward ? IAdapter(_adapterAddr).pendingShares() :
+                    addrs[2] != address(0)
+                        ? IBEP20(addrs[2]).balanceOf(address(this))
+                        : 0
             );
 
         IBEP20(_token).approve(
@@ -451,14 +452,28 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
         amounts[1] = addrs[1] != address(0)
             ? IBEP20(addrs[1]).balanceOf(address(this))
             : (
-                addrs[2] != address(0)
-                    ? IBEP20(addrs[2]).balanceOf(address(this))
-                    : 0
+                isReward ? IAdapter(_adapterAddr).pendingShares() :
+                    addrs[2] != address(0)
+                        ? IBEP20(addrs[2]).balanceOf(address(this))
+                        : 0
             );
 
         
         if (addrs[1] != address(0)) {
             require(amounts[1] > amounts[0], "Error: Deposit failed");
+            IAdapter(_adapterAddr).increaseWithdrawalAmount(
+                msg.sender,
+                _tokenId,
+                amounts[1] - amounts[0]
+            );
+        } else if (isReward) {
+            require(amounts[1] > amounts[0], "Error: Deposit failed");
+
+            userAdapterInfos[msg.sender][_tokenId][_adapterAddr]
+                .userShares += amounts[1] - amounts[0];
+            userAdapterInfos[msg.sender][_tokenId][_adapterAddr]
+                .userShares1 += amounts[1] - amounts[0];
+
             IAdapter(_adapterAddr).increaseWithdrawalAmount(
                 msg.sender,
                 _tokenId,
@@ -475,6 +490,9 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
 
             if (rewardAmount != 0 && adapter.totalStaked != 0) {
                 adapter.accTokenPerShare +=
+                    (rewardAmount * 1e12) /
+                    adapter.totalStaked;
+                adapter.accTokenPerShare1 +=
                     (rewardAmount * 1e12) /
                     adapter.totalStaked;
             }
@@ -860,16 +878,15 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
             AdapterInfo memory adapterInfo = adapterInfos[_tokenId][
                 adapter.addr
             ];
+            UserAdapterInfo memory userAdapterInfo = userAdapterInfos[
+                _account
+            ][_tokenId][adapter.addr];
 
             if (
                 IAdapter(adapter.addr).rewardToken() != address(0) &&
                 adapterInfo.totalStaked != 0 &&
                 adapterInfo.accTokenPerShare != 0
             ) {
-                UserAdapterInfo memory userAdapterInfo = userAdapterInfos[
-                    _account
-                ][_tokenId][adapter.addr];
-
                 uint256 updatedAccTokenPerShare = adapterInfo.accTokenPerShare +
                     ((IAdapter(adapter.addr).pendingReward() * 1e12) /
                         adapterInfo.totalStaked);
@@ -886,6 +903,51 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
                         wmatic
                     )
                 )[1];
+            } else if(IAdapter(adapter.addr).isReward()) {
+                uint256 updatedAccTokenPerShare = 
+                    ((IAdapter(adapter.addr).pendingReward() * 1e12) /
+                        adapterInfo.totalStaked);
+
+                uint256 tokenRewards = ((updatedAccTokenPerShare -
+                    userAdapterInfo.userShares) * userAdapterInfo.amount) /
+                    1e12;
+
+                if (IAdapter(adapter.addr).router() == address(0)) {
+                    rewards += tokenRewards == 0 ? 0 : IPancakeRouter(swapRouter).getAmountsOut(
+                        tokenRewards,
+                        _getPaths(
+                            adapter.addr,
+                            IAdapter(adapter.addr).rewardToken(),
+                            wmatic
+                        )
+                    )[1];
+                } else {
+                    address pairToken = IAdapter(adapter.addr).stakingToken();
+                    address token0 = IPancakePair(pairToken).token0();
+                    address token1 = IPancakePair(pairToken).token1();
+                    (uint112 reserve0, uint112 reserve1, ) = IPancakePair(
+                        pairToken
+                    ).getReserves();
+
+                    uint256 amount0 = (reserve0 * tokenRewards) /
+                        IPancakePair(pairToken).totalSupply();
+                    uint256 amount1 = (reserve1 * tokenRewards) /
+                        IPancakePair(pairToken).totalSupply();
+
+                    if (token0 == wmatic) rewards += reserve0;
+                    else
+                        rewards += IPancakeRouter(swapRouter).getAmountsOut(
+                            amount0,
+                            _getPaths(adapter.addr, token0, wmatic)
+                        )[1];
+
+                    if (token0 == wmatic) rewards += reserve1;
+                    else
+                        rewards += IPancakeRouter(swapRouter).getAmountsOut(
+                            amount1,
+                            _getPaths(adapter.addr, token1, wmatic)
+                        )[1];
+                }
 
                 if(IAdapter(adapter.addr).rewardToken1() != address(0)) {
                     updatedAccTokenPerShare = adapterInfo.accTokenPerShare1 +
@@ -896,7 +958,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
                         userAdapterInfo.userShares1) * userAdapterInfo.amount) /
                         1e12;
 
-                    rewards += IPancakeRouter(swapRouter).getAmountsOut(
+                    rewards += tokenRewards == 0 ? 0 : IPancakeRouter(swapRouter).getAmountsOut(
                         tokenRewards,
                         _getPaths(
                             adapter.addr,
