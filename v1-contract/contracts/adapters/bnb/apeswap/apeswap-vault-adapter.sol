@@ -3,6 +3,13 @@ pragma solidity ^0.8.4;
 
 import "../../BaseAdapter.sol";
 
+interface IMasterChef {
+    function userInfo(uint256 pid, address user)
+        external
+        view
+        returns (uint256);
+}
+
 contract ApeswapVaultAdapter is BaseAdapter {
     /**
      * @notice Construct
@@ -27,6 +34,7 @@ contract ApeswapVaultAdapter is BaseAdapter {
         vStrategy = _vStrategy;
         router = _router;
         name = _name;
+        isVault = true;
     }
 
     /**
@@ -121,5 +129,12 @@ contract ApeswapVaultAdapter is BaseAdapter {
      */
     function getReward(address _user) external view override returns (uint256) {
         return 0;
+    }
+
+    /**
+     * @notice Get pending shares
+     */
+    function pendingShares() external view override returns (uint256 shares) {
+        (shares) = IMasterChef(strategy).userInfo(pid, msg.sender);
     }
 }
