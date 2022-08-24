@@ -103,12 +103,12 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
       >
         <Box
           sx={{
-            height: 62,
-            width: 'max-content',
-            borderRadius: 62,
             display: 'flex',
             alignItems: 'center',
             backgroundColor: '#fff',
+            height: 62,
+            width: 'max-content',
+            borderRadius: 8,
             // paddingLeft: 16,
             marginLeft: 15,
             paddingRight: 16,

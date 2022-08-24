@@ -76,7 +76,7 @@ const PerformanceFee = () => {
             fontSize: 30,
             fontWeight: 700,
             backgroundColor: '#fff',
-            borderRadius: 62,
+            borderRadius: 8,
             display: 'flex',
             alignItems: 'center',
           }}

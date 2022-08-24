@@ -12,7 +12,7 @@ import LeaderboardMain from 'views/nft-leaderboard/LeaderBoard'
 const HomePage: NextPage = () => {
   return (
     <>
-      <HedgePieFinance title="YB NFT leaderboard">
+      <HedgePieFinance title="YB NFT Leaderboard">
         <LeaderboardMain />
       </HedgePieFinance>
     </>

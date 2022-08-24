@@ -40,6 +40,7 @@ export const styles = {
     '& > *': {
       marginRight: 30,
     },
+    gap:'2px'
   },
   footer_navbar: {
     color: '#8E8DA0',
