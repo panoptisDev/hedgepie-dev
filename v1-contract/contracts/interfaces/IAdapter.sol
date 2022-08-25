@@ -23,6 +23,8 @@ interface IAdapter {
 
     function isVault() external view returns (bool);
 
+    function isReward() external view returns (bool);
+
     function isEntered() external view returns (bool);
 
     function isLeverage() external view returns (bool);
@@ -39,6 +41,8 @@ interface IAdapter {
 
     function pendingReward() external view returns (uint256 reward);
 
+    function pendingReward1() external view returns (uint256 reward);
+
     function pendingShares() external view returns (uint256 shares);
 
     function name() external view returns (string memory);
@@ -46,6 +50,8 @@ interface IAdapter {
     function repayToken() external view returns (address);
 
     function rewardToken() external view returns (address);
+
+    function rewardToken1() external view returns (address);
 
     function wrapToken() external view returns (address);
 
@@ -71,6 +77,15 @@ interface IAdapter {
         );
 
     function getDevestCallData(uint256 _amount)
+        external
+        view
+        returns (
+            address to,
+            uint256 value,
+            bytes memory data
+        );
+
+    function getRewardCallData()
         external
         view
         returns (

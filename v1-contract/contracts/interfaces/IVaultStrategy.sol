@@ -5,6 +5,9 @@ interface IVaultStrategy {
     // Total want tokens managed by stratfegy
     function wantLockedTotal() external view returns (uint256);
 
+    // Total want tokens managed by stratfegy
+    function totalSupply() external view returns (uint256);
+
     // Sum of all shares of users to wantLockedTotal
     function sharesTotal() external view returns (uint256);
 
