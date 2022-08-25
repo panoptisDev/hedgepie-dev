@@ -1,5 +1,5 @@
 import { useAdapterManagerContract, useApeSwapLPAdapterContract, useAutoFarmLPAdapterContract } from 'hooks/useContract'
-import { fetchAdapters, fetchTokenAddress } from 'utils/callHelpers'
+import { fetchAdapters, fetchTokenAddress } from 'utils/callHelpers/binance/callHelpers'
 
 export const useAdapterManager = () => {
   const adapterManagerContract = useAdapterManagerContract()

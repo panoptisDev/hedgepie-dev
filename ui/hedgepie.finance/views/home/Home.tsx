@@ -9,6 +9,7 @@ import ChoosePath from './ChoosePath'
 import YBNFTInfo from './YBNFTInfo'
 import Leaderboard from './Leaderboard'
 import CollectWinnings from './CollectWinnings'
+import DemoInfo from './DemoInfo'
 
 type Props = {}
 
@@ -17,8 +18,9 @@ const Home = (props: Props) => {
     <ThemeProvider theme={theme}>
       <Banner />
       <ChoosePath />
-      <Leaderboard />
-      <YBNFTInfo />
+      {/* <Leaderboard /> */}
+      <DemoInfo />
+      {/* {/* <YBNFTInfo /> */}
       <CollectWinnings />
     </ThemeProvider>
   )

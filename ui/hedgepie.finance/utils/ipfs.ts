@@ -22,21 +22,23 @@ const uploadToIPFS = async (file, name) => {
   }
 }
 
+const uploadMetadataToIPFS = async (metadata, name) => {
+  const file = makeMetadataFile(metadata, name)
+  const ipfsCID = await uploadToIPFS(file, name)
+  const fileLink = 'https://' + ipfsCID + '.ipfs.dweb.link/HedgePie_YBNFT_' + name + '.json'
+  return fileLink
+}
+
 const uploadImageToIPFS = async (imgFile, imgName) => {
   return uploadToIPFS(imgFile, imgName)
 }
 
 const makeMetadataFile = (metadata, name) => {
   const blob = new Blob([JSON.stringify(metadata)], { type: 'application/json' })
-  const files = new File([blob], 'hedgepie_ybnft_' + name + '.json')
+  const files = new File([blob], 'HedgePie_YBNFT_' + name + '.json')
   return files
 }
 
-const uploadMetadataToIPFS = async (metadata, name) => {
-  const file = makeMetadataFile(metadata, name)
-  const ipfsCID = await uploadToIPFS(file, name)
-  const fileLink = 'https://' + ipfsCID + '.ipfs.dweb.link/hedgepie_ybnft_' + name + '.json'
-  return fileLink
-}
+
 
 export default { uploadImageToIPFS, uploadMetadataToIPFS }

@@ -8,7 +8,7 @@ import useAuth from 'hooks/useAuth'
 import { styles } from './styles'
 
 const ConnectWallet = (props) => {
-  const { isHeaderBtn } = props
+  const { isHeaderBtn, dark } = props
   const { login, logout } = useAuth()
   const { account, chainId } = useWeb3React()
   const { onPresentConnectModal } = useWalletModal(login, logout)
@@ -36,7 +36,7 @@ const ConnectWallet = (props) => {
     <>
       {isHeaderBtn ? (
         <Button
-          sx={styles.header_connect_wallet_btn as ThemeUICSSObject}
+          sx={{ ...styles.header_connect_wallet_btn, color: !dark ? '#000' : '#fff' } as ThemeUICSSObject}
           onClick={() => {
             if (account) return
             onPresentConnectModal()

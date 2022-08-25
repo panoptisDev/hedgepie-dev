@@ -62,7 +62,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
           control: () => ({
             height: 60,
             width: 212,
-            borderRadius: 62,
+            borderRadius: 8,
             backgroundColor: '#fff',
             display: 'flex',
             alignItems: 'center',
@@ -104,7 +104,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
           control: () => ({
             height: 60,
             width: 140,
-            borderRadius: 62,
+            borderRadius: 8,
             backgroundColor: '#fff',
             display: 'flex',
             alignItems: 'center',

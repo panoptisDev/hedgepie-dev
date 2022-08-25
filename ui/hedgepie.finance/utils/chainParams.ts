@@ -7,6 +7,7 @@ const nodes = {
     'https://speedy-nodes-nyc.moralis.io/1c8d8856c017266c637672dd/bsc/testnet',
   ],
   56: ['https://bsc-dataseed.binance.org', 'https://bsc-dataseed1.defibit.io', 'https://bsc-dataseed1.ninicoin.io/'],
+  137:['https://polygon-rpc.com']
 }
 
 const getNodeUrl = (chainId) => {
@@ -36,6 +37,17 @@ const chainParams = {
     },
     rpcUrls: [getNodeUrl(56)],
     blockExplorerUrls: ['https://bscscan.com'],
+  },
+  '137': {
+    chainId: '0x38',
+    chainName: 'Polygon Mainnet',
+    nativeCurrency: {
+      name: 'Polygon MATIC',
+      symbol: 'MATIC',
+      decimals: 18,
+    },
+    rpcUrls: [getNodeUrl(137)],
+    blockExplorerUrls: ['https://polygonscan.com/'],
   },
 }
 

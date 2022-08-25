@@ -53,18 +53,23 @@ const Header = ({ overlay = false, dark = true }: Props) => {
           </ThemeLink>
         </Link>
         <Box sx={{ flex: 1 }} />
-        <Box sx={styles.navbar_container as ThemeUICSSObject}>
+        <Box sx={{ ...styles.navbar_container, color: dark ? '#fff' : '#14114B' } as ThemeUICSSObject}>
           {/* <Link href="/vault" passHref>
             <ThemeLink mr={4}>Vault</ThemeLink>
           </Link> */}
-          <Link href="/" passHref>
+          <Box marginRight={'40px'}>
+            <a target="_blank" href="https://hedgepie.com/wp-content/uploads/2022/05/HedgePie-Whitepaper-V5.pdf">
+              <ThemeLink>White Paper</ThemeLink>
+            </a>
+          </Box>
+          <Link href="/nft-leaderboard" passHref>
             <ThemeLink mr={4}>Leaderboard</ThemeLink>
           </Link>
           <Link href="/mint" passHref>
             <ThemeLink mr={4}>Mint</ThemeLink>
           </Link>
           <Box sx={styles.connect_wallet_btn_container as ThemeUICSSObject}>
-            <ConnectWallet isHeaderBtn />
+            <ConnectWallet isHeaderBtn dark={dark} />
           </Box>
         </Box>
         <div style={{ display: 'flex', flexDirection: 'row', gap: '0px', marginLeft: 'auto' }}>

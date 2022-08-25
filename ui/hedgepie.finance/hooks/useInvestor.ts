@@ -11,7 +11,9 @@ import {
   fetchBalance,
   fetchYield,
   claimFromYBNFT,
-} from 'utils/callHelpers'
+
+} from 'utils/callHelpers/binance/Investor'
+import { getBalanceAmount } from 'utils/formatBalance'
 
 export const useInvestor = () => {
   const { account } = useWeb3React()

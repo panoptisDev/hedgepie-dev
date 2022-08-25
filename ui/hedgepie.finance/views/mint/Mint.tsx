@@ -28,20 +28,7 @@ const Mint = () => {
             maxWidth: 1200,
             margin: '0 auto',
           }}
-        >
-          {/* <Image
-            src="/images/hedgehog-head.png"
-            sx={{
-              width: 200,
-              [`@media screen and (min-width: 700px)`]: {
-                width: 300,
-              },
-              [`@media screen and (min-width: 992px)`]: {
-                width: 'auto',
-              },
-            }}
-          /> */}
-        </Box>
+        ></Box>
       </Box>
       <Box
         sx={{
@@ -84,8 +71,8 @@ const Mint = () => {
             sx={{
               position: 'absolute',
               width: 200,
-              top: -40,
-              right: 0,
+              top: -120,
+              right: -50,
               [`@media screen and (min-width: 600px)`]: {
                 width: 300,
                 right: -40,

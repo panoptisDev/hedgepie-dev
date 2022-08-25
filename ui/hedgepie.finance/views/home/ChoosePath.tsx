@@ -10,6 +10,9 @@ const ChoosePath = () => {
       sx={{
         marginTop: 60,
         marginBottom: [50, 150],
+        display: 'flex',
+        flexDirection: 'row',
+        gap: '20px',
       }}
     >
       <Box
@@ -20,12 +23,15 @@ const ChoosePath = () => {
       >
         <Box
           sx={{
-            fontSize: 48,
+            fontSize: 60,
             fontWeight: 700,
             textAlign: 'center',
+            color: '#14114B',
+            fontFamily: 'Noto Sans',
+            letterSpacing: '-2px',
           }}
         >
-          Choose your path
+          Choose your path.
         </Box>
         <Box
           sx={{
@@ -33,9 +39,10 @@ const ChoosePath = () => {
             fontSize: 18,
             textTransform: 'uppercase',
             textAlign: 'center',
-            color: '#8E8DA0',
+            color: '#0B4C6F',
             letterSpacing: 2,
             fontFamily: 'Poppins',
+            fontWeight: '600',
           }}
         >
           get your piece of the pie
@@ -79,25 +86,24 @@ const ChoosePath = () => {
                 fontFamily: 'Poppins',
               }}
             >
-              <Box>Earn Up to XX%</Box>
+              <Box>Earn The Highest</Box>
               <Box>APY</Box>
             </Box>
             <Box
               sx={{
                 marginTop: 32,
                 textAlign: 'center',
-                color: '#16103A',
+                color: '#0B4C6F',
               }}
             >
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec volutpat turpis mauris nunc sit placerat
-              ullamcorper v
+              Access the highest returns when you invest in funds that dominate the Hedge Pie leaderboard
             </Box>
           </Box>
           <Box
             my={3}
             mx={[0, 2]}
             sx={{
-              backgroundColor: '#F6FAFD',
+              backgroundColor: '#FFFBF4',
               color: '#EFA906',
               padding: [12, 40],
               borderRadius: [30, 60],
@@ -128,14 +134,13 @@ const ChoosePath = () => {
               sx={{
                 marginTop: 32,
                 textAlign: 'center',
-                color: '#16103A',
+                color: '#0B4C6F',
               }}
             >
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec volutpat turpis mauris nunc sit placerat
-              ullamcorper v
+              Earn more when you combine your assets into high-yielding funds that others can invest in
             </Box>
           </Box>
-          <Box
+          {/* <Box
             my={3}
             mx={[0, 2]}
             sx={{
@@ -176,7 +181,7 @@ const ChoosePath = () => {
               Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec volutpat turpis mauris nunc sit placerat
               ullamcorper v
             </Box>
-          </Box>
+            </Box>*/}
         </Box>
       </Box>
     </Box>

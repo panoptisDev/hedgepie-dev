@@ -1,7 +1,7 @@
 import { useCallback, useRef } from 'react'
 import { useWeb3React } from '@web3-react/core'
 import { useYBNFTMintContract } from 'hooks/useContract'
-import { mintYBNFT, fetchMaxTokenId, fetchTokenUri, fetchAllocations } from 'utils/callHelpers'
+import { mintYBNFT, fetchMaxTokenId, fetchTokenUri, fetchAllocations } from 'utils/callHelpers/binance/callHelpers'
 
 export const useYBNFTMint = () => {
   const { account } = useWeb3React()

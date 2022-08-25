@@ -15,8 +15,8 @@ const Footer = (props: Props) => {
         <Box mr={4}>
           <Image src="images/logo.png" />
           <Box sx={styles.footer_text_container as ThemeUICSSObject}>
-            Lorem ipsum dolor sit amet, consectetur adipiscing elit. Lectus molestie eu purus vel massa tristique diam
-            cursus. Ut nunc consectetur penatib.
+            Hedge Pie is an innovative decentralized trading platform that allows users to generate funds that others
+            can invest in.
           </Box>
           <Box sx={styles.footer_social_btns_container as ThemeUICSSObject}>
             <SocialButton>
@@ -38,18 +38,21 @@ const Footer = (props: Props) => {
         >
           <Box sx={{}}>HedgePie</Box>
           <Box mt={54} sx={styles.footer_navbar as ThemeUICSSObject}>
-            <Link href="/vault" passHref>
+            {/* <Link href="/vault" passHref>
               <ThemeLink>Vault</ThemeLink>
-            </Link>
+            </Link> */}
+            <a target="_blank" href="https://hedgepie.com/wp-content/uploads/2022/05/HedgePie-Whitepaper-V5.pdf">
+              <ThemeLink>White Paper</ThemeLink>
+            </a>
             <Link href="/nft-leaderboard" passHref>
               <ThemeLink>Leaderboard</ThemeLink>
             </Link>
-            <Link href="/details" passHref>
+            {/* <Link href="/details" passHref>
               <ThemeLink>Finished Lotteries</ThemeLink>
             </Link>
             <Link href="/" passHref>
               <ThemeLink>Current Lottery</ThemeLink>
-            </Link>
+            </Link> */}
             <Link href="/mint" passHref>
               <ThemeLink>Mint</ThemeLink>
             </Link>

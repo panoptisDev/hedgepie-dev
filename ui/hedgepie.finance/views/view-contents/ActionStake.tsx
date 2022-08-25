@@ -40,6 +40,38 @@ const ActionStake = (props: any) => {
     console.log(txHash)
   }
 
+  useEffect(() => {
+    if (!account) return
+    const checkIfAlreadyApproved = async () => {
+      const allowance = await getAllowance()
+      if (allowance && allowance > 0) {
+        setApproved(true)
+      }
+    }
+    checkIfAlreadyApproved()
+  }, [account])
+
+  const setCurrentStakedBalance = async () => {
+    let balance = await getBalance(tokenId)
+    setCurrentStaked(getBalanceInEther(balance))
+    setStaked(getBalanceInEther(balance))
+  }
+
+  useEffect(() => {
+    if (!account || !tokenId) return
+    setCurrentStakedBalance()
+  }, [account, tokenId])
+
+  const onChangeAmount = (e) => {
+    setAmountString(e.target.value)
+    if (e.target.value && (isNaN(e.target.value) || Number.parseFloat(e.target.value) < 0)) {
+      setInvalidAmount(true)
+      toast('Please input only Positive Numeric values', 'warning')
+    }
+    setInvalidAmount(false)
+    e.target.value && !isNaN(e.target.value) && setAmount(getBalanceInWei(Number.parseFloat(e.target.value)))
+  }
+
   const handleStake = async () => {
     console.log(amount.valueOf())
     if (amount.valueOf() == 0) {
@@ -73,38 +105,6 @@ const ActionStake = (props: any) => {
     if (e.which == '-'.charCodeAt(0)) {
       e.preventDefault()
     }
-  }
-
-  useEffect(() => {
-    if (!account) return
-    const checkIfAlreadyApproved = async () => {
-      const allowance = await getAllowance()
-      if (allowance && allowance > 0) {
-        setApproved(true)
-      }
-    }
-    checkIfAlreadyApproved()
-  }, [account])
-
-  const setCurrentStakedBalance = async () => {
-    let balance = await getBalance(tokenId)
-    setCurrentStaked(getBalanceInEther(balance))
-    setStaked(getBalanceInEther(balance))
-  }
-
-  useEffect(() => {
-    if (!account || !tokenId) return
-    setCurrentStakedBalance()
-  }, [account, tokenId])
-
-  const onChangeAmount = (e) => {
-    setAmountString(e.target.value)
-    if (e.target.value && (isNaN(e.target.value) || Number.parseFloat(e.target.value) < 0)) {
-      setInvalidAmount(true)
-      toast('Please input only Positive Numeric values', 'warning')
-    }
-    setInvalidAmount(false)
-    e.target.value && !isNaN(e.target.value) && setAmount(getBalanceInWei(Number.parseFloat(e.target.value)))
   }
 
   return (
