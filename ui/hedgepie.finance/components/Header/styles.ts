@@ -21,6 +21,8 @@ export const styles = {
   navbar_container: {
     display: ['none', 'flex'],
     alignItems: 'center',
+    fontWeight:"600",
+    fontSize:'18px'
   },
   connect_wallet_btn_container: {
     height: 64,
