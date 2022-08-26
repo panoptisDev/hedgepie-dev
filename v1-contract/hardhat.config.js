@@ -41,6 +41,11 @@ module.exports = {
       gasPrice: 200000000000,
       accounts: [process.env.TESTNET_PRIVKEY],
     },
+    mumbai: {
+      chainId: 80001,
+      url: "https://rpc-mumbai.maticvigil.com/",
+      accounts: [process.env.TESTNET_PRIVKEY],
+    },
     bsc: {
       // url: "https://bsc-dataseed.binance.org/",
       url: "https://rpc.ankr.com/bsc",
