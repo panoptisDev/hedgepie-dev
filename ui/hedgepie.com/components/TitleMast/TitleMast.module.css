@@ -1,0 +1,10 @@
+.mast_bg {
+  background: linear-gradient(90deg, rgba(200,179,207,1) 11%, rgba(255,255,255,0.9363095580028886) 52%, rgba(0,212,255,1) 100%)
+}
+
+.mast_wrapper {
+    height: 2rem;
+    align-items: center;
+    flex-direction: column;
+    justify-content: center;
+}
