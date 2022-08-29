@@ -28,8 +28,8 @@ const HedgePieFinance = (props: Props) => {
           left: 0,
           width: '100%',
           height: '100%',
-          objectFit: 'cover',
           objectPosition: 'right',
+          objectFit: 'cover',
           zIndex: -1,
         }}
         src="/images/backdesign.svg"
