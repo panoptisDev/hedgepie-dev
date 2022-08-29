@@ -44,18 +44,32 @@ const Footer = (props: Props) => {
             <a target="_blank" href="https://hedgepie.com/wp-content/uploads/2022/05/HedgePie-Whitepaper-V5.pdf">
               <ThemeLink>White Paper</ThemeLink>
             </a>
-            <Link href="/nft-leaderboard" passHref>
+            <div
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                document?.getElementById('demo-info')?.scrollIntoView({
+                  behavior: 'smooth',
+                })
+              }}
+            >
               <ThemeLink>Leaderboard</ThemeLink>
-            </Link>
+            </div>
             {/* <Link href="/details" passHref>
               <ThemeLink>Finished Lotteries</ThemeLink>
             </Link>
             <Link href="/" passHref>
               <ThemeLink>Current Lottery</ThemeLink>
             </Link> */}
-            <Link href="/mint" passHref>
+            <div
+              style={{ cursor: 'pointer' }}
+              onClick={() => {
+                document?.getElementById('collect-winnings')?.scrollIntoView({
+                  behavior: 'smooth',
+                })
+              }}
+            >
               <ThemeLink>Mint</ThemeLink>
-            </Link>
+            </div>
           </Box>
         </Box>
       </Box>

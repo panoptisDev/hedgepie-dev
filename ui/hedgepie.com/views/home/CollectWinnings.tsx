@@ -73,7 +73,7 @@ const CollectWinnings = () => {
               onClick={() => toast('Our site will soon be live at hedgepie.finance')}
             >
               <Box mr={2}>
-                <ThemeLink mr={4}>OPEN APP</ThemeLink>
+                <ThemeLink mr={4}>Collect Winnings</ThemeLink>
               </Box>
             </Box>
             <Box
