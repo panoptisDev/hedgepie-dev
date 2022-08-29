@@ -7,7 +7,7 @@ function PRSection() {
       <Box
         sx={{
           display: 'flex',
-          flexDirection: 'row',
+          flexDirection: ['row', 'row', 'row'],
           gap: '3rem',
           justifyContent: 'center',
           alignItems: 'center',
@@ -25,11 +25,12 @@ function PRSection() {
             fontWeight: '500',
             width: '16rem',
             overflow: 'initial',
+            display: ['none', 'none', 'block'],
           }}
         >
           We're not yet live, but be the first to know when we do!
         </Text>
-        <Box sx={{ display: 'flex', flexDirection: 'row', gap: '10px' }}>
+        <Box sx={{ flexDirection: 'row', gap: '10px', display: ['none', 'none', 'flex'] }}>
           <Input
             placeholder="Enter your best email here"
             sx={{
