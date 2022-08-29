@@ -33,12 +33,6 @@ const MintContextProvider = ({ children }) => {
   const [ethPrice, setEthPrice] = useState(0)
   const [maticPrice, setMaticPrice] = useState(0)
 
-  const getIcon = (protocol) => {
-    let protoStr = protocol.toLowerCase()
-    if (protoStr.includes('apeswap')) return 'images/apeswap.png'
-    else if (protoStr.includes('autofarm')) return 'images/autofarm.png'
-  }
-
   useEffect(() => {
     const getCompositionOptions = async () => {
       try {
@@ -66,6 +60,12 @@ const MintContextProvider = ({ children }) => {
     getCompositionOptions()
   }, [])
 
+  const getIcon = (protocol) => {
+    let protoStr = protocol.toLowerCase()
+    if (protoStr.includes('apeswap')) return 'images/apeswap.png'
+    else if (protoStr.includes('autofarm')) return 'images/autofarm.png'
+  }
+
   useEffect(() => {
     const fetchTokenPrice = async () => {
       setBNBPrice((await getPrice('BNB')) as number)
@@ -81,10 +81,10 @@ const MintContextProvider = ({ children }) => {
       formData,
       strategies,
       setWizard,
+      ethPrice,
       setFormData,
       bnbPrice,
       maticPrice,
-      ethPrice,
       account,
       chainId,
     }),

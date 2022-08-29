@@ -5,6 +5,7 @@ import LotteryTable from './LotteryTable'
 import LotteryLoad from './LotteryLoad'
 
 import { useYBNFTMint } from 'hooks/useYBNFTMint'
+import { useInvestor } from 'hooks/useInvestor'
 
 import { styles } from './styles'
 import toast from 'utils/toast'
@@ -21,6 +22,8 @@ const LeaderBoard = () => {
   const [searchKey, setSearchKey] = React.useState('')
   const [sortKey, setSortKey] = React.useState('')
   const { getMaxTokenId, getTokenUri } = useYBNFTMint()
+  const { getTVL, getTotalParticipants } = useInvestor()
+
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -40,6 +43,11 @@ const LeaderBoard = () => {
         if (metadataFile == null) {
           continue
         }
+
+        // Obtain total participants and TVL, Will be used to populate the tvl and participants in the Leaderboard
+        // const tvl = await getTVL(i)
+        // const participants = await getTotalParticipants(i)
+
         const metadata = await metadataFile.json()
         const leaderboardItem = {
           tokenId: i,
@@ -97,7 +105,7 @@ const LeaderBoard = () => {
           <LotteryTable data={sorted} onSort={handleSort} sortKey={sortKey} />
           {loading ? (
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.5rem' }}>
-              <Spinner />
+              <Spinner sx={{ color: '#1799DE' }} />
             </Box>
           ) : (
             ''
