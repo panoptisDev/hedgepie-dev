@@ -58,7 +58,7 @@ const Header = ({ overlay = false, dark = true }: Props) => {
             <ThemeLink mr={4}>Vault</ThemeLink>
           </Link> */}
           <Box marginRight={'40px'}>
-            <a target="_blank" href="https://hedgepie.com/wp-content/uploads/2022/05/HedgePie-Whitepaper-V5.pdf">
+            <a target="_blank" href="/HedgePie-Whitepaper-V5.pdf">
               <ThemeLink>White Paper</ThemeLink>
             </a>
           </Box>
@@ -98,8 +98,18 @@ const Header = ({ overlay = false, dark = true }: Props) => {
             arrow
           >
             {/* <MobileMenuLink href="/vault">Vault</MobileMenuLink> */}
-            <MobileMenuLink href="/nft-leaderboard">Leaderboard</MobileMenuLink>
-            <MobileMenuLink href="/mint">Mint</MobileMenuLink>
+            {/* <MobileMenuLink
+              href=""
+              onClick={() => {
+                document?.getElementById('collect-winnings')?.scrollIntoView({
+                  behavior: 'smooth',
+                })
+              }}
+            >
+              Leaderboard
+            </MobileMenuLink>
+            <MobileMenuLink href="/mint">Mint</MobileMenuLink> */}
+            <MobileMenuLink href="/HedgePie-Whitepaper-V5.pdf">White Paper</MobileMenuLink>
           </Menu>
         </div>
       </Box>

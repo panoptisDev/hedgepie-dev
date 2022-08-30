@@ -41,7 +41,7 @@ const Footer = (props: Props) => {
             {/* <Link href="/vault" passHref>
               <ThemeLink>Vault</ThemeLink>
             </Link> */}
-            <a target="_blank" href="https://hedgepie.com/wp-content/uploads/2022/05/HedgePie-Whitepaper-V5.pdf">
+            <a target="_blank" href="/HedgePie-Whitepaper-V5.pdf">
               <ThemeLink>White Paper</ThemeLink>
             </a>
             <div
