@@ -1,0 +1,12 @@
+[
+  {
+    "relation": ["delegate_permission/common.handle_all_urls"],
+    "target": {
+      "namespace": "android_app",
+      "package_name": "app.vercel.hedgepie_dev_git_feature_hpie_pwa_innovation_upstream.twa",
+      "sha256_cert_fingerprints": [
+        "74:1D:55:87:19:68:1C:33:D0:E9:4F:2B:6E:9B:D6:40:14:3E:BA:88:06:75:F7:56:10:84:24:22:F7:04:A0:27"
+      ]
+    }
+  }
+]
