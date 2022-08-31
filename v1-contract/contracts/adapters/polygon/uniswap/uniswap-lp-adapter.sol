@@ -41,4 +41,17 @@ contract UniswapLPAdapter is BaseAdapterMatic {
     ) external onlyInvestor {
         liquidityToken[_user][_nftId] = _tokenId;
     }
+
+    /**
+     * @notice Get liqudity token
+     * @param _user  user address
+     * @param _nftId  nftId
+     */
+    function getLiquidityToken(address _user, uint256 _nftId)
+        external
+        view
+        returns (uint256 tokenId)
+    {
+        tokenId = liquidityToken[_user][_nftId];
+    }
 }

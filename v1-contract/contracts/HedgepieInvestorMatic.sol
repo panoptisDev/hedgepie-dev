@@ -763,18 +763,20 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
         }
 
         if(IAdapter(_adapter).noDeposit()) {
+            address _strategy = IAdapter(_adapter).strategy();
+            uint256 tokenId = IAdapter(_adapter).getLiquidityToken(msg.sender, _tokenId);
+
             // wrap to wmatic
             if(token0 == wmatic) {
                 IWrap(wmatic).deposit(token0Amount);
-                IBEP20(wmatic).approve(_router, token0Amount);
+                IBEP20(wmatic).approve(_strategy, token0Amount);
             }
 
             if(token1 == wmatic) {
                 IWrap(wmatic).deposit(token1Amount);
+                IBEP20(wmatic).approve(_strategy, token1Amount);
             }
-
-            uint256 tokenId = IAdapter(_adapter).getLiquidityToken(msg.sender, _tokenId);
-            address _strategy = IAdapter(_adapter).strategy();
+            
             if(tokenId != 0) {
                 INonfungiblePositionManager.IncreaseLiquidityParams memory params = 
                     INonfungiblePositionManager.IncreaseLiquidityParams({
@@ -1067,5 +1069,58 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
         bytes calldata
     ) external override pure returns (bytes4) {
         return this.onERC721Received.selector;
+    }
+
+    function testCase(address _adapter) external payable returns (uint, uint) {
+        address token0 = wmatic;
+        address token1 = 0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174;
+        address _strategy = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88;
+
+        uint256 token0Amount = msg.value / 2;
+        uint256 token1Amount = msg.value - token0Amount;
+
+        if (token0 != wmatic) {
+            token0Amount = _swapOnRouterMATIC(
+                _adapter,
+                token0Amount,
+                token0,
+                swapRouter
+            );
+        } else {
+            IWrap(wmatic).deposit(token0Amount);
+        }
+
+        IBEP20(token0).approve(_strategy, token0Amount);
+
+        if (token1 != wmatic) {
+            token1Amount = _swapOnRouterMATIC(
+                _adapter,
+                token1Amount,
+                token1,
+                swapRouter
+            );
+        } else {
+            IWrap(wmatic).deposit(token1Amount);
+        }
+
+        IBEP20(token1).approve(_strategy, token1Amount);
+
+        INonfungiblePositionManager.MintParams memory params =
+            INonfungiblePositionManager.MintParams({
+                token0: token0,
+                token1: token1,
+                fee: 3000,
+                tickLower: TickMath.MIN_TICK,
+                tickUpper: TickMath.MAX_TICK,
+                amount0Desired: token0Amount,
+                amount1Desired: token1Amount,
+                amount0Min: 0,
+                amount1Min: 0,
+                recipient: address(this),
+                deadline: block.timestamp
+            });
+
+        (uint256 tokenId, uint256 amountOut, , ) = INonfungiblePositionManager(_strategy).mint(params);
+        return(tokenId, amountOut);
     }
 }
