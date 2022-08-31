@@ -2,6 +2,7 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
+import '@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol';
 import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
 import "./libraries/SafeBEP20.sol";
 import "./libraries/Ownable.sol";
@@ -14,7 +15,7 @@ import "./interfaces/IAdapterManager.sol";
 import "./interfaces/IPancakePair.sol";
 import "./interfaces/IPancakeRouter.sol";
 
-contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
+contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
     using SafeBEP20 for IBEP20;
 
     struct UserAdapterInfo {
@@ -1058,4 +1059,13 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
     }
 
     receive() external payable {}
+
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external override pure returns (bytes4) {
+        return this.onERC721Received.selector;
+    }
 }
