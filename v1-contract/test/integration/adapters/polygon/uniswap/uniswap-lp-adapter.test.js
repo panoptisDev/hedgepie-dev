@@ -16,7 +16,7 @@ const forkNetwork = async () => {
   })
 }
 
-describe("QuickLPFarmAdapter Integration Test", function () {
+describe.only("UniswapLPAdapter Integration Test", function () {
   before("Deploy contract", async function () {
     await forkNetwork();
 
@@ -24,9 +24,8 @@ describe("QuickLPFarmAdapter Integration Test", function () {
 
     const performanceFee = 50;
     const wmatic = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
-    const strategy = "0x1098d71eCD0233929DA8a10579E96cBbbe78f7C2"; // USDC-ASTRAFER LP Farm
-    const stakingToken = "0x01eBD3e57f4af47B7E96240e2B7B2227C902614A"; // USDC-ASTRAFER LP
-    const rewardToken = "0x831753DD7087CaC61aB5644b308642cc1c33Dc13"; // Quick token
+    const strategy = "0xC36442b4a4522E871399CD717aBDD847Ab11FE88"; // NonfungiblePositionManager
+    const stakingToken = "0x45dDa9cb7c25131DF268515131f647d726f50608"; // USDC-WETH Uniswap v3 pool
     const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
 
     this.owner = owner;
@@ -39,13 +38,12 @@ describe("QuickLPFarmAdapter Integration Test", function () {
     this.tomAddr = tom.address;
 
     // Deploy Quick LPFarm Adapter contract
-    const QuickAdapter = await ethers.getContractFactory("QuickLPFarmAdapter");
+    const QuickAdapter = await ethers.getContractFactory("UniswapLPAdapter");
     this.aAdapter = await QuickAdapter.deploy(
       strategy,
       stakingToken,
-      rewardToken,
       swapRouter,
-      "Quickswap::USDC-ASTRAFER::LP-Farm"
+      "Uniswap::USDC-WMATIC::LPAdapter"
     );
     await this.aAdapter.deployed();
 
@@ -85,19 +83,13 @@ describe("QuickLPFarmAdapter Integration Test", function () {
     await this.aAdapter.setInvestor(this.investor.address);
     
     const USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
-    const ASTRAFER = "0xDfCe1e99A31C4597a3f8A8945cBfa9037655e335";
     await this.aAdapter.setPath(wmatic, USDC, [wmatic, USDC]);
     await this.aAdapter.setPath(USDC, wmatic, [USDC, wmatic]);
-    await this.aAdapter.setPath(wmatic, ASTRAFER, [wmatic, ASTRAFER]);
-    await this.aAdapter.setPath(ASTRAFER, wmatic, [ASTRAFER, wmatic]);
-
-    await this.aAdapter.setPath(wmatic, rewardToken, [wmatic, rewardToken]);
-    await this.aAdapter.setPath(rewardToken, wmatic, [rewardToken, wmatic]);
 
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
     console.log("Strategy: ", strategy);
-    console.log("QuickLPFarmAdapter: ", this.aAdapter.address);
+    console.log("UniswapLPAdapter: ", this.aAdapter.address);
   });
 
   describe("depositMATIC function test", function () {

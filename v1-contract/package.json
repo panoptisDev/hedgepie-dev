@@ -42,6 +42,7 @@
     "@types/chai": "^4.3.0",
     "@types/mocha": "^9.1.0",
     "@types/node": "^17.0.21",
+    "@uniswap/v3-periphery": "Uniswap/v3-periphery#0.8",
     "dotenv-extended": "^2.9.0",
     "fs": "^0.0.1-security",
     "hardhat-contract-sizer": "^2.4.0",
