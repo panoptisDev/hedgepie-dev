@@ -28,7 +28,7 @@ const PerformanceFee = () => {
     >
       <Box
         sx={{
-          fontSize: 16,
+          fontSize: 24,
           fontWeight: 700,
           color: '#1380B9',
           [`@media screen and (min-width: 500px)`]: {
@@ -52,7 +52,7 @@ const PerformanceFee = () => {
       </Box>
       <Box
         sx={{
-          fontSize: 12,
+          fontSize: 16,
           mt: 22,
           color: '#8E8DA0',
           [`@media screen and (min-width: 500px)`]: {

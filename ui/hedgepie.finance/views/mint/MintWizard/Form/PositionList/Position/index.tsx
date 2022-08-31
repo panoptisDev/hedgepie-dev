@@ -84,13 +84,9 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
     <Box
       sx={{
         display: 'flex',
-        flexDirection: 'column',
+        flexDirection: ['column', 'row'],
         gap: 1,
         position: 'relative',
-        [`@media screen and (min-width: 900px)`]: {
-          flexDirection: 'row',
-          gap: 0,
-        },
       }}
     >
       <Box sx={{ flex: '1 1 0' }}>
@@ -112,16 +108,13 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
             // paddingLeft: 16,
             marginLeft: 15,
             paddingRight: 16,
-            [`@media screen and (min-width: 900px)`]: {
-              paddingLeft: 10,
-            },
           }}
         >
           <Box
             as="label"
             sx={{
               flex: 1,
-              fontSize: 20,
+              fontSize: 30,
               fontWeight: 700,
               color: data.locked ? '#ccc' : '#0A3F5C',
               display: 'flex',
@@ -207,9 +200,7 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
               color: '#8E8DA0',
               flexShrink: 0,
               margin: '0 8px 0 32px',
-              [`@media screen and (min-width: 600px)`]: {
-                margin: '0 8px',
-              },
+
               ':hover': {
                 cursor: 'pointer',
                 backgroundColor: '#ccc',
