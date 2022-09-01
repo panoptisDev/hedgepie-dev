@@ -10,6 +10,11 @@ if (!process.env.MAINNET_PRIVKEY) throw new Error("MAINNET_PRIVKEY missing from 
 module.exports = {
   defaultNetwork: "hardhat",
   networks: {
+    tenderly: {
+      // chainId: 137,
+      url: 'https://rpc.tenderly.co/fork/cf31c868-5307-4849-86c5-f1ef74df8d6f',
+      allowUnlimitedContractSize: true,
+    },
     hardhat: {
       allowUnlimitedContractSize: true,
       forking: {
@@ -66,18 +71,6 @@ module.exports = {
   },
   solidity: {
     compilers: [
-      {
-        version: "0.7.5",
-      },
-      {
-        version: "0.6.12",
-        settings: {
-          optimizer: {
-            enabled: true,
-            runs: 200,
-          },
-        },
-      },
       {
         version: "0.8.4",
         settings: {

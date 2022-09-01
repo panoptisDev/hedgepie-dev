@@ -6,7 +6,6 @@ import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
 import "./libraries/SafeBEP20.sol";
 import "./libraries/Ownable.sol";
-import "./libraries/TickMath.sol";
 
 import "./interfaces/IYBNFT.sol";
 import "./interfaces/IAdapter.sol";
@@ -257,9 +256,9 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                     // swap
                     amountOut += _swapforMATIC(
                         adapter.addr,
-                        balanceDiff,
                         adapter.token,
-                        swapRouter
+                        swapRouter,
+                        balanceDiff
                     );
                 }
             } else {
@@ -304,9 +303,9 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                     if (rewards != 0) {
                         amountOut += _swapforMATIC(
                             adapter.addr,
-                            rewards - taxAmount,
                             IAdapter(adapter.addr).rewardToken(),
-                            swapRouter
+                            swapRouter,
+                            rewards - taxAmount
                         );
                     }
 
@@ -327,9 +326,9 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                         if (rewards != 0) {
                             amountOut += _swapforMATIC(
                                 adapter.addr,
-                                rewards1 - taxAmount,
                                 IAdapter(adapter.addr).rewardToken1(),
-                                swapRouter
+                                swapRouter,
+                                rewards1 - taxAmount
                             );
                         }
                     }
@@ -390,18 +389,18 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
             if (rewards != 0) {
                 amountOut += _swapforMATIC(
                     adapter.addr,
-                    rewards,
                     IAdapter(adapter.addr).rewardToken(),
-                    swapRouter
+                    swapRouter,
+                    rewards
                 );
             }
 
             if (rewards1 != 0) {
                 amountOut += _swapforMATIC(
                     adapter.addr,
-                    rewards1,
                     IAdapter(adapter.addr).rewardToken1(),
-                    swapRouter
+                    swapRouter,
+                    rewards1
                 );
             }
         }
@@ -700,14 +699,14 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
      */
     function _swapforMATIC(
         address _adapter,
-        uint256 _amountIn,
         address _inToken,
-        address _router
+        address _router,
+        uint256 _amountIn
     ) internal returns (uint256 amountOut) {
         address[] memory path = _getPaths(_adapter, _inToken, wmatic);
         uint256 beforeBalance = address(this).balance;
 
-        IBEP20(_inToken).approve(address(_router), _amountIn);
+        IBEP20(_inToken).approve(_router, _amountIn);
 
         IPancakeRouter(_router)
             .swapExactTokensForETHSupportingFeeOnTransferTokens(
@@ -737,42 +736,42 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
         uint256 _amountIn,
         uint256 _tokenId
     ) internal returns (uint256 amountOut) {
-        address token0 = IPancakePair(_pairToken).token0();
-        address token1 = IPancakePair(_pairToken).token1();
+        address[2] memory tokens;
+        tokens[0] = IPancakePair(_pairToken).token0();
+        tokens[1] = IPancakePair(_pairToken).token1();
+        bool noDeposit = IAdapter(_adapter).noDeposit();
+        address _strategy = noDeposit ? IAdapter(_adapter).strategy() : _router;
 
         uint256 token0Amount = _amountIn / 2;
         uint256 token1Amount = _amountIn / 2;
-        if (token0 != wmatic) {
+        if (tokens[0] != wmatic) {
             token0Amount = _swapOnRouterMATIC(
                 _adapter,
                 token0Amount,
-                token0,
+                tokens[0],
                 _router
             );
-            IBEP20(token0).approve(_router, token0Amount);
+            IBEP20(tokens[0]).approve(_strategy, token0Amount);
         }
 
-        if (token1 != wmatic) {
+        if (tokens[1] != wmatic) {
             token1Amount = _swapOnRouterMATIC(
                 _adapter,
                 token1Amount,
-                token1,
+                tokens[1],
                 _router
             );
-            IBEP20(token1).approve(_router, token1Amount);
+            IBEP20(tokens[1]).approve(_strategy, token1Amount);
         }
 
-        if(IAdapter(_adapter).noDeposit()) {
-            address _strategy = IAdapter(_adapter).strategy();
+        if(noDeposit) {
             uint256 tokenId = IAdapter(_adapter).getLiquidityToken(msg.sender, _tokenId);
 
             // wrap to wmatic
-            if(token0 == wmatic) {
+            if(tokens[0] == wmatic) {
                 IWrap(wmatic).deposit(token0Amount);
                 IBEP20(wmatic).approve(_strategy, token0Amount);
-            }
-
-            if(token1 == wmatic) {
+            } else if(tokens[0] == wmatic) {
                 IWrap(wmatic).deposit(token1Amount);
                 IBEP20(wmatic).approve(_strategy, token1Amount);
             }
@@ -790,13 +789,14 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
 
                 (amountOut, , ) = INonfungiblePositionManager(_strategy).increaseLiquidity(params);
             } else {
+                (int24 minTick, int24 maxTick) = IAdapter(_adapter).getTick();
                 INonfungiblePositionManager.MintParams memory params =
                     INonfungiblePositionManager.MintParams({
-                        token0: token0,
-                        token1: token1,
-                        fee: 3000,
-                        tickLower: TickMath.MIN_TICK,
-                        tickUpper: TickMath.MAX_TICK,
+                        token0: tokens[0],
+                        token1: tokens[1],
+                        fee: IPancakePair(_pairToken).fee(),
+                        tickLower: minTick,
+                        tickUpper: maxTick,
                         amount0Desired: token0Amount,
                         amount1Desired: token1Amount,
                         amount0Min: 0,
@@ -810,12 +810,12 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
             }
         } else {
             if (token0Amount != 0 && token1Amount != 0) {
-                if (token0 == wmatic || token1 == wmatic) {
+                if (tokens[0] == wmatic || tokens[1] == wmatic) {
                     (, , amountOut) = IPancakeRouter(_router).addLiquidityETH{
-                        value: token0 == wmatic ? token0Amount : token1Amount
+                        value: tokens[0] == wmatic ? token0Amount : token1Amount
                     }(
-                        token0 == wmatic ? token1 : token0,
-                        token0 == wmatic ? token1Amount : token0Amount,
+                        tokens[0] == wmatic ? tokens[1] : tokens[0],
+                        tokens[0] == wmatic ? token1Amount : token0Amount,
                         0,
                         0,
                         address(this),
@@ -823,8 +823,8 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                     );
                 } else {
                     (, , amountOut) = IPancakeRouter(_router).addLiquidity(
-                        token0,
-                        token1,
+                        tokens[0],
+                        tokens[1],
                         token0Amount,
                         token1Amount,
                         0,
@@ -867,20 +867,24 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                     amount1Min: 0,
                     deadline: block.timestamp + 2 hours
                 });
-
             (uint256 amount0, uint256 amount1) = INonfungiblePositionManager(IAdapter(_adapter).strategy()).decreaseLiquidity(params);
-            if(token0 == wmatic) {
-                IWrap(token0).withdraw(amount0);
-                amountOut += amount0;
-            } else {
-                amountOut += _swapforMATIC(_adapter, amount0, token0, _router);
+
+            if(amountOut != 0) {
+                if(token0 == wmatic) {
+                    IWrap(token0).withdraw(amount0);
+                    amountOut += amount0;
+                } else {
+                    amountOut += _swapforMATIC(_adapter, token0, _router, amount0);
+                }
             }
 
-            if(token1 == wmatic) {
-                IWrap(token1).withdraw(amount1);
-                amountOut += amount1;
-            } else {
-                amountOut += _swapforMATIC(_adapter, amount1, token1, _router);
+            if(amount1 != 0) {
+                if(token1 == wmatic) {
+                    IWrap(token1).withdraw(amount1);
+                    amountOut += amount1;
+                } else {
+                    // amountOut += _swapforMATIC(_adapter, token1, _router, amount1);
+                }
             }
         } else {
             IBEP20(_pairToken).approve(_router, _amountIn);
@@ -898,7 +902,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                     );
 
                 amountOut = amountETH;
-                amountOut += _swapforMATIC(_adapter, amountToken, tokenAddr, _router);
+                amountOut += _swapforMATIC(_adapter, tokenAddr, _router, amountToken);
             } else {
                 (uint256 amountA, uint256 amountB) = IPancakeRouter(_router)
                     .removeLiquidity(
@@ -911,8 +915,8 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                         block.timestamp + 2 hours
                     );
 
-                amountOut += _swapforMATIC(_adapter, amountA, token0, _router);
-                amountOut += _swapforMATIC(_adapter, amountB, token1, _router);
+                amountOut += _swapforMATIC(_adapter, token0, _router, amountA);
+                amountOut += _swapforMATIC(_adapter, token1, _router, amountB);
             }
         }
     }
@@ -1071,9 +1075,10 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
         return this.onERC721Received.selector;
     }
 
-    function testCase(address _adapter) external payable returns (uint, uint) {
-        address token0 = wmatic;
-        address token1 = 0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174;
+    // function testCase(address _adapter, address _pairToken) external payable returns (INonfungiblePositionManager.MintParams memory) {
+    function testCase(address _adapter, address _pairToken) external payable returns (uint, uint) {
+        address token0 = IPancakePair(_pairToken).token0();
+        address token1 = IPancakePair(_pairToken).token1();
         address _strategy = 0xC36442b4a4522E871399CD717aBDD847Ab11FE88;
 
         uint256 token0Amount = msg.value / 2;
@@ -1104,21 +1109,24 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
         }
 
         IBEP20(token1).approve(_strategy, token1Amount);
+        (int24 minTick, int24 maxTick) = IAdapter(_adapter).getTick();
 
         INonfungiblePositionManager.MintParams memory params =
             INonfungiblePositionManager.MintParams({
                 token0: token0,
                 token1: token1,
-                fee: 3000,
-                tickLower: TickMath.MIN_TICK,
-                tickUpper: TickMath.MAX_TICK,
+                fee: IPancakePair(_pairToken).fee(),
+                tickLower: minTick,
+                tickUpper: maxTick,
                 amount0Desired: token0Amount,
                 amount1Desired: token1Amount,
                 amount0Min: 0,
                 amount1Min: 0,
                 recipient: address(this),
-                deadline: block.timestamp
+                deadline: block.timestamp + 2 hours
             });
+
+        // return params;
 
         (uint256 tokenId, uint256 amountOut, , ) = INonfungiblePositionManager(_strategy).mint(params);
         return(tokenId, amountOut);

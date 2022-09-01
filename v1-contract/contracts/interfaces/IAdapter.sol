@@ -59,6 +59,8 @@ interface IAdapter {
 
     function router() external view returns (address);
 
+    function getTick() external view returns (int24, int24);
+
     function getAdapterStrategy(uint256 _adapter)
         external
         view
