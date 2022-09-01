@@ -251,6 +251,14 @@ export const styles = {
       margin: '0 8px',
     },
   },
+  vault_action_container_desktop: {
+    backgroundColor: '#FD5298',
+    borderRadius: 8,
+    display: 'flex',
+    gap:'15px',
+    flexDirection:'column',
+    alignItems: 'center',
+  },
   vault_action_input: {
     backgroundColor:'#fff',
     boxShadow: 'none',
@@ -261,14 +269,6 @@ export const styles = {
     fontWeight: 600,
     color: '#3B3969',
     padding: "0.5rem 1rem 0.5rem 1rem",
-  },
-  vault_action_container_desktop: {
-    backgroundColor: '#FD5298',
-    borderRadius: 8,
-    display: 'flex',
-    gap:'15px',
-    flexDirection:'column',
-    alignItems: 'center',
   },
   vault_action_button_container_desktop: {
     display: 'none',
@@ -312,11 +312,11 @@ export const styles = {
     [`@media screen and (min-width: 600px)`]: {
       width: 62,
       height: 62,
+      flexShrink: 0,
       display: 'flex',
       alignItems: 'center',
       justifyContent: 'center',
       backgroundColor: '#fff',
-      flexShrink: 0,
       borderRadius: '50%',
     },
   },
