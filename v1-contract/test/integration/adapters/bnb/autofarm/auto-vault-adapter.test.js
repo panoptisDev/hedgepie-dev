@@ -64,19 +64,18 @@ describe("AutoVaultAdapter Integration Test", function () {
     this.ybNft = await ybNftFactory.deploy();
     console.log("YBNFT: ", this.ybNft.address);
 
+    const Lib = await ethers.getContractFactory("HedgepieLibrary");
+    const lib = await Lib.deploy();
+
     // Deploy Investor contract
-    const investorFactory = await ethers.getContractFactory("HedgepieInvestor");
-    this.investor = await investorFactory.deploy(
-      this.ybNft.address,
-      this.swapRouter,
-      this.wbnb
-    );
+    const investorFactory = await ethers.getContractFactory("HedgepieInvestor", {
+      libraries: { HedgepieLibrary: lib.address },
+    });
+    this.investor = await investorFactory.deploy(this.ybNft.address, this.swapRouter, this.wbnb);
     console.log("Investor: ", this.investor.address);
 
     // Deploy Adaptor Manager contract
-    const adapterManager = await ethers.getContractFactory(
-      "HedgepieAdapterManager"
-    );
+    const adapterManager = await ethers.getContractFactory("HedgepieAdapterManager");
     this.adapterManager = await adapterManager.deploy();
     console.log("AdapterManager: ", this.adapterManager.address);
 
@@ -85,22 +84,10 @@ describe("AutoVaultAdapter Integration Test", function () {
 
     // Mint NFTs
     // tokenID: 1
-    await this.ybNft.mint(
-      [10000],
-      [this.stakingToken],
-      [this.aAdapter.address],
-      performanceFee,
-      "test tokenURI1"
-    );
+    await this.ybNft.mint([10000], [this.stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI1");
 
     // tokenID: 2
-    await this.ybNft.mint(
-      [10000],
-      [this.stakingToken],
-      [this.aAdapter.address],
-      performanceFee,
-      "test tokenURI2"
-    );
+    await this.ybNft.mint([10000], [this.stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI2");
 
     // Add Venus Adapter to AdapterManager
     await this.adapterManager.addAdapter(this.aAdapter.address);
@@ -115,15 +102,9 @@ describe("AutoVaultAdapter Integration Test", function () {
     await this.aAdapter.setInvestor(this.investor.address);
 
     // this.whaleWallet = await unlockAccount(whaleAddr);
-    this.lpContract = await ethers.getContractAt(
-      "VBep20Interface",
-      this.stakingToken
-    );
+    this.lpContract = await ethers.getContractAt("VBep20Interface", this.stakingToken);
 
-    this.ctVStrategy = await ethers.getContractAt(
-      "IVaultStrategy",
-      this.vStrategy
-    );
+    this.ctVStrategy = await ethers.getContractAt("IVaultStrategy", this.vStrategy);
 
     this.aAdapter.setPath(this.cake, this.wbnb, [this.cake, this.wbnb]);
     this.aAdapter.setPath(this.wbnb, this.cake, [this.wbnb, this.cake]);
@@ -134,12 +115,10 @@ describe("AutoVaultAdapter Integration Test", function () {
       // deposit to nftID: 3
       const depositAmount = ethers.utils.parseEther("1");
       await expect(
-        this.investor
-          .connect(this.owner)
-          .depositBNB(this.owner.address, 3, depositAmount.toString(), {
-            gasPrice: 21e9,
-            value: depositAmount,
-          })
+        this.investor.connect(this.owner).depositBNB(this.owner.address, 3, depositAmount.toString(), {
+          gasPrice: 21e9,
+          value: depositAmount,
+        })
       ).to.be.revertedWith("Error: nft tokenId is invalid");
     });
 
@@ -147,29 +126,18 @@ describe("AutoVaultAdapter Integration Test", function () {
       // deposit to nftID: 1
       const depositAmount = ethers.utils.parseEther("0");
       await expect(
-        this.investor.depositBNB(
-          this.owner.address,
-          1,
-          depositAmount.toString(),
-          { gasPrice: 21e9 }
-        )
+        this.investor.depositBNB(this.owner.address, 1, depositAmount.toString(), { gasPrice: 21e9 })
       ).to.be.revertedWith("Error: Amount can not be 0");
     });
 
     it("(3) deposit should success", async function () {
       const depositAmount = ethers.utils.parseEther("10");
-      await this.investor
-        .connect(this.alice)
-        .depositBNB(this.alice.address, 1, depositAmount, {
-          gasPrice: 21e9,
-          value: depositAmount,
-        });
+      await this.investor.connect(this.alice).depositBNB(this.alice.address, 1, depositAmount, {
+        gasPrice: 21e9,
+        value: depositAmount,
+      });
 
-      const userInfo = await this.investor.userInfo(
-        this.alice.address,
-        this.ybNft.address,
-        1
-      );
+      const userInfo = await this.investor.userInfo(this.alice.address, this.ybNft.address, 1);
 
       expect(Number(userInfo) / Math.pow(10, 18)).to.eq(10);
     });
@@ -178,40 +146,26 @@ describe("AutoVaultAdapter Integration Test", function () {
   describe("withdrawBNB() function test", function () {
     it("(1) should be reverted when nft tokenId is invalid", async function () {
       // withdraw to nftID: 3
-      await expect(
-        this.investor.withdrawBNB(this.owner.address, 3, { gasPrice: 21e9 })
-      ).to.be.revertedWith("Error: nft tokenId is invalid");
+      await expect(this.investor.withdrawBNB(this.owner.address, 3, { gasPrice: 21e9 })).to.be.revertedWith(
+        "Error: nft tokenId is invalid"
+      );
     });
 
     it("(2) should receive the BNB successfully after withdraw function", async function () {
       // withdraw from nftId: 1
 
-      await doubleWantLockedTotal(
-        this.vStrategy,
-        "0xe",
-        await this.ctVStrategy.wantLockedTotal()
-      );
+      await doubleWantLockedTotal(this.vStrategy, "0xe", await this.ctVStrategy.wantLockedTotal());
 
       const aliceAddr = this.alice.address;
       const beforeBNB = await ethers.provider.getBalance(aliceAddr);
 
-      await this.investor
-        .connect(this.alice)
-        .withdrawBNB(aliceAddr, 1, { gasPrice: 21e9 });
+      await this.investor.connect(this.alice).withdrawBNB(aliceAddr, 1, { gasPrice: 21e9 });
 
       const afterBNB = await ethers.provider.getBalance(aliceAddr);
 
-      expect(
-        BigNumber.from(afterBNB).gt(
-          BigNumber.from(beforeBNB).add(BigNumber.from(10).pow(18))
-        )
-      ).to.eq(true);
+      expect(BigNumber.from(afterBNB).gt(BigNumber.from(beforeBNB).add(BigNumber.from(10).pow(18)))).to.eq(true);
 
-      const userInfo = await this.investor.userInfo(
-        aliceAddr,
-        this.ybNft.address,
-        1
-      );
+      const userInfo = await this.investor.userInfo(aliceAddr, this.ybNft.address, 1);
 
       expect(Number(userInfo) / Math.pow(10, 18)).to.eq(0);
     });
