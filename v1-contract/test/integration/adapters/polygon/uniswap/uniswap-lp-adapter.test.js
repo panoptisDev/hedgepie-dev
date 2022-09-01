@@ -24,6 +24,7 @@ describe("UniswapLPAdapter Integration Test", function () {
 
         const performanceFee = 50;
         const wmatic = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
+        const USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
         const strategy = "0xC36442b4a4522E871399CD717aBDD847Ab11FE88"; // NonfungiblePositionManager
         const stakingToken = "0xA374094527e1673A86dE625aa59517c5dE346d32"; // USDC-WMATIC Uniswap v3 pool
         const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
@@ -40,9 +41,9 @@ describe("UniswapLPAdapter Integration Test", function () {
         this.lower = -500000;
         this.upper = -300000;
 
-        // Deploy Quick LPFarm Adapter contract
-        const QuickAdapter = await ethers.getContractFactory("UniswapLPAdapter");
-        this.aAdapter = await QuickAdapter.deploy(
+        // Deploy Uniswap LP Adapter contract
+        const uniswapV3LpAdapter = await ethers.getContractFactory("UniswapLPAdapter");
+        this.aAdapter = await uniswapV3LpAdapter.deploy(
             strategy,
             stakingToken,
             swapRouter,
@@ -90,7 +91,6 @@ describe("UniswapLPAdapter Integration Test", function () {
         // Set investor in vAdapter
         await this.aAdapter.setInvestor(this.investor.address);
         
-        const USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
         await this.aAdapter.setPath(wmatic, USDC, [wmatic, USDC]);
         await this.aAdapter.setPath(USDC, wmatic, [USDC, wmatic]);
 
@@ -131,26 +131,6 @@ describe("UniswapLPAdapter Integration Test", function () {
         )
       ).to.be.revertedWith("Error: Amount can not be 0");
     });
-
-    // it("test case here", async function() {
-    //     const reqObj = {
-    //       token0: '0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270',
-    //       token1: '0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174',
-    //       fee: 500,
-    //       tickLower: this.lower,
-    //       tickUpper: this.upper,
-    //       amount0Desired: ethers.utils.parseUnits('100'),
-    //       amount1Desired: ethers.utils.parseUnits('80', 6),
-    //       amount0Min: 0,
-    //       amount1Min: 0,
-    //       recipient: this.investor.address,
-    //       deadline: '0x63105858'
-    //     };
-
-    //     console.log(await this.testInvestor.testFunc(reqObj));
-
-    //     console.log(await this.investor.connect(this.alice).testCase(this.aAdapter.address, "0xA374094527e1673A86dE625aa59517c5dE346d32", {value: ethers.utils.parseEther('100')}));
-    // });
 
     it("(3)deposit should success for Alice", async function () {
       const depositAmount = ethers.utils.parseEther("100");
