@@ -16,7 +16,7 @@ const forkNetwork = async () => {
   })
 }
 
-describe.only("UniswapLPAdapter Integration Test", function () {
+describe("UniswapLPAdapter Integration Test", function () {
     before("Deploy contract", async function () {
         await forkNetwork();
 
