@@ -10,7 +10,7 @@ const Head = () => {
         gap: 1,
         [`@media screen and (min-width: 900px)`]: {
           flexDirection: 'row',
-          gap: 24,
+          gap: 10,
         },
       }}
     >

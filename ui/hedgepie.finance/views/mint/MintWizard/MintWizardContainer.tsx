@@ -25,10 +25,10 @@ const MintWizard = () => {
           display: 'flex',
           alignItems: 'center',
           justifyContent: 'center',
-          height: 0,
           padding: '0 10px',
           fontSize: 16,
           backgroundColor: '#14114B',
+          height: 0,
           color: '#fff',
           borderRadius: 14,
           [`@media screen and (min-width: 800px)`]: {

@@ -34,17 +34,17 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
     }
   }, [chainId])
 
-  const handleProtocolSelect = (composition) => {
-    onUpdate({
-      ...data,
-      composition,
-    })
-  }
-
   const handlePoolSelect = (pool) => {
     onUpdate({
       ...data,
       pool,
+    })
+  }
+
+  const handleProtocolSelect = (composition) => {
+    onUpdate({
+      ...data,
+      composition,
     })
   }
 
@@ -57,13 +57,6 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
       })
     }
   }
-
-  useEffect(() => {
-    console.log(data)
-    let value = (data.weight * formData.initialStake) / 100
-    value > 0 && setBNBValue(value.toFixed(3))
-    value == 0 && setBNBValue('')
-  }, [data])
 
   // useEffect(() => {
   //   console.log('bnbValue' + bnbValue)
@@ -79,6 +72,13 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
     const newValue = 100 - otherWeights
     onUpdate({ ...data, weight: newValue.toString() })
   }
+
+  useEffect(() => {
+    console.log(data)
+    let value = (data.weight * formData.initialStake) / 100
+    value > 0 && setBNBValue(value.toFixed(3))
+    value == 0 && setBNBValue('')
+  }, [data])
 
   return (
     <Box
@@ -106,11 +106,11 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
             display: 'flex',
             alignItems: 'center',
             backgroundColor: '#fff',
-            height: 62,
             width: 'max-content',
             borderRadius: 8,
-            // paddingLeft: 16,
+            paddingLeft: 16,
             marginLeft: 15,
+            height: 62,
             paddingRight: 16,
             [`@media screen and (min-width: 900px)`]: {
               paddingLeft: 10,

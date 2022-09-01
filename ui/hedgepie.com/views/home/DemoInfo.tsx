@@ -15,7 +15,7 @@ const DemoInfo = () => {
           'linear-gradient(18deg, #1799DE 0%, rgba(25, 158, 230, 0.15) 14.56%, rgba(223, 72, 134, 0.15) 82.61%)',
         backdropFilter: 'blur(200px)',
         paddingTop: '50px',
-        paddingBottom: '50px',
+        paddingBottom: '10px',
         boxShadow: ' 0px -4px 3px rgba(223, 72, 134, 0.15)',
       }}
     >
@@ -46,7 +46,9 @@ const DemoInfo = () => {
               sx={{
                 display: 'flex',
                 justifyContent: 'center',
-                width: 500,
+                alignItems: 'center',
+                width: ['100%', '100%', 500],
+                paddingBottom: '10px',
                 height: 500,
               }}
             >
@@ -57,7 +59,7 @@ const DemoInfo = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
-                width: '20rem',
+                width: ['100%', '100%', '20rem'],
               }}
             >
               <Box
@@ -104,8 +106,8 @@ const DemoInfo = () => {
             </Box>
           </Box>
           <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', marginTop: '100px' }}>
-            <Image src="/images/coinsfalling.svg" sx={{ marginLeft: '-1000px', width: '400px' }} />
-            <Image src="/images/nftcard.svg" sx={{ position: 'absolute' }} />
+            {/* <Image src="/images/coinsfalling.svg" sx={{ marginLeft: '-1000px', width: '400px' }} /> */}
+            <Image src="/images/nftcard.svg" />
           </Box>
           <Box
             sx={{
@@ -116,7 +118,6 @@ const DemoInfo = () => {
                 flex: 1,
               },
               marginTop: '100px',
-              marginLeft: '100px',
             }}
           >
             <Box
@@ -124,7 +125,7 @@ const DemoInfo = () => {
                 display: 'flex',
                 flexDirection: 'column',
                 justifyContent: 'center',
-                width: '20rem',
+                width: ['100%', '100%', '20rem'],
               }}
             >
               <Box
@@ -173,7 +174,7 @@ const DemoInfo = () => {
               sx={{
                 display: 'flex',
                 justifyContent: 'center',
-                width: 500,
+                width: ['100%', '100%', 500],
                 height: 500,
               }}
             >

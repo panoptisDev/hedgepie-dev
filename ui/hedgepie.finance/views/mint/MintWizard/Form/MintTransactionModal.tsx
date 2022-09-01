@@ -106,6 +106,7 @@ const MintTransactionModal = ({ formData, onDismiss = () => null }) => {
       } else if (currentStep == 1) {
         await mintYBNFT(formData, cid)
       } else if (currentStep == 2) {
+        if (!formData.initialStake) return
         await stakeInitialAmount()
       }
       setLoading({ loading, currentStep: false })

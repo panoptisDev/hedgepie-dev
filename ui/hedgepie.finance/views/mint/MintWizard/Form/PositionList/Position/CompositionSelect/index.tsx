@@ -44,7 +44,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: 'row', gap: '0.6rem', marginRight: '3rem' }}>
+    <Box sx={{ display: 'flex', flexDirection: ['column', 'row'], gap: '0.6rem', marginRight: '3rem' }}>
       <Select
         instanceId={`composition-${1}`}
         classNamePrefix="select"
