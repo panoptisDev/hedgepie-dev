@@ -16,9 +16,9 @@ module.exports = {
   networks: {
     hardhat: {
       forking: {
-        // url: "https://rpc.ankr.com/bsc",
+        url: "https://rpc.ankr.com/bsc",
         // url: "https://bscrpc.com",
-        url: "https://bsc-dataseed1.binance.org/",
+        // url: "https://bsc-dataseed1.binance.org/",
         enabled: true,
         // blockNumber: 19717000,
       },
