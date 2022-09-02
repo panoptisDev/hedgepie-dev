@@ -58,8 +58,15 @@ describe("UniswapLPAdapter Integration Test", function () {
         this.ybNft = await ybNftFactory.deploy();
         await this.ybNft.deployed();
 
+        const Lib = await ethers.getContractFactory("HedgepieLibrary");
+        const lib = await Lib.deploy();
+
         // Deploy Investor contract
-        const investorFactory = await ethers.getContractFactory("HedgepieInvestorMatic");
+        const investorFactory = await ethers.getContractFactory("HedgepieInvestorMatic", {
+          libraries: {
+            HedgepieLibrary: lib.address,
+          }
+        });
         this.investor = await investorFactory.deploy(this.ybNft.address, swapRouter, wmatic);
         await this.investor.deployed();
 
@@ -93,10 +100,6 @@ describe("UniswapLPAdapter Integration Test", function () {
         
         await this.aAdapter.setPath(wmatic, USDC, [wmatic, USDC]);
         await this.aAdapter.setPath(USDC, wmatic, [USDC, wmatic]);
-
-        const TestInvestor = await ethers.getContractFactory("InvestorTest");
-        this.testInvestor = await TestInvestor.deploy();
-        await this.testInvestor.deployed();
 
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);

@@ -57,9 +57,17 @@ describe("QuickLPDualAdapter Integration Test", function () {
     const ybNftFactory = await ethers.getContractFactory("YBNFT");
     this.ybNft = await ybNftFactory.deploy();
 
+    const Lib = await ethers.getContractFactory("HedgepieLibrary");
+    const lib = await Lib.deploy();
+
     // Deploy Investor contract
-    const investorFactory = await ethers.getContractFactory("HedgepieInvestorMatic");
+    const investorFactory = await ethers.getContractFactory("HedgepieInvestorMatic", {
+      libraries: {
+        HedgepieLibrary: lib.address,
+      }
+    });
     this.investor = await investorFactory.deploy(this.ybNft.address, swapRouter, wmatic);
+    await this.investor.deployed();
 
     // Deploy Adaptor Manager contract
     const adapterManager = await ethers.getContractFactory("HedgepieAdapterManager");
