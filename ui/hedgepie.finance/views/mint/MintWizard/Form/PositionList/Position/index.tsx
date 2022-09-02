@@ -84,7 +84,7 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
     <Box
       sx={{
         display: 'flex',
-        flexDirection: ['column', 'row'],
+        flexDirection: ['column', 'column', 'row'],
         gap: 1,
         position: 'relative',
       }}
@@ -95,6 +95,8 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
       <Box
         sx={{
           flex: '1 1 0',
+          padding: [10, 10, 0],
+          marginLeft: [-25, -25, -10],
         }}
       >
         <Box
@@ -103,7 +105,7 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
             alignItems: 'center',
             backgroundColor: '#fff',
             height: 62,
-            width: 'max-content',
+            width: ['100%', 'max-content', 'max-content'],
             borderRadius: 8,
             // paddingLeft: 16,
             marginLeft: 15,
@@ -148,13 +150,15 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
                       padding: 0,
                       textAlign: 'right',
                       pr: 2,
-                      width: 65,
+                      width: 50,
+                      marginLeft: '10px',
                     }}
                     type="number"
                     min={0}
                     max={100}
                     value={data.weight}
                     onChange={handleChangeWeight}
+                    onWheel={(e) => e.currentTarget.blur()}
                   />
                 )}
                 <Box sx={{ height: 44 }}>%</Box>
@@ -213,7 +217,7 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
           <Button variant="icon" className="position-lock" onClick={handleLock}>
             <Image src="/images/icon-lock.png" />
           </Button>
-          <Button variant="icon" className="position-delete" onClick={onDelete}>
+          <Button variant="icon" className="position-delete" onClick={onDelete} sx={{ marginRight: [0, 38, 0] }}>
             <Image src="/images/icon-trash.png" />
           </Button>
         </Box>

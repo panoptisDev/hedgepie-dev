@@ -15,13 +15,12 @@ const FormPosition = () => {
       if (
         positionNames.filter(
           (p) =>
-            JSON.stringify(p) === JSON.stringify({ protocol: position.composition.name, pool: position.pool.name }),
+            JSON.stringify(p) === JSON.stringify({ protocol: position?.composition?.name, pool: position?.pool?.name }),
         ).length
       ) {
-        console.log('here')
         hasDuplicates = true
       } else {
-        positionNames.push({ protocol: position.composition.name, pool: position.pool.name })
+        positionNames.push({ protocol: position?.composition?.name, pool: position?.pool?.name })
       }
     })
     return hasDuplicates
@@ -39,8 +38,8 @@ const FormPosition = () => {
   }
 
   const handleNext = () => {
-    if (duplicatesInPositions(formData.positions) || ifTotalNotHundred(formData.positions)) {
-      toast('Make sure the total is 100% and there are no duplicates !!', 'warning')
+    if (formData.positions && (duplicatesInPositions(formData.positions) || ifTotalNotHundred(formData.positions))) {
+      toast('Make sure the total is 100% and There are no duplicates !!', 'warning')
       return
     }
     setWizard({

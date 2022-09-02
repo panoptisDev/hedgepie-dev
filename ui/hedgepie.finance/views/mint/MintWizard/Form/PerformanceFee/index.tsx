@@ -92,9 +92,10 @@ const PerformanceFee = () => {
             }}
             type="number"
             min={0}
-            max={99}
+            max={10}
             value={formData.performanceFee}
             onChange={handleChange}
+            onWheel={(e) => e.currentTarget.blur()}
           />
           %
         </Box>
