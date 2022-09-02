@@ -35,15 +35,15 @@ const CustomValue = (props) => {
           sx={{
             display: 'flex',
             alignItems: 'center',
+            width: 'max-content',
           }}
         >
           <Box
             sx={{
-              fontSize: 12,
+              fontSize: 20,
               fontWeight: 600,
               color: '#0A3F5C',
               ml: 1,
-              width: 'max-content',
               [`@media screen and (min-width: 500px)`]: {
                 fontSize: 20,
                 ml: 3,

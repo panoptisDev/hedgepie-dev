@@ -178,14 +178,14 @@ const ViewContents = (props: Props) => {
                           {description ? <Text sx={styles.nft_desc_text as ThemeUICSSObject}>{description}</Text> : ''}
                         </Flex>
                       </Flex>
-                      <Box sx={styles.flex_badges_row as ThemeUICSSObject}>
+                      {/* <Box sx={styles.flex_badges_row as ThemeUICSSObject}>
                         {badges.map((badge) => (
                           <Box sx={styles.flex_badge_container as ThemeUICSSObject}>
                             <Text sx={styles.badge_title_text as ThemeUICSSObject}>{badge.title}</Text>
                             <Text sx={styles.badge_value_text}>{badge.value}</Text>
                           </Box>
                         ))}
-                      </Box>
+                      </Box> */}
                     </Flex>
                     <Flex sx={styles.flex_owner_details_container as ThemeUICSSObject}>
                       {/* <Text sx={styles.owner_name_text as ThemeUICSSObject}>{owner.name}</Text> */}
@@ -233,7 +233,7 @@ const ViewContents = (props: Props) => {
                         }}
                       >
                         <ActionStake tokenId={tokenId} setStaked={setStaked} />
-                        <Yield tokenId={tokenId} />
+                        {/* <Yield tokenId={tokenId} /> */}
                       </Flex>
                     </Flex>
                   </Flex>

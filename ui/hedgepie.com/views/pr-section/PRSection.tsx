@@ -7,10 +7,10 @@ function PRSection() {
       <Box
         sx={{
           display: 'flex',
-          flexDirection: ['row', 'row', 'row'],
           gap: '3rem',
           justifyContent: 'center',
           alignItems: 'center',
+          flexDirection: ['row', 'row', 'row'],
           height: '100%',
         }}
       >

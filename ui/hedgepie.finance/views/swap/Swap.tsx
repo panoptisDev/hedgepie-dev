@@ -81,6 +81,7 @@ const Swap = (props: Props) => {
                       setSlippageTolerance(Number(e.target.value))
                     }}
                     sx={styles.slippage_tolerance_input as ThemeUICSSObject}
+                    onWheel={(e) => e.currentTarget.blur()}
                   />
                 </Flex>
               </Flex>

@@ -21,15 +21,22 @@ const SubmitMint = () => {
 
   const validateMintEntries = () => {
     const duplicatesInPositions = (positions) => {
-      let positionNames = [] as string[]
+      let positionNames = [] as any[]
+      let hasDuplicates = false
       positions.forEach((position) => {
-        if (positionNames.includes(position.name)) {
-          return true
+        if (
+          positionNames.filter(
+            (p) =>
+              JSON.stringify(p) === JSON.stringify({ protocol: position.composition.name, pool: position.pool.name }),
+          ).length
+        ) {
+          console.log('here')
+          hasDuplicates = true
         } else {
-          positionNames.push(position.name)
+          positionNames.push({ protocol: position.composition.name, pool: position.pool.name })
         }
       })
-      return false
+      return hasDuplicates
     }
 
     const ifTotalNotHundred = (positions) => {
@@ -75,7 +82,7 @@ const SubmitMint = () => {
           isValid = false
         } else {
           if (duplicatesInPositions(formData.positions)) {
-            toast('Only one position of each strategy allowed', 'warning')
+            toast('Only one position of each Protocol/Pool combination allowed', 'warning')
             isValid = false
           } else if (ifTotalNotHundred(formData.positions)) {
             toast('Total Weight of strategies should be 100%', 'warning')

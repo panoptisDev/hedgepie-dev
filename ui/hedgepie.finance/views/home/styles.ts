@@ -16,12 +16,7 @@ export const styles = {
     maxWidth: 1200,
     position: 'relative',
   },
-  banner_coins_image: {
-    position: 'absolute',
-    top: [300, 300, 250, -140],
-    right: [-40, 0, 40, 0],
-    width: [250, 250, 300, 450],
-  },
+
   banner_pie_image: {
     position: 'absolute',
     top: [400, 400, 350, 0],
@@ -42,13 +37,19 @@ export const styles = {
     color: '#0B4C6F',
     maxWidth: 665,
   },
+  banner_coins_image: {
+    position: 'absolute',
+    top: [300, 300, 250, -140],
+    right: [-40, 0, 40, 0],
+    width: [250, 250, 300, 450],
+  },
   banner_connect_wallet_wrapper: {
     borderRadius: 40,
-    height: 64,
-    padding: '0 24px',
     cursor: 'pointer',
     transition: 'all .2s',
     display: 'flex',
+    height: 64,
+    padding: '0 24px',
     alignItems: 'center',
   },
 }
