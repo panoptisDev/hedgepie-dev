@@ -83,6 +83,9 @@ const ViewContents = (props: Props) => {
         if (obj.name.toLowerCase().includes('autofarm')) {
           obj.image = 'images/autofarm.png'
         }
+        if (obj.name.toLowerCase().includes('biswap')) {
+          obj.image = 'images/biswap.png'
+        }
         mappings.push(obj)
       }
       setStrategies(mappings)

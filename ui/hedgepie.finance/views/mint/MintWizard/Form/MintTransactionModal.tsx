@@ -10,7 +10,7 @@ import { getBalanceInWei } from 'utils/formatBalance'
 
 const MintTransactionModal = ({ formData, onDismiss = () => null }) => {
   const { onYBNFTMint, getMaxTokenId } = useYBNFTMint()
-  const { onYBNFTDeposit } = useInvestor()
+  // const { onYBNFTDeposit } = useInvestor()
   const { setCloseOnOverlayClick } = useContext(Context)
 
   const steps = ['Uploading NFT Image and Metadata to IPFS', 'Minting YBNFT', 'Staking Initial Amount']
@@ -80,7 +80,7 @@ const MintTransactionModal = ({ formData, onDismiss = () => null }) => {
     if (amount == 0) return
     let txHash
     try {
-      txHash = await onYBNFTDeposit(await getMaxTokenId(), amount.toString())
+      // txHash = await onYBNFTDeposit(await getMaxTokenId(), amount.toString())
     } catch (err) {
       console.log(err)
       return false
@@ -106,8 +106,8 @@ const MintTransactionModal = ({ formData, onDismiss = () => null }) => {
       } else if (currentStep == 1) {
         await mintYBNFT(formData, cid)
       } else if (currentStep == 2) {
-        if (!formData.initialStake) return
-        await stakeInitialAmount()
+        // if (!formData.initialStake) return
+        // await stakeInitialAmount()
       }
       setLoading({ loading, currentStep: false })
       setCurrentStep(currentStep + 1)
