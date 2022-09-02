@@ -6,12 +6,8 @@ const Head = () => {
     <Box
       sx={{
         display: 'flex',
-        flexDirection: 'column',
+        flexDirection: ['column', 'column', 'row'],
         gap: 1,
-        [`@media screen and (min-width: 900px)`]: {
-          flexDirection: 'row',
-          gap: 10,
-        },
       }}
     >
       <Box sx={{ flex: '1 1 0' }}>
@@ -20,9 +16,6 @@ const Head = () => {
             fontSize: 24,
             fontWeight: 700,
             color: '#1380B9',
-            [`@media screen and (min-width: 500px)`]: {
-              fontSize: 24,
-            },
           }}
         >
           Composition
@@ -40,7 +33,7 @@ const Head = () => {
           Stake positions
         </Box>
       </Box>
-      <Box sx={{ flex: '1 1 0' }}>
+      <Box sx={{ flex: '1 1 0', marginLeft: [0, 0, '20px'] }}>
         <Box
           sx={{
             fontSize: 24,

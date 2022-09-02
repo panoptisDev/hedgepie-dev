@@ -9,13 +9,14 @@ import { LeaderBoard } from 'views/nft-leaderboard'
 
 import LeaderboardMain from 'views/nft-leaderboard/LeaderBoard'
 import PRSection from 'views/pr-section/PRSection'
+import { TitleMast } from 'components/TitleMast'
 
 const HomePage: NextPage = () => {
   return (
     <>
-      <PRSection />
-      <HedgePieFinance dark={false} overlayHeader={false}>
-        <Home />
+      <HedgePieFinance dark={true} overlayHeader={false}>
+        <TitleMast title="YBNFT Leaderboard" />
+        <LeaderBoard />
       </HedgePieFinance>
     </>
   )

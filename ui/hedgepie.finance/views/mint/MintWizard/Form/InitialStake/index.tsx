@@ -35,14 +35,16 @@ const InitialStake = () => {
   useEffect(() => {
     // Update the value in USD on change of
     if (formData.initialStake > 0) {
+      console.log(formData.initialStake + ' ' + tokenPrice)
       setFormData({
         ...formData,
         valueInUSD: Number(Number(Number(formData.initialStake) * tokenPrice).toFixed(4)),
       })
     }
-  }, [tokenPrice])
+  }, [tokenPrice, formData.initialStake])
 
   const handleChange = (e) => {
+    console.log('hihi' + tokenPrice)
     setFormData({
       ...formData,
       initialStake: e.target.value,
@@ -98,7 +100,10 @@ const InitialStake = () => {
         {/* TODO : Update this description */}
         As an owner, when you create an Yield Bearing NFT, you can stake BNB into it.
       </Box>
-      <Box mt={36} sx={{ display: 'flex', alignItems: 'center', gap: '0.5rem' }}>
+      <Box
+        mt={36}
+        sx={{ display: 'flex', flexDirection: ['column', 'column', 'row'], alignItems: 'center', gap: '0.5rem' }}
+      >
         <Box
           sx={{
             width: '100%',

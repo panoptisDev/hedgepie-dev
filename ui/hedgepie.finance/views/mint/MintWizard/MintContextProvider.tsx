@@ -20,7 +20,7 @@ const MintContextProvider = ({ children }) => {
   const { account, chainId } = useWeb3React()
   const [formData, setFormData] = React.useState({
     positions: [],
-    performanceFee: 10,
+    performanceFee: 5,
     artWorkFile: null,
     artWorkUrl: '',
     nftName: '',

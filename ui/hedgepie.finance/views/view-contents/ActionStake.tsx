@@ -130,6 +130,7 @@ const ActionStake = (props: any) => {
           onChange={onChangeAmount}
           id="amount-input"
           onKeyPress={onInputKeyPress}
+          onWheel={(e) => e.currentTarget.blur()}
         />
         {/* <Box className="desktop-action" sx={styles.vault_action_button_container_desktop as ThemeUICSSObject}> */}
         <ActionStakeButton onStake={handleStake} isDisabled={false} onApprove={handleApprove} approved={approved} />
