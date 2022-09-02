@@ -59,7 +59,9 @@ const Header = ({ overlay = false, dark = true }: Props) => {
           </Link> */}
           <Box marginRight={'40px'}>
             <a target="_blank" href="/HedgePie-Whitepaper-V5.pdf">
-              <ThemeLink>White Paper</ThemeLink>
+              <ThemeLink sx={{ '&:hover': { backgroundColor: '#417e96' }, padding: '5px 8px', borderRadius: '10px' }}>
+                White Paper
+              </ThemeLink>
             </a>
           </Box>
           <div
@@ -70,7 +72,12 @@ const Header = ({ overlay = false, dark = true }: Props) => {
               })
             }}
           >
-            <ThemeLink mr={4}>Leaderboard</ThemeLink>
+            <ThemeLink
+              mr={4}
+              sx={{ '&:hover': { backgroundColor: '#417e96' }, padding: '5px 8px', borderRadius: '10px' }}
+            >
+              Leaderboard
+            </ThemeLink>
           </div>
           <div
             style={{ cursor: 'pointer' }}
@@ -80,7 +87,12 @@ const Header = ({ overlay = false, dark = true }: Props) => {
               })
             }}
           >
-            <ThemeLink mr={4}>Mint</ThemeLink>
+            <ThemeLink
+              mr={4}
+              sx={{ '&:hover': { backgroundColor: '#417e96' }, padding: '5px 8px', borderRadius: '10px' }}
+            >
+              Mint
+            </ThemeLink>
           </div>
           <Box sx={styles.connect_wallet_btn_container as ThemeUICSSObject}>
             <ConnectWallet isHeaderBtn dark={dark} />
