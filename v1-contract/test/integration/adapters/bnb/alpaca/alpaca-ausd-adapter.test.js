@@ -38,8 +38,15 @@ describe("AlpacaAUSDPoolAdapter Integration Test", function () {
     const ybNftFactory = await ethers.getContractFactory("YBNFT");
     this.ybNft = await ybNftFactory.deploy();
 
+    const Lib = await ethers.getContractFactory("HedgepieLibrary");
+    const lib = await Lib.deploy();
+
     // Deploy Investor contract
-    const investorFactory = await ethers.getContractFactory("HedgepieInvestor");
+    const investorFactory = await ethers.getContractFactory("HedgepieInvestor", {
+      libraries: {
+        HedgepieLibrary: lib.address,
+      },
+    });
     this.investor = await investorFactory.deploy(this.ybNft.address, swapRouter, wbnb);
 
     // Deploy Adaptor Manager contract

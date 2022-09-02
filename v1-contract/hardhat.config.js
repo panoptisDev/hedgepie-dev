@@ -4,6 +4,8 @@ require("hardhat-contract-sizer");
 require("@nomiclabs/hardhat-waffle");
 require("@typechain/hardhat");
 require("dotenv-extended").load();
+require("hardhat-gas-reporter");
+require("hardhat-contract-sizer");
 
 if (!process.env.TESTNET_PRIVKEY) throw new Error("TESTNET_PRIVKEY missing from .env file");
 if (!process.env.MAINNET_PRIVKEY) throw new Error("MAINNET_PRIVKEY missing from .env file");
@@ -50,6 +52,9 @@ module.exports = {
   etherscan: {
     // bnb network
     apiKey: process.env.BSCSCAN_API_KEY,
+  },
+  gasReporter: {
+    gasPrice: 5,
   },
   typechain: {
     outDir: "typechain",

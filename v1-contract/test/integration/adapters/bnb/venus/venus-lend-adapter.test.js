@@ -21,12 +21,7 @@ describe("VenusLendAdapter Integration Test", function () {
 
     // Deploy Venus Adapter contract
     const VenusAdapter = await ethers.getContractFactory("VenusLendAdapter");
-    this.vAdapter = await VenusAdapter.deploy(
-      this.strategy,
-      busd,
-      vbusd,
-      "Venus BUSD lend adapter"
-    );
+    this.vAdapter = await VenusAdapter.deploy(this.strategy, busd, vbusd, "Venus BUSD lend adapter");
     await this.vAdapter.deployed();
 
     // Deploy YBNFT contract
@@ -35,35 +30,24 @@ describe("VenusLendAdapter Integration Test", function () {
 
     // Mint NFTs
     // tokenID: 1
-    await this.ybNft.mint(
-      [10000],
-      [busd],
-      [this.vAdapter.address],
-      performanceFee,
-      "test tokenURI1"
-    );
+    await this.ybNft.mint([10000], [busd], [this.vAdapter.address], performanceFee, "test tokenURI1");
 
     // tokenID: 2
-    await this.ybNft.mint(
-      [10000],
-      [busd],
-      [this.vAdapter.address],
-      performanceFee,
-      "test tokenURI2"
-    );
+    await this.ybNft.mint([10000], [busd], [this.vAdapter.address], performanceFee, "test tokenURI2");
+
+    const Lib = await ethers.getContractFactory("HedgepieLibrary");
+    const lib = await Lib.deploy();
 
     // Deploy Investor contract
-    investorFactory = await ethers.getContractFactory("HedgepieInvestor");
-    this.investor = await investorFactory.deploy(
-      this.ybNft.address,
-      swapRouter,
-      wbnb
-    );
+    investorFactory = await ethers.getContractFactory("HedgepieInvestor", {
+      libraries: {
+        HedgepieLibrary: lib.address,
+      },
+    });
+    this.investor = await investorFactory.deploy(this.ybNft.address, swapRouter, wbnb);
 
     // Deploy Adaptor Manager contract
-    adapterManagerFactory = await ethers.getContractFactory(
-      "HedgepieAdapterManager"
-    );
+    adapterManagerFactory = await ethers.getContractFactory("HedgepieAdapterManager");
     this.adapterManager = await adapterManagerFactory.deploy();
 
     // Add Venus Adapter to AdapterManager
@@ -103,9 +87,7 @@ describe("VenusLendAdapter Integration Test", function () {
     });
 
     it("(3) Check AdapterManager address in Investor contract", async function () {
-      expect(await this.investor.adapterManager()).to.eq(
-        this.adapterManager.address
-      );
+      expect(await this.investor.adapterManager()).to.eq(this.adapterManager.address);
     });
 
     it("(4) Check Investor address in AdapterManager contract", async function () {
@@ -129,15 +111,10 @@ describe("VenusLendAdapter Integration Test", function () {
       // deposit to nftID: 3
       const depositAmount = ethers.utils.parseEther("1");
       await expect(
-        this.investor.depositBNB(
-          this.owner.address,
-          3,
-          depositAmount.toString(),
-          {
-            gasPrice: 21e9,
-            value: depositAmount.toString(),
-          }
-        )
+        this.investor.depositBNB(this.owner.address, 3, depositAmount.toString(), {
+          gasPrice: 21e9,
+          value: depositAmount.toString(),
+        })
       ).to.be.revertedWith("Error: nft tokenId is invalid");
     });
 
@@ -145,15 +122,10 @@ describe("VenusLendAdapter Integration Test", function () {
       // deposit to nftID: 1
       const depositAmount = ethers.utils.parseEther("0");
       await expect(
-        this.investor.depositBNB(
-          this.owner.address,
-          1,
-          depositAmount.toString(),
-          {
-            gasPrice: 21e9,
-            value: depositAmount.toString(),
-          }
-        )
+        this.investor.depositBNB(this.owner.address, 1, depositAmount.toString(), {
+          gasPrice: 21e9,
+          value: depositAmount.toString(),
+        })
       ).to.be.revertedWith("Error: Amount can not be 0");
     });
 
@@ -165,41 +137,25 @@ describe("VenusLendAdapter Integration Test", function () {
         value: depositAmount.toString(),
       });
 
-      expect(
-        BigNumber.from(await this.vBUSD.balanceOf(this.investor.address)).gt(0)
-      ).to.eq(true);
+      expect(BigNumber.from(await this.vBUSD.balanceOf(this.investor.address)).gt(0)).to.eq(true);
     });
 
     it("(4)should success multiple times", async function () {
       // deposit to nftID: 1
-      let vBeforeBal = BigNumber.from(
-        await this.vBUSD.balanceOf(this.investor.address)
-      );
+      let vBeforeBal = BigNumber.from(await this.vBUSD.balanceOf(this.investor.address));
 
       const depositAmount = ethers.utils.parseEther("1");
-      await this.investor.depositBNB(
-        this.owner.address,
-        1,
-        depositAmount.toString(),
-        {
-          gasPrice: 21e9,
-          value: depositAmount.toString(),
-        }
-      );
+      await this.investor.depositBNB(this.owner.address, 1, depositAmount.toString(), {
+        gasPrice: 21e9,
+        value: depositAmount.toString(),
+      });
 
-      await this.investor.depositBNB(
-        this.owner.address,
-        2,
-        depositAmount.toString(),
-        {
-          gasPrice: 21e9,
-          value: depositAmount.toString(),
-        }
-      );
+      await this.investor.depositBNB(this.owner.address, 2, depositAmount.toString(), {
+        gasPrice: 21e9,
+        value: depositAmount.toString(),
+      });
 
-      let vAfterBal = BigNumber.from(
-        await this.vBUSD.balanceOf(this.investor.address)
-      );
+      let vAfterBal = BigNumber.from(await this.vBUSD.balanceOf(this.investor.address));
 
       expect(vAfterBal.gt(vBeforeBal)).to.eq(true);
     });
@@ -208,20 +164,18 @@ describe("VenusLendAdapter Integration Test", function () {
   describe("withdraw() function test", function () {
     it("(1)should be reverted when nft tokenId is invalid", async function () {
       // withdraw to nftID: 3
-      await expect(
-        this.investor.withdrawBNB(this.owner.address, 3, { gasPrice: 21e9 })
-      ).to.be.revertedWith("Error: nft tokenId is invalid");
+      await expect(this.investor.withdrawBNB(this.owner.address, 3, { gasPrice: 21e9 })).to.be.revertedWith(
+        "Error: nft tokenId is invalid"
+      );
     });
 
     it("(2)should be reverted when amount is 0", async function () {
       // deposit to nftID: 1
       const depositAmount = ethers.utils.parseEther("0");
       await expect(
-        this.investor
-          .connect(this.bob)
-          .depositBNB(this.bob.address, 1, depositAmount.toString(), {
-            gasPrice: 21e9,
-          })
+        this.investor.connect(this.bob).depositBNB(this.bob.address, 1, depositAmount.toString(), {
+          gasPrice: 21e9,
+        })
       ).to.be.revertedWith("Error: Amount can not be 0");
     });
 
@@ -233,9 +187,7 @@ describe("VenusLendAdapter Integration Test", function () {
       });
 
       let bnbBalAfter = await ethers.provider.getBalance(this.owner.address);
-      expect(
-        BigNumber.from(bnbBalAfter).gte(BigNumber.from(bnbBalBefore))
-      ).to.eq(true);
+      expect(BigNumber.from(bnbBalAfter).gte(BigNumber.from(bnbBalBefore))).to.eq(true);
 
       // withdraw from nftId: 2
       bnbBalBefore = await ethers.provider.getBalance(this.owner.address);
@@ -244,9 +196,7 @@ describe("VenusLendAdapter Integration Test", function () {
       });
 
       bnbBalAfter = await ethers.provider.getBalance(this.owner.address);
-      expect(
-        BigNumber.from(bnbBalAfter).gte(BigNumber.from(bnbBalBefore))
-      ).to.eq(true);
+      expect(BigNumber.from(bnbBalAfter).gte(BigNumber.from(bnbBalBefore))).to.eq(true);
     });
   });
 });
