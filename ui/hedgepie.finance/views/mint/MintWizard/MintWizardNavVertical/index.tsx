@@ -10,7 +10,7 @@ const MintWizardNavVertical = ({ ...props }) => {
     <Box py={20} {...props}>
       <Box>
         {wizard.forms.map((d, i) => (
-          <Label key={d} index={i} label={d} active={wizard.order === i} />
+          <Label key={d} active={wizard.order === i} index={i} label={d} />
         ))}
       </Box>
     </Box>

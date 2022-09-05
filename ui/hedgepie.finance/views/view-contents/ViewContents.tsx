@@ -40,8 +40,12 @@ const ViewContents = (props: Props) => {
   const [description, setDescription] = useState<string>()
   const [bnbPrice, setBNBPrice] = useState<any>()
 
+  const [tvl, setTVL] = useState()
+  const [participants, setParticipants] = useState()
+
   const { getTokenUri, getAllocations, getMaxTokenId } = useYBNFTMint()
   const { getAdapters } = useAdapterManager()
+  const { getTVL, getTotalParticipants } = useInvestor()
 
   // Get the Token ID of the current YBNFT
   useEffect(() => {
@@ -51,6 +55,15 @@ const ViewContents = (props: Props) => {
       const res = queryString.parse(router.asPath.split(/\?/)[1])
       setTokenId(res.tokenId as string)
     }
+  }, [])
+
+  // To get the TVL and total Participants to populate in the Contents page
+  useEffect(() => {
+    // const setTVLandParticipants = async () => {
+    //   setTVL(await getTVL(tokenId))
+    //   setParticipants(await getTotalParticipants(tokenId))
+    // }
+    // setTVLandParticipants()
   }, [])
 
   // Get the Metadata, Allocations, etc of the current YBNFT
@@ -149,7 +162,7 @@ const ViewContents = (props: Props) => {
             </a>
           </Link>
         ) : (
-          <Spinner />
+          <Spinner sx={{ color: '#1799DE' }} />
         ),
       },
     ])
@@ -176,7 +189,7 @@ const ViewContents = (props: Props) => {
                           {ybnftName ? (
                             <Text sx={styles.nft_name_text as ThemeUICSSObject}>{ybnftName}</Text>
                           ) : (
-                            <Spinner />
+                            <Spinner sx={{ color: '#1799DE' }} />
                           )}
                           {description ? <Text sx={styles.nft_desc_text as ThemeUICSSObject}>{description}</Text> : ''}
                         </Flex>
@@ -219,7 +232,7 @@ const ViewContents = (props: Props) => {
                               </Flex>
                             </Flex>
                           ))}{' '}
-                        {!strategies || !strategies.length ? <Spinner /> : ''}
+                        {!strategies || !strategies.length ? <Spinner sx={{ color: '#1799DE' }} /> : ''}
                       </Flex>
                     </Flex>
 

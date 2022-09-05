@@ -117,5 +117,15 @@ export const claimFromYBNFT = async (ybnftInvestorContract, account, ybnftId) =>
   return ""
 }
 
+export const fetchTVL = async (ybnftInvestorContract, ybnftId) => {
+  const tvl = await ybnftInvestorContract.methods.nftInfo(await getYBNFTAddress(), ybnftId).methods.tvl().call()
+  return tvl
+}
+
+export const fetchParticipants = async (ybnftInvestorContract, ybnftId) => {
+  const totalParticipants = await ybnftInvestorContract.methods.userInfo(await getYBNFTAddress(), ybnftId).methods.totalParticipant.call()
+  return totalParticipants
+}
+
 
 
