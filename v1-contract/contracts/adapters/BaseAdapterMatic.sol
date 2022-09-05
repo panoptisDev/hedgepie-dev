@@ -113,9 +113,8 @@ abstract contract BaseAdapterMatic is Ownable {
 
     /**
      * @notice Get pending reward
-     * @param _user  address of investor
      */
-    function getReward(address _user) external view virtual returns (uint256) {
+    function getReward(address) external view virtual returns (uint256) {
         return 0;
     }
 

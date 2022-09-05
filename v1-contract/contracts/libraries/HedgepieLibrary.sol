@@ -228,16 +228,22 @@ library HedgepieLibrary {
         HedgepieInvestor.UserAdapterInfo storage userAdapterInfo,
         HedgepieInvestor.AdapterInfo storage adapterInfo
     ) public {
+        uint256[2] memory amounts;
+        uint256 value;
+        address to;
+        bool success;
+        bytes memory callData;
+
         if (!IAdapter(_adapterAddr).isEntered()) {
             (
-                address to,
-                uint256 value,
-                bytes memory callData
+                to,
+                value,
+                callData
             ) = IAdapterManager(_adapterManager).getEnterMarketCallData(
                     _adapterAddr
                 );
 
-            (bool success, ) = to.call{value: value}(callData);
+            (success, ) = to.call{value: value}(callData);
             require(success, "Error: EnterMarket internal issue");
 
             IAdapter(_adapterAddr).setIsEntered(true);
@@ -252,12 +258,6 @@ library HedgepieLibrary {
             _tokenId,
             _amount
         );
-
-        uint256[2] memory amounts;
-        uint256 value;
-        address to;
-        bool success;
-        bytes memory callData;
 
         for (uint256 i = 0; i < IAdapter(_adapterAddr).DEEPTH(); i++) {
             amounts[0] = IBEP20(IAdapter(_adapterAddr).stakingToken())
