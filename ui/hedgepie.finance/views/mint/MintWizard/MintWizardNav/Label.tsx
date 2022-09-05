@@ -1,6 +1,7 @@
 import React from 'react'
 import { Box } from 'theme-ui'
 import MintWizardContext from 'contexts/MintWizardContext'
+import toast from 'utils/toast'
 
 type Props = {
   index: number
@@ -9,9 +10,13 @@ type Props = {
 }
 
 const Label = ({ index, label, active }: Props) => {
-  const { wizard, setWizard } = React.useContext(MintWizardContext)
+  const { wizard, setWizard, account } = React.useContext(MintWizardContext)
 
   const handleNavigate = () => {
+    if (!account) {
+      toast('Please connect your wallet to continue !!')
+      return
+    }
     if (wizard.order !== index) {
       setWizard({
         ...wizard,

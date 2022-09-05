@@ -89,7 +89,7 @@ const MintContextProvider = ({ children }) => {
       account,
       chainId,
     }),
-    [wizard, formData, strategies, bnbPrice],
+    [wizard, formData, strategies, bnbPrice, account, chainId],
   )
 
   return <MintWizardContext.Provider value={value}>{children}</MintWizardContext.Provider>

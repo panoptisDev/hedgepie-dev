@@ -3,11 +3,16 @@ import { Box, Button } from 'theme-ui'
 import MintWizardContext from 'contexts/MintWizardContext'
 import InitialStake from './InitialStake'
 import YbNftSummaryChart from './YbNftSummaryChart'
+import toast from 'utils/toast'
 
 const FormInitialStake = () => {
-  const { wizard, setWizard } = React.useContext(MintWizardContext)
+  const { wizard, setWizard, account } = React.useContext(MintWizardContext)
 
   const handleNext = () => {
+    if (!account) {
+      toast('Please connect your wallet to continue !!')
+      return
+    }
     setWizard({
       ...wizard,
       order: 1,
