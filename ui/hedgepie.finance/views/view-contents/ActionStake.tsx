@@ -90,6 +90,14 @@ const ActionStake = (props: any) => {
   }
 
   const handleUnstake = async () => {
+    if (!account) {
+      toast('Please connect your wallet to view the Staked amount and Withdraw !!', 'warning')
+      return
+    }
+    if (currentStaked === 0) {
+      toast('No staked BNB currently to Withdraw !!', 'warning')
+      return
+    }
     let txHash
     try {
       txHash = await onYBNFTWithdraw(tokenId)
@@ -122,12 +130,13 @@ const ActionStake = (props: any) => {
           onChange={onChangeAmount}
           id="amount-input"
           onKeyPress={onInputKeyPress}
+          onWheel={(e) => e.currentTarget.blur()}
         />
         {/* <Box className="desktop-action" sx={styles.vault_action_button_container_desktop as ThemeUICSSObject}> */}
         <ActionStakeButton onStake={handleStake} isDisabled={false} onApprove={handleApprove} approved={approved} />
         {/* </Box> */}
         <Button sx={styles.unstake_button as ThemeUICSSObject} onClick={handleUnstake}>
-          WITHDRAW
+          WITHDRAW ALL
         </Button>
       </Box>
 

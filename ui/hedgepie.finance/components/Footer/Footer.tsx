@@ -41,11 +41,11 @@ const Footer = (props: Props) => {
             {/* <Link href="/vault" passHref>
               <ThemeLink>Vault</ThemeLink>
             </Link> */}
-            <a target="_blank" href="https://hedgepie.com/wp-content/uploads/2022/05/HedgePie-Whitepaper-V5.pdf">
+            <a target="_blank" href="/HedgePie-Whitepaper-V5.pdf" style={{ cursor: 'pointer' }}>
               <ThemeLink>White Paper</ThemeLink>
             </a>
             <Link href="/nft-leaderboard" passHref>
-              <ThemeLink>Leaderboard</ThemeLink>
+              <ThemeLink style={{ cursor: 'pointer' }}>Leaderboard</ThemeLink>
             </Link>
             {/* <Link href="/details" passHref>
               <ThemeLink>Finished Lotteries</ThemeLink>
@@ -54,7 +54,7 @@ const Footer = (props: Props) => {
               <ThemeLink>Current Lottery</ThemeLink>
             </Link> */}
             <Link href="/mint" passHref>
-              <ThemeLink>Mint</ThemeLink>
+              <ThemeLink style={{ cursor: 'pointer' }}>Mint</ThemeLink>
             </Link>
           </Box>
         </Box>

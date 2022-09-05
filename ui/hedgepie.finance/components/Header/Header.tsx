@@ -58,16 +58,32 @@ const Header = ({ overlay = false, dark = true }: Props) => {
             <ThemeLink mr={4}>Vault</ThemeLink>
           </Link> */}
           <Box marginRight={'40px'}>
-            <a target="_blank" href="https://hedgepie.com/wp-content/uploads/2022/05/HedgePie-Whitepaper-V5.pdf">
-              <ThemeLink>White Paper</ThemeLink>
+            <a target="_blank" href="/HedgePie-Whitepaper-V5.pdf">
+              <ThemeLink sx={{ '&:hover': { backgroundColor: '#417e96' }, padding: '5px 8px', borderRadius: '10px' }}>
+                White Paper
+              </ThemeLink>
             </a>
           </Box>
+
           <Link href="/nft-leaderboard" passHref>
-            <ThemeLink mr={4}>Leaderboard</ThemeLink>
+            <ThemeLink
+              sx={{ '&:hover': { backgroundColor: '#417e96' }, padding: '5px 8px', borderRadius: '10px' }}
+              mr={4}
+            >
+              Leaderboard
+            </ThemeLink>
           </Link>
-          <Link href="/mint" passHref>
-            <ThemeLink mr={4}>Mint</ThemeLink>
-          </Link>
+
+          <Box>
+            <Link href="/mint" passHref>
+              <ThemeLink
+                sx={{ '&:hover': { backgroundColor: '#417e96' }, padding: '5px 8px', borderRadius: '10px' }}
+                mr={4}
+              >
+                Mint
+              </ThemeLink>
+            </Link>
+          </Box>
           <Box sx={styles.connect_wallet_btn_container as ThemeUICSSObject}>
             <ConnectWallet isHeaderBtn dark={dark} />
           </Box>

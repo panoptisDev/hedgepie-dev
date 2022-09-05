@@ -207,6 +207,7 @@ const ActionMain = (props: Props) => {
           type="number"
           onChange={onChangeAmount}
           id="amount-input"
+          onWheel={(e) => e.currentTarget.blur()}
         />
       </Box>
     </Box>

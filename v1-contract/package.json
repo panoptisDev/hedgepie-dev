@@ -20,7 +20,15 @@
     "deploy:ybnft": "npx hardhat run deploy/ybnft.ts --network bscTestnet",
     "deploy:multicall": "npx hardhat run deploy/multicall.ts --network bscTestnet",
     "deploy:all:mainnet": "npx hardhat run deploy/deploy.ts --network bsc",
-    "deploy:all:mainnet1": "npx hardhat run deploy/deploy1.ts --network bsc",
+    "deploy:bnb:investor": "npx hardhat run deploy/bnb/index.ts --network bsc",
+    "deploy:bnb:apeswap-busd-wbnb-farm": "npx hardhat run deploy/bnb/apeswap/apeswap-busd-wbnb-farm.ts --network bsc",
+    "deploy:bnb:apeswap-eth-wbnb-farm": "npx hardhat run deploy/bnb/apeswap/apeswap-eth-wbnb-farm.ts --network bsc",
+    "deploy:bnb:apeswap-banana-busd-farm": "npx hardhat run deploy/bnb/apeswap/apeswap-banana-busd-farm.ts --network bsc",
+    "deploy:bnb:autofarm-wbnb-cake-vault": "npx hardhat run deploy/bnb/autofarm/autofarm-wbnb-cake-vault.ts --network bsc",
+    "deploy:bnb:autofarm-wbnb-busd-vault": "npx hardhat run deploy/bnb/autofarm/autofarm-wbnb-busd-vault.ts --network bsc",
+    "deploy:bnb:autofarm-wbnb-ada-vault": "npx hardhat run deploy/bnb/autofarm/autofarm-wbnb-ada-wbnb.ts --network bsc",
+    "deploy:bnb:biswap-bsw-farm": "npx hardhat run deploy/bnb/biswap/biswap-bsw-farm.ts --network bsc",
+    "deploy:bnb:biswap-bsw-usdt-farm": "npx hardhat run deploy/bnb/biswap/biswap-bsw-usdt-farm.ts --network bsc",
     "code:size": "npx hardhat size-contracts"
   },
   "repository": {

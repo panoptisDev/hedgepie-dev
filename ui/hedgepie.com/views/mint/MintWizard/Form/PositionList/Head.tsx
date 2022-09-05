@@ -29,7 +29,7 @@ const Head = () => {
         </Box>
         <Box
           sx={{
-            fontSize: 12,
+            fontSize: 24,
             fontWeight: 500,
             color: '#8988A5',
             [`@media screen and (min-width: 500px)`]: {
@@ -55,7 +55,7 @@ const Head = () => {
         </Box>
         <Box
           sx={{
-            fontSize: 12,
+            fontSize: 24,
             fontWeight: 500,
             color: '#8988A5',
             [`@media screen and (min-width: 500px)`]: {
