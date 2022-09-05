@@ -133,7 +133,7 @@ const ViewContents = (props: Props) => {
       {
         title: 'Contract Address',
         value: (
-          <Link href="https://bscscan.com/address/0xdf5926C9A457d61c72C1dbcBce140c1548fAE87b">
+          <Link href="https://bscscan.com/address/0x82Eaf622517Dab13E99E104a5F68122a7a5BB38B">
             <a target="_blank" rel="noopener noreferrer">
               Contract on BSCScan
             </a>
