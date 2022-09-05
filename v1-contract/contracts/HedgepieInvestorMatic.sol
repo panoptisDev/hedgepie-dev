@@ -138,8 +138,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
 
             uint256 amountIn = (_amount * adapter.allocation) / 1e4;
             uint256 amountOut;
-            address routerAddr = IAdapter(adapter.addr).router();
-            if (routerAddr == address(0)) {
+            if (IAdapter(adapter.addr).router() == address(0)) {
                 if (adapter.token == wmatic) {
                     amountOut = amountIn;
                 } else {
@@ -155,10 +154,9 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
             } else {
                 // get lp
                 amountOut = HedgepieLibrary.getLP(
-                    adapter.addr,
-                    adapter.token,
-                    routerAddr,
+                    adapter,
                     wmatic,
+                    msg.sender,
                     amountIn,
                     _tokenId
                 );
@@ -285,10 +283,9 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
             } else {
                 uint256 taxAmount;
                 amountOut += HedgepieLibrary.withdrawLP(
-                    adapter.addr,
-                    adapter.token,
-                    IAdapter(adapter.addr).router(),
+                    adapter,
                     wmatic,
+                    msg.sender,
                     balances[2],
                     _tokenId
                 );

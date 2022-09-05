@@ -124,8 +124,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
             uint256 amountIn = (_amount * adapter.allocation) / 1e4;
             uint256 amountOut;
-            address routerAddr = IAdapter(adapter.addr).router();
-            if (routerAddr == address(0)) {
+            if (IAdapter(adapter.addr).router() == address(0)) {
                 if (adapter.token == wbnb) {
                     amountOut = amountIn;
                 } else {
@@ -165,10 +164,9 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             } else {
                 // get lp
                 amountOut = HedgepieLibrary.getLP(
-                    adapter.addr,
-                    adapter.token,
-                    routerAddr,
+                    adapter,
                     wbnb,
+                    msg.sender,
                     amountIn,
                     0
                 );
@@ -337,10 +335,9 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 }
 
                 amountOut += HedgepieLibrary.withdrawLP(
-                    adapter.addr,
-                    adapter.token,
-                    IAdapter(adapter.addr).router(),
+                    adapter,
                     wbnb,
+                    msg.sender,
                     balances[1] - balances[0] - taxAmount,
                     0
                 );
