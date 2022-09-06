@@ -153,7 +153,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                 }
             } else {
                 // get lp
-                amountOut = HedgepieLibrary.getLP(
+                amountOut = HedgepieLibrary.getLPMatic(
                     adapter,
                     wmatic,
                     msg.sender,
@@ -282,7 +282,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                 }
             } else {
                 uint256 taxAmount;
-                amountOut += HedgepieLibrary.withdrawLP(
+                amountOut += HedgepieLibrary.withdrawLPMatic(
                     adapter,
                     wmatic,
                     msg.sender,

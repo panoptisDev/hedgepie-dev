@@ -109,20 +109,17 @@ library HedgepieLibrary {
     function getLP(
         IYBNFT.Adapter memory _adapter,
         address wbnb,
-        address _account,
-        uint256 _amountIn,
-        uint256 _tokenId
+        uint256 _amountIn
     ) public returns (uint256 amountOut) {
         address[2] memory tokens;
         tokens[0] = IPancakePair(_adapter.token).token0();
         tokens[1] = IPancakePair(_adapter.token).token1();
-        bool noDeposit = IAdapter(_adapter.addr).noDeposit();
         address _router = IAdapter(_adapter.addr).router();
-        address _strategy = noDeposit ? IAdapter(_adapter.addr).strategy() : _router;
+        address _strategy = IAdapter(_adapter.addr).strategy();
 
         uint256[2] memory tokenAmount;
         tokenAmount[0] = _amountIn / 2;
-        tokenAmount[1] = _amountIn / 2;
+        tokenAmount[1] = _amountIn - tokenAmount[0];
         if (tokens[0] != wbnb) {
             tokenAmount[0] = swapOnRouter(
                 _adapter.addr,
@@ -144,78 +141,16 @@ library HedgepieLibrary {
             );
             IBEP20(tokens[1]).approve(_strategy, tokenAmount[1]);
         }
-
-        if(noDeposit) {
-            uint256 tokenId = IAdapter(_adapter.addr).getLiquidityToken(_account, _tokenId);
-
-            // wrap to wmatic
-            if(tokens[0] == wbnb) {
-                IWrap(wbnb).deposit(tokenAmount[0]);
-                IBEP20(wbnb).approve(_strategy, tokenAmount[0]);
-            } else if(tokens[0] == wbnb) {
-                IWrap(wbnb).deposit(tokenAmount[1]);
-                IBEP20(wbnb).approve(_strategy, tokenAmount[1]);
-            }
-            
-            if(tokenId != 0) {
-                INonfungiblePositionManager.IncreaseLiquidityParams memory params = 
-                    INonfungiblePositionManager.IncreaseLiquidityParams({
-                        tokenId: tokenId,
-                        amount0Desired: tokenAmount[0],
-                        amount1Desired: tokenAmount[1],
-                        amount0Min: 0,
-                        amount1Min: 0,
-                        deadline: block.timestamp + 2 hours
-                    });
-
-                (amountOut, , ) = INonfungiblePositionManager(_strategy).increaseLiquidity(params);
-            } else {
-                int24[2] memory ticks;
-                (ticks[0], ticks[1]) = IAdapter(_adapter.addr).getTick();
-                INonfungiblePositionManager.MintParams memory params =
-                    INonfungiblePositionManager.MintParams({
-                        token0: tokens[0],
-                        token1: tokens[1],
-                        fee: IPancakePair(_adapter.token).fee(),
-                        tickLower: ticks[0],
-                        tickUpper: ticks[1],
-                        amount0Desired: tokenAmount[0],
-                        amount1Desired: tokenAmount[1],
-                        amount0Min: 0,
-                        amount1Min: 0,
-                        recipient: address(this),
-                        deadline: block.timestamp + 2 hours
-                    });
-
-                (tokenId, amountOut, , ) = INonfungiblePositionManager(_strategy).mint(params);
-                IAdapter(_adapter.addr).setLiquidityToken(_account, _tokenId, tokenId);
-            }
-        } else {
-            if (tokenAmount[0] != 0 && tokenAmount[1] != 0) {
-                if (tokens[0] == wbnb || tokens[1] == wbnb) {
-                    (, , amountOut) = IPancakeRouter(_router).addLiquidityETH{
-                        value: tokens[0] == wbnb ? tokenAmount[0] : tokenAmount[1]
-                    }(
-                        tokens[0] == wbnb ? tokens[1] : tokens[0],
-                        tokens[0] == wbnb ? tokenAmount[1] : tokenAmount[0],
-                        0,
-                        0,
-                        address(this),
-                        block.timestamp + 2 hours
-                    );
-                } else {
-                    (, , amountOut) = IPancakeRouter(_router).addLiquidity(
-                        tokens[0],
-                        tokens[1],
-                        tokenAmount[0],
-                        tokenAmount[1],
-                        0,
-                        0,
-                        address(this),
-                        block.timestamp + 2 hours
-                    );
-                }
-            }
+        
+        if (tokenAmount[0] != 0 && tokenAmount[1] != 0) {
+            amountOut = addLiquidity(
+                tokens[0],
+                tokens[1],
+                wbnb,
+                _router,
+                tokenAmount[0],
+                tokenAmount[1]
+            );
         }
     }
 
@@ -374,92 +309,15 @@ library HedgepieLibrary {
     function withdrawLP(
         IYBNFT.Adapter memory _adapter,
         address wbnb,
-        address _account,
-        uint256 _amountIn,
-        uint256 _tokenId
+        uint256 _amountIn
     ) public returns (uint256 amountOut) {
-        address[2] memory tokens;
-        tokens[0] = IPancakePair(_adapter.token).token0();
-        tokens[1] = IPancakePair(_adapter.token).token1();
-
-        address _router = IAdapter(_adapter.addr).router();
-
-        if(IAdapter(_adapter.addr).noDeposit()) {
-            uint256 tokenId = IAdapter(_adapter.addr).getLiquidityToken(_account, _tokenId);
-            require(tokenId != 0, "Invalid request");
-
-            INonfungiblePositionManager.DecreaseLiquidityParams memory params =
-                INonfungiblePositionManager.DecreaseLiquidityParams({
-                    tokenId: tokenId,
-                    liquidity: uint128(_amountIn),
-                    amount0Min: 0,
-                    amount1Min: 0,
-                    deadline: block.timestamp + 2 hours
-                });
-            (uint256 amount0, uint256 amount1) = INonfungiblePositionManager(IAdapter(_adapter.addr).strategy()).decreaseLiquidity(params);
-
-            if(amountOut != 0) {
-                if(tokens[0] == wbnb) {
-                    IWrap(tokens[0]).withdraw(amount0);
-                    amountOut += amount0;
-                } else {
-                    amountOut += swapforCoin(
-                        _adapter.addr,
-                        amount0, 
-                        tokens[0], 
-                        _router, 
-                        wbnb
-                    );
-                }
-            }
-
-            if(amount1 != 0) {
-                if(tokens[1] == wbnb) {
-                    IWrap(tokens[1]).withdraw(amount1);
-                    amountOut += amount1;
-                } else {
-                    // amountOut += swapforCoin(_adapter, amount1, token1, _router, wbnb);
-                }
-            }
-        } else {
-            IBEP20(_adapter.token).approve(_router, _amountIn);
-
-            if (tokens[0] == wbnb || tokens[1] == wbnb) {
-                address tokenAddr = tokens[0] == wbnb ? tokens[1] : tokens[0];
-                (uint256 amountToken, uint256 amountETH) = IPancakeRouter(_router)
-                    .removeLiquidityETH(
-                        tokenAddr,
-                        _amountIn,
-                        0,
-                        0,
-                        address(this),
-                        block.timestamp + 2 hours
-                    );
-
-                amountOut = amountETH;
-                amountOut += swapforCoin(
-                    _adapter.addr,
-                    amountToken,
-                    tokenAddr,
-                    _router,
-                    wbnb
-                );
-            } else {
-                (uint256 amountA, uint256 amountB) = IPancakeRouter(_router)
-                    .removeLiquidity(
-                        tokens[0],
-                        tokens[1],
-                        _amountIn,
-                        0,
-                        0,
-                        address(this),
-                        block.timestamp + 2 hours
-                    );
-
-                amountOut += swapforCoin(_adapter.addr, amountA, tokens[0], _router, wbnb);
-                amountOut += swapforCoin(_adapter.addr, amountB, tokens[1], _router, wbnb);
-            }
-        }
+        amountOut = removeLiquidity(
+            _adapter,
+            IPancakePair(_adapter.token).token0(),
+            IPancakePair(_adapter.token).token1(),
+            wbnb,
+            _amountIn
+        );
     }
 
     function depositToAdapter(
@@ -676,6 +534,244 @@ library HedgepieLibrary {
                 _tokenId,
                 _amount
             );
+        }
+    }
+
+    function getLPMatic(
+        IYBNFT.Adapter memory _adapter,
+        address wbnb,
+        address _account,
+        uint256 _amountIn,
+        uint256 _tokenId
+    ) public returns (uint256 amountOut) {
+        address[2] memory tokens;
+        tokens[0] = IPancakePair(_adapter.token).token0();
+        tokens[1] = IPancakePair(_adapter.token).token1();
+        bool noDeposit = IAdapter(_adapter.addr).noDeposit();
+        address _router = IAdapter(_adapter.addr).router();
+        address _strategy = noDeposit ? IAdapter(_adapter.addr).strategy() : _router;
+
+        uint256[2] memory tokenAmount;
+        tokenAmount[0] = _amountIn / 2;
+        tokenAmount[1] = _amountIn - tokenAmount[0];
+        if (tokens[0] != wbnb) {
+            tokenAmount[0] = swapOnRouter(
+                _adapter.addr,
+                tokenAmount[0],
+                tokens[0],
+                _router,
+                wbnb
+            );
+            IBEP20(tokens[0]).approve(_strategy, tokenAmount[0]);
+        }
+
+        if (tokens[1] != wbnb) {
+            tokenAmount[1] = swapOnRouter(
+                _adapter.addr,
+                tokenAmount[1],
+                tokens[1],
+                _router,
+                wbnb
+            );
+            IBEP20(tokens[1]).approve(_strategy, tokenAmount[1]);
+        }
+
+        if(noDeposit) {
+            uint256 tokenId = IAdapter(_adapter.addr).getLiquidityToken(_account, _tokenId);
+
+            // wrap to wmatic
+            if(tokens[0] == wbnb) {
+                IWrap(wbnb).deposit(tokenAmount[0]);
+                IBEP20(wbnb).approve(_strategy, tokenAmount[0]);
+            } else if(tokens[0] == wbnb) {
+                IWrap(wbnb).deposit(tokenAmount[1]);
+                IBEP20(wbnb).approve(_strategy, tokenAmount[1]);
+            }
+            
+            if(tokenId != 0) {
+                INonfungiblePositionManager.IncreaseLiquidityParams memory params = 
+                    INonfungiblePositionManager.IncreaseLiquidityParams({
+                        tokenId: tokenId,
+                        amount0Desired: tokenAmount[0],
+                        amount1Desired: tokenAmount[1],
+                        amount0Min: 0,
+                        amount1Min: 0,
+                        deadline: block.timestamp + 2 hours
+                    });
+
+                (amountOut, , ) = INonfungiblePositionManager(_strategy).increaseLiquidity(params);
+            } else {
+                int24[2] memory ticks;
+                (ticks[0], ticks[1]) = IAdapter(_adapter.addr).getTick();
+                INonfungiblePositionManager.MintParams memory params =
+                    INonfungiblePositionManager.MintParams({
+                        token0: tokens[0],
+                        token1: tokens[1],
+                        fee: IPancakePair(_adapter.token).fee(),
+                        tickLower: ticks[0],
+                        tickUpper: ticks[1],
+                        amount0Desired: tokenAmount[0],
+                        amount1Desired: tokenAmount[1],
+                        amount0Min: 0,
+                        amount1Min: 0,
+                        recipient: address(this),
+                        deadline: block.timestamp + 2 hours
+                    });
+
+                (tokenId, amountOut, , ) = INonfungiblePositionManager(_strategy).mint(params);
+                IAdapter(_adapter.addr).setLiquidityToken(_account, _tokenId, tokenId);
+            }
+        } else if (tokenAmount[0] != 0 && tokenAmount[1] != 0) {
+            amountOut = addLiquidity(
+                tokens[0],
+                tokens[1],
+                wbnb,
+                _router,
+                tokenAmount[0],
+                tokenAmount[1]
+            );
+        }
+    }
+
+    function withdrawLPMatic(
+        IYBNFT.Adapter memory _adapter,
+        address wbnb,
+        address _account,
+        uint256 _amountIn,
+        uint256 _tokenId
+    ) public returns (uint256 amountOut) {
+        address[2] memory tokens;
+        tokens[0] = IPancakePair(_adapter.token).token0();
+        tokens[1] = IPancakePair(_adapter.token).token1();
+
+        address _router = IAdapter(_adapter.addr).router();
+
+        if(IAdapter(_adapter.addr).noDeposit()) {
+            uint256 tokenId = IAdapter(_adapter.addr).getLiquidityToken(_account, _tokenId);
+            require(tokenId != 0, "Invalid request");
+
+            INonfungiblePositionManager.DecreaseLiquidityParams memory params =
+                INonfungiblePositionManager.DecreaseLiquidityParams({
+                    tokenId: tokenId,
+                    liquidity: uint128(_amountIn),
+                    amount0Min: 0,
+                    amount1Min: 0,
+                    deadline: block.timestamp + 2 hours
+                });
+            (uint256 amount0, uint256 amount1) = INonfungiblePositionManager(IAdapter(_adapter.addr).strategy()).decreaseLiquidity(params);
+
+            if(amountOut != 0) {
+                if(tokens[0] == wbnb) {
+                    IWrap(tokens[0]).withdraw(amount0);
+                    amountOut += amount0;
+                } else {
+                    amountOut += swapforCoin(
+                        _adapter.addr,
+                        amount0, 
+                        tokens[0], 
+                        _router, 
+                        wbnb
+                    );
+                }
+            }
+
+            if(amount1 != 0) {
+                if(tokens[1] == wbnb) {
+                    IWrap(tokens[1]).withdraw(amount1);
+                    amountOut += amount1;
+                } else {
+                    // amountOut += swapforCoin(_adapter, amount1, token1, _router, wbnb);
+                }
+            }
+        } else {
+            amountOut = removeLiquidity(
+                _adapter,
+                tokens[0],
+                tokens[1],
+                wbnb,
+                _amountIn
+            );
+        }
+    }
+
+    
+    function addLiquidity(
+        address token0,
+        address token1,
+        address wbnb,
+        address router,
+        uint256 token0Amount,
+        uint256 token1Amount
+    ) public returns(uint256 amountOut) {
+        if (token0 == wbnb || token1 == wbnb) {
+            (, , amountOut) = IPancakeRouter(router).addLiquidityETH{
+                value: token0 == wbnb ? token0Amount : token1Amount
+            }(
+                token0 == wbnb ? token1 : token0,
+                token0 == wbnb ? token1Amount : token0Amount,
+                0,
+                0,
+                address(this),
+                block.timestamp + 2 hours
+            );
+        } else {
+            (, , amountOut) = IPancakeRouter(router).addLiquidity(
+                token0,
+                token1,
+                token0Amount,
+                token1Amount,
+                0,
+                0,
+                address(this),
+                block.timestamp + 2 hours
+            );
+        }
+    }
+
+    function removeLiquidity(
+        IYBNFT.Adapter memory _adapter,
+        address token0,
+        address token1,
+        address wbnb,
+        uint256 _amountIn
+    ) public returns(uint256 amountOut) {
+        address _router = IAdapter(_adapter.addr).router();
+        IBEP20(_adapter.token).approve(_router, _amountIn);
+
+        if (token0 == wbnb || token1 == wbnb) {
+            address tokenAddr = token0 == wbnb ? token1 : token0;
+            (uint256 amountToken, uint256 amountETH) = IPancakeRouter(_router)
+                .removeLiquidityETH(
+                    tokenAddr,
+                    _amountIn,
+                    0,
+                    0,
+                    address(this),
+                    block.timestamp + 2 hours
+                );
+
+            amountOut = amountETH;
+            amountOut += swapforCoin(
+                _adapter.addr,
+                amountToken,
+                tokenAddr,
+                _router,
+                wbnb
+            );
+        } else {
+            (uint256 amountA, uint256 amountB) = IPancakeRouter(_router)
+                .removeLiquidity(
+                    token0,
+                    token1,
+                    _amountIn,
+                    0,
+                    0,
+                    address(this),
+                    block.timestamp + 2 hours
+                );
+
+            amountOut += swapforCoin(_adapter.addr, amountA, token0, _router, wbnb);
+            amountOut += swapforCoin(_adapter.addr, amountB, token1, _router, wbnb);
         }
     }
 }

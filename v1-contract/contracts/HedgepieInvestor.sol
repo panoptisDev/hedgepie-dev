@@ -166,9 +166,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 amountOut = HedgepieLibrary.getLP(
                     adapter,
                     wbnb,
-                    msg.sender,
-                    amountIn,
-                    0
+                    amountIn
                 );
             }
 
@@ -337,9 +335,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 amountOut += HedgepieLibrary.withdrawLP(
                     adapter,
                     wbnb,
-                    msg.sender,
-                    balances[1] - balances[0] - taxAmount,
-                    0
+                    balances[1] - balances[0] - taxAmount
                 );
 
                 if (IAdapter(adapter.addr).rewardToken() != address(0)) {
