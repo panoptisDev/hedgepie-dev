@@ -115,7 +115,6 @@ library HedgepieLibrary {
         tokens[0] = IPancakePair(_adapter.token).token0();
         tokens[1] = IPancakePair(_adapter.token).token1();
         address _router = IAdapter(_adapter.addr).router();
-        address _strategy = IAdapter(_adapter.addr).strategy();
 
         uint256[2] memory tokenAmount;
         tokenAmount[0] = _amountIn / 2;
@@ -128,7 +127,7 @@ library HedgepieLibrary {
                 _router,
                 wbnb
             );
-            IBEP20(tokens[0]).approve(_strategy, tokenAmount[0]);
+            IBEP20(tokens[0]).approve(_router, tokenAmount[0]);
         }
 
         if (tokens[1] != wbnb) {
@@ -139,7 +138,7 @@ library HedgepieLibrary {
                 _router,
                 wbnb
             );
-            IBEP20(tokens[1]).approve(_strategy, tokenAmount[1]);
+            IBEP20(tokens[1]).approve(_router, tokenAmount[1]);
         }
         
         if (tokenAmount[0] != 0 && tokenAmount[1] != 0) {
