@@ -27,6 +27,7 @@ export const styles = {
     top: [400, 400, 350, 0],
     right: [0, 30],
     width: [300, 300, 400, 500],
+    paddingLeft:"20px"
   },
   banner_title: {
     maxWidth: [260, 450, 450, 562],
@@ -34,6 +35,7 @@ export const styles = {
     fontWeight: 700,
     color: '#16103a',
     lineHeight: 1,
+    paddingRight:"20px"
   },
   banner_text: {
     marginTop: [4, 5],

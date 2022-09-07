@@ -37,22 +37,23 @@ const MintContextProvider = ({ children }) => {
     let protoStr = protocol.toLowerCase()
     if (protoStr.includes('apeswap')) return 'images/apeswap.png'
     else if (protoStr.includes('autofarm')) return 'images/autofarm.png'
+    else if (protoStr.includes('biswap')) return 'images/biswap.png'
   }
 
   useEffect(() => {
     const getCompositionOptions = async () => {
       try {
         const adapters = await getAdapters()
-        console.log('adapter' + JSON.stringify(adapters))
+        console.log('adapters' + JSON.stringify(adapters))
         var adapterOptions = {}
-        adapters.map((adapter) => {
+        adapters.forEach((adapter) => {
           console.log(adapter)
           if (adapter.name.includes('::')) {
             let split = adapter.name.split('::')
             let protocol = split[0]
-            let pool = split[1]
-            adapterOptions[protocol] = {}
-            adapterOptions[protocol]['icon'] = getIcon(protocol)
+            let pool = split[split.length - 1]
+            !adapterOptions[protocol] ? (adapterOptions[protocol] = {}) : ''
+            !adapterOptions[protocol]['icon'] ? (adapterOptions[protocol]['icon'] = getIcon(protocol)) : ''
             adapterOptions[protocol][pool] = { addr: adapter.addr, token: adapter.stakingToken }
           }
         })
@@ -81,14 +82,14 @@ const MintContextProvider = ({ children }) => {
       formData,
       strategies,
       setWizard,
+      ethPrice,
       setFormData,
       bnbPrice,
       maticPrice,
-      ethPrice,
       account,
       chainId,
     }),
-    [wizard, formData, strategies, bnbPrice],
+    [wizard, formData, strategies, bnbPrice, account, chainId],
   )
 
   return <MintWizardContext.Provider value={value}>{children}</MintWizardContext.Provider>

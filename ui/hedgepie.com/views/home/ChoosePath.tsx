@@ -8,7 +8,7 @@ const ChoosePath = () => {
     <Box
       px={3}
       sx={{
-        marginTop: 60,
+        marginTop: 0,
         marginBottom: [50, 150],
         display: 'flex',
         flexDirection: 'row',
@@ -23,12 +23,12 @@ const ChoosePath = () => {
       >
         <Box
           sx={{
-            fontSize: 60,
             fontWeight: 700,
             textAlign: 'center',
             color: '#14114B',
             fontFamily: 'Noto Sans',
             letterSpacing: '-2px',
+            fontSize: [40, 40, 40, 80],
           }}
         >
           Choose your path.

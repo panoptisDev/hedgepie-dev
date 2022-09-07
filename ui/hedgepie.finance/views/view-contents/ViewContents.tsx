@@ -40,8 +40,12 @@ const ViewContents = (props: Props) => {
   const [description, setDescription] = useState<string>()
   const [bnbPrice, setBNBPrice] = useState<any>()
 
+  const [tvl, setTVL] = useState()
+  const [participants, setParticipants] = useState()
+
   const { getTokenUri, getAllocations, getMaxTokenId } = useYBNFTMint()
   const { getAdapters } = useAdapterManager()
+  const { getNFTInfo } = useInvestor()
 
   // Get the Token ID of the current YBNFT
   useEffect(() => {
@@ -51,6 +55,15 @@ const ViewContents = (props: Props) => {
       const res = queryString.parse(router.asPath.split(/\?/)[1])
       setTokenId(res.tokenId as string)
     }
+  }, [])
+
+  // To get the TVL and total Participants to populate in the Contents page
+  useEffect(() => {
+    // const setTVLandParticipants = async () => {
+    //   setTVL(await getTVL(tokenId))
+    //   setParticipants(await getTotalParticipants(tokenId))
+    // }
+    // setTVLandParticipants()
   }, [])
 
   // Get the Metadata, Allocations, etc of the current YBNFT
@@ -83,11 +96,24 @@ const ViewContents = (props: Props) => {
         if (obj.name.toLowerCase().includes('autofarm')) {
           obj.image = 'images/autofarm.png'
         }
+        if (obj.name.toLowerCase().includes('biswap')) {
+          obj.image = 'images/biswap.png'
+        }
         mappings.push(obj)
       }
       setStrategies(mappings)
     }
     fetchContractData()
+
+    // Populating TVL and Participants badges
+    const populateBadges = async () => {
+      const nftInfo = await getNFTInfo(tokenId)
+      setBadges([
+        { title: 'TLV:', value: `${getBalanceInEther(nftInfo.tvl)} BNB` },
+        { title: 'Participants:', value: `${nftInfo.totalParticipant}` },
+      ])
+    }
+    populateBadges()
   }, [tokenId])
 
   // Set the Metadata JSON URL, Image and NFT Name/Description from the metadata
@@ -102,15 +128,6 @@ const ViewContents = (props: Props) => {
     }
     fetchAndPopulateMetadataItems()
   }, [metadataURL])
-
-  // Setting badges,strategies with the default values, which should later be taken from the props
-  useEffect(() => {
-    setBadges([
-      { title: 'COLLECTIVE APY:', value: '500%' },
-      { title: 'TLV:', value: '$5000' },
-      { title: 'Participants:', value: '487' },
-    ])
-  }, [])
 
   useEffect(() => {
     if (staked && staked > 0) {
@@ -130,7 +147,7 @@ const ViewContents = (props: Props) => {
       {
         title: 'Contract Address',
         value: (
-          <Link href="https://bscscan.com/address/0xdf5926C9A457d61c72C1dbcBce140c1548fAE87b">
+          <Link href="https://bscscan.com/address/0x82Eaf622517Dab13E99E104a5F68122a7a5BB38B">
             <a target="_blank" rel="noopener noreferrer">
               Contract on BSCScan
             </a>
@@ -146,7 +163,7 @@ const ViewContents = (props: Props) => {
             </a>
           </Link>
         ) : (
-          <Spinner />
+          <Spinner sx={{ color: '#1799DE' }} />
         ),
       },
     ])
@@ -173,19 +190,19 @@ const ViewContents = (props: Props) => {
                           {ybnftName ? (
                             <Text sx={styles.nft_name_text as ThemeUICSSObject}>{ybnftName}</Text>
                           ) : (
-                            <Spinner />
+                            <Spinner sx={{ color: '#1799DE' }} />
                           )}
                           {description ? <Text sx={styles.nft_desc_text as ThemeUICSSObject}>{description}</Text> : ''}
                         </Flex>
                       </Flex>
-                      {/* <Box sx={styles.flex_badges_row as ThemeUICSSObject}>
+                      <Box sx={styles.flex_badges_row as ThemeUICSSObject}>
                         {badges.map((badge) => (
                           <Box sx={styles.flex_badge_container as ThemeUICSSObject}>
                             <Text sx={styles.badge_title_text as ThemeUICSSObject}>{badge.title}</Text>
                             <Text sx={styles.badge_value_text}>{badge.value}</Text>
                           </Box>
                         ))}
-                      </Box> */}
+                      </Box>
                     </Flex>
                     <Flex sx={styles.flex_owner_details_container as ThemeUICSSObject}>
                       {/* <Text sx={styles.owner_name_text as ThemeUICSSObject}>{owner.name}</Text> */}
@@ -216,7 +233,7 @@ const ViewContents = (props: Props) => {
                               </Flex>
                             </Flex>
                           ))}{' '}
-                        {!strategies || !strategies.length ? <Spinner /> : ''}
+                        {!strategies || !strategies.length ? <Spinner sx={{ color: '#1799DE' }} /> : ''}
                       </Flex>
                     </Flex>
 
@@ -233,7 +250,7 @@ const ViewContents = (props: Props) => {
                         }}
                       >
                         <ActionStake tokenId={tokenId} setStaked={setStaked} />
-                        {/* <Yield tokenId={tokenId} /> */}
+                        <Yield tokenId={tokenId} />
                       </Flex>
                     </Flex>
                   </Flex>

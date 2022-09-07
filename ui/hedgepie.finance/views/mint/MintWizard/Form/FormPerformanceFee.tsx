@@ -3,11 +3,16 @@ import { Box, Button } from 'theme-ui'
 import MintWizardContext from 'contexts/MintWizardContext'
 import PerformanceFee from './PerformanceFee'
 import YbNftSummaryChart from './YbNftSummaryChart'
+import toast from 'utils/toast'
 
 const FormPerformanceFee = () => {
-  const { wizard, setWizard } = React.useContext(MintWizardContext)
+  const { wizard, setWizard, account } = React.useContext(MintWizardContext)
 
   const handleNext = () => {
+    if (!account) {
+      toast('Please connect your wallet to continue !!')
+      return
+    }
     setWizard({
       ...wizard,
       order: 3,

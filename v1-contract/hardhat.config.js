@@ -5,15 +5,16 @@ require("@nomiclabs/hardhat-waffle");
 require("@typechain/hardhat");
 require("dotenv-extended").load();
 require("hardhat-gas-reporter");
-require("hardhat-contract-sizer");
 
-if (!process.env.TESTNET_PRIVKEY) throw new Error("TESTNET_PRIVKEY missing from .env file");
-if (!process.env.MAINNET_PRIVKEY) throw new Error("MAINNET_PRIVKEY missing from .env file");
+if (!process.env.TESTNET_PRIVKEY)
+  throw new Error("TESTNET_PRIVKEY missing from .env file");
+if (!process.env.MAINNET_PRIVKEY)
+  throw new Error("MAINNET_PRIVKEY missing from .env file");
+
 module.exports = {
   defaultNetwork: "hardhat",
   networks: {
     hardhat: {
-      allowUnlimitedContractSize: true,
       forking: {
         url: "https://rpc.ankr.com/bsc",
         // url: "https://bscrpc.com",
@@ -41,7 +42,8 @@ module.exports = {
       accounts: [process.env.TESTNET_PRIVKEY],
     },
     bsc: {
-      url: "https://bsc-dataseed.binance.org/",
+      // url: "https://bsc-dataseed.binance.org/",
+      url: "https://rpc.ankr.com/bsc",
       accounts: [process.env.MAINNET_PRIVKEY],
     },
     bscTestnet: {

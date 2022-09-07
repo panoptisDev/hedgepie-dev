@@ -99,7 +99,10 @@ const Header = ({ overlay = false, dark = true }: Props) => {
             transition
             arrow
           >
-            {/* <MobileMenuLink href="/vault">Vault</MobileMenuLink> */}
+            {/* <MobileMenuLink href="/vault">Vault</MobileMenuLink>
+             */}
+
+            <MobileMenuLink href="/HedgePie-Whitepaper-V5.pdf">White Paper</MobileMenuLink>
             <MobileMenuLink href="/nft-leaderboard">Leaderboard</MobileMenuLink>
             <MobileMenuLink href="/mint">Mint</MobileMenuLink>
           </Menu>

@@ -11,7 +11,8 @@ import {
   fetchBalance,
   fetchYield,
   claimFromYBNFT,
-
+  fetchNFTInfo,
+  fetchParticipants
 } from 'utils/callHelpers/binance/Investor'
 import { getBalanceAmount } from 'utils/formatBalance'
 
@@ -74,6 +75,23 @@ export const useInvestor = () => {
     [account, investorContract],
   )
 
+  const getNFTInfo = useCallback(
+    async (ybnftId) => {
+      const nftInfo = await fetchNFTInfo(investorContract, ybnftId)
+      return nftInfo
+    },
+    [account, investorContract],
+  )
+
+  
+  const getTotalParticipants = useCallback(
+    async (ybnftId) => {
+      const participants = await fetchParticipants(investorContract, ybnftId)
+      return participants
+    },
+    [account, investorContract],
+  )
+
   return {
     onYBNFTDeposit: handleDeposit,
     onYBNFTWithdraw: handleWithdraw,
@@ -81,6 +99,8 @@ export const useInvestor = () => {
     getAllowance: getAllowance,
     getBalance: getBalance,
     getYield: getYield,
+    getNFTInfo: getNFTInfo,
+    getTotalParticipants:getTotalParticipants,
     onYBNFTClaim: handleClaim
   }
 }

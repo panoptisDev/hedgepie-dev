@@ -30,7 +30,15 @@ function PRSection() {
         >
           We're not yet live, but be the first to know when we do!
         </Text>
-        <Box sx={{ flexDirection: 'row', gap: '10px', display: ['none', 'none', 'flex'] }}>
+        <Box
+          sx={{
+            flexDirection: 'row',
+            gap: '10px',
+            display: ['none', 'none', 'flex'],
+            alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           <Input
             placeholder="Enter your best email here"
             sx={{
@@ -42,7 +50,9 @@ function PRSection() {
               height: '3rem',
             }}
           />
-          <Button sx={{ cursor: 'pointer', background: '#1799DE', borderRadius: 62, width: '8rem' }}>Submit</Button>
+          <Button sx={{ cursor: 'pointer', background: '#1799DE', borderRadius: 62, width: '8rem', height: '3rem' }}>
+            Submit
+          </Button>
         </Box>
       </Box>
     </Box>
