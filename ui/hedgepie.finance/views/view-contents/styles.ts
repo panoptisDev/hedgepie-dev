@@ -36,7 +36,12 @@ export const styles = {
   flex_badge_container: {
     justifyContent: 'center',
     alignItems: 'center',
-    gap: '0.3rem',
+    display:"flex",
+    flexDirection:"row",
+    borderRadius:8,
+    border:'1px solid #ccc',
+    padding:2,
+    gap: '0.5rem',
   },
   badge_title_text: { color: '#0B4C6F',lineHeight:'14px', fontFamily:'Noto Sans', fontSize:'16px' },
   badge_value_text: { color: '#0B4C6F',lineHeight:'14px', fontFamily:'Noto Sans',fontSize:'16px' },
@@ -352,6 +357,6 @@ export const styles = {
     marginTop: '1rem',
     width: '100%',
   },
-  yield_inner_container:{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '12rem' },
-  yield_inner_text:{ fontSize: 24, fontWeight: 700, color: '#e3bc20' }
+  yield_inner_container:{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '8rem' },
+  yield_inner_text:{ fontSize: 24, fontWeight: 700, color: '#fff' }
 }

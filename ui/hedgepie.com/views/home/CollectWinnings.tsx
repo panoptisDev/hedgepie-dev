@@ -12,8 +12,8 @@ const CollectWinnings = () => {
       id="collect-winnings"
       sx={{
         padding: '0 16px',
-        marginTop: 60,
-        marginBottom: 150,
+        marginTop: 30,
+        marginBottom: 0,
       }}
     >
       <Box

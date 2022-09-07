@@ -186,7 +186,7 @@ const LotteryTable = ({ data, onSort, sortKey }: any) => {
               </td>
               <td style={{}}>
                 {/* <Box sx={{ color: '#DF4886' }}>$numberWithCommas(d.tvl)</Box> */}
-                <Box sx={{ color: '#DF4886', fontSize: '16px', fontWeight: '600' }}>{'$100,000 USD'}</Box>
+                <Box sx={{ color: '#DF4886', fontSize: '16px', fontWeight: '600' }}>{d.tvl}</Box>
               </td>
               {/* <td>{numberWithCommas(d.staked)} TAKO</td> */}
               {/* <td>{numberWithCommas(d.participants)}</td> */}
@@ -206,7 +206,7 @@ const LotteryTable = ({ data, onSort, sortKey }: any) => {
                   fontWeight: '600',
                 }}
               >
-                {'24'}
+                {d.totalParticipants}
               </td>
               <td style={{}}>
                 {/* <Box sx={{ color: '#EFA906' }}>d.daily%</Box> */}

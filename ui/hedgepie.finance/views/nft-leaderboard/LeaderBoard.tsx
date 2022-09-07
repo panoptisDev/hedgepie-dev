@@ -9,12 +9,15 @@ import { useInvestor } from 'hooks/useInvestor'
 
 import { styles } from './styles'
 import toast from 'utils/toast'
+import { getBalanceInEther } from 'utils/formatBalance'
 
 export interface TokenInfo {
   name?: string
   imageURL?: string
   description?: string
   tokenId?: number
+  tvl?: string
+  totalParticipants?: number
 }
 
 const LeaderBoard = () => {
@@ -22,7 +25,7 @@ const LeaderBoard = () => {
   const [searchKey, setSearchKey] = React.useState('')
   const [sortKey, setSortKey] = React.useState('')
   const { getMaxTokenId, getTokenUri } = useYBNFTMint()
-  const { getTVL, getTotalParticipants } = useInvestor()
+  const { getNFTInfo } = useInvestor()
 
   const [loading, setLoading] = useState(true)
 
@@ -45,8 +48,7 @@ const LeaderBoard = () => {
         }
 
         // Obtain total participants and TVL, Will be used to populate the tvl and participants in the Leaderboard
-        // const tvl = await getTVL(i)
-        // const participants = await getTotalParticipants(i)
+        const nftInfo = await getNFTInfo(i)
 
         const metadata = await metadataFile.json()
         const leaderboardItem = {
@@ -54,6 +56,8 @@ const LeaderBoard = () => {
           name: metadata.name,
           imageURL: metadata.imageURL,
           description: metadata.description,
+          tvl: `${getBalanceInEther(nftInfo.tvl)} BNB`,
+          totalParticipants: nftInfo.totalParticipant,
         }
         tokens.push(leaderboardItem)
         setLotteries(tokens)
