@@ -77,7 +77,7 @@ export const biswapAdapterArgsList = {
   },
 };
 
-// beefy farm adapter
+// beefy vault adapter
 export const beefyAdapterArgsList = {
   "Beefy::Vault::ETH": {
     strategy: "0x725E14C3106EBf4778e01eA974e492f909029aE8",
@@ -90,5 +90,30 @@ export const beefyAdapterArgsList = {
     stakingToken: "0xDA8ceb724A06819c0A5cDb4304ea0cB27F8304cF",
     router: "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8",
     name: "Beefy::Vault::Biswap USDT-BUSD",
+  },
+};
+
+// belt vault adapter
+export const beltAdapterArgsList = {
+  "Belt::Vault::BUSD": {
+    strategy: "0x9171Bf7c050aC8B4cf7835e51F7b4841DFB2cCD0",
+    stakingToken: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+    repayToken: "0x9171Bf7c050aC8B4cf7835e51F7b4841DFB2cCD0",
+    rewardToken: "0xE0e514c71282b6f4e823703a39374Cf58dc3eA4f",
+    name: "Belt::Vault::BUSD",
+  },
+  "Belt::Vault::USDT": {
+    strategy: "0x55E1B1e49B969C018F2722445Cd2dD9818dDCC25",
+    stakingToken: "0x55d398326f99059fF775485246999027B3197955",
+    repayToken: "0x55E1B1e49B969C018F2722445Cd2dD9818dDCC25",
+    rewardToken: "0xE0e514c71282b6f4e823703a39374Cf58dc3eA4f",
+    name: "Belt::Vault::USDT",
+  },
+  "Belt::Vault::BTC": {
+    strategy: "0x51bd63F240fB13870550423D208452cA87c44444",
+    stakingToken: "0x7130d2A12B9BCbFAe4f2634d864A1Ee1Ce3Ead9c",
+    repayToken: "0x51bd63F240fB13870550423D208452cA87c44444",
+    rewardToken: "0xE0e514c71282b6f4e823703a39374Cf58dc3eA4f",
+    name: "Belt::Vault::BTC",
   },
 };

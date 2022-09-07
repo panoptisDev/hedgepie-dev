@@ -31,10 +31,12 @@
     "deploy:bnb:biswap-bsw-usdt-farm": "npx hardhat run deploy/bnb/biswap/biswap-bsw-usdt-farm.ts --network bsc",
     "deploy:bnb:beefy-eth-vault": "npx hardhat run deploy/bnb/beefy/beefy-eth-vault.ts --network bsc",
     "deploy:bnb:beefy-bsw-usdt-busd-vault": "npx hardhat run deploy/bnb/beefy/beefy-bsw-usdt-busd-vault.ts --network bsc",
+    "deploy:bnb:belt-busd-vault": "npx hardhat run deploy/bnb/belt/belt-busd-valut.ts --network bsc",
+    "deploy:bnb:belt-usdt-vault": "npx hardhat run deploy/bnb/belt/belt-usdt-valut.ts --network bsc",
+    "deploy:bnb:belt-btc-vault": "npx hardhat run deploy/bnb/belt/belt-btc-valut.ts --network bsc",
     "code:size": "npx hardhat size-contracts",
     "deploy:network": "npx hardhat run deploy/deploy.ts --network",
-    "verify:network": "npx hardhat verify --network"
-  },
+    "verify:network": "npx hardhat verify --network"  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/abe-sinjiro/rubi-token.git"

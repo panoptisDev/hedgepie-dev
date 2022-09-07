@@ -42,3 +42,9 @@ export const beefy = {
   "Beefy::Vault::Biswap USDT-BUSD":
     "0xb450A9e8039b5B8f22a669D91c8136851980C9a6",
 };
+
+export const belt = {
+  "Belt::Vault::BUSD": "0xaF400Df5E0E92E79663E4eB06CD46F4352366416",
+  "Belt::Vault::USDT": "0xC346Ff39E9f4cF1b119897208f971282Ed4D2c93",
+  "Belt::Vault::BTC": "0x28068d53FcCfE63B6Fea9E42968C723c770999Ff",
+};
