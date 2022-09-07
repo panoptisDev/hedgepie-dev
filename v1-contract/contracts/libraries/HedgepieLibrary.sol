@@ -384,51 +384,49 @@ library HedgepieLibrary {
                 _userAdapterInfo,
                 _adapterInfo
             );
-        } else {
-            if (addrs[1] != address(0)) {
-                require(amounts[1] > amounts[0], "Error: Deposit failed");
-                IAdapter(_adapterAddr).increaseWithdrawalAmount(
-                    _account,
-                    _tokenId,
-                    amounts[1] - amounts[0]
-                );
-            } else if (IAdapter(_adapterAddr).isVault()) {
-                require(amounts[1] > amounts[0], "Error: Deposit failed");
+        } else if (addrs[1] != address(0)) {
+            require(amounts[1] > amounts[0], "Error: Deposit failed");
+            IAdapter(_adapterAddr).increaseWithdrawalAmount(
+                _account,
+                _tokenId,
+                amounts[1] - amounts[0]
+            );
+        } else if (IAdapter(_adapterAddr).isVault()) {
+            require(amounts[1] > amounts[0], "Error: Deposit failed");
 
-                _userAdapterInfo.userShares += amounts[1] - amounts[0];
-                IAdapter(_adapterAddr).increaseWithdrawalAmount(
-                    _account,
-                    _tokenId,
-                    amounts[1] - amounts[0]
-                );
-            } else if (addrs[2] != address(0)) {
-                // Farm Pool
-                uint256 rewardAmount = addrs[2] == addrs[0]
-                    ? amounts[1] + _amount - amounts[0]
-                    : amounts[1] - amounts[0];
+            _userAdapterInfo.userShares += amounts[1] - amounts[0];
+            IAdapter(_adapterAddr).increaseWithdrawalAmount(
+                _account,
+                _tokenId,
+                amounts[1] - amounts[0]
+            );
+        } else if (addrs[2] != address(0)) {
+            // Farm Pool
+            uint256 rewardAmount = addrs[2] == addrs[0]
+                ? amounts[1] + _amount - amounts[0]
+                : amounts[1] - amounts[0];
 
-                if (rewardAmount != 0 && _adapterInfo.totalStaked != 0) {
-                    _adapterInfo.accTokenPerShare +=
-                        (rewardAmount * 1e12) /
-                        _adapterInfo.totalStaked;
-                }
-
-                if (_userAdapterInfo.amount == 0) {
-                    _userAdapterInfo.userShares = _adapterInfo.accTokenPerShare;
-                }
-
-                IAdapter(_adapterAddr).increaseWithdrawalAmount(
-                    _account,
-                    _tokenId,
-                    _amount
-                );
-            } else {
-                IAdapter(_adapterAddr).increaseWithdrawalAmount(
-                    _account,
-                    _tokenId,
-                    _amount
-                );
+            if (rewardAmount != 0 && _adapterInfo.totalStaked != 0) {
+                _adapterInfo.accTokenPerShare +=
+                    (rewardAmount * 1e12) /
+                    _adapterInfo.totalStaked;
             }
+
+            if (_userAdapterInfo.amount == 0) {
+                _userAdapterInfo.userShares = _adapterInfo.accTokenPerShare;
+            }
+
+            IAdapter(_adapterAddr).increaseWithdrawalAmount(
+                _account,
+                _tokenId,
+                _amount
+            );
+        } else {
+            IAdapter(_adapterAddr).increaseWithdrawalAmount(
+                _account,
+                _tokenId,
+                _amount
+            );
         }
     }
 
@@ -479,15 +477,7 @@ library HedgepieLibrary {
                         : 0
             );
 
-        
-        if (addrs[1] != address(0)) {
-            require(amounts[1] > amounts[0], "Error: Deposit failed");
-            IAdapter(_adapterAddr).increaseWithdrawalAmount(
-                _account,
-                _tokenId,
-                amounts[1] - amounts[0]
-            );
-        } else if (isReward) {
+        if (isReward) {
             require(amounts[1] > amounts[0], "Error: Deposit failed");
 
             unchecked {
@@ -495,6 +485,13 @@ library HedgepieLibrary {
                 _userAdapterInfo.userShares1 += amounts[1] - amounts[0];   
             }
 
+            IAdapter(_adapterAddr).increaseWithdrawalAmount(
+                _account,
+                _tokenId,
+                amounts[1] - amounts[0]
+            );
+        } else if (addrs[1] != address(0)) {
+            require(amounts[1] > amounts[0], "Error: Deposit failed 11111");
             IAdapter(_adapterAddr).increaseWithdrawalAmount(
                 _account,
                 _tokenId,
