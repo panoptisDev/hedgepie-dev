@@ -26,9 +26,11 @@
     "deploy:bnb:apeswap-banana-busd-farm": "npx hardhat run deploy/bnb/apeswap/apeswap-banana-busd-farm.ts --network bsc",
     "deploy:bnb:autofarm-wbnb-cake-vault": "npx hardhat run deploy/bnb/autofarm/autofarm-wbnb-cake-vault.ts --network bsc",
     "deploy:bnb:autofarm-wbnb-busd-vault": "npx hardhat run deploy/bnb/autofarm/autofarm-wbnb-busd-vault.ts --network bsc",
-    "deploy:bnb:autofarm-wbnb-ada-vault": "npx hardhat run deploy/bnb/autofarm/autofarm-wbnb-ada-wbnb.ts --network bsc",
+    "deploy:bnb:autofarm-wbnb-ada-vault": "npx hardhat run deploy/bnb/autofarm/autofarm-wbnb-ada-vault.ts --network bsc",
     "deploy:bnb:biswap-bsw-farm": "npx hardhat run deploy/bnb/biswap/biswap-bsw-farm.ts --network bsc",
     "deploy:bnb:biswap-bsw-usdt-farm": "npx hardhat run deploy/bnb/biswap/biswap-bsw-usdt-farm.ts --network bsc",
+    "deploy:bnb:beefy-eth-vault": "npx hardhat run deploy/bnb/beefy/beefy-eth-vault.ts --network bsc",
+    "deploy:bnb:beefy-bsw-usdt-busd-vault": "npx hardhat run deploy/bnb/beefy/beefy-bsw-usdt-busd-vault.ts --network bsc",
     "code:size": "npx hardhat size-contracts",
     "deploy:network": "npx hardhat run deploy/deploy.ts --network",
     "verify:network": "npx hardhat verify --network"

@@ -36,3 +36,9 @@ export const biswap = {
   "Biswap::Farm::BSW": "0x7d71EEb7503f9383aE0dEb853102fb55D2663416",
   "Biswap::Farm::USDT-BSW": "0xE687c98FF52b0827DD130625f8D6F7D3c5FC099b",
 };
+
+export const beefy = {
+  "Beefy::Vault::ETH": "0x1d63AAbcde67C6a70480f954543b38724120152D",
+  "Beefy::Vault::Biswap USDT-BUSD":
+    "0xb450A9e8039b5B8f22a669D91c8136851980C9a6",
+};

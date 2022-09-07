@@ -76,3 +76,19 @@ export const biswapAdapterArgsList = {
     name: "Biswap::Farm::USDT-BSW",
   },
 };
+
+// beefy farm adapter
+export const beefyAdapterArgsList = {
+  "Beefy::Vault::ETH": {
+    strategy: "0x725E14C3106EBf4778e01eA974e492f909029aE8",
+    stakingToken: "0x2170Ed0880ac9A755fd29B2688956BD959F933F8",
+    router: "0x0000000000000000000000000000000000000000",
+    name: "Beefy::Vault::ETH",
+  },
+  "Beefy::Vault::Biswap USDT-BUSD": {
+    strategy: "0x164fb78cAf2730eFD63380c2a645c32eBa1C52bc",
+    stakingToken: "0xDA8ceb724A06819c0A5cDb4304ea0cB27F8304cF",
+    router: "0x3a6d8cA21D1CF76F653A67577FA0D27453350dD8",
+    name: "Beefy::Vault::Biswap USDT-BUSD",
+  },
+};
