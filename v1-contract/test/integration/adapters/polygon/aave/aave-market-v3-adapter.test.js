@@ -16,7 +16,7 @@ const forkNetwork = async () => {
   })
 }
 
-describe.only("AaveMarketV3Adapter Integration Test", function () {
+describe("AaveMarketV3Adapter Integration Test", function () {
   before("Deploy contract", async function () {
     await forkNetwork();
 
