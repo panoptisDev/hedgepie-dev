@@ -88,7 +88,7 @@ const DemoInfo = () => {
                   variant="primary"
                   sx={{
                     borderRadius: 40,
-                    height: 64,
+                    height: [40, 40, 64],
                     padding: '0 24px',
                     cursor: 'pointer',
                     transition: 'all .2s',
@@ -154,7 +154,7 @@ const DemoInfo = () => {
                   variant="primary"
                   sx={{
                     borderRadius: 40,
-                    height: 64,
+                    height: [40, 40, 64],
                     padding: '0 24px',
                     cursor: 'pointer',
                     transition: 'all .2s',
