@@ -49,12 +49,13 @@ const ActionStake = (props: any) => {
         '&apikey=ZWKTR3X6EIE91YMHQ8RNUDHADI1795JXE1',
     )
     const balanceNumber = Number(balance?.data?.result)
+    console.log(balanceNumber)
     setBNBBalance(getBalanceInEther(new BigNumber(balanceNumber)))
   }
 
   useEffect(() => {
     getBNBBalance()
-  }, [])
+  }, [account])
 
   useEffect(() => {
     if (!account) return
