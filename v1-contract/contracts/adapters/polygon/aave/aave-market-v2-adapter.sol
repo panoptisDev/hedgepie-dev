@@ -43,7 +43,7 @@ contract AaveMarketV2Adapter is BaseAdapterMatic {
             "deposit(address,uint256,address,uint16)", 
             stakingToken,
             _amount,
-            msg.sender,
+            investor,
             0
         );
     }
@@ -67,7 +67,7 @@ contract AaveMarketV2Adapter is BaseAdapterMatic {
             "withdraw(address,uint256,address)", 
             stakingToken,
             _amount,
-            msg.sender
+            investor
         );
     }
 }

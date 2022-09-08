@@ -16,7 +16,7 @@ const forkNetwork = async () => {
   })
 }
 
-describe("AaveMarketV2Adapter Integration Test", function () {
+describe.only("AaveMarketV3Adapter Integration Test", function () {
   before("Deploy contract", async function () {
     await forkNetwork();
 
@@ -24,9 +24,9 @@ describe("AaveMarketV2Adapter Integration Test", function () {
 
     const performanceFee = 50;
     const wmatic = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
-    const strategy = "0x8dFf5E27EA6b7AC08EbFdf9eB090F32ee9a30fcf"; // LendingPoolV2
-    const stakingToken = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"; // USDC
-    const repayToken = "0x1a13F4Ca1d028320A707D99520AbFefca3998b7F"; // amUSDC - (AaveMaticMarket USDC)
+    const strategy = "0x794a61358D6845594F94dc1DB02A252b5b4814aD"; // LendingPoolV3
+    const stakingToken = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063"; // DAI
+    const repayToken = "0x82E64f49Ed5EC1bC6e43DAD4FC8Af9bb3A2312EE"; // aPolDAI - (Aave Polygon DAI)
     const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
 
     this.performanceFee = performanceFee;
@@ -41,13 +41,13 @@ describe("AaveMarketV2Adapter Integration Test", function () {
     
     this.accTokenPerShare = BigNumber.from(0);
 
-    // Deploy Aave Market V2 Adapter contract
-    const AaveV2Adapter = await ethers.getContractFactory("AaveMarketV2Adapter");
-    this.aAdapter = await AaveV2Adapter.deploy(
+    // Deploy Aave Market V3 Adapter contract
+    const AaveV3Adapter = await ethers.getContractFactory("AaveMarketV3Adapter");
+    this.aAdapter = await AaveV3Adapter.deploy(
       strategy,
       stakingToken,
       repayToken,
-      "Aave::MarketV2::USDC"
+      "Aave::MarketV3::USDC"
     );
     await this.aAdapter.deployed();
 
@@ -101,7 +101,7 @@ describe("AaveMarketV2Adapter Integration Test", function () {
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
     console.log("Strategy: ", strategy);
-    console.log("AaveMarketV2Adapter: ", this.aAdapter.address);
+    console.log("AaveMarketV3Adapter: ", this.aAdapter.address);
 
     this.repayToken = await ethers.getContractAt("VBep20Interface", repayToken);
   });
