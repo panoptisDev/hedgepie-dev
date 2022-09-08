@@ -41,6 +41,7 @@ const MintContextProvider = ({ children }) => {
     else if (protoStr.includes('beefy')) return 'images/beefy.png'
     else if (protoStr.includes('belt')) return 'images/belt.png'
     else if (protoStr.includes('venus')) return 'images/venus.png'
+    else if (protoStr.includes('alpaca')) return 'images/alpaca.png'
   }
 
   useEffect(() => {
@@ -55,6 +56,9 @@ const MintContextProvider = ({ children }) => {
             let split = adapter.name.split('::')
             let protocol = split[0]
             let pool = split[split.length - 1]
+            if (adapterOptions[protocol] && adapterOptions[protocol][pool]) {
+              pool = split[split.length - 2] + '-' + split[split.length - 1]
+            }
             !adapterOptions[protocol] ? (adapterOptions[protocol] = {}) : ''
             !adapterOptions[protocol]['icon'] ? (adapterOptions[protocol]['icon'] = getIcon(protocol)) : ''
             adapterOptions[protocol][pool] = { addr: adapter.addr, token: adapter.stakingToken }
