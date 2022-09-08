@@ -25,7 +25,7 @@ const CollectWinnings = () => {
         <Box
           sx={{
             display: 'flex',
-            gap: '100px',
+            gap: ['10px', '10px', '100px'],
             flexDirection: ['column-reverse', 'column-reverse', 'row'],
             '& > *': {
               flex: 1,
@@ -51,7 +51,7 @@ const CollectWinnings = () => {
                 left: 0,
                 width: '100%',
                 height: '100%',
-                padding: '15%',
+                padding: ['3%', '5%', '15%'],
               }}
             >
               <Image src="/images/logo-large.png" />
@@ -80,6 +80,7 @@ const CollectWinnings = () => {
               sx={{
                 color: '#8E8DA0',
                 marginTop: 16,
+                fontSize: [14, 14, 20],
               }}
             >
               At Hedge Pie, users earn higher returns on already winning assets by combining them together into a fund
@@ -87,13 +88,14 @@ const CollectWinnings = () => {
               tracked on the Hedge Pie leaderboard, so when funds perform well, investors follow. Think you have what it
               takes? Connect your wallet, choose your stake positions, & start earning.
             </Box>
-            <Box sx={{ marginTop: 50 }}>
+            <Box sx={{ marginTop: [30, 30, 50] }}>
               <Button
                 variant="info"
                 sx={{
                   borderRadius: 40,
-                  height: 64,
-                  padding: '0 24px',
+                  height: [40, 50, 64],
+                  width: 'fit-content',
+                  padding: ['0 20px', '0 20px', '0 24px'],
                   cursor: 'pointer',
                   transition: 'all .2s',
                   display: 'flex',
@@ -102,7 +104,7 @@ const CollectWinnings = () => {
                 }}
                 onClick={() => toast('Our site will soon be live at hedgepie.finance')}
               >
-                <Box mr={2}>OPEN APP</Box>
+                <Box sx={{ fontSize: [14, 14, 20] }}>OPEN APP</Box>
                 <ArrowRight />
               </Button>
             </Box>

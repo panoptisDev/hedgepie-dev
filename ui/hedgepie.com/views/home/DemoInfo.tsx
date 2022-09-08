@@ -1,5 +1,5 @@
 import React from 'react'
-import { Box, Image, Button, Link as ThemeLink } from 'theme-ui'
+import { Box, Image, Button, Link as ThemeLink, Text } from 'theme-ui'
 import { ArrowRight } from 'react-feather'
 
 import { styles } from './styles'
@@ -75,7 +75,7 @@ const DemoInfo = () => {
                 sx={{
                   color: '#8E8DA0',
                   marginTop: 16,
-                  fontSize: [14, 20],
+                  fontSize: [14, 14, 20],
                 }}
               >
                 Take the guesswork out of staking. Th HedgePie Leaderboard displays top performing funds by APY. No
@@ -88,18 +88,18 @@ const DemoInfo = () => {
                   variant="primary"
                   sx={{
                     borderRadius: 40,
-                    height: [40, 40, 64],
-                    padding: '0 24px',
+                    height: [40, 50, 64],
+                    width: 'fit-content',
+                    padding: ['0 20px', '0 20px', '0 24px'],
                     cursor: 'pointer',
                     transition: 'all .2s',
                     display: 'flex',
                     alignItems: 'center',
+                    border: '1px solid #1799DE',
                   }}
                   onClick={() => toast('Our site will soon be live at hedgepie.finance')}
                 >
-                  <Box mr={2}>
-                    <ThemeLink mr={4}>OPEN APP</ThemeLink>
-                  </Box>
+                  <Text sx={{ paddingRight: '10px' }}>OPEN APP</Text>
                   <ArrowRight />
                 </Button>
               </Box>
@@ -141,7 +141,7 @@ const DemoInfo = () => {
                 sx={{
                   color: '#8E8DA0',
                   marginTop: 16,
-                  fontSize: [14, 20],
+                  fontSize: [14, 14, 20],
                 }}
               >
                 At Hedge Pie, users earn higher returns on already winning assets by combining them together into a fund
@@ -154,18 +154,19 @@ const DemoInfo = () => {
                   variant="primary"
                   sx={{
                     borderRadius: 40,
-                    height: [40, 40, 64],
-                    padding: '0 24px',
+                    height: [40, 50, 64],
+                    width: 'fit-content',
+                    padding: ['0 20px', '0 20px', '0 24px'],
                     cursor: 'pointer',
                     transition: 'all .2s',
                     display: 'flex',
                     alignItems: 'center',
+                    border: '1px solid #1799DE',
                   }}
                   onClick={() => toast('Our site will soon be live at hedgepie.finance')}
                 >
-                  <Box mr={2}>
-                    <ThemeLink mr={4}>OPEN APP</ThemeLink>
-                  </Box>
+                  <Text sx={{ paddingRight: '10px' }}>OPEN APP</Text>
+
                   <ArrowRight />
                 </Button>
               </Box>
@@ -176,6 +177,7 @@ const DemoInfo = () => {
                 justifyContent: 'center',
                 width: ['100%', '100%', 500],
                 height: 500,
+                marginBottom: ['-160px'],
               }}
             >
               <Image src="/images/piebear.png" />

@@ -26,7 +26,7 @@ const Banner = (props: Props) => {
               >
                 <Box mr={2}>
                   <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                    <Box mr={2} sx={{ fontWeight: '500', letterSpacing: '2px' }}>
+                    <Box mr={2} sx={{ fontWeight: '500', letterSpacing: '2px', fontSize: [14, 14, 20] }}>
                       OPEN APP
                     </Box>
                     <ArrowRight />

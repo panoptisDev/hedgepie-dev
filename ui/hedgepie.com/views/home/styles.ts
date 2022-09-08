@@ -47,8 +47,9 @@ export const styles = {
   },
   banner_connect_wallet_wrapper: {
     borderRadius: 40,
-    height: 64,
-    padding: '0 24px',
+    height: [50,50,64],
+    width:'fit-content',
+    padding: ['0 20px','0 20px','0 24px'],
     cursor: 'pointer',
     transition: 'all .2s',
     display: 'flex',
