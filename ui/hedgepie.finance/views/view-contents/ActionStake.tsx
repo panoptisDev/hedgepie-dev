@@ -135,9 +135,13 @@ const ActionStake = (props: any) => {
         {/* <Box className="desktop-action" sx={styles.vault_action_button_container_desktop as ThemeUICSSObject}> */}
         <ActionStakeButton onStake={handleStake} isDisabled={false} onApprove={handleApprove} approved={approved} />
         {/* </Box> */}
-        <Button sx={styles.unstake_button as ThemeUICSSObject} onClick={handleUnstake}>
-          WITHDRAW ALL
-        </Button>
+        {currentStaked > 0 ? (
+          <Button sx={styles.unstake_button as ThemeUICSSObject} onClick={handleUnstake}>
+            WITHDRAW ALL
+          </Button>
+        ) : (
+          ''
+        )}
       </Box>
 
       {currentStaked ? (
