@@ -14,19 +14,20 @@ export const styles = {
   banner_contents_container: {
     margin: '0 auto',
     maxWidth: 1200,
-    position: 'relative',
+    position: '',
+    display:'flex',
+    flexDirection:['column','column','row'],
+    gap:'10px'
   },
   banner_coins_image: {
-    position: 'absolute',
     top: [300, 300, 250, -140],
     right: [-40, 0, 40, 0],
-    width: [250, 250, 300, 450],
+    width: [250, 250, 300, 800],
   },
   banner_pie_image: {
-    position: 'absolute',
     top: [400, 400, 350, 0],
     right: [0, 30],
-    width: [300, 300, 400, 500],
+    width: [800, 540, 400, 540],
     paddingLeft:"20px"
   },
   banner_title: {

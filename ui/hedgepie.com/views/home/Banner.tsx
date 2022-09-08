@@ -13,8 +13,6 @@ const Banner = (props: Props) => {
     <Box px={3} sx={styles.banner_container as ThemeUICSSObject}>
       <Box sx={styles.banner_box as ThemeUICSSObject}>
         <Box sx={styles.banner_contents_container as ThemeUICSSObject}>
-          <Image src="/images/homepage-coins.png" sx={styles.banner_coins_image as ThemeUICSSObject} />
-          <Image src="/images/pie.png" sx={styles.banner_pie_image as ThemeUICSSObject} />
           <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '0px' }}>
             <Box sx={styles.banner_title as ThemeUICSSObject}>DeFi Simplified.</Box>
             <Box sx={styles.banner_text as ThemeUICSSObject}>
@@ -35,6 +33,41 @@ const Banner = (props: Props) => {
                   </Box>
                 </Box>
               </Button>
+            </Box>
+          </Box>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              marginTop: '0px',
+            }}
+          >
+            <Box
+              sx={{
+                width: ['100%', '100%', '50%'],
+                height: '30rem',
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+                position: 'absolute',
+              }}
+            >
+              <Image src="/images/pie.png" sx={styles.banner_pie_image as ThemeUICSSObject} />
+            </Box>
+            <Box
+              sx={{
+                width: ['100%', '100%', '50%'],
+                height: '30rem',
+                display: 'flex',
+                flexDirection: 'row',
+                justifyContent: 'center',
+                alignItems: 'center',
+              }}
+            >
+              <Image src="/images/homepage-coins.png" sx={styles.banner_coins_image as ThemeUICSSObject} />
             </Box>
           </Box>
         </Box>

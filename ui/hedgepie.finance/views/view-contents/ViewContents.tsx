@@ -23,7 +23,15 @@ import { useWeb3React } from '@web3-react/core'
 type Props = {}
 
 type Badge = { title: string; value: string }
-type Strategy = { image: string; name: string; value: string; percentage: string; per: number }
+type Strategy = {
+  image: string
+  name: string
+  value: string
+  percentage: string
+  per: number
+  protocol?: string
+  pool?: string
+}
 type Detail = { title: string; value: any }
 
 const ViewContents = (props: Props) => {
@@ -84,7 +92,7 @@ const ViewContents = (props: Props) => {
       console.log(adapters)
       let mappings = [] as Strategy[]
       for (let allocation of allocations) {
-        let obj = { name: '', percentage: '', image: '', value: '', per: 0 }
+        let obj = { name: '', percentage: '', image: '', value: '', per: 0, protocol: '', pool: '' }
         adapters.map((adapter) => {
           adapter.addr == allocation.addr ? (obj.name = adapter.name) : ''
         })
@@ -99,6 +107,16 @@ const ViewContents = (props: Props) => {
         if (obj.name.toLowerCase().includes('biswap')) {
           obj.image = 'images/biswap.png'
         }
+        if (obj.name.toLowerCase().includes('beefy')) {
+          obj.image = 'images/beefy.png'
+        }
+        if (obj.name.toLowerCase().includes('belt')) {
+          obj.image = 'images/belt.png'
+        }
+        let split = obj?.name?.split('::')
+        obj.protocol = split?.[0]
+        obj.pool = split?.[split?.length - 1]
+
         mappings.push(obj)
       }
       setStrategies(mappings)
@@ -219,9 +237,14 @@ const ViewContents = (props: Props) => {
                             <Flex sx={styles.flex_strategy_details_container as ThemeUICSSObject}>
                               <Image src={strategy.image} sx={styles.strategy_detail_image as ThemeUICSSObject} />
                               <Flex sx={styles.flex_strategy_detail_column as ThemeUICSSObject}>
-                                <Text sx={styles.strategy_detail_quantity_text as ThemeUICSSObject}>
-                                  {strategy.name}
-                                </Text>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                  <Text sx={styles.strategy_detail_quantity_text as ThemeUICSSObject}>
+                                    Protocol: {strategy.protocol}
+                                  </Text>
+                                  <Text sx={styles.strategy_detail_quantity_text as ThemeUICSSObject}>
+                                    Pool: {strategy.pool}
+                                  </Text>
+                                </Box>
                                 {strategy.value && (
                                   <Text sx={styles.strategy_detail_value_text as ThemeUICSSObject}>
                                     ({strategy.value} BNB)
@@ -250,7 +273,7 @@ const ViewContents = (props: Props) => {
                         }}
                       >
                         <ActionStake tokenId={tokenId} setStaked={setStaked} />
-                        <Yield tokenId={tokenId} />
+                        {/* <Yield tokenId={tokenId} /> */}
                       </Flex>
                     </Flex>
                   </Flex>

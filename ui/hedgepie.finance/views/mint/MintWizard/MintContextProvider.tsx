@@ -38,6 +38,8 @@ const MintContextProvider = ({ children }) => {
     if (protoStr.includes('apeswap')) return 'images/apeswap.png'
     else if (protoStr.includes('autofarm')) return 'images/autofarm.png'
     else if (protoStr.includes('biswap')) return 'images/biswap.png'
+    else if (protoStr.includes('beefy')) return 'images/beefy.png'
+    else if (protoStr.includes('belt')) return 'images/belt.png'
   }
 
   useEffect(() => {
