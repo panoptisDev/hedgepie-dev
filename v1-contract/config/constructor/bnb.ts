@@ -117,3 +117,21 @@ export const beltAdapterArgsList = {
     name: "Belt::Vault::BTC",
   },
 };
+
+// venus lending adapter
+export const venusAdapterArgsList = {
+  "Venus::Lend::BUSD": {
+    strategy: "0x95c78222B3D6e262426483D42CfA53685A67Ab9D",
+    stakingToken: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+    repayToken: "0x95c78222B3D6e262426483D42CfA53685A67Ab9D",
+    name: "Venus::Lend::BUSD",
+  },
+  "Venus::Short::BUSD": {
+    strategy: "0x95c78222B3D6e262426483D42CfA53685A67Ab9D",
+    name: "Venus::Short::BUSD",
+  },
+  "Venus::Long::BUSD": {
+    strategy: "0x95c78222B3D6e262426483D42CfA53685A67Ab9D",
+    name: "Venus::Long::BUSD",
+  },
+};

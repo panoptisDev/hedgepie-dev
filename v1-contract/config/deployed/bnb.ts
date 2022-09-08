@@ -48,3 +48,9 @@ export const belt = {
   "Belt::Vault::USDT": "0xC346Ff39E9f4cF1b119897208f971282Ed4D2c93",
   "Belt::Vault::BTC": "0x28068d53FcCfE63B6Fea9E42968C723c770999Ff",
 };
+
+export const venus = {
+  "Venus::Lend::BUSD": "0xE3685F7938877aa6D34E8587a4890B6e529F4A9b",
+  "Venus::Short::BUSD": "0x58089551926606D118653163EbB061eA7d608a4d",
+  "Venus::Long::BUSD": "0xBc1CE6DF1C1cAa8a13134868936Dd81126d68148",
+};
