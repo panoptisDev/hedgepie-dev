@@ -41,12 +41,12 @@ const Banner = (props: Props) => {
               flexDirection: 'row',
               alignItems: 'center',
               justifyContent: 'center',
-              marginTop: '-80px',
+              marginTop: '0px',
             }}
           >
             <Box
               sx={{
-                width: '50%',
+                width: ['100%', '100%', '50%'],
                 height: '30rem',
                 display: 'flex',
                 flexDirection: 'row',
@@ -59,7 +59,7 @@ const Banner = (props: Props) => {
             </Box>
             <Box
               sx={{
-                width: '50%',
+                width: ['100%', '100%', '50%'],
                 height: '30rem',
                 display: 'flex',
                 flexDirection: 'row',

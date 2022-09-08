@@ -27,7 +27,7 @@ export const styles = {
   banner_pie_image: {
     top: [400, 400, 350, 0],
     right: [0, 30],
-    width: [540, 540, 400, 540],
+    width: [800, 540, 400, 540],
     paddingLeft:"20px"
   },
   banner_title: {
