@@ -175,7 +175,14 @@ const LotteryTable = ({ data, onSort, sortKey }: any) => {
         </thead>
         <tbody>
           {data.map((d: TokenInfo, i: number) => (
-            <tr key={d.tokenId} style={{ backgroundColor: 'white', borderRadius: '30px' }}>
+            <tr
+              key={d.tokenId}
+              style={{ backgroundColor: 'white', borderRadius: '30px', cursor: 'pointer' }}
+              onClick={() => {
+                console.log('hihihi')
+                router.push('/view-contents?tokenId=' + d.tokenId)
+              }}
+            >
               <td style={{ borderBottomLeftRadius: '30px' }}>
                 <Box sx={{ width: '100%', textAlign: 'center' }}>
                   <Image src={d.imageURL} sx={{ width: 60, boxShadow: '#ccc 0px 3px 3px 2px' }} />
