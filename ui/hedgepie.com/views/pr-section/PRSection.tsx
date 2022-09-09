@@ -1,7 +1,34 @@
-import React from 'react'
+import axios from 'axios'
+import React, { useState } from 'react'
 import { Box, Button, Input, Text } from 'theme-ui'
+import toast from 'utils/toast'
 
 function PRSection() {
+  const [email, setEmail] = useState('')
+
+  const validateEmail = (mail) => {
+    if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
+      return true
+    }
+    return false
+  }
+
+  const onEmailChange = (e) => {
+    setEmail(e.target.value)
+  }
+
+  const sendEmail = async () => {
+    toast(`Sending introductory Email to ${email} !!`)
+    const response = await axios.post('https://api.emailjs.com/api/v1.0/email/send', {
+      service_id: 'hedgepie-web',
+      template_id: 'hedgepie_template',
+      user_id: 'sxQK7Nf5z8UIGWMat',
+    })
+
+    toast(`Sent introductory Email to ${email} !!`)
+    console.log('HIHI' + JSON.stringify(response))
+  }
+
   return (
     <Box sx={{ background: 'url(/images/top-banner.svg)', width: '100%', height: '7em' }}>
       <Box
@@ -49,8 +76,12 @@ function PRSection() {
               width: '20rem',
               height: '3rem',
             }}
+            onChange={onEmailChange}
           />
-          <Button sx={{ cursor: 'pointer', background: '#1799DE', borderRadius: 62, width: '8rem', height: '3rem' }}>
+          <Button
+            sx={{ cursor: 'pointer', background: '#1799DE', borderRadius: 62, width: '8rem', height: '3rem' }}
+            onClick={sendEmail}
+          >
             Submit
           </Button>
         </Box>
