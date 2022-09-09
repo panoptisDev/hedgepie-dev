@@ -54,3 +54,9 @@ export const venus = {
   "Venus::Short::BUSD": "0x58089551926606D118653163EbB061eA7d608a4d",
   "Venus::Long::BUSD": "0xBc1CE6DF1C1cAa8a13134868936Dd81126d68148",
 };
+
+export const alpaca = {
+  "Alpaca::AUSD::ibUSDT": "0xcd8C3F9352E0A2807D35f01eDDcad24c4FF61c3B",
+  "Alpaca::Stake::ibCake": "0xfdA0c0D33A5452E72d50da69713Ed64bC4de8599",
+  "Alpaca::Lend::Cake": "0xb36550f7FaA871193bde32B0FFC82eE2Bb10Feb6",
+};

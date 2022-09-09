@@ -37,9 +37,13 @@
     "deploy:bnb:venus-busd-lend": "npx hardhat run deploy/bnb/venus/venus-busd-lend.ts --network bsc",
     "deploy:bnb:venus-busd-short": "npx hardhat run deploy/bnb/venus/venus-busd-short.ts --network bsc",
     "deploy:bnb:venus-busd-long": "npx hardhat run deploy/bnb/venus/venus-busd-long.ts --network bsc",
+    "deploy:bnb:alpaca-ibUSDT-ausd": "npx hardhat run deploy/bnb/alpaca/alpaca-ibUSDT-ausd.ts --network bsc",
+    "deploy:bnb:alpaca-ibCake-stake": "npx hardhat run deploy/bnb/alpaca/alpaca-ibUSDT-stake.ts --network bsc",
+    "deploy:bnb:alpaca-cake-lend": "npx hardhat run deploy/bnb/alpaca/alpaca-cake-lend.ts --network bsc",
     "code:size": "npx hardhat size-contracts",
     "deploy:network": "npx hardhat run deploy/deploy.ts --network",
-    "verify:network": "npx hardhat verify --network"  },
+    "verify:network": "npx hardhat verify --network"
+  },
   "repository": {
     "type": "git",
     "url": "git+https://github.com/abe-sinjiro/rubi-token.git"

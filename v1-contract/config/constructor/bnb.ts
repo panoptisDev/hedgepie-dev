@@ -135,3 +135,29 @@ export const venusAdapterArgsList = {
     name: "Venus::Long::BUSD",
   },
 };
+
+// alpaca adapter
+export const alpacaAdapterArgsList = {
+  "Alpaca::AUSD::ibUSDT": {
+    strategy: "0x158Da805682BdC8ee32d52833aD41E74bb951E59",
+    stakingToken: "0x55d398326f99059fF775485246999027B3197955",
+    rewardToken: "0x55d398326f99059fF775485246999027B3197955",
+    repayToken: "0x158Da805682BdC8ee32d52833aD41E74bb951E59",
+    name: "Alpaca::AUSD::ibUSDT",
+  },
+  "Alpaca::Stake::ibCake": {
+    poolId: 28,
+    strategy: "0xA625AB01B08ce023B2a342Dbb12a16f2C8489A8F",
+    stakingToken: "0xfF693450dDa65df7DD6F45B4472655A986b147Eb",
+    rewardToken: "0x8F0528cE5eF7B51152A59745bEfDD91D97091d2F",
+    wrapToken: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
+    name: "Alpaca::AUSD::ibUSDT",
+  },
+  "Alpaca::Lend::Cake": {
+    strategy: "0x7C9e73d4C71dae564d41F78d56439bB4ba87592f",
+    stakingToken: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+    rewardToken: "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56",
+    repayToken: "0x7C9e73d4C71dae564d41F78d56439bB4ba87592f",
+    name: "Alpaca::Lend::Cake",
+  },
+};
