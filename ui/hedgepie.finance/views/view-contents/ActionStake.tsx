@@ -10,11 +10,13 @@ import { getWBNBAddress } from 'utils/addressHelpers'
 import toast from '../../utils/toast'
 import { styles } from './styles'
 import { getBalanceInEther } from 'utils/formatBalance'
+import axios from 'axios'
 
 const ActionStake = (props: any) => {
   const { onYBNFTDeposit, onYBNFTWithdraw, onYBNFTInvestorApprove, getAllowance, getBalance } = useInvestor()
   const { tokenId, setStaked } = props
 
+  const [bnbBalance, setBNBBalance] = useState(0)
   const [disabled, setDisabled] = useState(false)
   const [amount, setAmount] = useState<number | BigNumber>(0.0)
   const [amountString, setAmountString] = useState('0.00')
@@ -40,6 +42,21 @@ const ActionStake = (props: any) => {
     console.log(txHash)
   }
 
+  const getBNBBalance = async () => {
+    const balance = await axios.get(
+      'https://api.bscscan.com/api?module=account&action=balance&address=' +
+        account?.toString() +
+        '&apikey=ZWKTR3X6EIE91YMHQ8RNUDHADI1795JXE1',
+    )
+    const balanceNumber = Number(balance?.data?.result)
+    console.log(balanceNumber)
+    setBNBBalance(getBalanceInEther(new BigNumber(balanceNumber)))
+  }
+
+  useEffect(() => {
+    account && getBNBBalance()
+  }, [account])
+
   useEffect(() => {
     if (!account) return
     const checkIfAlreadyApproved = async () => {
@@ -58,7 +75,9 @@ const ActionStake = (props: any) => {
   }
 
   useEffect(() => {
+    console.log('hihi')
     if (!account || !tokenId) return
+    console.log('hihihihi')
     setCurrentStakedBalance()
   }, [account, tokenId])
 
@@ -69,6 +88,9 @@ const ActionStake = (props: any) => {
       toast('Please input only Positive Numeric values', 'warning')
     }
     setInvalidAmount(false)
+    if (Number.parseFloat(e.target.value) >= bnbBalance) {
+      toast('Inputted amount is greater than available BNB balance.', 'warning')
+    }
     e.target.value && !isNaN(e.target.value) && setAmount(getBalanceInWei(Number.parseFloat(e.target.value)))
   }
 
@@ -135,9 +157,13 @@ const ActionStake = (props: any) => {
         {/* <Box className="desktop-action" sx={styles.vault_action_button_container_desktop as ThemeUICSSObject}> */}
         <ActionStakeButton onStake={handleStake} isDisabled={false} onApprove={handleApprove} approved={approved} />
         {/* </Box> */}
-        <Button sx={styles.unstake_button as ThemeUICSSObject} onClick={handleUnstake}>
-          WITHDRAW ALL
-        </Button>
+        {currentStaked > 0 ? (
+          <Button sx={styles.unstake_button as ThemeUICSSObject} onClick={handleUnstake}>
+            WITHDRAW ALL
+          </Button>
+        ) : (
+          ''
+        )}
       </Box>
 
       {currentStaked ? (

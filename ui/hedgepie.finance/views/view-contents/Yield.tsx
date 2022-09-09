@@ -8,9 +8,10 @@ import { styles } from './styles'
 
 function Yield(props: any) {
   const { tokenId } = props
-  const { getYield, onYBNFTClaim } = useInvestor()
+  const { getYield, onYBNFTClaim, getBalance } = useInvestor()
   const [reward, setReward] = useState<undefined | number | string>()
   const [loading, setLoading] = useState(true)
+  const [currentStaked, setCurrentStaked] = useState(0)
   const { account } = useWeb3React()
 
   const handleWithdrawYield = async () => {
@@ -42,14 +43,23 @@ function Yield(props: any) {
     setLoading(false)
   }
 
+  const setCurrentStakedBalance = async () => {
+    let balance = await getBalance(tokenId)
+    setCurrentStaked(getBalanceInEther(balance))
+  }
+
   useEffect(() => {
-    console.log('HIHI')
+    if (!account || !tokenId) return
+    setCurrentStakedBalance()
+  }, [account, tokenId])
+
+  useEffect(() => {
     fetchReward()
   }, [account])
 
   return (
     <>
-      {reward !== undefined ? (
+      {reward !== undefined && currentStaked > 0 ? (
         <Box sx={styles.yield_container as ThemeUICSSObject}>
           <Box sx={styles.yield_inner_container as ThemeUICSSObject}>
             <Text sx={styles.yield_inner_text}>YIELD</Text>

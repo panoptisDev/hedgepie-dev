@@ -38,12 +38,12 @@ const FormPosition = () => {
   }
 
   const checkIfPositionsEmpty = () => {
-    formData.positions.forEach((p) => {
-      if (p.composition) {
-        if (p.composition.name && p.composition.pools?.length) return false
-      }
-    })
-    return true
+    // formData.positions.forEach((p) => {
+    //   if (p.composition) {
+    //     if (p.composition.name && p.composition.pools?.length) return false
+    //   }
+    // })
+    return false
   }
 
   const handleNext = () => {

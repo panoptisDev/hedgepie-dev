@@ -113,6 +113,12 @@ const ViewContents = (props: Props) => {
         if (obj.name.toLowerCase().includes('belt')) {
           obj.image = 'images/belt.png'
         }
+        if (obj.name.toLowerCase().includes('venus')) {
+          obj.image = 'images/venus.png'
+        }
+        if (obj.name.toLowerCase().includes('alpaca')) {
+          obj.image = 'images/alpaca.png'
+        }
         let split = obj?.name?.split('::')
         obj.protocol = split?.[0]
         obj.pool = split?.[split?.length - 1]
@@ -273,7 +279,7 @@ const ViewContents = (props: Props) => {
                         }}
                       >
                         <ActionStake tokenId={tokenId} setStaked={setStaked} />
-                        {/* <Yield tokenId={tokenId} /> */}
+                        <Yield tokenId={tokenId} />
                       </Flex>
                     </Flex>
                   </Flex>

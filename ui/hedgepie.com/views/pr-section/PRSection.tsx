@@ -1,16 +1,43 @@
-import React from 'react'
+import axios from 'axios'
+import React, { useState } from 'react'
 import { Box, Button, Input, Text } from 'theme-ui'
+import toast from 'utils/toast'
 
 function PRSection() {
+  const [email, setEmail] = useState('')
+
+  const validateEmail = (mail) => {
+    if (/^\w+([\.-]?\w+)*@\w+([\.-]?\w+)*(\.\w{2,3})+$/.test(mail)) {
+      return true
+    }
+    return false
+  }
+
+  const onEmailChange = (e) => {
+    setEmail(e.target.value)
+  }
+
+  const sendEmail = async () => {
+    toast(`Sending introductory Email to ${email} !!`)
+    const response = await axios.post('https://api.emailjs.com/api/v1.0/email/send', {
+      service_id: 'hedgepie-web',
+      template_id: 'hedgepie_template',
+      user_id: 'sxQK7Nf5z8UIGWMat',
+    })
+
+    toast(`Sent introductory Email to ${email} !!`)
+    console.log('HIHI' + JSON.stringify(response))
+  }
+
   return (
     <Box sx={{ background: 'url(/images/top-banner.svg)', width: '100%', height: '7em' }}>
       <Box
         sx={{
           display: 'flex',
-          gap: '3rem',
+          gap: ['0.25rem', '0.25rem', '3rem'],
           justifyContent: 'center',
           alignItems: 'center',
-          flexDirection: ['row', 'row', 'row'],
+          flexDirection: ['column', 'column', 'row'],
           height: '100%',
         }}
       >
@@ -34,7 +61,7 @@ function PRSection() {
           sx={{
             flexDirection: 'row',
             gap: '10px',
-            display: ['none', 'none', 'flex'],
+            display: ['flex', 'flex', 'flex'],
             alignItems: 'center',
             justifyContent: 'center',
           }}
@@ -47,10 +74,21 @@ function PRSection() {
               background: '#fff',
               fontSize: '14px',
               width: '20rem',
-              height: '3rem',
+              height: ['2.5rem', '2.5rem', '3rem'],
+              marginLeft: '10px',
             }}
+            onChange={onEmailChange}
           />
-          <Button sx={{ cursor: 'pointer', background: '#1799DE', borderRadius: 62, width: '8rem', height: '3rem' }}>
+          <Button
+            sx={{
+              cursor: 'pointer',
+              background: '#1799DE',
+              borderRadius: 62,
+              width: ['5rem', '5rem', '8rem'],
+              height: ['2rem', '2rem', '3rem'],
+            }}
+            onClick={sendEmail}
+          >
             Submit
           </Button>
         </Box>

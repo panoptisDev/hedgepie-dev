@@ -51,7 +51,7 @@ export const styles = {
   },
   footer_company_container: {
     display: 'flex',
-    flexDirection: ['column', 'row'],
+    flexDirection: ['row', 'row','row'],
     alignItems: 'center',
     justifyContent: 'space-between',
     color: '#8E8DA0',
