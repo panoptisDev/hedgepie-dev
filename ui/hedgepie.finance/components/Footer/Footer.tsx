@@ -70,10 +70,12 @@ const Footer = (props: Props) => {
       <Box py={30} px={[16, 60]} sx={styles.footer_company_container as ThemeUICSSObject}>
         <Box>&copy; 2022 HedgePie</Box>
         <Flex
-          mt={[4, 0]}
           sx={{
-            flexDirection: ['column', 'row'],
+            flexDirection: ['row', 'row', 'row'],
             gap: [12, 24],
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
           }}
         >
           <Link href="/" passHref>

@@ -49,8 +49,9 @@ function Yield(props: any) {
   }
 
   useEffect(() => {
+    if (!account || !tokenId) return
     setCurrentStakedBalance()
-  }, [])
+  }, [account, tokenId])
 
   useEffect(() => {
     fetchReward()

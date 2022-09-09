@@ -61,6 +61,7 @@ export const useInvestor = () => {
 
   const getBalance = useCallback(
     async (ybnftId) => {
+      
       const balance = await fetchBalance(investorContract, account, ybnftId)
       return balance
     },

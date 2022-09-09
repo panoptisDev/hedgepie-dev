@@ -2,12 +2,17 @@ import React, { useContext, useEffect, useState } from 'react'
 import { Box, Input } from 'theme-ui'
 import MintWizardContext from 'contexts/MintWizardContext'
 import { useWeb3React } from '@web3-react/core'
+import axios from 'axios'
+import { getBalanceInEther } from 'utils/formatBalance'
+import BigNumber from 'bignumber.js'
+import toast from 'utils/toast'
 
 const InitialStake = () => {
   const { formData, setFormData, bnbPrice, ethPrice, maticPrice } = useContext(MintWizardContext)
 
   const [token, setToken] = useState('')
   const [tokenPrice, setTokenPrice] = useState(0)
+  const [bnbBalance, setBNBBalance] = useState(0)
 
   const { account, chainId } = useWeb3React()
 
@@ -44,13 +49,30 @@ const InitialStake = () => {
   }, [tokenPrice, formData.initialStake])
 
   const handleChange = (e) => {
-    console.log('hihi' + tokenPrice)
+    if (Number.parseFloat(e.target.value) >= bnbBalance) {
+      toast('Inputted amount is greater than available BNB balance.', 'warning')
+    }
     setFormData({
       ...formData,
       initialStake: e.target.value,
       valueInUSD: Number(Number(Number(e.target.value) * tokenPrice).toFixed(4)),
     })
   }
+
+  const getBNBBalance = async () => {
+    const balance = await axios.get(
+      'https://api.bscscan.com/api?module=account&action=balance&address=' +
+        account?.toString() +
+        '&apikey=ZWKTR3X6EIE91YMHQ8RNUDHADI1795JXE1',
+    )
+    const balanceNumber = Number(balance?.data?.result)
+    console.log(balanceNumber)
+    setBNBBalance(getBalanceInEther(new BigNumber(balanceNumber)))
+  }
+
+  useEffect(() => {
+    account && getBNBBalance()
+  }, [account])
 
   return (
     <Box

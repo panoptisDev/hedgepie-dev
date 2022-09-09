@@ -54,7 +54,7 @@ const ActionStake = (props: any) => {
   }
 
   useEffect(() => {
-    getBNBBalance()
+    account && getBNBBalance()
   }, [account])
 
   useEffect(() => {
@@ -75,12 +75,13 @@ const ActionStake = (props: any) => {
   }
 
   useEffect(() => {
+    console.log('hihi')
     if (!account || !tokenId) return
+    console.log('hihihihi')
     setCurrentStakedBalance()
   }, [account, tokenId])
 
   const onChangeAmount = (e) => {
-    console.log('aksjhd')
     setAmountString(e.target.value)
     if (e.target.value && (isNaN(e.target.value) || Number.parseFloat(e.target.value) < 0)) {
       setInvalidAmount(true)
