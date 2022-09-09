@@ -580,17 +580,12 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 adapterInfo.totalStaked != 0 &&
                 adapterInfo.accTokenPerShare != 0
             ) {
-                UserAdapterInfo memory userAdapterInfo = userAdapterInfos[
-                    _account
-                ][_tokenId][adapter.addr];
-
                 uint256 updatedAccTokenPerShare = adapterInfo.accTokenPerShare +
                     ((IAdapter(adapter.addr).pendingReward() * 1e12) /
                         adapterInfo.totalStaked);
 
                 uint256 tokenRewards = ((updatedAccTokenPerShare -
-                    userAdapterInfo.userShares) * userAdapterInfo.amount) /
-                    1e12;
+                    userAdapter.userShares) * userAdapter.amount) / 1e12;
 
                 rewards += IPancakeRouter(swapRouter).getAmountsOut(
                     tokenRewards,
@@ -633,14 +628,14 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                         (_vAmount - userAdapter.amount)) /
                         IPancakePair(pairToken).totalSupply();
 
-                    if (token0 == wbnb) rewards += reserve0;
+                    if (token0 == wbnb) rewards += amount0;
                     else
                         rewards += IPancakeRouter(swapRouter).getAmountsOut(
                             amount0,
                             HedgepieLibrary.getPaths(adapter.addr, token0, wbnb)
                         )[1];
 
-                    if (token0 == wbnb) rewards += reserve1;
+                    if (token1 == wbnb) rewards += amount1;
                     else
                         rewards += IPancakeRouter(swapRouter).getAmountsOut(
                             amount1,
