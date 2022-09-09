@@ -119,6 +119,9 @@ const ViewContents = (props: Props) => {
         if (obj.name.toLowerCase().includes('alpaca')) {
           obj.image = 'images/alpaca.png'
         }
+        if (obj.name.toLowerCase().includes('pks')) {
+          obj.image = 'images/cake.png'
+        }
         let split = obj?.name?.split('::')
         obj.protocol = split?.[0]
         obj.pool = split?.[split?.length - 1]
