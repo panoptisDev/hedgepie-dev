@@ -50,7 +50,7 @@ const InitialStake = () => {
 
   const handleChange = (e) => {
     if (Number.parseFloat(e.target.value) >= bnbBalance) {
-      toast('Inputted amount is greater than available BNB balance.', 'warning')
+      toast('Entered amount is greater than available BNB balance.', 'warning')
     }
     setFormData({
       ...formData,
