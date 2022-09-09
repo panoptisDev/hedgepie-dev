@@ -55,9 +55,17 @@ describe("QuickStakeAdapter Integration Test", function () {
     const ybNftFactory = await ethers.getContractFactory("YBNFT");
     this.ybNft = await ybNftFactory.deploy();
 
+    const Lib = await ethers.getContractFactory("HedgepieLibrary");
+    const lib = await Lib.deploy();
+
     // Deploy Investor contract
-    const investorFactory = await ethers.getContractFactory("HedgepieInvestorMatic");
+    const investorFactory = await ethers.getContractFactory("HedgepieInvestorMatic", {
+      libraries: {
+        HedgepieLibrary: lib.address,
+      }
+    });
     this.investor = await investorFactory.deploy(this.ybNft.address, swapRouter, wmatic);
+    await this.investor.deployed();
 
     // Deploy Adaptor Manager contract
     const adapterManager = await ethers.getContractFactory("HedgepieAdapterManager");
@@ -103,7 +111,6 @@ describe("QuickStakeAdapter Integration Test", function () {
         this.investor
           .connect(this.owner)
           .depositMATIC(this.owner.address, 3, depositAmount.toString(), {
-            gasPrice: 21e9,
             value: depositAmount,
           })
       ).to.be.revertedWith("Error: nft tokenId is invalid");
@@ -118,7 +125,6 @@ describe("QuickStakeAdapter Integration Test", function () {
           1,
           depositAmount.toString(),
           {
-            gasPrice: 21e9,
             value: depositAmount,
           }
         )
@@ -131,7 +137,6 @@ describe("QuickStakeAdapter Integration Test", function () {
         this.investor
           .connect(this.alice)
           .depositMATIC(this.aliceAddr, 1, depositAmount, {
-            gasPrice: 21e9,
             value: depositAmount,
           })
       )
@@ -188,7 +193,6 @@ describe("QuickStakeAdapter Integration Test", function () {
         this.investor
           .connect(this.bob)
           .depositMATIC(this.bobAddr, 1, depositAmount, {
-            gasPrice: 21e9,
             value: depositAmount,
           })
       )
@@ -245,7 +249,6 @@ describe("QuickStakeAdapter Integration Test", function () {
         this.investor
           .connect(this.tom)
           .depositMATIC(this.tomAddr, 1, depositAmount, {
-            gasPrice: 21e9,
             value: depositAmount,
           })
       )
@@ -296,7 +299,7 @@ describe("QuickStakeAdapter Integration Test", function () {
     it("(1)should be reverted when nft tokenId is invalid", async function () {
       // withdraw to nftID: 3
       await expect(
-        this.investor.withdrawMATIC(this.owner.address, 3, { gasPrice: 21e9 })
+        this.investor.withdrawMATIC(this.owner.address, 3)
       ).to.be.revertedWith("Error: nft tokenId is invalid");
     });
 
@@ -307,7 +310,7 @@ describe("QuickStakeAdapter Integration Test", function () {
       await expect(
         this.investor
           .connect(this.alice)
-          .withdrawMATIC(this.aliceAddr, 1, { gasPrice: 21e9 })
+          .withdrawMATIC(this.aliceAddr, 1)
       ).to.emit(this.investor, "WithdrawMATIC");
 
       const afterMATIC = await ethers.provider.getBalance(this.aliceAddr);
@@ -351,7 +354,7 @@ describe("QuickStakeAdapter Integration Test", function () {
       await expect(
         this.investor
           .connect(this.bob)
-          .withdrawMATIC(this.bobAddr, 1, { gasPrice: 21e9 })
+          .withdrawMATIC(this.bobAddr, 1)
       ).to.emit(this.investor, "WithdrawMATIC");
 
       const afterMATIC = await ethers.provider.getBalance(this.bobAddr);
@@ -395,7 +398,7 @@ describe("QuickStakeAdapter Integration Test", function () {
       await expect(
         this.investor
           .connect(this.tom)
-          .withdrawMATIC(this.tomAddr, 1, { gasPrice: 21e9 })
+          .withdrawMATIC(this.tomAddr, 1)
       ).to.emit(this.investor, "WithdrawMATIC");
 
       const afterMATIC = await ethers.provider.getBalance(this.tomAddr);

@@ -124,14 +124,6 @@ contract ApeswapVaultAdapter is BaseAdapter {
     }
 
     /**
-     * @notice Get pending reward
-     * @param _user  address of investor
-     */
-    function getReward(address _user) external view override returns (uint256) {
-        return 0;
-    }
-
-    /**
      * @notice Get pending shares
      */
     function pendingShares() external view override returns (uint256 shares) {

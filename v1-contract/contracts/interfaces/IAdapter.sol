@@ -23,6 +23,8 @@ interface IAdapter {
 
     function isVault() external view returns (bool);
 
+    function noDeposit() external view returns (bool);
+
     function isReward() external view returns (bool);
 
     function isEntered() external view returns (bool);
@@ -57,6 +59,8 @@ interface IAdapter {
 
     function router() external view returns (address);
 
+    function getTick() external view returns (int24, int24);
+
     function getAdapterStrategy(uint256 _adapter)
         external
         view
@@ -66,6 +70,11 @@ interface IAdapter {
         external
         view
         returns (uint256 amount);
+
+    function getLiquidityToken(address _user, uint256 _nftId)
+        external
+        view
+        returns (uint256 tokenId);
 
     function getInvestCallData(uint256 _amount)
         external
@@ -140,6 +149,12 @@ interface IAdapter {
         address _user,
         uint256 _nftId,
         uint256 _amount
+    ) external;
+
+    function setLiquidityToken(
+        address _user,
+        uint256 _nftId,
+        uint256 _tokenId
     ) external;
 
     function setIsEntered(bool _isEntered) external;
