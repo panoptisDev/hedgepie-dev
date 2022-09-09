@@ -89,7 +89,7 @@ const ActionStake = (props: any) => {
     }
     setInvalidAmount(false)
     if (Number.parseFloat(e.target.value) >= bnbBalance) {
-      toast('Inputted amount is greater than available BNB balance.', 'warning')
+      toast('Entered amount is greater than available BNB balance.', 'warning')
     }
     e.target.value && !isNaN(e.target.value) && setAmount(getBalanceInWei(Number.parseFloat(e.target.value)))
   }
