@@ -587,14 +587,15 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 uint256 tokenRewards = ((updatedAccTokenPerShare -
                     userAdapter.userShares) * userAdapter.amount) / 1e12;
 
-                rewards += IPancakeRouter(swapRouter).getAmountsOut(
-                    tokenRewards,
-                    HedgepieLibrary.getPaths(
-                        adapter.addr,
-                        IAdapter(adapter.addr).rewardToken(),
-                        wbnb
-                    )
-                )[1];
+                if (tokenRewards != 0)
+                    rewards += IPancakeRouter(swapRouter).getAmountsOut(
+                        tokenRewards,
+                        HedgepieLibrary.getPaths(
+                            adapter.addr,
+                            IAdapter(adapter.addr).rewardToken(),
+                            wbnb
+                        )
+                    )[1];
             } else if (IAdapter(adapter.addr).isVault()) {
                 uint256 _vAmount = (userAdapter.userShares *
                     IVaultStrategy(IAdapter(adapter.addr).vStrategy())
