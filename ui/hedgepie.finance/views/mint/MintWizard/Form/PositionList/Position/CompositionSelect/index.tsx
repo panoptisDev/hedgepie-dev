@@ -42,7 +42,15 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: ['column', 'row', 'row'], gap: '0.6rem', marginRight: '3rem' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: ['column', 'row', 'row'],
+        gap: '0.6rem',
+        marginRight: '3rem',
+        width: '100%',
+      }}
+    >
       <Select
         instanceId={`composition-${1}`}
         classNamePrefix="select"
@@ -59,7 +67,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
         styles={{
           control: () => ({
             height: 60,
-            width: ['100%', 'max-content', 212],
+            width: '100%',
             borderRadius: 8,
             backgroundColor: '#fff',
             display: 'flex',
@@ -101,7 +109,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
         styles={{
           control: () => ({
             height: 60,
-            width: ['max-content', 'max-content', 140],
+            width: '100%',
             borderRadius: 8,
             backgroundColor: '#fff',
             display: 'flex',
