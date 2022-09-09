@@ -45,7 +45,7 @@ function PRSection() {
           height: '100%',
         }}
       >
-        <Text sx={{ color: '#fff', fontFamily: 'Noto Sans', fontSize: '36px', fontWeight: '700' }}>
+        <Text sx={{ color: '#fff', fontFamily: 'Noto Sans', fontSize: ['20px', '16px', '36px'], fontWeight: '700' }}>
           Get a slice of the DeFi Pie
         </Text>
         <Text
@@ -77,7 +77,7 @@ function PRSection() {
               color: '#8988A5',
               background: '#fff',
               fontSize: '14px',
-              width: '20rem',
+              width: ['14rem', '14rem', '20rem'],
               height: ['2.5rem', '2.5rem', '3rem'],
               marginLeft: '10px',
             }}
