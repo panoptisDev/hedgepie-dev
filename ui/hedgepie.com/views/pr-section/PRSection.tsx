@@ -34,10 +34,10 @@ function PRSection() {
       <Box
         sx={{
           display: 'flex',
-          gap: '3rem',
+          gap: ['0.25rem', '0.25rem', '3rem'],
           justifyContent: 'center',
           alignItems: 'center',
-          flexDirection: ['row', 'row', 'row'],
+          flexDirection: ['column', 'column', 'row'],
           height: '100%',
         }}
       >
@@ -61,7 +61,7 @@ function PRSection() {
           sx={{
             flexDirection: 'row',
             gap: '10px',
-            display: ['none', 'none', 'flex'],
+            display: ['flex', 'flex', 'flex'],
             alignItems: 'center',
             justifyContent: 'center',
           }}
@@ -74,12 +74,19 @@ function PRSection() {
               background: '#fff',
               fontSize: '14px',
               width: '20rem',
-              height: '3rem',
+              height: ['2.5rem', '2.5rem', '3rem'],
+              marginLeft: '10px',
             }}
             onChange={onEmailChange}
           />
           <Button
-            sx={{ cursor: 'pointer', background: '#1799DE', borderRadius: 62, width: '8rem', height: '3rem' }}
+            sx={{
+              cursor: 'pointer',
+              background: '#1799DE',
+              borderRadius: 62,
+              width: ['5rem', '5rem', '8rem'],
+              height: ['2rem', '2rem', '3rem'],
+            }}
             onClick={sendEmail}
           >
             Submit
