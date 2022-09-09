@@ -23,7 +23,7 @@ const LotteryLoad = ({ onLoad }: any) => {
   return (
     <Box sx={styles.lottery_load_container as ThemeUICSSObject}>
       {loading ? (
-        <Spinner />
+        <Spinner sx={{ color: '#1799DE' }} />
       ) : (
         <Button variant="info" sx={styles.lottery_load_more_btn as ThemeUICSSObject} onClick={handleClick}>
           Load More

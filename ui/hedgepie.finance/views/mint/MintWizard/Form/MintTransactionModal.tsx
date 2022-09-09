@@ -13,7 +13,8 @@ const MintTransactionModal = ({ formData, onDismiss = () => null }) => {
   const { onYBNFTDeposit } = useInvestor()
   const { setCloseOnOverlayClick } = useContext(Context)
 
-  const steps = ['Uploading NFT Image and Metadata to IPFS', 'Minting YBNFT', 'Staking Initial Amount']
+  let steps = ['Uploading NFT Image and Metadata to IPFS', 'Minting YBNFT']
+  if (formData.initialStake) steps.push('Staking Initial Amount')
   const [currentStep, setCurrentStep] = useState(0)
   const [loading, setLoading] = useState({})
   const [cid, setCID] = useState<any>()

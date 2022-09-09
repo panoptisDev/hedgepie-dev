@@ -6,12 +6,6 @@ const UploadArtwork = () => {
   const { formData, setFormData } = React.useContext(MintWizardContext)
   const [file, setFile] = useState()
 
-  const handleChange = (e) => {
-    if (e?.target?.files?.length > 0) {
-      setFile(e?.target?.files[0])
-    }
-  }
-
   useEffect(() => {
     if (file == null) return
     let reader = new FileReader()
@@ -24,6 +18,12 @@ const UploadArtwork = () => {
     }
     reader.readAsDataURL(file as unknown as Blob)
   }, [file])
+
+  const handleChange = (e) => {
+    if (e?.target?.files?.length > 0) {
+      setFile(e?.target?.files[0])
+    }
+  }
 
   return (
     <Box

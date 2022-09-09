@@ -26,12 +26,10 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
   }, [strategies])
 
   const handleProtocolSelect = (option) => {
-    console.log(JSON.stringify(option))
     if (option !== protocol) {
       setPool({ name: 'Pool' })
     }
     setProtocol(option)
-    console.log('formData' + JSON.stringify(formData))
     onProtocolSelect(option)
   }
 
@@ -44,7 +42,15 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
   }
 
   return (
-    <Box sx={{ display: 'flex', flexDirection: ['column', 'row', 'row'], gap: '0.6rem', marginRight: '3rem' }}>
+    <Box
+      sx={{
+        display: 'flex',
+        flexDirection: ['column', 'row', 'row'],
+        gap: '0.6rem',
+        marginRight: '3rem',
+        width: '100%',
+      }}
+    >
       <Select
         instanceId={`composition-${1}`}
         classNamePrefix="select"
@@ -61,7 +67,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
         styles={{
           control: () => ({
             height: 60,
-            width: ['100%', 'max-content', 212],
+            width: '100%',
             borderRadius: 8,
             backgroundColor: '#fff',
             display: 'flex',
@@ -94,7 +100,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
         isSearchable={false}
         options={protocol ? protocol.pools : []}
         placeholder=""
-        value={value.pool ? value.pool : { name: 'Pool' }}
+        value={pool}
         onChange={handlePoolSelect}
         components={{
           Option: CustomOption,
@@ -103,7 +109,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
         styles={{
           control: () => ({
             height: 60,
-            width: ['max-content', 'max-content', 140],
+            width: '100%',
             borderRadius: 8,
             backgroundColor: '#fff',
             display: 'flex',

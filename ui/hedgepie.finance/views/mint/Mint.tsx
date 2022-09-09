@@ -70,16 +70,16 @@ const Mint = () => {
             src="/images/pie-eaten.png"
             sx={{
               position: 'absolute',
-              width: 200,
-              top: -120,
-              right: -50,
+              width: 300,
+              top: -80,
+              right: 50,
               [`@media screen and (min-width: 600px)`]: {
                 width: 300,
-                right: -40,
+                right: 100,
               },
               [`@media screen and (min-width: 1200px)`]: {
                 width: 400,
-                right: -200,
+                right: -100,
               },
             }}
           />

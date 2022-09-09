@@ -88,7 +88,16 @@ const Header = ({ overlay = false, dark = true }: Props) => {
             <ConnectWallet isHeaderBtn dark={dark} />
           </Box>
         </Box>
-        <div style={{ display: 'flex', flexDirection: 'row', gap: '0px', marginLeft: 'auto' }}>
+        <div
+          style={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: '0px',
+            marginLeft: 'auto',
+            marginRight: '-40px',
+            width: 'max-content',
+          }}
+        >
           <Menu
             menuButton={
               <Box sx={styles.mobile_menu_btn as ThemeUICSSObject}>
@@ -99,7 +108,10 @@ const Header = ({ overlay = false, dark = true }: Props) => {
             transition
             arrow
           >
-            {/* <MobileMenuLink href="/vault">Vault</MobileMenuLink> */}
+            {/* <MobileMenuLink href="/vault">Vault</MobileMenuLink>
+             */}
+
+            <MobileMenuLink href="/HedgePie-Whitepaper-V5.pdf">White Paper</MobileMenuLink>
             <MobileMenuLink href="/nft-leaderboard">Leaderboard</MobileMenuLink>
             <MobileMenuLink href="/mint">Mint</MobileMenuLink>
           </Menu>

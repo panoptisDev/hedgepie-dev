@@ -36,7 +36,12 @@ export const styles = {
   flex_badge_container: {
     justifyContent: 'center',
     alignItems: 'center',
-    gap: '0.3rem',
+    display:"flex",
+    flexDirection:"row",
+    borderRadius:8,
+    border:'1px solid #ccc',
+    padding:2,
+    gap: '0.5rem',
   },
   badge_title_text: { color: '#0B4C6F',lineHeight:'14px', fontFamily:'Noto Sans', fontSize:'16px' },
   badge_value_text: { color: '#0B4C6F',lineHeight:'14px', fontFamily:'Noto Sans',fontSize:'16px' },
@@ -49,7 +54,7 @@ export const styles = {
     width:['100%','100%','70%']
   },
   strategy_title_text: { fontWeight: '600', fontSize: '22px', color:'#16103A',lineHeight:'24px' },
-  flex_strategy_inner_container: { gap: '15px', flexWrap: 'wrap' },
+  flex_strategy_inner_container: { gap: '20px', flexWrap: 'wrap' },
   series_name_text: { color: '#8988A5', fontSize: '16px', fontWeight: '600', letterSpacing:'0.15rem' },
   nft_name_text: { color: '#14114B', fontWeight: '360', fontSize: '32px', fontFamily:'Noto Sans', lineHeight:'32px' },
   nft_desc_text: { color: '#8E8DA0', fontSize: '16px', paddingLeft: 'px' },
@@ -67,7 +72,7 @@ export const styles = {
   },
   strategy_detail_image: { width: '50px', height: '50px' },
   flex_strategy_detail_column: { flexDirection: 'column', gap: '5px' },
-  strategy_detail_quantity_text: { fontWeight: '600', fontSize: '22px', color: '#0B4C6F' },
+  strategy_detail_quantity_text: { fontWeight: '200', fontSize: '16px', color: '#0B4C6F' },
   strategy_detail_value_text: { color: '#8E8DA0', fontSize: '14px', fontWeight: '500' },
   strategy_detail_apy_text: { color: '#8988A5', fontFamily: 'Noto Sans', fontWeight: '600', fontSize: '16px' },
   flex_right_container: { flexDirection: 'column', width: '30rem', gap: '1rem' },
@@ -352,6 +357,6 @@ export const styles = {
     marginTop: '1rem',
     width: '100%',
   },
-  yield_inner_container:{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '12rem' },
-  yield_inner_text:{ fontSize: 24, fontWeight: 700, color: '#e3bc20' }
+  yield_inner_container:{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '8rem' },
+  yield_inner_text:{ fontSize: 24, fontWeight: 700, color: '#fff' }
 }

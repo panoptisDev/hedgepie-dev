@@ -6,11 +6,10 @@ import TableRow from './TableRow'
 import testData from './testData'
 
 function delay(time: number) {
-  return new Promise(resolve => setTimeout(resolve, time))
+  return new Promise((resolve) => setTimeout(resolve, time))
 }
 
 const Leaderboard = () => {
-
   const [pies, setPies] = React.useState(testData)
   const [checkList, setCheckList] = React.useState<any>([])
   const [sortKey, setSortKey] = React.useState('')
@@ -18,12 +17,9 @@ const Leaderboard = () => {
 
   const handleCheck = (checked, value) => {
     if (checked) {
-      setCheckList([
-        ...checkList,
-        value
-      ])
+      setCheckList([...checkList, value])
     } else {
-      setCheckList(checkList.filter(d => d.address !== value.address))
+      setCheckList(checkList.filter((d) => d.address !== value.address))
     }
   }
 
@@ -38,16 +34,16 @@ const Leaderboard = () => {
     setLoading(false)
   }
 
-  const sorted = sortKey === '' ? pies : pies.slice().sort((a: any, b: any) => {
-    if (a[sortKey] === b[sortKey]) return 0
-    return a[sortKey] > b[sortKey] ? 1 : -1
-  })
+  const sorted =
+    sortKey === ''
+      ? pies
+      : pies.slice().sort((a: any, b: any) => {
+          if (a[sortKey] === b[sortKey]) return 0
+          return a[sortKey] > b[sortKey] ? 1 : -1
+        })
 
   return (
-    <Box
-      py={[20, 120]}
-      px={16}
-    >
+    <Box py={[20, 120]} px={16}>
       <Box
         sx={{
           margin: '0 auto',
@@ -56,7 +52,7 @@ const Leaderboard = () => {
           backgroundColor: '#F6FAFD',
           borderRadius: [12, 32],
           position: 'relative',
-          overflow: 'hidden'
+          overflow: 'hidden',
         }}
       >
         <Box
@@ -69,7 +65,7 @@ const Leaderboard = () => {
             background: 'linear-gradient(135deg, rgba(0,0,0,0) 0%, rgba(0,0,0,0) 60%, rgba(235,203,228,1) 100%)',
           }}
         />
-        <Box sx={{ position: 'relative' }} >
+        <Box sx={{ position: 'relative' }}>
           <Box sx={{ padding: [12, 48] }}>
             <Box
               sx={{
@@ -85,7 +81,7 @@ const Leaderboard = () => {
                 fontSize: 18,
                 fontWeight: 500,
                 color: '#8E8DA0',
-                marginTop: 26
+                marginTop: 26,
               }}
             >
               YOU DESERVE THE BEST
@@ -95,7 +91,7 @@ const Leaderboard = () => {
             sx={{
               overflow: 'auto',
               maxHeight: 800,
-              padding: ['0 12px', '0 48px']
+              padding: ['0 12px', '0 48px'],
             }}
           >
             <Box
@@ -104,7 +100,7 @@ const Leaderboard = () => {
                 width: '100%',
                 borderCollapse: 'separate',
                 borderSpacing: '0 10px',
-                position: 'relative'
+                position: 'relative',
               }}
             >
               <thead>
@@ -122,18 +118,14 @@ const Leaderboard = () => {
                       backgroundColor: '#F6FAFD',
                       ':last-of-type': {
                         paddingRight: 0,
-                        width: 30
-                      }
-                    }
+                        width: 30,
+                      },
+                    },
                   }}
                 >
                   <TableHeadStaked />
                   <th>HedgePies</th>
-                  <TableHeadSortable
-                    label="TVL"
-                    active={sortKey === 'tvl'}
-                    onClick={() => handleSort('tvl')}
-                  />
+                  <TableHeadSortable label="TVL" active={sortKey === 'tvl'} onClick={() => handleSort('tvl')} />
                   <TableHeadSortable
                     label="TOTAL STAKED"
                     active={sortKey === 'totalStaked'}
@@ -144,21 +136,13 @@ const Leaderboard = () => {
                     active={sortKey === 'participants'}
                     onClick={() => handleSort('participants')}
                   />
-                  <TableHeadSortable
-                    label="DAILY"
-                    active={sortKey === 'daily'}
-                    onClick={() => handleSort('daily')}
-                  />
+                  <TableHeadSortable label="DAILY" active={sortKey === 'daily'} onClick={() => handleSort('daily')} />
                   <TableHeadSortable
                     label="PERFORMANCE FEE"
                     active={sortKey === 'performanceFee'}
                     onClick={() => handleSort('performanceFee')}
                   />
-                  <TableHeadSortable
-                    label="APY"
-                    active={sortKey === 'apy'}
-                    onClick={() => handleSort('apy')}
-                  />
+                  <TableHeadSortable label="APY" active={sortKey === 'apy'} onClick={() => handleSort('apy')} />
                   <TableHeadSortable
                     label="TOTAL PROFIT"
                     active={sortKey === 'totalProfit'}
@@ -167,13 +151,9 @@ const Leaderboard = () => {
                 </Box>
               </thead>
               <tbody>
-                {sorted.map(d =>
-                  <TableRow
-                    key={d.address}
-                    data={d}
-                    onChange={checked => handleCheck(checked, d)}
-                  />
-                )}
+                {sorted.map((d) => (
+                  <TableRow key={d.address} data={d} onChange={(checked) => handleCheck(checked, d)} />
+                ))}
               </tbody>
             </Box>
           </Box>
@@ -182,13 +162,12 @@ const Leaderboard = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              height: 200
+              height: 200,
             }}
           >
-            {loading ?
-              <Spinner />
-              :
-
+            {loading ? (
+              <Spinner sx={{ color: '#1799DE' }} />
+            ) : (
               <Button
                 variant="info"
                 sx={{
@@ -205,10 +184,9 @@ const Leaderboard = () => {
               >
                 View More
               </Button>
-            }
+            )}
           </Box>
         </Box>
-
       </Box>
     </Box>
   )

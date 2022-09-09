@@ -23,7 +23,15 @@ import { useWeb3React } from '@web3-react/core'
 type Props = {}
 
 type Badge = { title: string; value: string }
-type Strategy = { image: string; name: string; value: string; percentage: string; per: number }
+type Strategy = {
+  image: string
+  name: string
+  value: string
+  percentage: string
+  per: number
+  protocol?: string
+  pool?: string
+}
 type Detail = { title: string; value: any }
 
 const ViewContents = (props: Props) => {
@@ -40,8 +48,12 @@ const ViewContents = (props: Props) => {
   const [description, setDescription] = useState<string>()
   const [bnbPrice, setBNBPrice] = useState<any>()
 
+  const [tvl, setTVL] = useState()
+  const [participants, setParticipants] = useState()
+
   const { getTokenUri, getAllocations, getMaxTokenId } = useYBNFTMint()
   const { getAdapters } = useAdapterManager()
+  const { getNFTInfo } = useInvestor()
 
   // Get the Token ID of the current YBNFT
   useEffect(() => {
@@ -51,6 +63,15 @@ const ViewContents = (props: Props) => {
       const res = queryString.parse(router.asPath.split(/\?/)[1])
       setTokenId(res.tokenId as string)
     }
+  }, [])
+
+  // To get the TVL and total Participants to populate in the Contents page
+  useEffect(() => {
+    // const setTVLandParticipants = async () => {
+    //   setTVL(await getTVL(tokenId))
+    //   setParticipants(await getTotalParticipants(tokenId))
+    // }
+    // setTVLandParticipants()
   }, [])
 
   // Get the Metadata, Allocations, etc of the current YBNFT
@@ -71,7 +92,7 @@ const ViewContents = (props: Props) => {
       console.log(adapters)
       let mappings = [] as Strategy[]
       for (let allocation of allocations) {
-        let obj = { name: '', percentage: '', image: '', value: '', per: 0 }
+        let obj = { name: '', percentage: '', image: '', value: '', per: 0, protocol: '', pool: '' }
         adapters.map((adapter) => {
           adapter.addr == allocation.addr ? (obj.name = adapter.name) : ''
         })
@@ -83,11 +104,40 @@ const ViewContents = (props: Props) => {
         if (obj.name.toLowerCase().includes('autofarm')) {
           obj.image = 'images/autofarm.png'
         }
+        if (obj.name.toLowerCase().includes('biswap')) {
+          obj.image = 'images/biswap.png'
+        }
+        if (obj.name.toLowerCase().includes('beefy')) {
+          obj.image = 'images/beefy.png'
+        }
+        if (obj.name.toLowerCase().includes('belt')) {
+          obj.image = 'images/belt.png'
+        }
+        if (obj.name.toLowerCase().includes('venus')) {
+          obj.image = 'images/venus.png'
+        }
+        if (obj.name.toLowerCase().includes('alpaca')) {
+          obj.image = 'images/alpaca.png'
+        }
+        let split = obj?.name?.split('::')
+        obj.protocol = split?.[0]
+        obj.pool = split?.[split?.length - 1]
+
         mappings.push(obj)
       }
       setStrategies(mappings)
     }
     fetchContractData()
+
+    // Populating TVL and Participants badges
+    const populateBadges = async () => {
+      const nftInfo = await getNFTInfo(tokenId)
+      setBadges([
+        { title: 'TLV:', value: `${getBalanceInEther(nftInfo.tvl)} BNB` },
+        { title: 'Participants:', value: `${nftInfo.totalParticipant}` },
+      ])
+    }
+    populateBadges()
   }, [tokenId])
 
   // Set the Metadata JSON URL, Image and NFT Name/Description from the metadata
@@ -102,15 +152,6 @@ const ViewContents = (props: Props) => {
     }
     fetchAndPopulateMetadataItems()
   }, [metadataURL])
-
-  // Setting badges,strategies with the default values, which should later be taken from the props
-  useEffect(() => {
-    setBadges([
-      { title: 'COLLECTIVE APY:', value: '500%' },
-      { title: 'TLV:', value: '$5000' },
-      { title: 'Participants:', value: '487' },
-    ])
-  }, [])
 
   useEffect(() => {
     if (staked && staked > 0) {
@@ -130,7 +171,7 @@ const ViewContents = (props: Props) => {
       {
         title: 'Contract Address',
         value: (
-          <Link href="https://bscscan.com/address/0xdf5926C9A457d61c72C1dbcBce140c1548fAE87b">
+          <Link href="https://bscscan.com/address/0x82Eaf622517Dab13E99E104a5F68122a7a5BB38B">
             <a target="_blank" rel="noopener noreferrer">
               Contract on BSCScan
             </a>
@@ -146,7 +187,7 @@ const ViewContents = (props: Props) => {
             </a>
           </Link>
         ) : (
-          <Spinner />
+          <Spinner sx={{ color: '#1799DE' }} />
         ),
       },
     ])
@@ -173,19 +214,19 @@ const ViewContents = (props: Props) => {
                           {ybnftName ? (
                             <Text sx={styles.nft_name_text as ThemeUICSSObject}>{ybnftName}</Text>
                           ) : (
-                            <Spinner />
+                            <Spinner sx={{ color: '#1799DE' }} />
                           )}
                           {description ? <Text sx={styles.nft_desc_text as ThemeUICSSObject}>{description}</Text> : ''}
                         </Flex>
                       </Flex>
-                      {/* <Box sx={styles.flex_badges_row as ThemeUICSSObject}>
+                      <Box sx={styles.flex_badges_row as ThemeUICSSObject}>
                         {badges.map((badge) => (
                           <Box sx={styles.flex_badge_container as ThemeUICSSObject}>
                             <Text sx={styles.badge_title_text as ThemeUICSSObject}>{badge.title}</Text>
                             <Text sx={styles.badge_value_text}>{badge.value}</Text>
                           </Box>
                         ))}
-                      </Box> */}
+                      </Box>
                     </Flex>
                     <Flex sx={styles.flex_owner_details_container as ThemeUICSSObject}>
                       {/* <Text sx={styles.owner_name_text as ThemeUICSSObject}>{owner.name}</Text> */}
@@ -202,9 +243,14 @@ const ViewContents = (props: Props) => {
                             <Flex sx={styles.flex_strategy_details_container as ThemeUICSSObject}>
                               <Image src={strategy.image} sx={styles.strategy_detail_image as ThemeUICSSObject} />
                               <Flex sx={styles.flex_strategy_detail_column as ThemeUICSSObject}>
-                                <Text sx={styles.strategy_detail_quantity_text as ThemeUICSSObject}>
-                                  {strategy.name}
-                                </Text>
+                                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+                                  <Text sx={styles.strategy_detail_quantity_text as ThemeUICSSObject}>
+                                    Protocol: {strategy.protocol}
+                                  </Text>
+                                  <Text sx={styles.strategy_detail_quantity_text as ThemeUICSSObject}>
+                                    Pool: {strategy.pool}
+                                  </Text>
+                                </Box>
                                 {strategy.value && (
                                   <Text sx={styles.strategy_detail_value_text as ThemeUICSSObject}>
                                     ({strategy.value} BNB)
@@ -216,7 +262,7 @@ const ViewContents = (props: Props) => {
                               </Flex>
                             </Flex>
                           ))}{' '}
-                        {!strategies || !strategies.length ? <Spinner /> : ''}
+                        {!strategies || !strategies.length ? <Spinner sx={{ color: '#1799DE' }} /> : ''}
                       </Flex>
                     </Flex>
 

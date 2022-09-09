@@ -108,13 +108,22 @@ export const fetchAllowance = async (wbnbContract, account) => {
   
   // This is a function for Claiming which will be used once the claim function is updated.
 export const claimFromYBNFT = async (ybnftInvestorContract, account, ybnftId) => {
-  // return ybnftInvestorContract.methods
-  //   .claimFromYBNFT(account, ybnftId)
-  //   .send({ from: account })
-  //   .on('transactionHash', (tx) => {
-  //     return tx.transactionHash
-  //   })
-  return ""
+  return ybnftInvestorContract.methods
+    .claim(ybnftId)
+    .send({ from: account })
+    .on('transactionHash', (tx) => {
+      return tx.transactionHash
+    })
+}
+
+export const fetchNFTInfo = async (ybnftInvestorContract, ybnftId) => {
+  const nftInfo = await ybnftInvestorContract.methods.nftInfo(await getYBNFTAddress(), ybnftId).call()
+  return nftInfo
+}
+
+export const fetchParticipants = async (ybnftInvestorContract, ybnftId) => {
+  const totalParticipants = await ybnftInvestorContract.methods.userInfo(await getYBNFTAddress(), ybnftId).call()
+  return totalParticipants
 }
 
 
