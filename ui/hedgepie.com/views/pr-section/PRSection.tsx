@@ -18,6 +18,10 @@ function PRSection() {
   }
 
   const sendEmail = async () => {
+    if (!validateEmail(email)) {
+      toast('Please enter a valid e-mail ID', 'warning')
+      return
+    }
     toast(`Sending introductory Email to ${email} !!`)
     const response = await axios.post('https://api.emailjs.com/api/v1.0/email/send', {
       service_id: 'hedgepie-web',
