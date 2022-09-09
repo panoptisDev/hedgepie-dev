@@ -36,7 +36,8 @@ export const styles = {
     fontWeight: 700,
     color: '#16103a',
     lineHeight: 1,
-    paddingRight:"20px"
+    paddingRight:"20px",
+    marginLeft:'-5px'
   },
   banner_text: {
     marginTop: [4, 5],
