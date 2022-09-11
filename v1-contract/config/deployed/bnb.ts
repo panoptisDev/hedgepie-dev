@@ -60,3 +60,8 @@ export const alpaca = {
   "Alpaca::Stake::ibCake": "0xfdA0c0D33A5452E72d50da69713Ed64bC4de8599",
   "Alpaca::Lend::Cake": "0xb36550f7FaA871193bde32B0FFC82eE2Bb10Feb6",
 };
+
+export const pancakeswap = {
+  "PKS::Stake::GAL": "0x1bBbBDdC4d4995CCcC78d3475774828BE10048c8",
+  "PKS::Farm::WBNB-CAKE": "0xd1291243318eF2090fc1A97e5C0d85C735D68068",
+};

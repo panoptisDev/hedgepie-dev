@@ -161,3 +161,21 @@ export const alpacaAdapterArgsList = {
     name: "Alpaca::Lend::Cake",
   },
 };
+
+// pks adapter
+export const pksAdapterArgsList = {
+  "PKS::Stake::GAL": {
+    strategy: "0xa5D57C5dca083a7051797920c78fb2b19564176B",
+    stakingToken: "0x0e09fabb73bd3ade0a17ecc321fd13a19e81ce82",
+    rewardToken: "0xe4Cc45Bb5DBDA06dB6183E8bf016569f40497Aa5",
+    name: "PKS::Stake::GAL",
+  },
+  "PKS::Farm::WBNB-CAKE": {
+    poolId: 2,
+    strategy: "0xa5f8C5Dbd5F286960b9d90548680aE5ebFf07652",
+    stakingToken: "0x0eD7e52944161450477ee417DE9Cd3a859b14fD0", // WBNB-CAKE LP
+    rewardToken: "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82",
+    router: "0x10ED43C718714eb63d5aA57B78B54704E256024E",
+    name: "PKS::Farm::WBNB-CAKE",
+  },
+};
