@@ -29,7 +29,9 @@
     "deploy:bnb:autofarm-wbnb-ada-vault": "npx hardhat run deploy/bnb/autofarm/autofarm-wbnb-ada-wbnb.ts --network bsc",
     "deploy:bnb:biswap-bsw-farm": "npx hardhat run deploy/bnb/biswap/biswap-bsw-farm.ts --network bsc",
     "deploy:bnb:biswap-bsw-usdt-farm": "npx hardhat run deploy/bnb/biswap/biswap-bsw-usdt-farm.ts --network bsc",
-    "code:size": "npx hardhat size-contracts"
+    "code:size": "npx hardhat size-contracts",
+    "deploy:network": "npx hardhat run deploy/deploy.ts --network",
+    "verify:network": "npx hardhat verify --network"
   },
   "repository": {
     "type": "git",
