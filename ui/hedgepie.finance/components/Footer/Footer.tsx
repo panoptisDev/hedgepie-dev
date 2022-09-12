@@ -13,7 +13,9 @@ const Footer = (props: Props) => {
     <Box className="footer" sx={styles.footer_container as ThemeUICSSObject}>
       <Box py={90} px={[16, 60]} sx={styles.footer_inner_container as ThemeUICSSObject}>
         <Box mr={4}>
-          <Image src="images/logo.png" />
+          <Link href="/">
+            <Image src="images/logo.png" />
+          </Link>
           <Box sx={styles.footer_text_container as ThemeUICSSObject}>
             Hedge Pie is an innovative decentralized trading platform that allows users to generate funds that others
             can invest in.
@@ -68,10 +70,12 @@ const Footer = (props: Props) => {
       <Box py={30} px={[16, 60]} sx={styles.footer_company_container as ThemeUICSSObject}>
         <Box>&copy; 2022 HedgePie</Box>
         <Flex
-          mt={[4, 0]}
           sx={{
-            flexDirection: ['column', 'row'],
+            flexDirection: ['row', 'row', 'row'],
             gap: [12, 24],
+            alignItems: 'center',
+            justifyContent: 'center',
+            height: '100%',
           }}
         >
           <Link href="/" passHref>

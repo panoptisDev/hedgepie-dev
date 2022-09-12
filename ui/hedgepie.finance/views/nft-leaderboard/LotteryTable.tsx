@@ -175,7 +175,11 @@ const LotteryTable = ({ data, onSort, sortKey }: any) => {
         </thead>
         <tbody>
           {data.map((d: TokenInfo, i: number) => (
-            <tr key={d.tokenId} style={{ backgroundColor: 'white', borderRadius: '30px' }}>
+            <tr
+              key={d.tokenId}
+              style={{ backgroundColor: 'white', borderRadius: '30px', cursor: 'pointer' }}
+              onClick={() => router.push('/view-contents?tokenId=' + d.tokenId)}
+            >
               <td style={{ borderBottomLeftRadius: '30px' }}>
                 <Box sx={{ width: '100%', textAlign: 'center' }}>
                   <Image src={d.imageURL} sx={{ width: 60, boxShadow: '#ccc 0px 3px 3px 2px' }} />
@@ -186,7 +190,7 @@ const LotteryTable = ({ data, onSort, sortKey }: any) => {
               </td>
               <td style={{}}>
                 {/* <Box sx={{ color: '#DF4886' }}>$numberWithCommas(d.tvl)</Box> */}
-                <Box sx={{ color: '#DF4886', fontSize: '16px', fontWeight: '600' }}>{'$100,000 USD'}</Box>
+                <Box sx={{ color: '#DF4886', fontSize: '16px', fontWeight: '600' }}>{d.tvl}</Box>
               </td>
               {/* <td>{numberWithCommas(d.staked)} TAKO</td> */}
               {/* <td>{numberWithCommas(d.participants)}</td> */}
@@ -206,7 +210,7 @@ const LotteryTable = ({ data, onSort, sortKey }: any) => {
                   fontWeight: '600',
                 }}
               >
-                {'24'}
+                {d.totalParticipants}
               </td>
               <td style={{}}>
                 {/* <Box sx={{ color: '#EFA906' }}>d.daily%</Box> */}

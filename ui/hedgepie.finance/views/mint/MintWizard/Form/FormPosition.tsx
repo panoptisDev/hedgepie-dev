@@ -6,7 +6,7 @@ import YbNftSummaryChart from './YbNftSummaryChart'
 import toast from 'utils/toast'
 
 const FormPosition = () => {
-  const { wizard, setWizard, formData } = React.useContext(MintWizardContext)
+  const { wizard, setWizard, formData, account } = React.useContext(MintWizardContext)
 
   const duplicatesInPositions = (positions) => {
     let positionNames = [] as any[]
@@ -37,9 +37,26 @@ const FormPosition = () => {
     return false
   }
 
+  const checkIfPositionsEmpty = () => {
+    // formData.positions.forEach((p) => {
+    //   if (p.composition) {
+    //     if (p.composition.name && p.composition.pools?.length) return false
+    //   }
+    // })
+    return false
+  }
+
   const handleNext = () => {
+    if (checkIfPositionsEmpty()) {
+      toast('Cannot proceed with empty positions !!', 'warning')
+      return
+    }
     if (formData.positions && (duplicatesInPositions(formData.positions) || ifTotalNotHundred(formData.positions))) {
       toast('Make sure the total is 100% and There are no duplicates !!', 'warning')
+      return
+    }
+    if (!account) {
+      toast('Please connect your wallet to continue !!')
       return
     }
     setWizard({

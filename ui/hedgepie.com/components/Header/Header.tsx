@@ -98,7 +98,7 @@ const Header = ({ overlay = false, dark = true }: Props) => {
             <ConnectWallet isHeaderBtn dark={dark} />
           </Box>
         </Box>
-        <div style={{ display: 'flex', flexDirection: 'row', gap: '0px', marginLeft: 'auto' }}>
+        <div style={{ display: 'flex', flexDirection: 'row', gap: '0px', marginLeft: 'auto', marginRight: '10px' }}>
           <Menu
             menuButton={
               <Box sx={styles.mobile_menu_btn as ThemeUICSSObject}>
@@ -110,17 +110,28 @@ const Header = ({ overlay = false, dark = true }: Props) => {
             arrow
           >
             {/* <MobileMenuLink href="/vault">Vault</MobileMenuLink> */}
-            {/* <MobileMenuLink
-              href=""
+            {/* <MobileMenuLink href=""> */}
+            <div
               onClick={() => {
                 document?.getElementById('collect-winnings')?.scrollIntoView({
                   behavior: 'smooth',
                 })
               }}
+              style={{ cursor: 'pointer', padding: '4px 25px' }}
             >
               Leaderboard
-            </MobileMenuLink>
-            <MobileMenuLink href="/mint">Mint</MobileMenuLink> */}
+            </div>
+            {/* </MobileMenuLink> */}
+            <div
+              onClick={() => {
+                document?.getElementById('demo-info')?.scrollIntoView({
+                  behavior: 'smooth',
+                })
+              }}
+              style={{ cursor: 'pointer', padding: '4px 25px' }}
+            >
+              Mint
+            </div>
             <MobileMenuLink href="/HedgePie-Whitepaper-V5.pdf">White Paper</MobileMenuLink>
           </Menu>
         </div>

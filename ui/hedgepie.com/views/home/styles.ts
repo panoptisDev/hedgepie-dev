@@ -14,19 +14,21 @@ export const styles = {
   banner_contents_container: {
     margin: '0 auto',
     maxWidth: 1200,
-    position: 'relative',
+    position: '',
+    display:'flex',
+    flexDirection:['column','column','row'],
+    gap:'10px'
   },
   banner_coins_image: {
-    position: 'absolute',
     top: [300, 300, 250, -140],
     right: [-40, 0, 40, 0],
-    width: [250, 250, 300, 450],
+    width: [250, 250, 300, 800],
   },
   banner_pie_image: {
-    position: 'absolute',
     top: [400, 400, 350, 0],
     right: [0, 30],
-    width: [300, 300, 400, 500],
+    width: [800, 540, 400, 540],
+    paddingLeft:"20px"
   },
   banner_title: {
     maxWidth: [260, 450, 450, 562],
@@ -34,6 +36,8 @@ export const styles = {
     fontWeight: 700,
     color: '#16103a',
     lineHeight: 1,
+    paddingRight:"20px",
+    marginLeft:'-5px'
   },
   banner_text: {
     marginTop: [4, 5],
@@ -44,8 +48,9 @@ export const styles = {
   },
   banner_connect_wallet_wrapper: {
     borderRadius: 40,
-    height: 64,
-    padding: '0 24px',
+    height: [50,50,64],
+    width:'fit-content',
+    padding: ['0 20px','0 20px','0 24px'],
     cursor: 'pointer',
     transition: 'all .2s',
     display: 'flex',

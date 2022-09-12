@@ -40,7 +40,7 @@ export const styles = {
     '& > *': {
       marginRight: 30,
     },
-    gap:'2px'
+    gap:'8px'
   },
   footer_navbar: {
     color: '#8E8DA0',
@@ -51,7 +51,7 @@ export const styles = {
   },
   footer_company_container: {
     display: 'flex',
-    flexDirection: ['column', 'row'],
+    flexDirection: ['row', 'row','row'],
     alignItems: 'center',
     justifyContent: 'space-between',
     color: '#8E8DA0',

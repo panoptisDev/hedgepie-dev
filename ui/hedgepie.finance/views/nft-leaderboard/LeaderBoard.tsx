@@ -5,15 +5,19 @@ import LotteryTable from './LotteryTable'
 import LotteryLoad from './LotteryLoad'
 
 import { useYBNFTMint } from 'hooks/useYBNFTMint'
+import { useInvestor } from 'hooks/useInvestor'
 
 import { styles } from './styles'
 import toast from 'utils/toast'
+import { getBalanceInEther } from 'utils/formatBalance'
 
 export interface TokenInfo {
   name?: string
   imageURL?: string
   description?: string
   tokenId?: number
+  tvl?: string
+  totalParticipants?: number
 }
 
 const LeaderBoard = () => {
@@ -21,6 +25,8 @@ const LeaderBoard = () => {
   const [searchKey, setSearchKey] = React.useState('')
   const [sortKey, setSortKey] = React.useState('')
   const { getMaxTokenId, getTokenUri } = useYBNFTMint()
+  const { getNFTInfo } = useInvestor()
+
   const [loading, setLoading] = useState(true)
 
   useEffect(() => {
@@ -40,12 +46,18 @@ const LeaderBoard = () => {
         if (metadataFile == null) {
           continue
         }
+
+        // Obtain total participants and TVL, Will be used to populate the tvl and participants in the Leaderboard
+        const nftInfo = await getNFTInfo(i)
+
         const metadata = await metadataFile.json()
         const leaderboardItem = {
           tokenId: i,
           name: metadata.name,
           imageURL: metadata.imageURL,
           description: metadata.description,
+          tvl: `${getBalanceInEther(nftInfo.tvl)} BNB`,
+          totalParticipants: nftInfo.totalParticipant,
         }
         tokens.push(leaderboardItem)
         setLotteries(tokens)
@@ -97,7 +109,7 @@ const LeaderBoard = () => {
           <LotteryTable data={sorted} onSort={handleSort} sortKey={sortKey} />
           {loading ? (
             <Box sx={{ display: 'flex', alignItems: 'center', justifyContent: 'center', padding: '0.5rem' }}>
-              <Spinner />
+              <Spinner sx={{ color: '#1799DE' }} />
             </Box>
           ) : (
             ''

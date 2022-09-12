@@ -8,12 +8,17 @@ import { styles } from './styles'
 
 function Yield(props: any) {
   const { tokenId } = props
-  const { getYield, onYBNFTClaim } = useInvestor()
-  const [reward, setReward] = useState(0)
+  const { getYield, onYBNFTClaim, getBalance } = useInvestor()
+  const [reward, setReward] = useState<undefined | number | string>()
   const [loading, setLoading] = useState(true)
+  const [currentStaked, setCurrentStaked] = useState(0)
   const { account } = useWeb3React()
 
   const handleWithdrawYield = async () => {
+    if (!reward || Number(reward) === 0) {
+      toast('No reward to claim', 'warning')
+      return
+    }
     let txHash
     try {
       txHash = await onYBNFTClaim(tokenId)
@@ -30,7 +35,7 @@ function Yield(props: any) {
     console.log(account)
     setLoading(true)
     try {
-      let pendingReward = getBalanceInEther(await getYield(tokenId))
+      let pendingReward = getBalanceInEther(await getYield(tokenId)).toFixed(2)
       setReward(pendingReward)
     } catch (err) {
       toast('Error while fetching Yield ')
@@ -38,20 +43,36 @@ function Yield(props: any) {
     setLoading(false)
   }
 
+  const setCurrentStakedBalance = async () => {
+    let balance = await getBalance(tokenId)
+    setCurrentStaked(getBalanceInEther(balance))
+  }
+
+  useEffect(() => {
+    if (!account || !tokenId) return
+    setCurrentStakedBalance()
+  }, [account, tokenId])
+
   useEffect(() => {
     fetchReward()
   }, [account])
 
   return (
-    <Box sx={styles.yield_container as ThemeUICSSObject}>
-      <Box sx={styles.yield_inner_container as ThemeUICSSObject}>
-        <Text sx={styles.yield_inner_text}>YIELD</Text>
-        <Text sx={styles.yield_inner_text}>500 BNB</Text>
-      </Box>
-      <Button sx={styles.withdraw_yield_button as ThemeUICSSObject} onClick={handleWithdrawYield}>
-        WITHDRAW YIELD
-      </Button>
-    </Box>
+    <>
+      {reward !== undefined && currentStaked > 0 ? (
+        <Box sx={styles.yield_container as ThemeUICSSObject}>
+          <Box sx={styles.yield_inner_container as ThemeUICSSObject}>
+            <Text sx={styles.yield_inner_text}>YIELD</Text>
+            <Text sx={styles.yield_inner_text}>{reward} BNB</Text>
+          </Box>
+          <Button sx={styles.withdraw_yield_button as ThemeUICSSObject} onClick={handleWithdrawYield}>
+            Claim Yield
+          </Button>
+        </Box>
+      ) : (
+        ''
+      )}
+    </>
   )
 }
 
