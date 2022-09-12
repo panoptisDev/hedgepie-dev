@@ -432,38 +432,37 @@ library HedgepieLibrary {
 
     function depositToAdapterMatic(
         address _adapterManager,
-        address _token,
-        address _adapterAddr,
         uint256 _tokenId,
         uint256 _amount,
         address _account,
+        IYBNFT.Adapter memory _adapter,
         HedgepieInvestorMatic.UserAdapterInfo storage _userAdapterInfo,
         HedgepieInvestorMatic.AdapterInfo storage _adapterInfo
     ) public {
-        uint256[2] memory amounts;
+        uint256[3] memory amounts;
         address[3] memory addrs;
-        addrs[0] = IAdapter(_adapterAddr).stakingToken();
-        addrs[1] = IAdapter(_adapterAddr).repayToken();
-        addrs[2] = IAdapter(_adapterAddr).rewardToken();
-        bool isReward = IAdapter(_adapterAddr).isReward();
+        addrs[0] = IAdapter(_adapter.addr).stakingToken();
+        addrs[1] = IAdapter(_adapter.addr).repayToken();
+        addrs[2] = IAdapter(_adapter.addr).rewardToken();
+        bool isReward = IAdapter(_adapter.addr).isReward();
 
         amounts[0] = addrs[1] != address(0)
             ? IBEP20(addrs[1]).balanceOf(address(this))
             : (
-                isReward ? IAdapter(_adapterAddr).pendingShares() :
+                isReward ? IAdapter(_adapter.addr).pendingShares() :
                     addrs[2] != address(0)
                         ? IBEP20(addrs[2]).balanceOf(address(this))
                         : 0
             );
 
-        IBEP20(_token).approve(
-            IAdapterManager(_adapterManager).getAdapterStrat(_adapterAddr),
+        IBEP20(_adapter.token).approve(
+            IAdapterManager(_adapterManager).getAdapterStrat(_adapter.addr),
             _amount
         );
 
         (address to, uint256 value, bytes memory callData) = IAdapterManager(
             _adapterManager
-        ).getDepositCallData(_adapterAddr, _amount);
+        ).getDepositCallData(_adapter.addr, _amount);
 
         (bool success,) = to.call{value: value}(callData);
         require(success, "Error: Deposit internal issue");
@@ -471,37 +470,27 @@ library HedgepieLibrary {
         amounts[1] = addrs[1] != address(0)
             ? IBEP20(addrs[1]).balanceOf(address(this))
             : (
-                isReward ? IAdapter(_adapterAddr).pendingShares() :
+                isReward ? IAdapter(_adapter.addr).pendingShares() :
                     addrs[2] != address(0)
                         ? IBEP20(addrs[2]).balanceOf(address(this))
                         : 0
             );
 
+        unchecked { amounts[2] = amounts[1] - amounts[0]; }
         if (isReward) {
-            require(amounts[1] > amounts[0], "Error: Deposit failed");
+            require(amounts[2] > 0, "Error: Deposit failed");
 
             unchecked {
-                _userAdapterInfo.userShares += amounts[1] - amounts[0];
-                _userAdapterInfo.userShares1 += amounts[1] - amounts[0];   
+                _userAdapterInfo.userShares += amounts[2];
+                _userAdapterInfo.userShares1 += amounts[2];
             }
-
-            IAdapter(_adapterAddr).increaseWithdrawalAmount(
-                _account,
-                _tokenId,
-                amounts[1] - amounts[0]
-            );
         } else if (addrs[1] != address(0)) {
-            require(amounts[1] > amounts[0], "Error: Deposit failed 11111");
-            IAdapter(_adapterAddr).increaseWithdrawalAmount(
-                _account,
-                _tokenId,
-                amounts[1] - amounts[0]
-            );
+            require(amounts[1] > amounts[0], "Error: Deposit failed");
         } else if (addrs[2] != address(0)) {
             // Farm Pool
             uint256 rewardAmount = addrs[2] == addrs[0]
-                ? amounts[1] + _amount - amounts[0]
-                : amounts[1] - amounts[0];
+                ? amounts[2] + _amount
+                : amounts[2];
 
             if (rewardAmount != 0 && _adapterInfo.totalStaked != 0) {
                 unchecked {
@@ -519,18 +508,16 @@ library HedgepieLibrary {
                 _userAdapterInfo.userShares1 = _adapterInfo.accTokenPerShare1;
             }
 
-            IAdapter(_adapterAddr).increaseWithdrawalAmount(
-                _account,
-                _tokenId,
-                _amount
-            );
+            amounts[2] = _amount;
         } else {
-            IAdapter(_adapterAddr).increaseWithdrawalAmount(
-                _account,
-                _tokenId,
-                _amount
-            );
+            amounts[2] = _amount;
         }
+
+        IAdapter(_adapter.addr).increaseWithdrawalAmount(
+            _account,
+            _tokenId,
+            amounts[2]
+        );
     }
 
     function getLPMatic(

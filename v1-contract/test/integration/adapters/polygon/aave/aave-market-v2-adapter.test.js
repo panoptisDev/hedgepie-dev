@@ -175,8 +175,11 @@ describe("AaveMarketV2Adapter Integration Test", function () {
         this.aliceAddr,
         1
       );
-      expect(BigNumber.from(aliceWithdrable)).to.eq(
-        BigNumber.from(aliceAdapterInfos.amount)
+      expect(
+        BigNumber.from(aliceWithdrable)
+      ).to.be.within(
+        BigNumber.from(aliceAdapterInfos.amount),
+        BigNumber.from(aliceAdapterInfos.amount).add(1)
       );
     });
 
@@ -236,8 +239,11 @@ describe("AaveMarketV2Adapter Integration Test", function () {
         this.bobAddr,
         1
       );
-      expect(BigNumber.from(bobWithdrable)).to.eq(
-        BigNumber.from(bobAdapterInfos.amount)
+      expect(
+        BigNumber.from(bobWithdrable)
+      ).to.be.within(
+        BigNumber.from(bobAdapterInfos.amount),
+        BigNumber.from(bobAdapterInfos.amount).add(1)
       );
     }).timeout(50000000);
 
@@ -292,8 +298,11 @@ describe("AaveMarketV2Adapter Integration Test", function () {
         this.tomAddr,
         1
       );
-      expect(BigNumber.from(tomWithdrable)).to.eq(
-        BigNumber.from(tomAdapterInfos.amount)
+      expect(
+        BigNumber.from(tomWithdrable)
+      ).to.be.within(
+        BigNumber.from(tomAdapterInfos.amount),
+        BigNumber.from(tomAdapterInfos.amount).add(1)
       );
     }).timeout(50000000);
   });

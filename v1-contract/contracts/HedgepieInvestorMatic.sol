@@ -182,11 +182,10 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                 // deposit to adapter
                 HedgepieLibrary.depositToAdapterMatic(
                     adapterManager,
-                    adapter.token, 
-                    adapter.addr, 
                     _tokenId, 
                     amountOut,
                     msg.sender,
+                    adapter,
                     _userAdapterInfo,
                     _adapterInfo
                 );
