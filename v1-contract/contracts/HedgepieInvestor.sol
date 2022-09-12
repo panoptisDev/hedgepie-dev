@@ -3,6 +3,13 @@ pragma solidity ^0.8.4;
 
 import "./libraries/HedgepieLibrary.sol";
 
+import "./interfaces/IYBNFT.sol";
+import "./interfaces/IAdapter.sol";
+import "./interfaces/IVaultStrategy.sol";
+import "./interfaces/IAdapterManager.sol";
+import "./interfaces/IPancakePair.sol";
+import "./interfaces/IPancakeRouter.sol";
+
 contract HedgepieInvestor is Ownable, ReentrancyGuard {
     using SafeBEP20 for IBEP20;
 
@@ -163,11 +170,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 }
             } else {
                 // get lp
-                amountOut = HedgepieLibrary.getLP(
-                    adapter,
-                    wbnb,
-                    amountIn
-                );
+                amountOut = HedgepieLibrary.getLP(adapter, wbnb, amountIn);
             }
 
             // deposit to adapter
@@ -568,7 +571,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
         for (uint8 i = 0; i < ybnftAapters.length; i++) {
             IYBNFT.Adapter memory adapter = ybnftAapters[i];
-            UserAdapterInfo memory userAdapter = userAdapterInfos[msg.sender][
+            UserAdapterInfo memory userAdapter = userAdapterInfos[_account][
                 _tokenId
             ][adapter.addr];
             AdapterInfo memory adapterInfo = adapterInfos[_tokenId][
@@ -581,7 +584,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 adapterInfo.accTokenPerShare != 0
             ) {
                 uint256 updatedAccTokenPerShare = adapterInfo.accTokenPerShare +
-                    ((IAdapter(adapter.addr).pendingReward() * 1e12) /
+                    ((IAdapter(adapter.addr).getReward(address(this)) * 1e12) /
                         adapterInfo.totalStaked);
 
                 uint256 tokenRewards = ((updatedAccTokenPerShare -
