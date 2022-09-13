@@ -38,26 +38,27 @@ const ConnectWallet = (props) => {
       {isHeaderBtn ? (
         <Button
           sx={{ ...styles.header_connect_wallet_btn, color: !dark ? '#000' : '#fff' } as ThemeUICSSObject}
-          onClick={() => toast('Our site will soon be live at hedgepie.finance')}
           {...props}
         >
-          {account ? (
-            <>
-              {accountEllipsis}{' '}
-              <img src={chainImg} alt="chain-image" width="40px" height="40px" style={{ marginLeft: '10px' }} />
-            </>
-          ) : (
-            <>
-              <Box
-                sx={{
-                  marginRight: '9px',
-                }}
-              >
-                {'OPEN APP'}
-              </Box>
-              {/* <ArrowRight /> */}
-            </>
-          )}
+          <a href="https://hedgepie.finance" target="_blank">
+            {account ? (
+              <>
+                {accountEllipsis}{' '}
+                <img src={chainImg} alt="chain-image" width="40px" height="40px" style={{ marginLeft: '10px' }} />
+              </>
+            ) : (
+              <>
+                <Box
+                  sx={{
+                    marginRight: '9px',
+                  }}
+                >
+                  {'OPEN APP'}
+                </Box>
+                {/* <ArrowRight /> */}
+              </>
+            )}
+          </a>
         </Button>
       ) : (
         <Button

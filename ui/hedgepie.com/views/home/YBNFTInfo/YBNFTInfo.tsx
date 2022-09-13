@@ -72,10 +72,11 @@ const YBNFTInfo = () => {
                 display: 'flex',
                 alignItems: 'center',
               }}
-              onClick={() => toast('Our site will soon be live at hedgepie.finance')}
             >
-              <Box mr={2}>OPEN APP</Box>
-              <ArrowRight />
+              <a href="https://hedgepie.finance" target="_blank">
+                <Box mr={2}>OPEN APP</Box>
+                <ArrowRight />
+              </a>
             </Button>
           </Box>
         </Box>

@@ -94,7 +94,7 @@ const Header = ({ overlay = false, dark = true }: Props) => {
             flexDirection: 'row',
             gap: '0px',
             marginLeft: 'auto',
-            marginRight: '-40px',
+            marginRight: '1px',
             width: 'max-content',
           }}
         >
