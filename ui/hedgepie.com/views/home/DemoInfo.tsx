@@ -97,10 +97,11 @@ const DemoInfo = () => {
                     alignItems: 'center',
                     border: '1px solid #1799DE',
                   }}
-                  onClick={() => toast('Our site will soon be live at hedgepie.finance')}
                 >
-                  <Text sx={{ paddingRight: '10px' }}>OPEN APP</Text>
-                  <ArrowRight />
+                  <a href="https://hedgepie.finance" target="_blank">
+                    <Text sx={{ paddingRight: '10px' }}>OPEN APP</Text>
+                    <ArrowRight />
+                  </a>
                 </Button>
               </Box>
             </Box>
@@ -163,11 +164,11 @@ const DemoInfo = () => {
                     alignItems: 'center',
                     border: '1px solid #1799DE',
                   }}
-                  onClick={() => toast('Our site will soon be live at hedgepie.finance')}
                 >
-                  <Text sx={{ paddingRight: '10px' }}>OPEN APP</Text>
-
-                  <ArrowRight />
+                  <a href="https://hedgepie.finance" target="_blank">
+                    <Text sx={{ paddingRight: '10px' }}>OPEN APP</Text>
+                    <ArrowRight />
+                  </a>
                 </Button>
               </Box>
             </Box>

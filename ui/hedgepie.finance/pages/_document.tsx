@@ -16,6 +16,11 @@ class MyDocument extends Document {
           />
           <link rel="apple-touch-icon" href="/images/logo.png"></link>
           <meta name="theme-color" content="#fff" />
+          {/* <meta
+            id="Viewport"
+            name="viewport"
+            content="initial-scale=1, maximum-scale=1, minimum-scale=1, user-scalable=no"
+          /> */}
           <meta name="viewport" content="width=device-width, initial-scale=1" />
         </Head>
         <body>

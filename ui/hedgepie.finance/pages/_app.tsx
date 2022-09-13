@@ -8,6 +8,7 @@ import { Provider } from 'react-redux'
 import store from 'state'
 import { ModalProvider } from 'widgets/Modal'
 import '../styles/globals.css'
+import Head from 'next/head'
 
 function MyApp({ Component, pageProps }: AppProps) {
   return (
