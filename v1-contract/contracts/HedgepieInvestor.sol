@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
-import "./libraries/SafeBEP20.sol";
-import "./libraries/Ownable.sol";
 import "./libraries/HedgepieLibrary.sol";
 
 import "./interfaces/IYBNFT.sol";
@@ -134,15 +131,14 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
             uint256 amountIn = (_amount * adapter.allocation) / 1e4;
             uint256 amountOut;
-            address routerAddr = IAdapter(adapter.addr).router();
-            if (routerAddr == address(0)) {
+            if (IAdapter(adapter.addr).router() == address(0)) {
                 if (adapter.token == wbnb) {
                     amountOut = amountIn;
                 } else {
                     address wrapToken = IAdapter(adapter.addr).wrapToken();
                     if (wrapToken == address(0)) {
                         // swap
-                        amountOut = HedgepieLibrary.swapOnRouterBNB(
+                        amountOut = HedgepieLibrary.swapOnRouter(
                             adapter.addr,
                             amountIn,
                             adapter.token,
@@ -151,7 +147,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                         );
                     } else {
                         // swap
-                        amountOut = HedgepieLibrary.swapOnRouterBNB(
+                        amountOut = HedgepieLibrary.swapOnRouter(
                             adapter.addr,
                             amountIn,
                             wrapToken,
@@ -174,13 +170,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 }
             } else {
                 // get lp
-                amountOut = HedgepieLibrary.getLPBNB(
-                    adapter.addr,
-                    amountIn,
-                    adapter.token,
-                    routerAddr,
-                    wbnb
-                );
+                amountOut = HedgepieLibrary.getLP(adapter, wbnb, amountIn);
             }
 
             // deposit to adapter
@@ -277,7 +267,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                     address wrapToken = IAdapter(adapter.addr).wrapToken();
                     if (wrapToken == address(0)) {
                         // swap
-                        amountOut += HedgepieLibrary.swapforBNB(
+                        amountOut += HedgepieLibrary.swapforCoin(
                             adapter.addr,
                             balances[1] - balances[0],
                             adapter.token,
@@ -299,7 +289,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                         }
 
                         // swap
-                        amountOut += HedgepieLibrary.swapforBNB(
+                        amountOut += HedgepieLibrary.swapforCoin(
                             adapter.addr,
                             beforeUnwrap,
                             wrapToken,
@@ -345,12 +335,10 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                     userAdapter.userShares = 0;
                 }
 
-                amountOut += HedgepieLibrary.withdrawLPBNB(
-                    adapter.addr,
-                    balances[1] - balances[0] - taxAmount,
-                    adapter.token,
-                    IAdapter(adapter.addr).router(),
-                    wbnb
+                amountOut += HedgepieLibrary.withdrawLP(
+                    adapter,
+                    wbnb,
+                    balances[1] - balances[0] - taxAmount
                 );
 
                 if (IAdapter(adapter.addr).rewardToken() != address(0)) {
@@ -384,7 +372,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                     }
 
                     if (rewards != 0) {
-                        amountOut += HedgepieLibrary.swapforBNB(
+                        amountOut += HedgepieLibrary.swapforCoin(
                             adapter.addr,
                             rewards - taxAmount,
                             IAdapter(adapter.addr).rewardToken(),
@@ -451,7 +439,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 .accTokenPerShare;
 
             if (rewards != 0) {
-                amountOut += HedgepieLibrary.swapforBNB(
+                amountOut += HedgepieLibrary.swapforCoin(
                     adapter.addr,
                     rewards,
                     IAdapter(adapter.addr).rewardToken(),
@@ -583,7 +571,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
         for (uint8 i = 0; i < ybnftAapters.length; i++) {
             IYBNFT.Adapter memory adapter = ybnftAapters[i];
-            UserAdapterInfo memory userAdapter = userAdapterInfos[msg.sender][
+            UserAdapterInfo memory userAdapter = userAdapterInfos[_account][
                 _tokenId
             ][adapter.addr];
             AdapterInfo memory adapterInfo = adapterInfos[_tokenId][
@@ -595,26 +583,22 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 adapterInfo.totalStaked != 0 &&
                 adapterInfo.accTokenPerShare != 0
             ) {
-                UserAdapterInfo memory userAdapterInfo = userAdapterInfos[
-                    _account
-                ][_tokenId][adapter.addr];
-
                 uint256 updatedAccTokenPerShare = adapterInfo.accTokenPerShare +
-                    ((IAdapter(adapter.addr).pendingReward() * 1e12) /
+                    ((IAdapter(adapter.addr).getReward(address(this)) * 1e12) /
                         adapterInfo.totalStaked);
 
                 uint256 tokenRewards = ((updatedAccTokenPerShare -
-                    userAdapterInfo.userShares) * userAdapterInfo.amount) /
-                    1e12;
+                    userAdapter.userShares) * userAdapter.amount) / 1e12;
 
-                rewards += IPancakeRouter(swapRouter).getAmountsOut(
-                    tokenRewards,
-                    HedgepieLibrary.getPaths(
-                        adapter.addr,
-                        IAdapter(adapter.addr).rewardToken(),
-                        wbnb
-                    )
-                )[1];
+                if (tokenRewards != 0)
+                    rewards += IPancakeRouter(swapRouter).getAmountsOut(
+                        tokenRewards,
+                        HedgepieLibrary.getPaths(
+                            adapter.addr,
+                            IAdapter(adapter.addr).rewardToken(),
+                            wbnb
+                        )
+                    )[1];
             } else if (IAdapter(adapter.addr).isVault()) {
                 uint256 _vAmount = (userAdapter.userShares *
                     IVaultStrategy(IAdapter(adapter.addr).vStrategy())
@@ -648,14 +632,14 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                         (_vAmount - userAdapter.amount)) /
                         IPancakePair(pairToken).totalSupply();
 
-                    if (token0 == wbnb) rewards += reserve0;
+                    if (token0 == wbnb) rewards += amount0;
                     else
                         rewards += IPancakeRouter(swapRouter).getAmountsOut(
                             amount0,
                             HedgepieLibrary.getPaths(adapter.addr, token0, wbnb)
                         )[1];
 
-                    if (token0 == wbnb) rewards += reserve1;
+                    if (token1 == wbnb) rewards += amount1;
                     else
                         rewards += IPancakeRouter(swapRouter).getAmountsOut(
                             amount1,

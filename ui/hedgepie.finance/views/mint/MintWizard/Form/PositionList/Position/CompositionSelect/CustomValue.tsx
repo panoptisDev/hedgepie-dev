@@ -45,7 +45,7 @@ const CustomValue = (props) => {
               color: '#0A3F5C',
               ml: 1,
               [`@media screen and (min-width: 500px)`]: {
-                fontSize: 20,
+                fontSize: 18,
                 ml: 3,
               },
             }}

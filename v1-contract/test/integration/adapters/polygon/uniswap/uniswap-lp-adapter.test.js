@@ -16,97 +16,96 @@ const forkNetwork = async () => {
   })
 }
 
-describe("QuickLPFarmAdapter Integration Test", function () {
-  before("Deploy contract", async function () {
-    await forkNetwork();
+describe("UniswapLPAdapter Integration Test", function () {
+    before("Deploy contract", async function () {
+        await forkNetwork();
 
-    const [owner, alice, bob, tom] = await ethers.getSigners();
+        const [owner, alice, bob, tom] = await ethers.getSigners();
 
-    const performanceFee = 50;
-    const wmatic = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
-    const strategy = "0x1098d71eCD0233929DA8a10579E96cBbbe78f7C2"; // USDC-ASTRAFER LP Farm
-    const stakingToken = "0x01eBD3e57f4af47B7E96240e2B7B2227C902614A"; // USDC-ASTRAFER LP
-    const rewardToken = "0x831753DD7087CaC61aB5644b308642cc1c33Dc13"; // Quick token
-    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
+        const performanceFee = 50;
+        const wmatic = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
+        const USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
+        const strategy = "0xC36442b4a4522E871399CD717aBDD847Ab11FE88"; // NonfungiblePositionManager
+        const stakingToken = "0xA374094527e1673A86dE625aa59517c5dE346d32"; // USDC-WMATIC Uniswap v3 pool
+        const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
 
-    this.owner = owner;
-    this.alice = alice;
-    this.bob = bob;
-    this.tom = tom;
+        this.owner = owner;
+        this.alice = alice;
+        this.bob = bob;
+        this.tom = tom;
 
-    this.bobAddr = bob.address;
-    this.aliceAddr = alice.address;
-    this.tomAddr = tom.address;
+        this.bobAddr = bob.address;
+        this.aliceAddr = alice.address;
+        this.tomAddr = tom.address;
 
-    // Deploy Quick LPFarm Adapter contract
-    const QuickAdapter = await ethers.getContractFactory("QuickLPFarmAdapter");
-    this.aAdapter = await QuickAdapter.deploy(
-      strategy,
-      stakingToken,
-      rewardToken,
-      swapRouter,
-      "Quickswap::USDC-ASTRAFER::LP-Farm"
-    );
-    await this.aAdapter.deployed();
+        this.lower = -500000;
+        this.upper = -300000;
 
-    // Deploy YBNFT contract
-    const ybNftFactory = await ethers.getContractFactory("YBNFT");
-    this.ybNft = await ybNftFactory.deploy();
+        // Deploy Uniswap LP Adapter contract
+        const uniswapV3LpAdapter = await ethers.getContractFactory("UniswapLPAdapter");
+        this.aAdapter = await uniswapV3LpAdapter.deploy(
+            strategy,
+            stakingToken,
+            swapRouter,
+            this.lower,
+            this.upper,
+            "Uniswap::USDC-WMATIC::LPAdapter"
+        );
+        await this.aAdapter.deployed();
 
-    const Lib = await ethers.getContractFactory("HedgepieLibrary");
-    const lib = await Lib.deploy();
+        // Deploy YBNFT contract
+        const ybNftFactory = await ethers.getContractFactory("YBNFT");
+        this.ybNft = await ybNftFactory.deploy();
+        await this.ybNft.deployed();
 
-    // Deploy Investor contract
-    const investorFactory = await ethers.getContractFactory("HedgepieInvestorMatic", {
-      libraries: {
-        HedgepieLibrary: lib.address,
-      }
+        const Lib = await ethers.getContractFactory("HedgepieLibrary");
+        const lib = await Lib.deploy();
+
+        // Deploy Investor contract
+        const investorFactory = await ethers.getContractFactory("HedgepieInvestorMatic", {
+          libraries: {
+            HedgepieLibrary: lib.address,
+          }
+        });
+        this.investor = await investorFactory.deploy(this.ybNft.address, swapRouter, wmatic);
+        await this.investor.deployed();
+
+        // Deploy Adaptor Manager contract
+        const adapterManager = await ethers.getContractFactory("HedgepieAdapterManager");
+        this.adapterManager = await adapterManager.deploy();
+        this.adapterManager.deployed();
+        
+        // set investor
+        await this.aAdapter.setInvestor(this.investor.address);
+
+        // Mint NFTs
+        // tokenID: 1
+        await this.ybNft.mint([10000], [stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI1");
+
+        // tokenID: 2
+        await this.ybNft.mint([10000], [stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI2");
+
+        // Add Venus Adapter to AdapterManager
+        await this.adapterManager.addAdapter(this.aAdapter.address);
+
+        // Set investor in adapter manager
+        await this.adapterManager.setInvestor(this.investor.address);
+
+        // Set adapter manager in investor
+        await this.investor.setAdapterManager(this.adapterManager.address);
+        await this.investor.setTreasury(this.owner.address);
+
+        // Set investor in vAdapter
+        await this.aAdapter.setInvestor(this.investor.address);
+        
+        await this.aAdapter.setPath(wmatic, USDC, [wmatic, USDC]);
+        await this.aAdapter.setPath(USDC, wmatic, [USDC, wmatic]);
+
+        console.log("Owner: ", this.owner.address);
+        console.log("Investor: ", this.investor.address);
+        console.log("Strategy: ", strategy);
+        console.log("UniswapLPAdapter: ", this.aAdapter.address);
     });
-    this.investor = await investorFactory.deploy(this.ybNft.address, swapRouter, wmatic);
-    await this.investor.deployed();
-
-    // Deploy Adaptor Manager contract
-    const adapterManager = await ethers.getContractFactory("HedgepieAdapterManager");
-    this.adapterManager = await adapterManager.deploy();
-    
-    // set investor
-    await this.aAdapter.setInvestor(this.investor.address);
-
-    // Mint NFTs
-    // tokenID: 1
-    await this.ybNft.mint([10000], [stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI1");
-
-    // tokenID: 2
-    await this.ybNft.mint([10000], [stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI2");
-
-    // Add Venus Adapter to AdapterManager
-    await this.adapterManager.addAdapter(this.aAdapter.address);
-
-    // Set investor in adapter manager
-    await this.adapterManager.setInvestor(this.investor.address);
-
-    // Set adapter manager in investor
-    await this.investor.setAdapterManager(this.adapterManager.address);
-    await this.investor.setTreasury(this.owner.address);
-
-    // Set investor in vAdapter
-    await this.aAdapter.setInvestor(this.investor.address);
-    
-    const USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
-    const ASTRAFER = "0xDfCe1e99A31C4597a3f8A8945cBfa9037655e335";
-    await this.aAdapter.setPath(wmatic, USDC, [wmatic, USDC]);
-    await this.aAdapter.setPath(USDC, wmatic, [USDC, wmatic]);
-    await this.aAdapter.setPath(wmatic, ASTRAFER, [wmatic, ASTRAFER]);
-    await this.aAdapter.setPath(ASTRAFER, wmatic, [ASTRAFER, wmatic]);
-
-    await this.aAdapter.setPath(wmatic, rewardToken, [wmatic, rewardToken]);
-    await this.aAdapter.setPath(rewardToken, wmatic, [rewardToken, wmatic]);
-
-    console.log("Owner: ", this.owner.address);
-    console.log("Investor: ", this.investor.address);
-    console.log("Strategy: ", strategy);
-    console.log("QuickLPFarmAdapter: ", this.aAdapter.address);
-  });
 
   describe("depositMATIC function test", function () {
     it("(1)should be reverted when nft tokenId is invalid", async function () {
@@ -321,7 +320,7 @@ describe("QuickLPFarmAdapter Integration Test", function () {
       const afterMATIC = await ethers.provider.getBalance(this.aliceAddr);
 
       expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(
-        true
+        false
       );
 
       const aliceInfo = await this.investor.userInfo(
@@ -365,7 +364,7 @@ describe("QuickLPFarmAdapter Integration Test", function () {
       const afterMATIC = await ethers.provider.getBalance(this.bobAddr);
 
       expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(
-        true
+        false
       );
 
       const bobInfo = await this.investor.userInfo(
@@ -409,7 +408,7 @@ describe("QuickLPFarmAdapter Integration Test", function () {
       const afterMATIC = await ethers.provider.getBalance(this.tomAddr);
 
       expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(
-        true
+        false
       );
 
       const tomInfo = await this.investor.userInfo(

@@ -4,8 +4,10 @@ import MintWizardContext from 'contexts/MintWizardContext'
 import CustomOption from './CustomOption'
 import CustomValue from './CustomValue'
 import { Box } from 'theme-ui'
+import { useMediaQuery } from 'react-responsive'
 
 const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
+  const isTabletOrMobile = useMediaQuery({ query: '(max-width: 1224px)' })
   const { strategies, formData } = useContext(MintWizardContext)
   const [availableProtocols, setAvailableProtocols] = useState<any>([])
   const [protocol, setProtocol] = useState<any>({ name: 'Protocol' })
@@ -67,7 +69,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
         styles={{
           control: () => ({
             height: 60,
-            width: '100%',
+            width: isTabletOrMobile ? '100%' : 212,
             borderRadius: 8,
             backgroundColor: '#fff',
             display: 'flex',
@@ -109,7 +111,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
         styles={{
           control: () => ({
             height: 60,
-            width: '100%',
+            width: isTabletOrMobile ? '100%' : 140,
             borderRadius: 8,
             backgroundColor: '#fff',
             display: 'flex',

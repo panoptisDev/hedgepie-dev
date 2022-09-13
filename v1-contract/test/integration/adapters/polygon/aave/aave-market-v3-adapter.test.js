@@ -16,7 +16,7 @@ const forkNetwork = async () => {
   })
 }
 
-describe("QuickLPFarmAdapter Integration Test", function () {
+describe("AaveMarketV3Adapter Integration Test", function () {
   before("Deploy contract", async function () {
     await forkNetwork();
 
@@ -24,11 +24,12 @@ describe("QuickLPFarmAdapter Integration Test", function () {
 
     const performanceFee = 50;
     const wmatic = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
-    const strategy = "0x1098d71eCD0233929DA8a10579E96cBbbe78f7C2"; // USDC-ASTRAFER LP Farm
-    const stakingToken = "0x01eBD3e57f4af47B7E96240e2B7B2227C902614A"; // USDC-ASTRAFER LP
-    const rewardToken = "0x831753DD7087CaC61aB5644b308642cc1c33Dc13"; // Quick token
+    const strategy = "0x794a61358D6845594F94dc1DB02A252b5b4814aD"; // LendingPoolV3
+    const stakingToken = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063"; // DAI
+    const repayToken = "0x82E64f49Ed5EC1bC6e43DAD4FC8Af9bb3A2312EE"; // aPolDAI - (Aave Polygon DAI)
     const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
 
+    this.performanceFee = performanceFee;
     this.owner = owner;
     this.alice = alice;
     this.bob = bob;
@@ -37,15 +38,16 @@ describe("QuickLPFarmAdapter Integration Test", function () {
     this.bobAddr = bob.address;
     this.aliceAddr = alice.address;
     this.tomAddr = tom.address;
+    
+    this.accTokenPerShare = BigNumber.from(0);
 
-    // Deploy Quick LPFarm Adapter contract
-    const QuickAdapter = await ethers.getContractFactory("QuickLPFarmAdapter");
-    this.aAdapter = await QuickAdapter.deploy(
+    // Deploy Aave Market V3 Adapter contract
+    const AaveV3Adapter = await ethers.getContractFactory("AaveMarketV3Adapter");
+    this.aAdapter = await AaveV3Adapter.deploy(
       strategy,
       stakingToken,
-      rewardToken,
-      swapRouter,
-      "Quickswap::USDC-ASTRAFER::LP-Farm"
+      repayToken,
+      "Aave::MarketV3::USDC"
     );
     await this.aAdapter.deployed();
 
@@ -55,6 +57,7 @@ describe("QuickLPFarmAdapter Integration Test", function () {
 
     const Lib = await ethers.getContractFactory("HedgepieLibrary");
     const lib = await Lib.deploy();
+    this.lib = lib;
 
     // Deploy Investor contract
     const investorFactory = await ethers.getContractFactory("HedgepieInvestorMatic", {
@@ -91,21 +94,16 @@ describe("QuickLPFarmAdapter Integration Test", function () {
 
     // Set investor in vAdapter
     await this.aAdapter.setInvestor(this.investor.address);
-    
-    const USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
-    const ASTRAFER = "0xDfCe1e99A31C4597a3f8A8945cBfa9037655e335";
-    await this.aAdapter.setPath(wmatic, USDC, [wmatic, USDC]);
-    await this.aAdapter.setPath(USDC, wmatic, [USDC, wmatic]);
-    await this.aAdapter.setPath(wmatic, ASTRAFER, [wmatic, ASTRAFER]);
-    await this.aAdapter.setPath(ASTRAFER, wmatic, [ASTRAFER, wmatic]);
 
-    await this.aAdapter.setPath(wmatic, rewardToken, [wmatic, rewardToken]);
-    await this.aAdapter.setPath(rewardToken, wmatic, [rewardToken, wmatic]);
+    await this.aAdapter.setPath(wmatic, stakingToken, [wmatic, stakingToken]);
+    await this.aAdapter.setPath(stakingToken, wmatic, [stakingToken, wmatic]);
 
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
     console.log("Strategy: ", strategy);
-    console.log("QuickLPFarmAdapter: ", this.aAdapter.address);
+    console.log("AaveMarketV3Adapter: ", this.aAdapter.address);
+
+    this.repayToken = await ethers.getContractAt("VBep20Interface", repayToken);
   });
 
   describe("depositMATIC function test", function () {
@@ -177,8 +175,11 @@ describe("QuickLPFarmAdapter Integration Test", function () {
         this.aliceAddr,
         1
       );
-      expect(BigNumber.from(aliceWithdrable)).to.eq(
-        BigNumber.from(aliceAdapterInfos.amount)
+      expect(
+        BigNumber.from(aliceWithdrable)
+      ).to.be.within(
+        BigNumber.from(aliceAdapterInfos.amount),
+        BigNumber.from(aliceAdapterInfos.amount).add(1)
       );
     });
 
@@ -238,8 +239,11 @@ describe("QuickLPFarmAdapter Integration Test", function () {
         this.bobAddr,
         1
       );
-      expect(BigNumber.from(bobWithdrable)).to.eq(
-        BigNumber.from(bobAdapterInfos.amount)
+      expect(
+        BigNumber.from(bobWithdrable)
+      ).to.be.within(
+        BigNumber.from(bobAdapterInfos.amount),
+        BigNumber.from(bobAdapterInfos.amount).add(1)
       );
     }).timeout(50000000);
 
@@ -294,8 +298,11 @@ describe("QuickLPFarmAdapter Integration Test", function () {
         this.tomAddr,
         1
       );
-      expect(BigNumber.from(tomWithdrable)).to.eq(
-        BigNumber.from(tomAdapterInfos.amount)
+      expect(
+        BigNumber.from(tomWithdrable)
+      ).to.be.within(
+        BigNumber.from(tomAdapterInfos.amount),
+        BigNumber.from(tomAdapterInfos.amount).add(1)
       );
     }).timeout(50000000);
   });

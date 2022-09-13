@@ -42,6 +42,7 @@ const MintContextProvider = ({ children }) => {
     else if (protoStr.includes('belt')) return 'images/belt.png'
     else if (protoStr.includes('venus')) return 'images/venus.png'
     else if (protoStr.includes('alpaca')) return 'images/alpaca.png'
+    else if (protoStr.includes('pks')) return 'images/cake.png'
   }
 
   useEffect(() => {

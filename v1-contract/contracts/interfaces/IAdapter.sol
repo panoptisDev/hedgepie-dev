@@ -23,6 +23,8 @@ interface IAdapter {
 
     function isVault() external view returns (bool);
 
+    function noDeposit() external view returns (bool);
+
     function isReward() external view returns (bool);
 
     function isEntered() external view returns (bool);
@@ -35,15 +37,15 @@ interface IAdapter {
 
     function poolID() external view returns (address);
 
-    function strategy() external view returns (address strategy);
+    function strategy() external view returns (address);
 
-    function vStrategy() external view returns (address vStrategy);
+    function vStrategy() external view returns (address);
 
-    function pendingReward() external view returns (uint256 reward);
+    function pendingReward() external view returns (uint256);
 
-    function pendingReward1() external view returns (uint256 reward);
+    function pendingReward1() external view returns (uint256);
 
-    function pendingShares() external view returns (uint256 shares);
+    function pendingShares() external view returns (uint256);
 
     function name() external view returns (string memory);
 
@@ -57,15 +59,22 @@ interface IAdapter {
 
     function router() external view returns (address);
 
+    function getTick() external view returns (int24, int24);
+
     function getAdapterStrategy(uint256 _adapter)
         external
         view
-        returns (address strategy);
+        returns (address);
 
     function getWithdrawalAmount(address _user, uint256 _nftId)
         external
         view
-        returns (uint256 amount);
+        returns (uint256);
+
+    function getLiquidityToken(address _user, uint256 _nftId)
+        external
+        view
+        returns (uint256);
 
     function getInvestCallData(uint256 _amount)
         external
@@ -140,6 +149,12 @@ interface IAdapter {
         address _user,
         uint256 _nftId,
         uint256 _amount
+    ) external;
+
+    function setLiquidityToken(
+        address _user,
+        uint256 _nftId,
+        uint256 _tokenId
     ) external;
 
     function setIsEntered(bool _isEntered) external;
