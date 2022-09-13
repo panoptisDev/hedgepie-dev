@@ -8,6 +8,8 @@ abstract contract BaseAdapterMatic is Ownable {
 
     address public stakingToken;
 
+    address public liquidityToken;
+
     address public rewardToken;
 
     address public rewardToken1;

@@ -35,7 +35,7 @@ interface IAdapter {
 
     function stakingToken() external view returns (address);
 
-    function poolID() external view returns (address);
+    function liquidityToken() external view returns (address);
 
     function strategy() external view returns (address);
 
@@ -95,6 +95,24 @@ interface IAdapter {
         );
 
     function getRewardCallData()
+        external
+        view
+        returns (
+            address to,
+            uint256 value,
+            bytes memory data
+        );
+
+    function getAddLiqCallData(uint256 _amount)
+        external
+        view
+        returns (
+            address to,
+            uint256 value,
+            bytes memory data
+        );
+
+    function getRemoveLiqCallData(uint256 _amount)
         external
         view
         returns (

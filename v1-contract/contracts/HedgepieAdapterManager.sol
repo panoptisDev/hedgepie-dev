@@ -124,6 +124,36 @@ contract HedgepieAdapterManager is Ownable {
         return IAdapter(_adapter).getRewardCallData();
     }
 
+    function getAddLiqCallData(address _adapter, uint256 _amount)
+        external
+        view
+        onlyActiveAdapter(_adapter)
+        onlyInvestor
+        returns (
+            address to,
+            uint256 value,
+            bytes memory data
+        )
+    {
+        require(_amount > 0, "Amount can not be 0");
+        return IAdapter(_adapter).getAddLiqCallData(_amount);
+    }
+
+    function getRemoveLiqCallData(address _adapter, uint256 _amount)
+        external
+        view
+        onlyActiveAdapter(_adapter)
+        onlyInvestor
+        returns (
+            address to,
+            uint256 value,
+            bytes memory data
+        )
+    {
+        require(_amount > 0, "Amount can not be 0");
+        return IAdapter(_adapter).getRemoveLiqCallData(_amount);
+    }
+
     /**
      * @notice Get EnterMarket call data of adapter contract
      * @param _adapter  adapter address

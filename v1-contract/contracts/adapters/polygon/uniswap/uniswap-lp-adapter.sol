@@ -5,7 +5,7 @@ import "../../BaseAdapterMatic.sol";
 
 contract UniswapLPAdapter is BaseAdapterMatic {
     // user => nft id => tokenID
-    mapping(address => mapping(uint256 => uint256)) public liquidityToken;
+    mapping(address => mapping(uint256 => uint256)) public liquidityNFT;
 
     int24 public tickLower;
 
@@ -50,7 +50,7 @@ contract UniswapLPAdapter is BaseAdapterMatic {
         uint256 _nftId,
         uint256 _tokenId
     ) external onlyInvestor {
-        liquidityToken[_user][_nftId] = _tokenId;
+        liquidityNFT[_user][_nftId] = _tokenId;
     }
 
     /**
@@ -63,7 +63,7 @@ contract UniswapLPAdapter is BaseAdapterMatic {
         view
         returns (uint256 tokenId)
     {
-        tokenId = liquidityToken[_user][_nftId];
+        tokenId = liquidityNFT[_user][_nftId];
     }
 
     function getTick() external view returns(int24 _lower, int24 _upper) {

@@ -18,7 +18,6 @@ contract AaveMarketV2Adapter is BaseAdapterMatic {
         string memory _name
     ) {
         stakingToken = _stakingToken;
-        rewardToken = _stakingToken;
         repayToken = _repayToken;
         strategy = _strategy;
         name = _name;

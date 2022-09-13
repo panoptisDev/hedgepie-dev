@@ -60,4 +60,22 @@ interface IAdapterManager {
             uint256 value,
             bytes memory data
         );
+
+    function getAddLiqCallData(address _adapter, uint256 _amount)
+        external
+        view
+        returns (
+            address to,
+            uint256 value,
+            bytes memory data
+        );
+
+    function getRemoveLiqCallData(address _adapter, uint256 _amount)
+        external
+        view
+        returns (
+            address to,
+            uint256 value,
+            bytes memory data
+        );
 }
