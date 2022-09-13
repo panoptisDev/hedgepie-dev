@@ -131,7 +131,8 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
             _tokenId
         );
 
-        uint256 beforeBalance = address(this).balance;
+        uint256[2] memory balances;
+        balances[0] = address(this).balance;
 
         for (uint8 i = 0; i < adapterInfo.length; i++) {
             IYBNFT.Adapter memory adapter = adapterInfo[i];
@@ -181,11 +182,10 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                 // deposit to adapter
                 HedgepieLibrary.depositToAdapterMatic(
                     adapterManager,
-                    adapter.token, 
-                    adapter.addr, 
                     _tokenId, 
                     amountOut,
                     msg.sender,
+                    adapter,
                     _userAdapterInfo,
                     _adapterInfo
                 );
@@ -201,10 +201,10 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
         }
         userInfo[_user][ybnft][_tokenId] += _amount;
 
-        uint256 afterBalance = address(this).balance;
-        if (afterBalance > beforeBalance) {
+        balances[1] = address(this).balance;
+        if (balances[1] > balances[0]) {
             (bool success, ) = payable(_user).call{
-                value: afterBalance - beforeBalance
+                value: balances[1] - balances[0]
             }("");
             require(success, "Error: Failed to send remained MATIC");
         }
