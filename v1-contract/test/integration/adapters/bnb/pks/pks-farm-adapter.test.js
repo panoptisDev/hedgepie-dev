@@ -114,11 +114,6 @@ describe("PancakeSwapFarmLPAdapter Integration Test", function () {
 
     // Set investor in pancake adapter
     await this.aAdapter.setInvestor(this.investor.address);
-<<<<<<< HEAD
-    // await this.aAdapter.setPath(this.usdt, this.wbnb, [this.usdt, this.wbnb]);
-    // await this.aAdapter.setPath(this.wbnb, this.usdt, [this.wbnb, this.usdt]);
-=======
->>>>>>> f3c87bc (feat: add deployments for pks adapters)
     await this.aAdapter.setPath(this.wbnb, this.cake, [this.wbnb, this.cake]);
     await this.aAdapter.setPath(this.cake, this.wbnb, [this.cake, this.wbnb]);
 
@@ -211,15 +206,11 @@ describe("PancakeSwapFarmLPAdapter Integration Test", function () {
       for (let i = 0; i < 7200; i++) {
         await ethers.provider.send("evm_mine", []);
       }
-<<<<<<< HEAD
-      const beforeAdapterInfos = await this.investor.adapterInfos(1, this.aAdapter.address);
-=======
 
       const beforeAdapterInfos = await this.investor.adapterInfos(
         1,
         this.aAdapter.address
       );
->>>>>>> f3c87bc (feat: add deployments for pks adapters)
       const depositAmount = ethers.utils.parseEther("10");
 
       await expect(
