@@ -107,8 +107,6 @@ describe.only("CurveGaugeAdapter Integration Test", function () {
     console.log("Investor: ", this.investor.address);
     console.log("Strategy: ", strategy);
     console.log("CurveGaugeAdapter: ", this.aAdapter.address);
-
-    this.repayToken = await ethers.getContractAt("VBep20Interface", repayToken);
   });
 
   describe("depositMATIC function test", function () {
