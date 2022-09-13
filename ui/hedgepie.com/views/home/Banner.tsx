@@ -5,12 +5,10 @@ import { ArrowRight } from 'react-feather'
 import { styles } from './styles'
 import Link from 'next/link'
 import toast from 'utils/toast'
-import { useRouter } from 'next/router'
 
 type Props = {}
 
 const Banner = (props: Props) => {
-  const router = useRouter()
   return (
     <Box px={3} sx={styles.banner_container as ThemeUICSSObject}>
       <Box sx={styles.banner_box as ThemeUICSSObject}>
