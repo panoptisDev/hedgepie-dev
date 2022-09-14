@@ -1,12 +1,15 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "@openzeppelin/contracts/utils/Strings.sol";
 import "../../BaseAdapterMatic.sol";
 
-contract CurveGaugeAdaper is BaseAdapterMatic {
-    uint256 public lpCnt;
+interface IGauge {
+    function balanceOf(address account) external view returns (uint256);
 
+    function claimable_reward(address addr, address token) external view returns (uint256);
+}
+
+contract Curve3LPAdaper is BaseAdapterMatic {
     uint256 public lpOrder;
 
     bool public underlying;
@@ -15,9 +18,10 @@ contract CurveGaugeAdaper is BaseAdapterMatic {
      * @notice Construct
      * @param _strategy  address of strategy
      * @param _stakingToken  address of staking token
+     * @param _rewardToken  address of reward token
+     * @param _rewardToken1  address of reward1 token
      * @param _liquidityToken  address of staking token
      * @param _router  address of router
-     * @param _lpCnt  number of lp count in pool
      * @param _lpOrder  number of lp count in pool
      * @param _underlying  bool for underlying
      * @param _name  adatper name
@@ -25,9 +29,10 @@ contract CurveGaugeAdaper is BaseAdapterMatic {
     constructor(
         address _strategy,
         address _stakingToken,
+        address _rewardToken,
+        address _rewardToken1,
         address _liquidityToken,
         address _router,
-        uint256 _lpCnt,
         uint256 _lpOrder,
         bool _underlying,
         string memory _name
@@ -36,13 +41,16 @@ contract CurveGaugeAdaper is BaseAdapterMatic {
         stakingToken = _stakingToken;
         strategy = _strategy;
         router = _router;
+        rewardToken = _rewardToken;
+        rewardToken1 = _rewardToken1;
 
-        lpCnt = _lpCnt;
         lpOrder = _lpOrder;
 
         underlying = _underlying;
 
         name = _name;
+
+        isReward = true;
     }
     
     /**
@@ -93,30 +101,18 @@ contract CurveGaugeAdaper is BaseAdapterMatic {
         to = router;
         value = 0;
 
-        uint256[] memory amounts = new uint256[](lpCnt);
+        uint256[3] memory amounts;
         amounts[lpOrder] = _amount;
 
         data = underlying ?
             abi.encodeWithSignature(
-                string(
-                    abi.encodePacked(
-                        "add_liquidity(uint256[",
-                        Strings.toString(lpCnt),
-                        "],uint256,bool)"
-                    )
-                ),
+                "add_liquidity(uint256[3],uint256,bool)",
                 amounts,
                 0,
                 true
             ) : 
             abi.encodeWithSignature(
-                string(
-                    abi.encodePacked(
-                        "add_liquidity(uint256[",
-                        Strings.toString(lpCnt),
-                        "],uint256)"
-                    )
-                ),
+                "add_liquidity(uint256[3],uint256)",
                 amounts,
                 0
             );
@@ -136,17 +132,46 @@ contract CurveGaugeAdaper is BaseAdapterMatic {
 
         data = underlying ? 
             abi.encodeWithSignature(
-                "remove_liquidity_one_coin(uint256,uint256,uint256,bool)",
+                "remove_liquidity_one_coin(uint256,int128,uint256,bool)",
                 _amount,
                 lpOrder,
                 0,
                 true
             ) : 
             abi.encodeWithSignature(
-                "remove_liquidity_one_coin(uint256,uint256,uint256)",
+                "remove_liquidity_one_coin(uint256,int128,uint256)",
                 _amount,
                 lpOrder,
                 0
             );
+    }
+
+    /**
+     * @notice Get reward calldata
+     */
+    function getRewardCallData()
+        external
+        view
+        returns (
+            address to,
+            uint256 value,
+            bytes memory data
+        )
+    {
+        to = strategy;
+        value = 0;
+        data = abi.encodeWithSignature("claim_rewards(address)", investor);
+    }
+
+    function pendingReward() external view override returns (uint256 reward) {
+        reward = IGauge(strategy).claimable_reward(investor, rewardToken);
+    }
+
+    function pendingReward1() external view returns (uint256 reward) {
+        reward = IGauge(strategy).claimable_reward(investor, rewardToken1);
+    }
+
+    function pendingShares() external view override returns (uint256 shares) {
+        shares = IGauge(strategy).balanceOf(investor);
     }
 }

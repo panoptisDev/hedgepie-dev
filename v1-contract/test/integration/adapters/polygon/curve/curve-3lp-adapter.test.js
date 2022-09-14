@@ -29,6 +29,8 @@ describe.only("CurveGaugeAdapter Integration Test", function () {
     const liquidityToken = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174" // USDC
     const poolContract = "0x445FE580eF8d70FF569aB36e80c647af338db351"; // swap address
     const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
+    const rewardToken = "0x172370d5Cd63279eFa6d502DAB29171933a610AF" // CRV token
+    const rewardToken1 = wmatic;
 
     this.performanceFee = performanceFee;
     this.owner = owner;
@@ -43,13 +45,14 @@ describe.only("CurveGaugeAdapter Integration Test", function () {
     this.accTokenPerShare = BigNumber.from(0);
 
     // Deploy CurveGauge Adapter contract
-    const curveAdapter = await ethers.getContractFactory("CurveGaugeAdaper");
+    const curveAdapter = await ethers.getContractFactory("Curve3LPAdaper");
     this.aAdapter = await curveAdapter.deploy(
       strategy,
       stakingToken,
+      rewardToken,
+      rewardToken1,
       liquidityToken,
       poolContract,
-      3,
       1,
       true,
       "Curve::a3Crv::Gauge"
@@ -100,8 +103,8 @@ describe.only("CurveGaugeAdapter Integration Test", function () {
     // Set investor in vAdapter
     await this.aAdapter.setInvestor(this.investor.address);
 
-    await this.aAdapter.setPath(wmatic, stakingToken, [wmatic, stakingToken]);
-    await this.aAdapter.setPath(stakingToken, wmatic, [stakingToken, wmatic]);
+    await this.aAdapter.setPath(wmatic, liquidityToken, [wmatic, liquidityToken]);
+    await this.aAdapter.setPath(liquidityToken, wmatic, [liquidityToken, wmatic]);
 
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
