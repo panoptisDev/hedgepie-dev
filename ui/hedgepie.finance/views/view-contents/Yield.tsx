@@ -31,7 +31,7 @@ function Yield(props: any) {
   }
 
   const fetchReward = async () => {
-    if (!account) return
+    if (!account || currentStaked === 0) return
     console.log(account)
     setLoading(true)
     try {
@@ -55,7 +55,7 @@ function Yield(props: any) {
 
   useEffect(() => {
     fetchReward()
-  }, [account])
+  }, [account, currentStaked])
 
   return (
     <>
@@ -65,9 +65,11 @@ function Yield(props: any) {
             <Text sx={styles.yield_inner_text}>YIELD</Text>
             <Text sx={styles.yield_inner_text}>{reward} BNB</Text>
           </Box>
-          <Button sx={styles.withdraw_yield_button as ThemeUICSSObject} onClick={handleWithdrawYield}>
-            Claim Yield
-          </Button>
+          {reward > 0 ? (
+            <Button sx={styles.withdraw_yield_button as ThemeUICSSObject} onClick={handleWithdrawYield}>
+              Claim Yield
+            </Button>
+          ) : null}
         </Box>
       ) : (
         ''
