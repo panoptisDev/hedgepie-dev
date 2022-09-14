@@ -10,18 +10,62 @@ type Props = {
 }
 
 const Label = ({ index, label, active }: Props) => {
-  const { wizard, setWizard, account } = React.useContext(MintWizardContext)
+  const { wizard, setWizard, account, formData } = React.useContext(MintWizardContext)
+
+  const duplicatesInPositions = (positions) => {
+    let positionNames = [] as any[]
+    let hasDuplicates = false
+    positions.forEach((position) => {
+      if (
+        positionNames.filter(
+          (p) =>
+            JSON.stringify(p) === JSON.stringify({ protocol: position?.composition?.name, pool: position?.pool?.name }),
+        ).length
+      ) {
+        hasDuplicates = true
+      } else {
+        positionNames.push({ protocol: position?.composition?.name, pool: position?.pool?.name })
+      }
+    })
+    return hasDuplicates
+  }
+
+  const ifTotalNotHundred = (positions) => {
+    let total = 0
+    for (let position of positions) {
+      total = total + parseFloat(position.weight)
+    }
+    if (total !== 100) {
+      return true
+    }
+    return false
+  }
 
   const handleNavigate = () => {
     if (!account) {
       toast('Please connect your wallet to continue !!')
       return
     }
-    if (wizard.order !== index) {
+    if (index === 2) {
+      if (duplicatesInPositions(formData.positions) || ifTotalNotHundred(formData.positions)) {
+        toast('Cannot proceed with duplicate positions or the total not being 100%', 'warning')
+        return
+      }
+    }
+    if (index === 3) {
+      if (formData.performanceFee > 9) {
+        toast('Performance Fee should be less than 10%', 'warning')
+      }
+    }
+    if (wizard.order !== index && (index === wizard.order + 1 || index < wizard.order)) {
       setWizard({
         ...wizard,
         order: index,
       })
+    }
+    if (index > wizard.order + 1) {
+      toast('Please make sure, you go in order, for minting a YBNFT')
+      return
     }
   }
 
