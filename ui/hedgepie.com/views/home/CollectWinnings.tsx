@@ -102,10 +102,11 @@ const CollectWinnings = () => {
                   alignItems: 'center',
                   border: '1px solid #1799DE',
                 }}
-                onClick={() => toast('Our site will soon be live at hedgepie.finance')}
               >
-                <Box sx={{ fontSize: [14, 14, 20] }}>OPEN APP</Box>
-                <ArrowRight />
+                <a href="https://hedgepie.finance" target="_blank">
+                  <Box sx={{ fontSize: [14, 14, 20] }}>OPEN APP</Box>
+                  <ArrowRight />
+                </a>
               </Button>
             </Box>
           </Box>

@@ -19,19 +19,17 @@ const Banner = (props: Props) => {
               Get access to the highest returns, when you invest in funds created by the smartest minds in crypto.
             </Box>
             <Box sx={{ marginTop: [30, 70] }}>
-              <Button
-                variant="primary"
-                sx={styles.banner_connect_wallet_wrapper as ThemeUICSSObject}
-                onClick={() => toast('Our site will soon be live at hedgepie.finance')}
-              >
-                <Box mr={2}>
-                  <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                    <Box mr={2} sx={{ fontWeight: '500', letterSpacing: '2px', fontSize: [14, 14, 20] }}>
-                      OPEN APP
+              <Button variant="primary" sx={styles.banner_connect_wallet_wrapper as ThemeUICSSObject}>
+                <a href="https://hedgepie.finance" target="_blank">
+                  <Box mr={2}>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                      <Box mr={2} sx={{ fontWeight: '500', letterSpacing: '2px', fontSize: [14, 14, 20] }}>
+                        OPEN APP
+                      </Box>
+                      <ArrowRight />
                     </Box>
-                    <ArrowRight />
                   </Box>
-                </Box>
+                </a>
               </Button>
             </Box>
           </Box>
