@@ -16,7 +16,7 @@ const forkNetwork = async () => {
   })
 }
 
-describe.only("CurveGaugeAdapter Integration Test", function () {
+describe("CurveGaugeAdapter Integration Test", function () {
   before("Deploy contract", async function () {
     await forkNetwork();
 
