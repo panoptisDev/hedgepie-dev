@@ -45,8 +45,6 @@ contract StargateFarmAdapter is BaseAdapterMatic {
         name = _name;
         pid = _poolId;
         lpPoolId = _lpPoolId;
-
-        isReward = true;
     }
 
     /**
@@ -88,7 +86,7 @@ contract StargateFarmAdapter is BaseAdapterMatic {
         to = lpProvider;
         value = 0;
         data = abi.encodeWithSignature(
-            "instantRedeemLocal(uint256,uint256,address)",
+            "instantRedeemLocal(uint16,uint256,address)",
             lpPoolId,
             _amount,
             msg.sender

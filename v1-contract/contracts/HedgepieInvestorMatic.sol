@@ -6,6 +6,8 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "./libraries/HedgepieLibraryMatic.sol";
 
+import "hardhat/console.sol";
+
 contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
     using SafeBEP20 for IBEP20;
 
@@ -185,14 +187,19 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                         amountOut
                     );
 
-                    amountOut = IBEP20(adapter.token).balanceOf(address(this));
                     (address to, , bytes memory data) = IAdapter(adapter.addr)
                         .getLPCallData(amountOut);
+
+                    amountOut = IBEP20(adapter.token).balanceOf(address(this));
                     (bool success, ) = to.call{value: 0}(data);
+
                     amountOut =
                         IBEP20(adapter.token).balanceOf(address(this)) -
                         amountOut;
-                    require(success && amountOut != 0, "Failed to get LP");
+                    require(
+                        success && amountOut != 0,
+                        "Error: Failed to get LP"
+                    );
                 }
 
                 // deposit to adapter
@@ -303,20 +310,23 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                             balances[1] - balances[0]
                         );
 
-                        balances[0] = IBEP20(
-                            IAdapter(adapter.addr).lpStakingToken()
-                        ).balanceOf(address(this));
                         (address to, , bytes memory data) = IAdapter(
                             adapter.addr
                         ).removeLPCallData(balances[1] - balances[0]);
+
+                        balances[0] = IBEP20(
+                            IAdapter(adapter.addr).lpStakingToken()
+                        ).balanceOf(address(this));
+
                         (bool success, ) = to.call{value: 0}(data);
 
                         balances[1] = IBEP20(
                             IAdapter(adapter.addr).lpStakingToken()
                         ).balanceOf(address(this));
+
                         require(
                             success && balances[1] > balances[0],
-                            "Failed to remove LP"
+                            "Error: Failed to remove LP"
                         );
                     }
 
