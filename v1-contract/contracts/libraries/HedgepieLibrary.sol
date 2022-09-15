@@ -330,19 +330,20 @@ library HedgepieLibrary {
         HedgepieInvestor.UserAdapterInfo storage _userAdapterInfo,
         HedgepieInvestor.AdapterInfo storage _adapterInfo
     ) public {
-        uint256[3] memory amounts;
-        address[2] memory addrs;
-        addrs[0] = IAdapter(_adapterAddr).repayToken();
-        addrs[1] = IAdapter(_adapterAddr).rewardToken();
+        uint256[2] memory amounts;
+        address[3] memory addrs;
+        addrs[0] = IAdapter(_adapterAddr).stakingToken();
+        addrs[1] = IAdapter(_adapterAddr).repayToken();
+        addrs[2] = IAdapter(_adapterAddr).rewardToken();
 
-        amounts[0] = addrs[0] != address(0)
-            ? IBEP20(addrs[0]).balanceOf(address(this))
+        amounts[0] = addrs[1] != address(0)
+            ? IBEP20(addrs[1]).balanceOf(address(this))
             : (
                 IAdapter(_adapterAddr).isVault()
                     ? IAdapter(_adapterAddr).pendingShares()
                     : (
-                        addrs[1] != address(0)
-                            ? IBEP20(addrs[1]).balanceOf(address(this))
+                        addrs[2] != address(0)
+                            ? IBEP20(addrs[2]).balanceOf(address(this))
                             : 0
                     )
             );
@@ -359,23 +360,21 @@ library HedgepieLibrary {
         (bool success, ) = to.call{value: value}(callData);
         require(success, "Error: Deposit internal issue");
 
-        amounts[1] = addrs[0] != address(0)
-            ? IBEP20(addrs[0]).balanceOf(address(this))
+        amounts[1] = addrs[1] != address(0)
+            ? IBEP20(addrs[1]).balanceOf(address(this))
             : (
                 IAdapter(_adapterAddr).isVault()
                     ? IAdapter(_adapterAddr).pendingShares()
                     : (
-                        addrs[1] != address(0)
-                            ? IBEP20(addrs[1]).balanceOf(address(this))
+                        addrs[2] != address(0)
+                            ? IBEP20(addrs[2]).balanceOf(address(this))
                             : 0
                     )
             );
 
-        unchecked { amounts[2] = amounts[1] - amounts[0]; }
-
         // Venus short leverage
         if (IAdapter(_adapterAddr).isLeverage()) {
-            require(amounts[2] > 0, "Error: Supply failed");
+            require(amounts[1] > amounts[0], "Error: Supply failed");
 
             leverageAsset(
                 _adapterManager,
@@ -386,19 +385,31 @@ library HedgepieLibrary {
                 _userAdapterInfo,
                 _adapterInfo
             );
-        } else if (addrs[0] != address(0)) {
-            require(amounts[2] > 0, "Error: Deposit failed");
-        } else if (IAdapter(_adapterAddr).isVault()) {
-            require(amounts[2] > 0, "Error: Deposit failed");
-
-            _userAdapterInfo.userShares += amounts[2];
         } else if (addrs[1] != address(0)) {
-            // Farm Pool
-            if(addrs[1] == IAdapter(_adapterAddr).stakingToken()) amounts[2] += _amount;
+            require(amounts[1] > amounts[0], "Error: Deposit failed");
+            IAdapter(_adapterAddr).increaseWithdrawalAmount(
+                _account,
+                _tokenId,
+                amounts[1] - amounts[0]
+            );
+        } else if (IAdapter(_adapterAddr).isVault()) {
+            require(amounts[1] > amounts[0], "Error: Deposit failed");
 
-            if (amounts[2] != 0 && _adapterInfo.totalStaked != 0) {
+            _userAdapterInfo.userShares += amounts[1] - amounts[0];
+            IAdapter(_adapterAddr).increaseWithdrawalAmount(
+                _account,
+                _tokenId,
+                amounts[1] - amounts[0]
+            );
+        } else if (addrs[2] != address(0)) {
+            // Farm Pool
+            uint256 rewardAmount = addrs[2] == addrs[0]
+                ? amounts[1] + _amount - amounts[0]
+                : amounts[1] - amounts[0];
+
+            if (rewardAmount != 0 && _adapterInfo.totalStaked != 0) {
                 _adapterInfo.accTokenPerShare +=
-                    (amounts[2] * 1e12) /
+                    (rewardAmount * 1e12) /
                     _adapterInfo.totalStaked;
             }
 
@@ -406,16 +417,18 @@ library HedgepieLibrary {
                 _userAdapterInfo.userShares = _adapterInfo.accTokenPerShare;
             }
 
-            amounts[2] = _amount;
+            IAdapter(_adapterAddr).increaseWithdrawalAmount(
+                _account,
+                _tokenId,
+                _amount
+            );
         } else {
-            amounts[2] = _amount;
+            IAdapter(_adapterAddr).increaseWithdrawalAmount(
+                _account,
+                _tokenId,
+                _amount
+            );
         }
-
-        IAdapter(_adapterAddr).increaseWithdrawalAmount(
-            _account,
-            _tokenId,
-            _amount
-        );
     }
 
     function depositToAdapterMatic(
