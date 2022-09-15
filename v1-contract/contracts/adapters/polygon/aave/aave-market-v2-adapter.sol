@@ -21,6 +21,8 @@ contract AaveMarketV2Adapter is BaseAdapterMatic {
         repayToken = _repayToken;
         strategy = _strategy;
         name = _name;
+
+        isVault = true;
     }
     
     /**

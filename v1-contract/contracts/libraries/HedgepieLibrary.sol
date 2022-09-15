@@ -433,9 +433,9 @@ library HedgepieLibrary {
 
     function depositToAdapterMatic(
         address _adapterManager,
+        address _account,
         uint256 _tokenId,
         uint256 _amount,
-        address _account,
         IYBNFT.Adapter memory _adapter,
         HedgepieInvestorMatic.UserAdapterInfo storage _userAdapterInfo,
         HedgepieInvestorMatic.AdapterInfo storage _adapterInfo
@@ -476,14 +476,7 @@ library HedgepieLibrary {
             );
 
         unchecked { amounts[2] = amounts[1] - amounts[0]; }
-        if (isVault) {
-            require(amounts[2] > 0, "Error: Deposit failed");
-
-            unchecked {
-                _userAdapterInfo.userShares += amounts[2];
-                _userAdapterInfo.userShares1 += amounts[2];
-            }
-        } else if (addrs[1] != address(0)) {
+        if (addrs[1] != address(0)) {
             // Farm Pool
             if(addrs[1] == IAdapter(_adapter.addr).stakingToken()) amounts[2] += _amount;
 
@@ -508,6 +501,13 @@ library HedgepieLibrary {
             }
 
             amounts[2] = _amount;
+        } else if (isVault) {
+            require(amounts[2] > 0, "Error: Deposit failed");
+
+            unchecked {
+                _userAdapterInfo.userShares += amounts[2];
+                _userAdapterInfo.userShares1 += amounts[2];
+            }
         } else if (addrs[0] != address(0)) {
             require(amounts[2] > 0, "Error: Deposit failed");
         } else {
