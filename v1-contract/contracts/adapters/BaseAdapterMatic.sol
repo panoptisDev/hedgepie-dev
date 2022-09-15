@@ -26,6 +26,8 @@ abstract contract BaseAdapterMatic is Ownable {
 
     bool public isReward;
 
+    bool public isVault;
+
     bool public noDeposit;
 
     // inToken => outToken => paths

@@ -4,8 +4,6 @@ pragma solidity ^0.8.4;
 import "../../BaseAdapterMatic.sol";
 
 interface IGauge {
-    function balanceOf(address account) external view returns (uint256);
-
     function claimable_reward(address addr, address token) external view returns (uint256);
 }
 
@@ -40,6 +38,7 @@ contract Curve3LPAdaper is BaseAdapterMatic {
         liquidityToken = _liquidityToken;
         stakingToken = _stakingToken;
         strategy = _strategy;
+        repayToken = _strategy;
         router = _router;
         rewardToken = _rewardToken;
         rewardToken1 = _rewardToken1;
@@ -169,9 +168,5 @@ contract Curve3LPAdaper is BaseAdapterMatic {
 
     function pendingReward1() external view returns (uint256 reward) {
         reward = IGauge(strategy).claimable_reward(investor, rewardToken1);
-    }
-
-    function pendingShares() external view override returns (uint256 shares) {
-        shares = IGauge(strategy).balanceOf(investor);
     }
 }

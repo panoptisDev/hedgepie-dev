@@ -343,7 +343,6 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
 
                 if (IAdapter(adapter.addr).rewardToken() != address(0)) {
                     // Convert rewards to BNB
-
                     uint256 rewards = HedgepieLibrary.getRewards(
                         adapterInfos[_tokenId][adapter.addr],
                         userAdapterInfos[msg.sender][_tokenId][adapter.addr],

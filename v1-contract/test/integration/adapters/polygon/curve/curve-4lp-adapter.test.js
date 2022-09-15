@@ -24,13 +24,13 @@ describe("CurveGaugeAdapter Integration Test", function () {
 
     const performanceFee = 50;
     const wmatic = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
-    const strategy = "0x19793B454D3AfC7b454F206Ffe95aDE26cA6912c"; // a3Crv Gauge
-    const stakingToken = "0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171"; // Curve.fi amDAI/amUSDC/amUSDT (am3CRV)
+    const strategy = "0x40c0e9376468b4f257d15f8c47e5d0c646c28880"; // crvEURTUS Gauge
+    const stakingToken = "0x600743B1d8A96438bD46836fD34977a00293f6Aa"; // Curve EURT-3Crv (crvEURTUSD)
     const liquidityToken = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174" // USDC
-    const poolContract = "0x445FE580eF8d70FF569aB36e80c647af338db351"; // swap address
+    const poolContract = "0x225fb4176f0e20cdb66b4a3df70ca3063281e855"; // deposit address
     const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
     const rewardToken = "0x172370d5Cd63279eFa6d502DAB29171933a610AF" // CRV token
-    const rewardToken1 = wmatic;
+    const rewardToken1 = ethers.constants.AddressZero;
 
     this.performanceFee = performanceFee;
     this.owner = owner;
@@ -43,7 +43,7 @@ describe("CurveGaugeAdapter Integration Test", function () {
     this.accTokenPerShare = BigNumber.from(0);
 
     // Deploy CurveGauge Adapter contract
-    const curveAdapter = await ethers.getContractFactory("Curve3LPAdaper");
+    const curveAdapter = await ethers.getContractFactory("Curve4LPAdaper");
     this.aAdapter = await curveAdapter.deploy(
       strategy,
       stakingToken,
@@ -51,9 +51,9 @@ describe("CurveGaugeAdapter Integration Test", function () {
       rewardToken1,
       liquidityToken,
       poolContract,
-      1,
-      true,
-      "Curve::a3Crv::Gauge"
+      2,
+      false,
+      "Curve::crvEURSUSD::Gauge"
     );
     await this.aAdapter.deployed();
 
@@ -103,6 +103,9 @@ describe("CurveGaugeAdapter Integration Test", function () {
 
     await this.aAdapter.setPath(wmatic, liquidityToken, [wmatic, liquidityToken]);
     await this.aAdapter.setPath(liquidityToken, wmatic, [liquidityToken, wmatic]);
+
+    await this.aAdapter.setPath(wmatic, rewardToken, [wmatic, rewardToken]);
+    await this.aAdapter.setPath(rewardToken, wmatic, [rewardToken, wmatic]);
 
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
