@@ -1,14 +1,9 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-import "./libraries/HedgepieLibrary.sol";
+import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-import "./interfaces/IYBNFT.sol";
-import "./interfaces/IAdapter.sol";
-import "./interfaces/IVaultStrategy.sol";
-import "./interfaces/IAdapterManager.sol";
-import "./interfaces/IPancakePair.sol";
-import "./interfaces/IPancakeRouter.sol";
+import "./libraries/HedgepieLibrary.sol";
 
 contract HedgepieInvestor is Ownable, ReentrancyGuard {
     using SafeBEP20 for IBEP20;
@@ -267,7 +262,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                     address wrapToken = IAdapter(adapter.addr).wrapToken();
                     if (wrapToken == address(0)) {
                         // swap
-                        amountOut += HedgepieLibrary.swapforCoin(
+                        amountOut += HedgepieLibrary.swapforBNB(
                             adapter.addr,
                             balances[1] - balances[0],
                             adapter.token,
@@ -289,7 +284,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                         }
 
                         // swap
-                        amountOut += HedgepieLibrary.swapforCoin(
+                        amountOut += HedgepieLibrary.swapforBNB(
                             adapter.addr,
                             beforeUnwrap,
                             wrapToken,
@@ -371,7 +366,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                     }
 
                     if (rewards != 0) {
-                        amountOut += HedgepieLibrary.swapforCoin(
+                        amountOut += HedgepieLibrary.swapforBNB(
                             adapter.addr,
                             rewards - taxAmount,
                             IAdapter(adapter.addr).rewardToken(),
@@ -438,7 +433,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
                 .accTokenPerShare;
 
             if (rewards != 0) {
-                amountOut += HedgepieLibrary.swapforCoin(
+                amountOut += HedgepieLibrary.swapforBNB(
                     adapter.addr,
                     rewards,
                     IAdapter(adapter.addr).rewardToken(),
