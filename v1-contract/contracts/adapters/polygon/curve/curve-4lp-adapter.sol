@@ -40,13 +40,9 @@ contract Curve4LPAdaper is BaseAdapterMatic {
         router = _router;
         rewardToken = _rewardToken;
         rewardToken1 = _rewardToken1;
-
         lpOrder = _lpOrder;
-
         underlying = _underlying;
-
         name = _name;
-
         isReward = true;
     }
     
