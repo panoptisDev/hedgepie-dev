@@ -59,7 +59,7 @@ describe("QuickLPFarmAdapter Integration Test", function () {
     // Deploy Investor contract
     const investorFactory = await ethers.getContractFactory("HedgepieInvestorMatic", {
       libraries: {
-        HedgepieLibrary: lib.address,
+        HedgepieLibraryMatic: lib.address,
       }
     });
     this.investor = await investorFactory.deploy(this.ybNft.address, swapRouter, wmatic);
