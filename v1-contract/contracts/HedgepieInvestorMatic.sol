@@ -6,8 +6,6 @@ import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
 import "./libraries/HedgepieLibraryMatic.sol";
 
-import "hardhat/console.sol";
-
 contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
     using SafeBEP20 for IBEP20;
 
