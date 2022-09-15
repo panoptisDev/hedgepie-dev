@@ -58,7 +58,7 @@ describe("UniswapLPAdapter Integration Test", function () {
         this.ybNft = await ybNftFactory.deploy();
         await this.ybNft.deployed();
 
-        const Lib = await ethers.getContractFactory("HedgepieLibrary");
+        const Lib = await ethers.getContractFactory("HedgepieLibraryMatic");
         const lib = await Lib.deploy();
 
         // Deploy Investor contract

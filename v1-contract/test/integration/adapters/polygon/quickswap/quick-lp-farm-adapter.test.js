@@ -53,7 +53,7 @@ describe("QuickLPFarmAdapter Integration Test", function () {
     const ybNftFactory = await ethers.getContractFactory("YBNFT");
     this.ybNft = await ybNftFactory.deploy();
 
-    const Lib = await ethers.getContractFactory("HedgepieLibrary");
+    const Lib = await ethers.getContractFactory("HedgepieLibraryMatic");
     const lib = await Lib.deploy();
 
     // Deploy Investor contract
