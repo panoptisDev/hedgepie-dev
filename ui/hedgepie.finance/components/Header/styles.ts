@@ -2,14 +2,14 @@ export const styles = {
   mobile_menu_link: {
     display: 'block',
     width: '100%',
-    padding: '6px 24px',
-    transition: 'all .2s',
     '&:hover': {
       backgroundColor: '#0001',
     },
     '&:active': {
       backgroundColor: '#0002',
     },
+    padding: '6px 24px',
+    transition: 'all .2s',
   },
   header_inner_container: {
     margin: '0 auto',
@@ -19,28 +19,28 @@ export const styles = {
     alignItems: 'center',
   },
   navbar_container: {
+    fontWeight:"600",
     display: ['none', 'flex'],
     alignItems: 'center',
-    fontWeight:"600",
     fontSize:'18px'
   },
   connect_wallet_btn_container: {
     height: 64,
-    cursor: 'pointer',
-    transition: 'all .2s',
     display: 'flex',
     alignItems: 'center',
-    padding:'-100px'
+    padding:'-100px',
+    cursor: 'pointer',
+    transition: 'all .2s',
   },
   mobile_menu_btn: {
     border: '1px solid #1799DE',
     color: '#1799DE',
     borderRadius: 4,
-    width: 64,
-    height: 64,
     cursor: 'pointer',
     transition: 'all .2s',
     display: ['flex', 'none'],
+    width: 64,
+    height: 64,
     alignItems: 'center',
     justifyContent: 'center',
     '&:hover': {
@@ -49,9 +49,6 @@ export const styles = {
   },
   mobile_menu_connect_wallet: {
     alignItems: 'center',
-    width: '100%',
-    padding: '6px 24px',
-    transition: 'all .2s',
     display:['flex','none'],
     cursor: 'pointer',
     color: '#1799DE',
@@ -61,5 +58,8 @@ export const styles = {
     '&:active': {
       backgroundColor: '#0002',
     },
+    width: '100%',
+    padding: '6px 24px',
+    transition: 'all .2s',
   },
 }

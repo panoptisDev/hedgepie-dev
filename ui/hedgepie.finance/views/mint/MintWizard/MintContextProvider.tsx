@@ -56,10 +56,8 @@ const MintContextProvider = ({ children }) => {
           if (adapter.name.includes('::')) {
             let split = adapter.name.split('::')
             let protocol = split[0]
-            let pool = split[split.length - 1]
-            if (adapterOptions[protocol] && adapterOptions[protocol][pool]) {
-              pool = split[split.length - 2] + '-' + split[split.length - 1]
-            }
+
+            let pool = split[split.length - 1] + ' ' + split[split.length - 2]
             !adapterOptions[protocol] ? (adapterOptions[protocol] = {}) : ''
             !adapterOptions[protocol]['icon'] ? (adapterOptions[protocol]['icon'] = getIcon(protocol)) : ''
             adapterOptions[protocol][pool] = { addr: adapter.addr, token: adapter.stakingToken }

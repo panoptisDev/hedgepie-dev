@@ -132,16 +132,17 @@ const ViewContents = (props: Props) => {
     }
     fetchContractData()
 
-    // Populating TVL and Participants badges
-    const populateBadges = async () => {
-      const nftInfo = await getNFTInfo(tokenId)
-      setBadges([
-        { title: 'TLV:', value: `${getBalanceInEther(nftInfo.tvl)} BNB` },
-        { title: 'Participants:', value: `${nftInfo.totalParticipant}` },
-      ])
-    }
     populateBadges()
   }, [tokenId])
+
+  // Populating TVL and Participants badges
+  const populateBadges = async () => {
+    const nftInfo = await getNFTInfo(tokenId)
+    setBadges([
+      { title: 'TLV:', value: `${getBalanceInEther(nftInfo.tvl)} BNB` },
+      { title: 'Participants:', value: `${nftInfo.totalParticipant}` },
+    ])
+  }
 
   // Set the Metadata JSON URL, Image and NFT Name/Description from the metadata
   useEffect(() => {
@@ -168,6 +169,10 @@ const ViewContents = (props: Props) => {
       setStrategies(newArr)
     }
   }, [staked])
+
+  const afterStakeUnstake = () => {
+    populateBadges()
+  }
 
   useEffect(() => {
     setDetails([
@@ -281,8 +286,8 @@ const ViewContents = (props: Props) => {
                           padding: '3rem 2rem 3rem 2rem',
                         }}
                       >
-                        <ActionStake tokenId={tokenId} setStaked={setStaked} />
-                        {/* <Yield tokenId={tokenId} /> */}
+                        <ActionStake tokenId={tokenId} setStaked={setStaked} afterStakeUnstake={afterStakeUnstake} />
+                        <Yield tokenId={tokenId} />
                       </Flex>
                     </Flex>
                   </Flex>

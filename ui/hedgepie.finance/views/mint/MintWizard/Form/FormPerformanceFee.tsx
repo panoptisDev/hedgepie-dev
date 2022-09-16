@@ -6,13 +6,18 @@ import YbNftSummaryChart from './YbNftSummaryChart'
 import toast from 'utils/toast'
 
 const FormPerformanceFee = () => {
-  const { wizard, setWizard, account } = React.useContext(MintWizardContext)
+  const { wizard, setWizard, account, formData } = React.useContext(MintWizardContext)
 
   const handleNext = () => {
     if (!account) {
       toast('Please connect your wallet to continue !!')
       return
     }
+    if (formData.performanceFee > 9) {
+      toast('Performance fee should be less than 10%', 'warning')
+      return
+    }
+
     setWizard({
       ...wizard,
       order: 3,

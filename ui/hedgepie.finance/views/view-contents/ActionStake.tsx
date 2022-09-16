@@ -14,7 +14,7 @@ import axios from 'axios'
 
 const ActionStake = (props: any) => {
   const { onYBNFTDeposit, onYBNFTWithdraw, onYBNFTInvestorApprove, getAllowance, getBalance } = useInvestor()
-  const { tokenId, setStaked } = props
+  const { tokenId, setStaked, afterStakeUnstake } = props
 
   const [bnbBalance, setBNBBalance] = useState(0)
   const [disabled, setDisabled] = useState(false)
@@ -75,9 +75,7 @@ const ActionStake = (props: any) => {
   }
 
   useEffect(() => {
-    console.log('hihi')
     if (!account || !tokenId) return
-    console.log('hihihihi')
     setCurrentStakedBalance()
   }, [account, tokenId])
 
@@ -105,6 +103,7 @@ const ActionStake = (props: any) => {
       txHash = await onYBNFTDeposit(tokenId, amount.toString())
       toast(`${amountString} BNB successfully staked on YBNFT #${tokenId} !!`)
       setCurrentStakedBalance()
+      afterStakeUnstake()
     } catch (err) {
       console.log(err)
     }
@@ -125,6 +124,7 @@ const ActionStake = (props: any) => {
       txHash = await onYBNFTWithdraw(tokenId)
       toast(`${currentStaked} BNB successfully withdrawn on YBNFT #${tokenId} !!`)
       setCurrentStakedBalance()
+      afterStakeUnstake()
     } catch (err) {
       console.log(err)
     }
