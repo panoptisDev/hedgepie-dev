@@ -201,7 +201,7 @@ const LotteryTable = ({ data, onSort, sortKey }: any) => {
                   fontWeight: '600',
                 }}
               >
-                {'$100,000 BNB'}
+                {d.totalStaked}
               </td>
               <td
                 style={{

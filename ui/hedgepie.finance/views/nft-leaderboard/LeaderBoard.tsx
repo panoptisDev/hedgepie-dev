@@ -10,6 +10,7 @@ import { useInvestor } from 'hooks/useInvestor'
 import { styles } from './styles'
 import toast from 'utils/toast'
 import { getBalanceInEther } from 'utils/formatBalance'
+import { getPrice } from 'utils/getTokenPrice'
 
 export interface TokenInfo {
   name?: string
@@ -17,6 +18,7 @@ export interface TokenInfo {
   description?: string
   tokenId?: number
   tvl?: string
+  totalStaked?: string
   totalParticipants?: number
 }
 
@@ -49,14 +51,17 @@ const LeaderBoard = () => {
 
         // Obtain total participants and TVL, Will be used to populate the tvl and participants in the Leaderboard
         const nftInfo = await getNFTInfo(i)
-
+        const bnbPrice = await getPrice('BNB')
+        const tvl = bnbPrice ? `$${Number(getBalanceInEther(nftInfo.tvl) * bnbPrice).toFixed(3)} USD` : 'N/A'
+        const totalStaked = `${getBalanceInEther(nftInfo.tvl)} BNB`
         const metadata = await metadataFile.json()
         const leaderboardItem = {
           tokenId: i,
           name: metadata.name,
           imageURL: metadata.imageURL,
           description: metadata.description,
-          tvl: `${getBalanceInEther(nftInfo.tvl)} BNB`,
+          tvl: tvl,
+          totalStaked: totalStaked,
           totalParticipants: nftInfo.totalParticipant,
         }
         tokens.push(leaderboardItem)
