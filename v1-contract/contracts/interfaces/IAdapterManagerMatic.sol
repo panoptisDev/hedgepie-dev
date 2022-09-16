@@ -1,7 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-interface IAdapterManager {
+interface IAdapterManagerMatic {
     function getAdapterStrat(address _adapter)
         external
         view
@@ -25,7 +25,7 @@ interface IAdapterManager {
             bytes memory data
         );
 
-    function getLoanCallData(address _adapter, uint256 _amount)
+    function getRewardCallData(address _adapter)
         external
         view
         returns (
@@ -34,7 +34,7 @@ interface IAdapterManager {
             bytes memory data
         );
 
-    function getDeLoanCallData(address _adapter, uint256 _amount)
+    function getAddLiqCallData(address _adapter, uint256 _amount)
         external
         view
         returns (
@@ -43,7 +43,7 @@ interface IAdapterManager {
             bytes memory data
         );
 
-    function getEnterMarketCallData(address _adapter)
+    function getRemoveLiqCallData(address _adapter, uint256 _amount)
         external
         view
         returns (

@@ -8,11 +8,11 @@ import "./SafeBEP20.sol";
 import "./Ownable.sol";
 
 import "../interfaces/IYBNFT.sol";
-import "../interfaces/IAdapter.sol";
 import "../interfaces/IPancakePair.sol";
+import "../interfaces/IAdapterMatic.sol";
 import "../interfaces/IPancakeRouter.sol";
 import "../interfaces/IVaultStrategy.sol";
-import "../interfaces/IAdapterManager.sol";
+import "../interfaces/IAdapterManagerMatic.sol";
 
 import "../HedgepieInvestorMatic.sol";
 
@@ -115,12 +115,12 @@ library HedgepieLibraryMatic {
                         : 0
             );
         
-        (address to, uint256 value, bytes memory callData) = IAdapterManager(
+        (address to, uint256 value, bytes memory callData) = IAdapterManagerMatic(
             _adapterManager
         ).getDepositCallData(_adapter.addr, _amount);
 
         IBEP20(_adapter.token).approve(
-            IAdapterManager(_adapterManager).getAdapterStrat(_adapter.addr),
+            IAdapterManagerMatic(_adapterManager).getAdapterStrat(_adapter.addr),
             _amount
         );
         (bool success,) = to.call{value: value}(callData);
@@ -221,7 +221,7 @@ library HedgepieLibraryMatic {
         }
 
         if(noDeposit) {
-            uint256 tokenId = IAdapter(_adapter.addr).getLiquidityToken(_account, _tokenId);
+            uint256 tokenId = IAdapter(_adapter.addr).getLiquidityNFT(_account, _tokenId);
 
             // wrap to wmatic
             if(tokens[0] == wmatic) {
@@ -263,7 +263,7 @@ library HedgepieLibraryMatic {
                     });
 
                 (tokenId, amountOut, , ) = INonfungiblePositionManager(_strategy).mint(params);
-                IAdapter(_adapter.addr).setLiquidityToken(_account, _tokenId, tokenId);
+                IAdapter(_adapter.addr).setLiquidityNFT(_account, _tokenId, tokenId);
             }
         } else if (tokenAmount[0] != 0 && tokenAmount[1] != 0) {
             if (tokens[0] == wmatic || tokens[1] == wmatic) {
@@ -306,7 +306,7 @@ library HedgepieLibraryMatic {
         address _router = IAdapter(_adapter.addr).router();
 
         if(IAdapter(_adapter.addr).noDeposit()) {
-            uint256 tokenId = IAdapter(_adapter.addr).getLiquidityToken(_account, _tokenId);
+            uint256 tokenId = IAdapter(_adapter.addr).getLiquidityNFT(_account, _tokenId);
             require(tokenId != 0, "Invalid request");
 
             INonfungiblePositionManager.DecreaseLiquidityParams memory params =

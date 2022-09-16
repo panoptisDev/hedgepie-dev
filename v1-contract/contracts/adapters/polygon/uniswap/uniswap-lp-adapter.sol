@@ -45,7 +45,7 @@ contract UniswapLPAdapter is BaseAdapterMatic {
      * @param _nftId  nftId
      * @param _tokenId  amount of withdrawal
      */
-    function setLiquidityToken(
+    function setLiquidityNFT(
         address _user,
         uint256 _nftId,
         uint256 _tokenId
@@ -58,7 +58,7 @@ contract UniswapLPAdapter is BaseAdapterMatic {
      * @param _user  user address
      * @param _nftId  nftId
      */
-    function getLiquidityToken(address _user, uint256 _nftId)
+    function getLiquidityNFT(address _user, uint256 _nftId)
         external
         view
         returns (uint256 tokenId)

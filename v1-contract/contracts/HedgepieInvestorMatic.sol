@@ -491,7 +491,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
             address to,
             uint256 value,
             bytes memory callData
-        ) = IAdapterManager(adapterManager).getWithdrawCallData(
+        ) = IAdapterManagerMatic(adapterManager).getWithdrawCallData(
                 _adapterAddr,
                 _amount
             );
@@ -500,7 +500,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
         require(success, "Error: Withdraw internal issue");
 
         if(IAdapter(_adapterAddr).isReward()) {
-            (to, value, callData) = IAdapterManager(adapterManager).getRewardCallData(_adapterAddr);
+            (to, value, callData) = IAdapterManagerMatic(adapterManager).getRewardCallData(_adapterAddr);
             (success, ) = to.call{value: value}(callData);
             require(success, "Error: getReward internal issue");
         }
@@ -688,7 +688,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
             address to,
             uint256 value,
             bytes memory callData
-        ) = IAdapterManager(adapterManager).getAddLiqCallData(
+        ) = IAdapterManagerMatic(adapterManager).getAddLiqCallData(
                 _adapterAddr, amountOut
             );
 
@@ -714,7 +714,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
             address to,
             uint256 value,
             bytes memory callData
-        ) = IAdapterManager(adapterManager).getRemoveLiqCallData(
+        ) = IAdapterManagerMatic(adapterManager).getRemoveLiqCallData(
                 _adapterAddr, _amountIn
             );
 

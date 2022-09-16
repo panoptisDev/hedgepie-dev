@@ -69,7 +69,7 @@ describe("AaveMarketV3Adapter Integration Test", function () {
     await this.investor.deployed();
 
     // Deploy Adaptor Manager contract
-    const adapterManager = await ethers.getContractFactory("HedgepieAdapterManager");
+    const adapterManager = await ethers.getContractFactory("HedgepieAdapterManagerMatic");
     this.adapterManager = await adapterManager.deploy();
     
     // set investor
