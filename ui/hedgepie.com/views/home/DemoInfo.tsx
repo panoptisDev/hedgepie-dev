@@ -69,7 +69,7 @@ const DemoInfo = () => {
                   fontWeight: 700,
                 }}
               >
-                Stake with the Best.
+                Opt out anytime you want.
               </Box>
               <Box
                 sx={{
@@ -78,10 +78,9 @@ const DemoInfo = () => {
                   fontSize: [14, 14, 20],
                 }}
               >
-                Take the guesswork out of staking. Th HedgePie Leaderboard displays top performing funds by APY. No
-                longer do you need to know the ins and outs of every Crypto project to maintain your own portfolio.
-                Simply pick a top performer and stake. Minimize your risk with clear historical data from custom index
-                style funds created by experts
+                Investment shouldn't be a do-or-die affair. That's why the liquidity of the investment pool is the way
+                out for you. You can cash out from any investment strategy you try out at any time, and we will not
+                charge any fees.
               </Box>
               <Box sx={{ marginTop: 50 }}>
                 <Button
@@ -99,7 +98,7 @@ const DemoInfo = () => {
                   }}
                 >
                   <a href="https://hedgepie.finance" target="_blank">
-                    <Text sx={{ paddingRight: '10px' }}>OPEN APP</Text>
+                    <Text sx={{ paddingRight: '10px' }}>See how it works</Text>
                     <ArrowRight />
                   </a>
                 </Button>
@@ -136,7 +135,7 @@ const DemoInfo = () => {
                   fontWeight: 700,
                 }}
               >
-                Your Fund. <br></br>Your Profit.
+                DeFi and blockchain technology at its finest
               </Box>
               <Box
                 sx={{
@@ -145,10 +144,11 @@ const DemoInfo = () => {
                   fontSize: [14, 14, 20],
                 }}
               >
-                At Hedge Pie, users earn higher returns on already winning assets by combining them together into a fund
-                that others can invest in. Choose your stake positions, set your fees, & earn. Top performing funds are
-                tracked on the Hedge Pie leaderboard, so when funds perform well, investors follow. Think you have what
-                it takes? Connect your wallet, choose your stake positions, & start earning.
+                A brilliant team created HedgePie's structure to give new and expert investors a shot at having the best
+                of both worlds. Built on the Binance Smart Chain network and polygon with more networks coming soon.
+                HedgePie, the DeFi project, has diverse investment strategies and pools with its multi-chain feature,
+                all for you. Exchange and invest in tokens across multiple blockchains with 0 added fees, all from a
+                single portal that gives you complete visibility and access to your portfolio.
               </Box>
               <Box sx={{ marginTop: 50 }}>
                 <Button

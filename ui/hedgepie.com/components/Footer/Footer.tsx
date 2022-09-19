@@ -15,15 +15,18 @@ const Footer = (props: Props) => {
         <Box mr={4}>
           <Image src="images/logo.png" />
           <Box sx={styles.footer_text_container as ThemeUICSSObject}>
-            Hedge Pie is an innovative decentralized trading platform that allows users to generate funds that others
-            can invest in.
+            Hedgepie is a community-driven decentralized network of investors and crypto enthusiasts from all over the
+            world. Stay on top of the action with the latest news and important announcements on our social media
+            channels.
           </Box>
           <Box sx={styles.footer_social_btns_container as ThemeUICSSObject}>
             <SocialButton>
               <Image src="images/fb.png" />
             </SocialButton>
             <SocialButton>
-              <Image src="images/twitter.png" />
+              <a href="https://twitter.com/Hedgepiefinance" target="_blank">
+                <Image src="images/twitter.png" />
+              </a>
             </SocialButton>
             <SocialButton>
               <Image src="images/linkedin.png" />

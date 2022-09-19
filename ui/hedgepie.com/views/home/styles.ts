@@ -32,7 +32,7 @@ export const styles = {
   },
   banner_title: {
     maxWidth: [260, 450, 450, 562],
-    fontSize: [50, 80, 80, 100],
+    fontSize: [40, 60, 60, 80],
     fontWeight: 700,
     color: '#16103a',
     lineHeight: 1,
@@ -41,7 +41,7 @@ export const styles = {
   },
   banner_text: {
     marginTop: [4, 5],
-    fontSize: [16, 24],
+    fontSize: [16, 22],
     fontWeight: 600,
     color: '#0B4C6F',
     maxWidth: 665,

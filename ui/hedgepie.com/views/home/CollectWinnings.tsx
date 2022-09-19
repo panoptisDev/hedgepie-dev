@@ -13,7 +13,7 @@ const CollectWinnings = () => {
       sx={{
         padding: '0 16px',
         marginTop: 30,
-        marginBottom: 0,
+        marginBottom: 20,
       }}
     >
       <Box
@@ -73,7 +73,7 @@ const CollectWinnings = () => {
               onClick={() => toast('Our site will soon be live at hedgepie.finance')}
             >
               <Box mr={2}>
-                <ThemeLink mr={4}>Collect Winnings</ThemeLink>
+                <ThemeLink mr={4}>Investment Farming</ThemeLink>
               </Box>
             </Box>
             <Box
@@ -83,10 +83,12 @@ const CollectWinnings = () => {
                 fontSize: [14, 14, 20],
               }}
             >
-              At Hedge Pie, users earn higher returns on already winning assets by combining them together into a fund
-              that others can invest in. Choose your stake positions, set your fees, & earn. Top performing funds are
-              tracked on the Hedge Pie leaderboard, so when funds perform well, investors follow. Think you have what it
-              takes? Connect your wallet, choose your stake positions, & start earning.
+              Not interested in creating your own investment pool? Don’t worry; HedgePie has something for you too.
+              Investment farming with HedgePie lets you invest in the pools already created by these expert investors.
+              So, you, too, can earn by putting your funds into these pools. By putting your cryptocurrency funds into
+              these pools already created and tested by expert investors, you get to earn the yields for the strategy
+              without worrying too hard about the details. <br />
+              All these and many more are waiting for you at HedgePie. Don't wait any longer.
             </Box>
             <Box sx={{ marginTop: [30, 30, 50] }}>
               <Button
@@ -94,7 +96,7 @@ const CollectWinnings = () => {
                 sx={{
                   borderRadius: 40,
                   height: [40, 50, 64],
-                  width: 'fit-content',
+                  width: 'max-content',
                   padding: ['0 20px', '0 20px', '0 24px'],
                   cursor: 'pointer',
                   transition: 'all .2s',
@@ -105,7 +107,6 @@ const CollectWinnings = () => {
               >
                 <a href="https://hedgepie.finance" target="_blank">
                   <Box sx={{ fontSize: [14, 14, 20] }}>OPEN APP</Box>
-                  <ArrowRight />
                 </a>
               </Button>
             </Box>
