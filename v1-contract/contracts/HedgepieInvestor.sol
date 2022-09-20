@@ -70,6 +70,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
     );
     event Claimed(address indexed user, uint256 amount);
     event AdapterManagerChanged(address indexed user, address adapterManager);
+    event YieldWithdrawn(uint256 indexed nftId, uint256 amount);
 
     /**
      * @notice Construct
@@ -401,6 +402,9 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
         if (amountOut != 0) {
             (bool success, ) = payable(_user).call{value: amountOut}("");
             require(success, "Error: Failed to send BNB");
+
+            if (amountOut > userAmount)
+                emit YieldWithdrawn(_tokenId, amountOut - userAmount);
         }
         emit WithdrawBNB(_user, ybnft, _tokenId, userAmount);
     }
@@ -460,6 +464,7 @@ contract HedgepieInvestor is Ownable, ReentrancyGuard {
             }("");
             require(success, "Error: Failed to send BNB");
             emit Claimed(msg.sender, amountOut);
+            emit YieldWithdrawn(_tokenId, amountOut);
         }
     }
 
