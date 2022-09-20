@@ -14,9 +14,10 @@ const Banner = (props: Props) => {
       <Box sx={styles.banner_box as ThemeUICSSObject}>
         <Box sx={styles.banner_contents_container as ThemeUICSSObject}>
           <Box sx={{ position: 'relative', display: 'flex', flexDirection: 'column', gap: '0px' }}>
-            <Box sx={styles.banner_title as ThemeUICSSObject}>DeFi Simplified.</Box>
+            <Box sx={styles.banner_title as ThemeUICSSObject}>Access DeFi without the hassle</Box>
             <Box sx={styles.banner_text as ThemeUICSSObject}>
-              Get access to the highest returns, when you invest in funds created by the smartest minds in crypto.
+              Get access to a curated list of proven profitable investment pools and strategies created by crypto
+              investment experts and save time, making your investment decisions faster.
             </Box>
             <Box sx={{ marginTop: [30, 70] }}>
               <Button variant="primary" sx={styles.banner_connect_wallet_wrapper as ThemeUICSSObject}>
@@ -24,7 +25,7 @@ const Banner = (props: Props) => {
                   <Box mr={2}>
                     <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                       <Box mr={2} sx={{ fontWeight: '500', letterSpacing: '2px', fontSize: [14, 14, 20] }}>
-                        OPEN APP
+                        Start Investing
                       </Box>
                       <ArrowRight />
                     </Box>

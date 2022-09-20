@@ -86,8 +86,8 @@ const ChoosePath = () => {
                 fontFamily: 'Poppins',
               }}
             >
-              <Box>Earn The Highest</Box>
-              <Box>APY</Box>
+              <Box>Save Your Time</Box>
+              {/* <Box>APY</Box> */}
             </Box>
             <Box
               sx={{
@@ -96,7 +96,12 @@ const ChoosePath = () => {
                 color: '#0B4C6F',
               }}
             >
-              Access the highest returns when you invest in funds that dominate the Hedge Pie leaderboard
+              Are you a new cryptocurrency investor trying to save time while getting the best investment options?
+              You’re in the right place.
+              <br />
+              HedgePie provides direct access to top strategies and investment pools from expert traders. Invest in a
+              collection of DeFi strategies designed and curated by experienced DeFi investors. You only pay a
+              performance fee when you gain profit.
             </Box>
           </Box>
           <Box
@@ -127,8 +132,8 @@ const ChoosePath = () => {
                 fontFamily: 'Poppins',
               }}
             >
-              <Box>Create Your Own</Box>
-              <Box>Fund</Box>
+              <Box>Join Other Investors</Box>
+              {/* <Box>Fund</Box> */}
             </Box>
             <Box
               sx={{
@@ -137,10 +142,12 @@ const ChoosePath = () => {
                 color: '#0B4C6F',
               }}
             >
-              Earn more when you combine your assets into high-yielding funds that others can invest in
+              HedgePie features investment strategies from expert investors who use and trust the platform. Spanning
+              across two networks and dozens of DeFi protocols, including Polygon, Uniswap, PanckeSwap, Venus, BNB
+              Chain, and many others.
             </Box>
           </Box>
-          {/* <Box
+          <Box
             my={3}
             mx={[0, 2]}
             sx={{
@@ -168,8 +175,8 @@ const ChoosePath = () => {
                 fontFamily: 'Poppins',
               }}
             >
-              <Box>Enter the</Box>
-              <Box>Lottery</Box>
+              <Box>Best Performing</Box>
+              <Box>Strategies</Box>
             </Box>
             <Box
               sx={{
@@ -178,10 +185,11 @@ const ChoosePath = () => {
                 color: '#16103A',
               }}
             >
-              Lorem ipsum dolor sit amet, consectetur adipiscing elit. Donec volutpat turpis mauris nunc sit placerat
-              ullamcorper v
+              Stop guessing what options to stake with. HedgePie knows how hard it can be to decide the best investment
+              choice. That's why the HedgePie leaderboard gives you a transparent list of high-performing investment
+              funds. Choose from this leaderboard to minimize investment risks and maximize your profit.
             </Box>
-            </Box>*/}
+          </Box>
         </Box>
       </Box>
     </Box>
