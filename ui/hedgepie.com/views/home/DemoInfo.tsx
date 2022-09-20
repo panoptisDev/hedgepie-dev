@@ -99,7 +99,7 @@ const DemoInfo = () => {
                 >
                   <a href="https://hedgepie.finance" target="_blank">
                     <Text sx={{ paddingRight: '10px' }}>See how it works</Text>
-                    <ArrowRight />
+                    {/* <ArrowRight /> */}
                   </a>
                 </Button>
               </Box>
@@ -167,7 +167,7 @@ const DemoInfo = () => {
                 >
                   <a href="https://hedgepie.finance" target="_blank">
                     <Text sx={{ paddingRight: '10px' }}>OPEN APP</Text>
-                    <ArrowRight />
+                    {/* <ArrowRight /> */}
                   </a>
                 </Button>
               </Box>

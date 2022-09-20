@@ -75,7 +75,7 @@ const YBNFTInfo = () => {
             >
               <a href="https://hedgepie.finance" target="_blank">
                 <Box mr={2}>OPEN APP</Box>
-                <ArrowRight />
+                {/* <ArrowRight /> */}
               </a>
             </Button>
           </Box>

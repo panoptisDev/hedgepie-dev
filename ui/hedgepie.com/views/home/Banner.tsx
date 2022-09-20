@@ -27,7 +27,7 @@ const Banner = (props: Props) => {
                       <Box mr={2} sx={{ fontWeight: '500', letterSpacing: '2px', fontSize: [14, 14, 20] }}>
                         Start Investing
                       </Box>
-                      <ArrowRight />
+                      {/* <ArrowRight /> */}
                     </Box>
                   </Box>
                 </a>
