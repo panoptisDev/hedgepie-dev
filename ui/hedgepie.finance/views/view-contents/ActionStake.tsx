@@ -86,7 +86,7 @@ const ActionStake = (props: any) => {
       toast('Please input only Positive Numeric values', 'warning')
     }
     setInvalidAmount(false)
-    if (Number.parseFloat(e.target.value) >= bnbBalance) {
+    if (account && Number.parseFloat(e.target.value) >= bnbBalance) {
       toast('Entered amount is greater than available BNB balance.', 'warning')
     }
     e.target.value && !isNaN(e.target.value) && setAmount(getBalanceInWei(Number.parseFloat(e.target.value)))

@@ -43,7 +43,13 @@ const LeaderBoard = () => {
         if (!tokenUri.includes('.ipfs.')) {
           continue
         }
-        const metadataFile = await fetch(tokenUri)
+        console.log('Token::' + tokenUri)
+        let metadataFile: any = undefined
+        try {
+          metadataFile = await fetch(tokenUri)
+        } catch (err) {
+          continue
+        }
         console.log('metadataFile' + JSON.stringify(metadataFile))
         if (metadataFile == null) {
           continue
