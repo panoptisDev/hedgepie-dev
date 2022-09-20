@@ -38,16 +38,18 @@ const FormPosition = () => {
   }
 
   const checkIfPositionsEmpty = () => {
-    // formData.positions.forEach((p) => {
-    //   if (p.composition) {
-    //     if (p.composition.name && p.composition.pools?.length) return false
-    //   }
-    // })
+    console.log('compositions' + JSON.stringify(formData.positions))
+    formData.positions.forEach((p) => {
+      if (p.composition) {
+        if (p.composition.name === 'Protocol' || !p.composition.pools?.length) return true
+      }
+    })
     return false
   }
 
   const handleNext = () => {
     if (checkIfPositionsEmpty()) {
+      console.log('herher')
       toast('Cannot proceed with empty positions !!', 'warning')
       return
     }
