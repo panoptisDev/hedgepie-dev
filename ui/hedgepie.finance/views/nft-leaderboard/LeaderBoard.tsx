@@ -11,6 +11,7 @@ import { styles } from './styles'
 import toast from 'utils/toast'
 import { getBalanceInEther } from 'utils/formatBalance'
 import { getPrice } from 'utils/getTokenPrice'
+import fetchEvent from 'utils/totalProfit'
 
 export interface TokenInfo {
   name?: string
@@ -78,6 +79,9 @@ const LeaderBoard = () => {
       setLoading(false)
     }
     fetchLeaderboardData()
+
+    console.log('For Total Profit')
+    fetchEvent()
   }, [])
 
   const handleSearch = (key: string) => {
