@@ -11,7 +11,7 @@ import { styles } from './styles'
 import toast from 'utils/toast'
 import { getBalanceInEther } from 'utils/formatBalance'
 import { getPrice } from 'utils/getTokenPrice'
-import fetchEvent from 'utils/totalProfit'
+import fetchTotalProfit from 'utils/totalProfit'
 
 export interface TokenInfo {
   name?: string
@@ -21,6 +21,7 @@ export interface TokenInfo {
   tvl?: string
   totalStaked?: string
   totalParticipants?: number
+  totalProfit?: string
 }
 
 const LeaderBoard = () => {
@@ -37,6 +38,16 @@ const LeaderBoard = () => {
     const fetchLeaderboardData = async () => {
       setLoading(true)
       const maxTokenId = await getMaxTokenId()
+      let profit = await fetchTotalProfit()
+      console.log('profit' + JSON.stringify(profit))
+      let profitMap = {} as any
+      profit &&
+        profit.forEach((p) => {
+          let nftId = Number(p[1])
+          let val = parseInt(p[2])
+          profitMap[nftId] = profitMap[nftId] ? profitMap[nftId] + val : val
+        })
+
       let tokens = [] as TokenInfo[]
       for (let i = 1; i <= maxTokenId; i++) {
         const tokenUri = await getTokenUri(i)
@@ -61,6 +72,8 @@ const LeaderBoard = () => {
         const bnbPrice = await getPrice('BNB')
         const tvl = bnbPrice ? `$${Number(getBalanceInEther(nftInfo.tvl) * bnbPrice).toFixed(3)} USD` : 'N/A'
         const totalStaked = `${getBalanceInEther(nftInfo.tvl)} BNB`
+        const totalProfit =
+          bnbPrice && profitMap[i] ? `$${Number(getBalanceInEther(profitMap[i]) * bnbPrice).toFixed(3)} USD` : 'N/A'
         const metadata = await metadataFile.json()
         const leaderboardItem = {
           tokenId: i,
@@ -70,6 +83,7 @@ const LeaderBoard = () => {
           tvl: tvl,
           totalStaked: totalStaked,
           totalParticipants: nftInfo.totalParticipant,
+          totalProfit: totalProfit,
         }
         tokens.push(leaderboardItem)
         setLotteries(tokens)
@@ -79,9 +93,6 @@ const LeaderBoard = () => {
       setLoading(false)
     }
     fetchLeaderboardData()
-
-    console.log('For Total Profit')
-    fetchEvent()
   }, [])
 
   const handleSearch = (key: string) => {

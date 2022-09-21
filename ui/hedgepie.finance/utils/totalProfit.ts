@@ -17,13 +17,18 @@ function decode(types, value) {
   return ethers.utils.defaultAbiCoder.decode(types, value);
 }
 
-const fetchEvent = async () => {
+const fetchTotalProfit = async () => {
   let { data: res } = await axios.get(covalentAPIURL);
 
   if (res.data.items.length != 0) {
     res = res.data.items;
-    console.log("hello"+res[res.length - 1], JSON.stringify(decode(["address", "uint256", "uint256"], res[res.length - 1].raw_log_data)));
+    console.log("Total Profit")
+    console.log(JSON.stringify(res))
+    let newArr:any[] = []
+    res.forEach(r=>newArr.push(decode(["address", "uint256", "uint256"], r.raw_log_data)))
+    console.log(res[res.length - 1], JSON.stringify(decode(["address", "uint256", "uint256"], res[res.length - 1].raw_log_data)));
+    return newArr
   }
 };
 
-export default fetchEvent
+export default fetchTotalProfit
