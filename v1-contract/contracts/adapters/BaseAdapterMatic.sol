@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 abstract contract BaseAdapterMatic is Ownable {
-    uint256 pid;
+    uint256 public pid;
 
     address public stakingToken;
 
