@@ -10,6 +10,8 @@ import { useInvestor } from 'hooks/useInvestor'
 import { styles } from './styles'
 import toast from 'utils/toast'
 import { getBalanceInEther } from 'utils/formatBalance'
+import { getPrice } from 'utils/getTokenPrice'
+import fetchTotalProfit from 'utils/totalProfit'
 
 export interface TokenInfo {
   name?: string
@@ -17,7 +19,9 @@ export interface TokenInfo {
   description?: string
   tokenId?: number
   tvl?: string
+  totalStaked?: string
   totalParticipants?: number
+  totalProfit?: string
 }
 
 const LeaderBoard = () => {
@@ -34,6 +38,16 @@ const LeaderBoard = () => {
     const fetchLeaderboardData = async () => {
       setLoading(true)
       const maxTokenId = await getMaxTokenId()
+      let profit = await fetchTotalProfit()
+      console.log('profit' + JSON.stringify(profit))
+      let profitMap = {} as any
+      profit &&
+        profit.forEach((p) => {
+          let nftId = Number(p[1])
+          let val = parseInt(p[2])
+          profitMap[nftId] = profitMap[nftId] ? profitMap[nftId] + val : val
+        })
+
       let tokens = [] as TokenInfo[]
       for (let i = 1; i <= maxTokenId; i++) {
         const tokenUri = await getTokenUri(i)
@@ -41,7 +55,13 @@ const LeaderBoard = () => {
         if (!tokenUri.includes('.ipfs.')) {
           continue
         }
-        const metadataFile = await fetch(tokenUri)
+        console.log('Token::' + tokenUri)
+        let metadataFile: any = undefined
+        try {
+          metadataFile = await fetch(tokenUri)
+        } catch (err) {
+          continue
+        }
         console.log('metadataFile' + JSON.stringify(metadataFile))
         if (metadataFile == null) {
           continue
@@ -49,15 +69,21 @@ const LeaderBoard = () => {
 
         // Obtain total participants and TVL, Will be used to populate the tvl and participants in the Leaderboard
         const nftInfo = await getNFTInfo(i)
-
+        const bnbPrice = await getPrice('BNB')
+        const tvl = bnbPrice ? `$${Number(getBalanceInEther(nftInfo.tvl) * bnbPrice).toFixed(3)} USD` : 'N/A'
+        const totalStaked = `${getBalanceInEther(nftInfo.tvl)} BNB`
+        const totalProfit =
+          bnbPrice && profitMap[i] ? `$${Number(getBalanceInEther(profitMap[i]) * bnbPrice).toFixed(3)} USD` : 'N/A'
         const metadata = await metadataFile.json()
         const leaderboardItem = {
           tokenId: i,
           name: metadata.name,
           imageURL: metadata.imageURL,
           description: metadata.description,
-          tvl: `${getBalanceInEther(nftInfo.tvl)} BNB`,
+          tvl: tvl,
+          totalStaked: totalStaked,
           totalParticipants: nftInfo.totalParticipant,
+          totalProfit: totalProfit,
         }
         tokens.push(leaderboardItem)
         setLotteries(tokens)

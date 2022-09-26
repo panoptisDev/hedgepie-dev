@@ -48,7 +48,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
       sx={{
         display: 'flex',
         flexDirection: ['column', 'row', 'row'],
-        gap: '0.6rem',
+        gap: '0.3rem',
         marginRight: '3rem',
         width: '100%',
       }}
@@ -69,7 +69,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
         styles={{
           control: () => ({
             height: 60,
-            width: isTabletOrMobile ? '100%' : 212,
+            width: isTabletOrMobile ? '100%' : 176,
             borderRadius: 8,
             backgroundColor: '#fff',
             display: 'flex',
@@ -111,7 +111,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
         styles={{
           control: () => ({
             height: 60,
-            width: isTabletOrMobile ? '100%' : 140,
+            width: isTabletOrMobile ? '100%' : 200,
             borderRadius: 8,
             backgroundColor: '#fff',
             display: 'flex',

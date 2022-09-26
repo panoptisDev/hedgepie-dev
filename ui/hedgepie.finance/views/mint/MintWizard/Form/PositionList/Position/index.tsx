@@ -95,7 +95,7 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
       <Box
         sx={{
           flex: '1 1 0',
-          padding: [10, 10, 0],
+          padding: [10, 10, '0 0 0 30px'],
           marginLeft: [-25, -25, -10],
         }}
       >
@@ -150,7 +150,7 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
                       padding: 0,
                       textAlign: 'right',
                       pr: 2,
-                      width: 50,
+                      width: 60,
                       marginLeft: '10px',
                     }}
                     type="number"

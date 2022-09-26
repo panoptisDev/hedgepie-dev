@@ -20,11 +20,11 @@ const CustomValue = (props) => {
           <Image
             src={data.icon}
             sx={{
-              width: 50,
-              height: 50,
+              width: 20,
+              height: 20,
               [`@media screen and (min-width: 500px)`]: {
-                width: 40,
-                height: 40,
+                width: 30,
+                height: 30,
               },
             }}
           />
@@ -40,12 +40,12 @@ const CustomValue = (props) => {
         >
           <Box
             sx={{
-              fontSize: 20,
+              fontSize: 14,
               fontWeight: 600,
               color: '#0A3F5C',
               ml: 1,
               [`@media screen and (min-width: 500px)`]: {
-                fontSize: 18,
+                fontSize: 15,
                 ml: 3,
               },
             }}

@@ -20,8 +20,8 @@ const CustomOption = ({ data, setValue }) => {
         <Image
           src={data.icon}
           sx={{
-            width: 30,
-            height: 30,
+            width: 20,
+            height: 20,
           }}
         />
       ) : (
@@ -32,6 +32,7 @@ const CustomOption = ({ data, setValue }) => {
           ml: 2,
           color: '#0A3F5C',
           fontWeight: 700,
+          fontSize: 14,
         }}
       >
         {data.name}
