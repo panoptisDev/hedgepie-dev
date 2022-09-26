@@ -14,26 +14,29 @@ type Props = {
   children?: ReactNode
   dark?: boolean
   overlayHeader?: boolean
+  isV2?: boolean
 }
 
 const HedgePieFinance = (props: Props) => {
-  const { title, children } = props
+  const { title, children, isV2 } = props
   return (
     <ThemeProvider theme={theme}>
       <Header dark={props.dark} overlay={props.overlayHeader} />
-      <Image
-        style={{
-          position: 'absolute',
-          top: 0,
-          left: 0,
-          width: '100%',
-          height: '100%',
-          objectPosition: 'right',
-          objectFit: 'cover',
-          zIndex: -1,
-        }}
-        src="/images/backdesign.svg"
-      />
+      {!isV2 && (
+        <Image
+          style={{
+            position: 'absolute',
+            top: 0,
+            left: 0,
+            width: '100%',
+            height: '100%',
+            objectPosition: 'right',
+            objectFit: 'cover',
+            zIndex: -1,
+          }}
+          src="/images/backdesign.svg"
+        />
+      )}
       {title && <TitleMast title={title} />}
       <Head>
         <title>Hedge Pie</title>
