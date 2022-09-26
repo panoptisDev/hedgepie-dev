@@ -58,20 +58,20 @@ describe("UniswapLPAdapter Integration Test", function () {
         this.ybNft = await ybNftFactory.deploy();
         await this.ybNft.deployed();
 
-        const Lib = await ethers.getContractFactory("HedgepieLibrary");
+        const Lib = await ethers.getContractFactory("HedgepieLibraryMatic");
         const lib = await Lib.deploy();
 
         // Deploy Investor contract
         const investorFactory = await ethers.getContractFactory("HedgepieInvestorMatic", {
           libraries: {
-            HedgepieLibrary: lib.address,
+            HedgepieLibraryMatic: lib.address,
           }
         });
         this.investor = await investorFactory.deploy(this.ybNft.address, swapRouter, wmatic);
         await this.investor.deployed();
 
         // Deploy Adaptor Manager contract
-        const adapterManager = await ethers.getContractFactory("HedgepieAdapterManager");
+        const adapterManager = await ethers.getContractFactory("HedgepieAdapterManagerMatic");
         this.adapterManager = await adapterManager.deploy();
         this.adapterManager.deployed();
         

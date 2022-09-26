@@ -9,12 +9,9 @@ describe("BeltVaultStakingAdapter Integration Test", function () {
 
     const performanceFee = 50;
     const wbnb = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
-    // const strategy = "0xa8Bb71facdd46445644C277F9499Dd22f6F0A30C"; // beltBNB
-    // const stakingToken = wbnb;
     const stakingToken = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56"; // BUSD
     const strategy = "0x9171Bf7c050aC8B4cf7835e51F7b4841DFB2cCD0"; // beltBUSD
     const swapRouter = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // pks rounter address
-    const rewardToken = "0xE0e514c71282b6f4e823703a39374Cf58dc3eA4f"; // Belt Token
 
     this.owner = owner;
     this.alice = alice;
@@ -27,7 +24,7 @@ describe("BeltVaultStakingAdapter Integration Test", function () {
 
     // Deploy Alpada Stake Adapter contract
     const beltAdapter = await ethers.getContractFactory("BeltVaultAdapter");
-    this.aAdapter = await beltAdapter.deploy(strategy, stakingToken, rewardToken, strategy, "Belt::BNB Vault");
+    this.aAdapter = await beltAdapter.deploy(strategy, stakingToken, strategy, "Belt::BNB Vault");
     await this.aAdapter.deployed();
 
     // Deploy YBNFT contract

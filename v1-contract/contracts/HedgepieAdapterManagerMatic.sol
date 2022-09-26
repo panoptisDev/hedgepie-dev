@@ -2,9 +2,9 @@
 pragma solidity ^0.8.4;
 
 import "./libraries/Ownable.sol";
-import "./interfaces/IAdapter.sol";
+import "./interfaces/IAdapterMatic.sol";
 
-contract HedgepieAdapterManager is Ownable {
+contract HedgepieAdapterManagerMatic is Ownable {
     struct AdapterInfo {
         address addr;
         string name;
@@ -107,10 +107,10 @@ contract HedgepieAdapterManager is Ownable {
     }
 
     /**
-     * @notice Get EnterMarket call data of adapter contract
+     * @notice Get reward call data of adapter contract
      * @param _adapter  adapter address
      */
-    function getEnterMarketCallData(address _adapter)
+    function getRewardCallData(address _adapter)
         external
         view
         onlyActiveAdapter(_adapter)
@@ -121,15 +121,10 @@ contract HedgepieAdapterManager is Ownable {
             bytes memory data
         )
     {
-        return IAdapter(_adapter).getEnterMarketCallData();
+        return IAdapter(_adapter).getRewardCallData();
     }
 
-    /**
-     * @notice Get Loan call data of adapter contract
-     * @param _adapter  adapter address
-     * @param _amount  loan amount
-     */
-    function getLoanCallData(address _adapter, uint256 _amount)
+    function getAddLiqCallData(address _adapter, uint256 _amount)
         external
         view
         onlyActiveAdapter(_adapter)
@@ -141,15 +136,10 @@ contract HedgepieAdapterManager is Ownable {
         )
     {
         require(_amount > 0, "Amount can not be 0");
-        return IAdapter(_adapter).getLoanCallData(_amount);
+        return IAdapter(_adapter).getAddLiqCallData(_amount);
     }
 
-    /**
-     * @notice Get DeLoan call data of adapter contract
-     * @param _adapter  adapter address
-     * @param _amount  loan amount
-     */
-    function getDeLoanCallData(address _adapter, uint256 _amount)
+    function getRemoveLiqCallData(address _adapter, uint256 _amount)
         external
         view
         onlyActiveAdapter(_adapter)
@@ -161,7 +151,7 @@ contract HedgepieAdapterManager is Ownable {
         )
     {
         require(_amount > 0, "Amount can not be 0");
-        return IAdapter(_adapter).getDeLoanCallData(_amount);
+        return IAdapter(_adapter).getRemoveLiqCallData(_amount);
     }
 
     // ===== Owner functions =====

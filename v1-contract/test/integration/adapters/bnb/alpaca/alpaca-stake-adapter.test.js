@@ -11,7 +11,7 @@ describe("AlpacaStakeAdapter Integration Test", function () {
     const wbnb = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
     const strategy = "0xA625AB01B08ce023B2a342Dbb12a16f2C8489A8F"; // FairLaunch
     const stakingToken = "0xfF693450dDa65df7DD6F45B4472655A986b147Eb"; // ibCake
-    const rewardToken = "0xfF693450dDa65df7DD6F45B4472655A986b147Eb"; // ibBNB
+    const rewardToken = "0x8F0528cE5eF7B51152A59745bEfDD91D97091d2F"; // alpaca
     const wrapToken = "0x0E09FaBB73Bd3Ade0a17ECC321fD13a19e81cE82"; // Cake
     const swapRouter = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // pks rounter address
 

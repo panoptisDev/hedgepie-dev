@@ -7,8 +7,6 @@ interface IStakingDualRewards {
     function earnedA(address account) external view returns(uint256);
 
     function earnedB(address account) external view returns(uint256);
-
-    function balanceOf(address account) external view returns (uint256);
 }
 
 contract QuickLPDualAdapter is BaseAdapterMatic {
@@ -98,9 +96,5 @@ contract QuickLPDualAdapter is BaseAdapterMatic {
 
     function pendingReward1() external view returns (uint256 reward) {
         reward = IStakingDualRewards(strategy).earnedB(msg.sender);
-    }
-
-    function pendingShares() external view override returns (uint256 shares) {
-        shares = IStakingDualRewards(strategy).balanceOf(msg.sender);
     }
 }

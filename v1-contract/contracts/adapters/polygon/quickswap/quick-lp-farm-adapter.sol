@@ -5,8 +5,6 @@ import "../../BaseAdapterMatic.sol";
 
 interface IStakingRewards {
     function earned(address account) external view returns (uint256);
-
-    function balanceOf(address account) external view returns (uint256);
 }
 
 contract QuickLPFarmAdapter is BaseAdapterMatic {
@@ -89,9 +87,5 @@ contract QuickLPFarmAdapter is BaseAdapterMatic {
 
     function pendingReward() external view override returns (uint256 reward) {
         reward = IStakingRewards(strategy).earned(msg.sender);
-    }
-
-    function pendingShares() external view override returns (uint256 shares) {
-        shares = IStakingRewards(strategy).balanceOf(msg.sender);
     }
 }
