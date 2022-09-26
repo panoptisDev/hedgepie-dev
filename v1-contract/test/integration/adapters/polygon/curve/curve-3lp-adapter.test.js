@@ -78,7 +78,7 @@ describe("CurveGaugeAdapter Integration Test", function () {
     const adapterManager = await ethers.getContractFactory("HedgepieAdapterManagerMatic");
     this.adapterManager = await adapterManager.deploy();
     
-    // set investor
+    // set investor in adapter
     await this.aAdapter.setInvestor(this.investor.address);
 
     // Mint NFTs
@@ -88,7 +88,7 @@ describe("CurveGaugeAdapter Integration Test", function () {
     // tokenID: 2
     await this.ybNft.mint([10000], [stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI2");
 
-    // Add Venus Adapter to AdapterManager
+    // Add Curve3LP Adapter to AdapterManager
     await this.adapterManager.addAdapter(this.aAdapter.address);
 
     // Set investor in adapter manager
@@ -97,9 +97,6 @@ describe("CurveGaugeAdapter Integration Test", function () {
     // Set adapter manager in investor
     await this.investor.setAdapterManager(this.adapterManager.address);
     await this.investor.setTreasury(this.owner.address);
-
-    // Set investor in vAdapter
-    await this.aAdapter.setInvestor(this.investor.address);
 
     await this.aAdapter.setPath(wmatic, liquidityToken, [wmatic, liquidityToken]);
     await this.aAdapter.setPath(liquidityToken, wmatic, [liquidityToken, wmatic]);

@@ -73,7 +73,7 @@ describe("QuickLPDualAdapter Integration Test", function () {
     const adapterManager = await ethers.getContractFactory("HedgepieAdapterManagerMatic");
     this.adapterManager = await adapterManager.deploy();
     
-    // set investor
+    // set investor in adapter
     await this.aAdapter.setInvestor(this.investor.address);
 
     // Mint NFTs
@@ -83,7 +83,7 @@ describe("QuickLPDualAdapter Integration Test", function () {
     // tokenID: 2
     await this.ybNft.mint([10000], [stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI2");
 
-    // Add Venus Adapter to AdapterManager
+    // Add QuickLPDual Adapter to AdapterManager
     await this.adapterManager.addAdapter(this.aAdapter.address);
 
     // Set investor in adapter manager
@@ -93,9 +93,6 @@ describe("QuickLPDualAdapter Integration Test", function () {
     await this.investor.setAdapterManager(this.adapterManager.address);
     await this.investor.setTreasury(this.owner.address);
 
-    // Set investor in vAdapter
-    await this.aAdapter.setInvestor(this.investor.address);
-    
     const stMatic = "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4";
     await this.aAdapter.setPath(wmatic, stMatic, [wmatic, stMatic]);
     await this.aAdapter.setPath(stMatic, wmatic, [stMatic, wmatic]);

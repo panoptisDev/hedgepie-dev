@@ -24,6 +24,7 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
 
     const performanceFee = 50;
     const wmatic = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
+    const LCDToken = "0xc2A45FE7d40bCAc8369371B08419DDAFd3131b4a";
     const strategy = "0x8c9dE3b735a154d8fC1e94183eA9b021913AC88B"; // LCD-Matic Vault
     const stakingToken = "0xAab5254e17380511887aabA7e96a5339A519E26a"; // LCD-Matic LP
     const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
@@ -89,8 +90,7 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
 
     // Set investor in adapter
     await this.aAdapter.setInvestor(this.investor.address);
-
-    const LCDToken = "0xc2A45FE7d40bCAc8369371B08419DDAFd3131b4a";
+    
     await this.aAdapter.setPath(wmatic, LCDToken, [wmatic, LCDToken]);
     await this.aAdapter.setPath(LCDToken, wmatic, [LCDToken, wmatic]);
 

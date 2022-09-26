@@ -75,7 +75,7 @@ describe("UniswapLPAdapter Integration Test", function () {
         this.adapterManager = await adapterManager.deploy();
         this.adapterManager.deployed();
         
-        // set investor
+        // set investor in adapter
         await this.aAdapter.setInvestor(this.investor.address);
 
         // Mint NFTs
@@ -85,7 +85,7 @@ describe("UniswapLPAdapter Integration Test", function () {
         // tokenID: 2
         await this.ybNft.mint([10000], [stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI2");
 
-        // Add Venus Adapter to AdapterManager
+        // Add UniswapLP Adapter to AdapterManager
         await this.adapterManager.addAdapter(this.aAdapter.address);
 
         // Set investor in adapter manager
@@ -94,9 +94,6 @@ describe("UniswapLPAdapter Integration Test", function () {
         // Set adapter manager in investor
         await this.investor.setAdapterManager(this.adapterManager.address);
         await this.investor.setTreasury(this.owner.address);
-
-        // Set investor in vAdapter
-        await this.aAdapter.setInvestor(this.investor.address);
         
         await this.aAdapter.setPath(wmatic, USDC, [wmatic, USDC]);
         await this.aAdapter.setPath(USDC, wmatic, [USDC, wmatic]);
