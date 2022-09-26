@@ -10,19 +10,16 @@ contract BeltVaultAdapter is BaseAdapter {
      * @notice Construct
      * @param _strategy  address of strategy
      * @param _stakingToken  address of staking token
-     * @param _rewardToken  address of reward token
      * @param _repayToken  address of reward token
      * @param _name  adatper name
      */
     constructor(
         address _strategy,
         address _stakingToken,
-        address _rewardToken,
         address _repayToken,
         string memory _name
     ) {
         stakingToken = _stakingToken;
-        rewardToken = _rewardToken;
         repayToken = _repayToken;
         strategy = _strategy;
         name = _name;

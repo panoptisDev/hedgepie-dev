@@ -19,7 +19,6 @@ contract BeefyVaultAdapter is BaseAdapter {
     ) {
         strategy = _strategy;
         stakingToken = _stakingToken;
-        rewardToken = _stakingToken;
         repayToken = _strategy;
         router = _router;
         name = _name;

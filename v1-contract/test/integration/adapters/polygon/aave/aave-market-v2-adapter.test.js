@@ -55,21 +55,21 @@ describe("AaveMarketV2Adapter Integration Test", function () {
     const ybNftFactory = await ethers.getContractFactory("YBNFT");
     this.ybNft = await ybNftFactory.deploy();
 
-    const Lib = await ethers.getContractFactory("HedgepieLibrary");
+    const Lib = await ethers.getContractFactory("HedgepieLibraryMatic");
     const lib = await Lib.deploy();
     this.lib = lib;
 
     // Deploy Investor contract
     const investorFactory = await ethers.getContractFactory("HedgepieInvestorMatic", {
       libraries: {
-        HedgepieLibrary: lib.address,
+        HedgepieLibraryMatic: lib.address,
       }
     });
     this.investor = await investorFactory.deploy(this.ybNft.address, swapRouter, wmatic);
     await this.investor.deployed();
 
     // Deploy Adaptor Manager contract
-    const adapterManager = await ethers.getContractFactory("HedgepieAdapterManager");
+    const adapterManager = await ethers.getContractFactory("HedgepieAdapterManagerMatic");
     this.adapterManager = await adapterManager.deploy();
     
     // set investor
@@ -135,6 +135,7 @@ describe("AaveMarketV2Adapter Integration Test", function () {
     });
 
     it("(3)deposit should success for Alice", async function () {
+      const beforeRepay = await this.repayToken.balanceOf(this.investor.address);
       const depositAmount = ethers.utils.parseEther("100");
       await expect(
         this.investor
@@ -171,19 +172,13 @@ describe("AaveMarketV2Adapter Integration Test", function () {
         )
       ).to.eq(0);
 
-      const aliceWithdrable = await this.aAdapter.getWithdrawalAmount(
-        this.aliceAddr,
-        1
-      );
-      expect(
-        BigNumber.from(aliceWithdrable)
-      ).to.be.within(
-        BigNumber.from(aliceAdapterInfos.amount),
-        BigNumber.from(aliceAdapterInfos.amount).add(1)
-      );
+      const aliceWithdrable = await this.aAdapter.getWithdrawalAmount(this.aliceAddr, 1);
+      const afterRepay = await this.repayToken.balanceOf(this.investor.address);
+      expect(BigNumber.from(aliceWithdrable)).to.eq(BigNumber.from(afterRepay).sub(BigNumber.from(beforeRepay)));
     });
 
     it("(4)deposit should success for Bob", async function () {
+      const beforeRepay = await this.repayToken.balanceOf(this.investor.address);
       const aliceAdapterInfos = await this.investor.userAdapterInfos(
         this.aliceAddr,
         1,
@@ -220,40 +215,21 @@ describe("AaveMarketV2Adapter Integration Test", function () {
       );
       expect(BigNumber.from(bobAdapterInfos.amount).gt(0)).to.eq(true);
 
-      const afterAdapterInfos = await this.investor.adapterInfos(
-        1,
-        this.aAdapter.address
-      );
-      expect(
-        BigNumber.from(afterAdapterInfos.totalStaked).gt(
-          beforeAdapterInfos.totalStaked
-        )
-      ).to.eq(true);
-      expect(
-        BigNumber.from(afterAdapterInfos.totalStaked).sub(
-          aliceAdapterInfos.amount
-        )
-      ).to.eq(BigNumber.from(bobAdapterInfos.amount));
-
-      const bobWithdrable = await this.aAdapter.getWithdrawalAmount(
-        this.bobAddr,
-        1
-      );
-      expect(
-        BigNumber.from(bobWithdrable)
-      ).to.be.within(
-        BigNumber.from(bobAdapterInfos.amount),
-        BigNumber.from(bobAdapterInfos.amount).add(1)
+      const afterAdapterInfos = await this.investor.adapterInfos(1, this.aAdapter.address);
+      expect(BigNumber.from(afterAdapterInfos.totalStaked).gt(beforeAdapterInfos.totalStaked)).to.eq(true);
+      expect(BigNumber.from(afterAdapterInfos.totalStaked).sub(aliceAdapterInfos.amount)).to.eq(
+        BigNumber.from(bobAdapterInfos.amount)
       );
     }).timeout(50000000);
 
     it("(5)deposit should success for Tom", async function () {
+      const beforeRepay = await this.repayToken.balanceOf(this.investor.address);
       const beforeAdapterInfos = await this.investor.adapterInfos(
         1,
         this.aAdapter.address
       );
 
-      const depositAmount = ethers.utils.parseEther("30");
+      const depositAmount = ethers.utils.parseEther("300");
       await expect(
         this.investor
           .connect(this.tom)
@@ -270,7 +246,7 @@ describe("AaveMarketV2Adapter Integration Test", function () {
         1
       );
       const tomDeposit = Number(tomInfo) / Math.pow(10, 18);
-      expect(tomDeposit).to.eq(30);
+      expect(tomDeposit).to.eq(300);
 
       const tomAdapterInfos = await this.investor.userAdapterInfos(
         this.tomAddr,
@@ -293,17 +269,6 @@ describe("AaveMarketV2Adapter Integration Test", function () {
           tomAdapterInfos.amount
         )
       ).to.eq(BigNumber.from(beforeAdapterInfos.totalStaked));
-
-      const tomWithdrable = await this.aAdapter.getWithdrawalAmount(
-        this.tomAddr,
-        1
-      );
-      expect(
-        BigNumber.from(tomWithdrable)
-      ).to.be.within(
-        BigNumber.from(tomAdapterInfos.amount),
-        BigNumber.from(tomAdapterInfos.amount).add(1)
-      );
     }).timeout(50000000);
   });
 
@@ -394,7 +359,7 @@ describe("AaveMarketV2Adapter Integration Test", function () {
         1
       );
       const tomDeposit = Number(tomInfo) / Math.pow(10, 18);
-      expect(tomDeposit).to.eq(30);
+      expect(tomDeposit).to.eq(300);
 
       const tomWithdrable = await this.aAdapter.getWithdrawalAmount(
         this.tomAddr,

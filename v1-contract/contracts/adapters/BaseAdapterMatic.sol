@@ -4,9 +4,11 @@ pragma solidity ^0.8.4;
 import "@openzeppelin/contracts/access/Ownable.sol";
 
 abstract contract BaseAdapterMatic is Ownable {
-    uint256 pid;
+    uint256 public pid;
 
     address public stakingToken;
+
+    address public liquidityToken;
 
     address public rewardToken;
 
@@ -23,6 +25,8 @@ abstract contract BaseAdapterMatic is Ownable {
     string public name;
 
     bool public isReward;
+
+    bool public isVault;
 
     bool public noDeposit;
 

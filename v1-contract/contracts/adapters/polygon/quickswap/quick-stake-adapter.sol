@@ -29,6 +29,7 @@ contract QuickStakeAdapter is BaseAdapterMatic {
         name = _name;
 
         isReward = true;
+        isVault = true;
     }
     
     /**
