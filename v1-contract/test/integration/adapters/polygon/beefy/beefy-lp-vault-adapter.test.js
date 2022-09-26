@@ -40,7 +40,7 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
     
     this.accTokenPerShare = BigNumber.from(0);
 
-    // Deploy Quick Stake Adapter contract
+    // Deploy BeefyLPVault Adapter contract
     const BeefyAdapter = await ethers.getContractFactory("BeefyVaultAdapterMatic");
     this.aAdapter = await BeefyAdapter.deploy(
       strategy,
@@ -69,9 +69,6 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
     // Deploy Adaptor Manager contract
     const adapterManager = await ethers.getContractFactory("HedgepieAdapterManagerMatic");
     this.adapterManager = await adapterManager.deploy();
-    
-    // set investor
-    await this.aAdapter.setInvestor(this.investor.address);
 
     // Mint NFTs
     // tokenID: 1
@@ -80,7 +77,7 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
     // tokenID: 2
     await this.ybNft.mint([10000], [stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI2");
 
-    // Add Venus Adapter to AdapterManager
+    // Add BeefyLPVault Adapter to AdapterManager
     await this.adapterManager.addAdapter(this.aAdapter.address);
 
     // Set investor in adapter manager
@@ -90,7 +87,7 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
     await this.investor.setAdapterManager(this.adapterManager.address);
     await this.investor.setTreasury(this.owner.address);
 
-    // Set investor in vAdapter
+    // Set investor in adapter
     await this.aAdapter.setInvestor(this.investor.address);
 
     const LCDToken = "0xc2A45FE7d40bCAc8369371B08419DDAFd3131b4a";

@@ -24,8 +24,8 @@ describe("BeefySingleVaultAdapter Integration Test", function () {
 
     const performanceFee = 50;
     const wmatic = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
-    const strategy = "0x1A723371f9dc30653dafd826B60d9335bf867E35"; // QUICK Vault
-    const stakingToken = "0xB5C064F955D8e7F38fE0460C556a72987494eE17"; // QUICK
+    const strategy = "0x1A723371f9dc30653dafd826B60d9335bf867E35"; // Beefy QUICK token Vault
+    const stakingToken = "0xB5C064F955D8e7F38fE0460C556a72987494eE17"; // QUICK token
     const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
 
     this.performanceFee = performanceFee;
@@ -40,7 +40,7 @@ describe("BeefySingleVaultAdapter Integration Test", function () {
     
     this.accTokenPerShare = BigNumber.from(0);
 
-    // Deploy Quick Stake Adapter contract
+    // Deploy BeefySingleVault Adapter contract
     const BeefyAdapter = await ethers.getContractFactory("BeefyVaultAdapterMatic");
     this.aAdapter = await BeefyAdapter.deploy(
       strategy,
@@ -69,9 +69,6 @@ describe("BeefySingleVaultAdapter Integration Test", function () {
     // Deploy Adaptor Manager contract
     const adapterManager = await ethers.getContractFactory("HedgepieAdapterManagerMatic");
     this.adapterManager = await adapterManager.deploy();
-    
-    // set investor
-    await this.aAdapter.setInvestor(this.investor.address);
 
     // Mint NFTs
     // tokenID: 1
@@ -80,7 +77,7 @@ describe("BeefySingleVaultAdapter Integration Test", function () {
     // tokenID: 2
     await this.ybNft.mint([10000], [stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI2");
 
-    // Add Venus Adapter to AdapterManager
+    // Add BeefySingleVault Adapter to AdapterManager
     await this.adapterManager.addAdapter(this.aAdapter.address);
 
     // Set investor in adapter manager
@@ -90,7 +87,7 @@ describe("BeefySingleVaultAdapter Integration Test", function () {
     await this.investor.setAdapterManager(this.adapterManager.address);
     await this.investor.setTreasury(this.owner.address);
 
-    // Set investor in vAdapter
+    // Set investor in adapter
     await this.aAdapter.setInvestor(this.investor.address);
 
     await this.aAdapter.setPath(wmatic, stakingToken, [wmatic, stakingToken]);
