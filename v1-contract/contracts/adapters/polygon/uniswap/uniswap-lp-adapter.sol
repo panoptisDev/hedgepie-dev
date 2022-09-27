@@ -36,7 +36,7 @@ contract UniswapLPAdapter is BaseAdapterMatic {
         tickLower = _lower;
         tickUpper = _upper;
 
-        noDeposit = true;
+        routerType = RouterType.UniswapV3;
     }
 
     /**
