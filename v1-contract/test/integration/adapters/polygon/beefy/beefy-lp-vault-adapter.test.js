@@ -27,7 +27,7 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
     const LCDToken = "0xc2A45FE7d40bCAc8369371B08419DDAFd3131b4a";
     const strategy = "0x8c9dE3b735a154d8fC1e94183eA9b021913AC88B"; // LCD-Matic Vault
     const stakingToken = "0xAab5254e17380511887aabA7e96a5339A519E26a"; // LCD-Matic LP
-    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
+    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router address
 
     this.performanceFee = performanceFee;
     this.owner = owner;

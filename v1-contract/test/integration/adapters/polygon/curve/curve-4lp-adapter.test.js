@@ -28,7 +28,7 @@ describe("CurveGaugeAdapter Integration Test", function () {
     const stakingToken = "0x600743B1d8A96438bD46836fD34977a00293f6Aa"; // Curve EURT-3Crv (crvEURTUSD)
     const liquidityToken = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174" // USDC
     const poolContract = "0x225fb4176f0e20cdb66b4a3df70ca3063281e855"; // deposit address
-    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
+    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router address
     const rewardToken = "0x172370d5Cd63279eFa6d502DAB29171933a610AF" // CRV token
     const rewardToken1 = ethers.constants.AddressZero;
 

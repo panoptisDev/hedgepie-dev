@@ -28,7 +28,7 @@ describe("CurveGaugeAdapter Integration Test", function () {
     const stakingToken = "0xE7a24EF0C5e95Ffb0f6684b813A78F2a3AD7D171"; // Curve.fi amDAI/amUSDC/amUSDT (am3CRV)
     const liquidityToken = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174" // USDC
     const poolContract = "0x445FE580eF8d70FF569aB36e80c647af338db351"; // swap address
-    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
+    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router address
     const rewardToken = "0x172370d5Cd63279eFa6d502DAB29171933a610AF" // CRV token
     const rewardToken1 = wmatic;
 

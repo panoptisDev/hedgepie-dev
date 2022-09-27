@@ -27,7 +27,7 @@ describe("AaveMarketV2Adapter Integration Test", function () {
     const strategy = "0x8dFf5E27EA6b7AC08EbFdf9eB090F32ee9a30fcf"; // LendingPoolV2
     const stakingToken = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"; // USDC
     const repayToken = "0x1a13F4Ca1d028320A707D99520AbFefca3998b7F"; // amUSDC - (AaveMaticMarket USDC)
-    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
+    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router address
 
     this.performanceFee = performanceFee;
     this.owner = owner;

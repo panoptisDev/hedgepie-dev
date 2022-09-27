@@ -27,7 +27,7 @@ describe("QuickLPFarmAdapter Integration Test", function () {
     const strategy = "0x1098d71eCD0233929DA8a10579E96cBbbe78f7C2"; // USDC-ASTRAFER LP Farm
     const stakingToken = "0x01eBD3e57f4af47B7E96240e2B7B2227C902614A"; // USDC-ASTRAFER LP
     const rewardToken = "0x831753DD7087CaC61aB5644b308642cc1c33Dc13"; // Quick token
-    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
+    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router address
 
     this.owner = owner;
     this.alice = alice;

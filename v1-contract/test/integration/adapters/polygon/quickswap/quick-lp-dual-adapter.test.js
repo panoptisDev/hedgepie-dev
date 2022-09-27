@@ -30,7 +30,7 @@ describe("QuickLPDualAdapter Integration Test", function () {
     const stakingToken = "0x65752C54D9102BDFD69d351E1838A1Be83C924C6"; // Matic-stMatic LP
     const rewardToken = "0xf28164A485B0B2C90639E47b0f377b4a438a16B1"; // dQuick token
     const rewardToken1 = "0xC3C7d422809852031b44ab29EEC9F1EfF2A58756"; // LDO token
-    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
+    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router address
 
     this.owner = owner;
     this.alice = alice;

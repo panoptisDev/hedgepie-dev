@@ -26,7 +26,7 @@ describe("BeefySingleVaultAdapter Integration Test", function () {
     const wmatic = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
     const strategy = "0x1A723371f9dc30653dafd826B60d9335bf867E35"; // Beefy QUICK token Vault
     const stakingToken = "0xB5C064F955D8e7F38fE0460C556a72987494eE17"; // QUICK token
-    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
+    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router address
 
     this.performanceFee = performanceFee;
     this.owner = owner;

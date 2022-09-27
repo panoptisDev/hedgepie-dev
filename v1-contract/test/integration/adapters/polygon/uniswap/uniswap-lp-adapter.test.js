@@ -27,7 +27,7 @@ describe("UniswapLPAdapter Integration Test", function () {
         const USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"
         const strategy = "0xC36442b4a4522E871399CD717aBDD847Ab11FE88"; // NonfungiblePositionManager
         const stakingToken = "0xA374094527e1673A86dE625aa59517c5dE346d32"; // USDC-WMATIC Uniswap v3 pool
-        const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
+        const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router address
 
         this.owner = owner;
         this.alice = alice;

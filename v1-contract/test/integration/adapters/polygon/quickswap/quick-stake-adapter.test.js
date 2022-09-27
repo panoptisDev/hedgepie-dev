@@ -27,7 +27,7 @@ describe("QuickStakeAdapter Integration Test", function () {
     const strategy = "0xF3ed4Fc825864a16CAb4b8946622222050c63f5E"; // StakingRewards
     const stakingToken = "0x831753DD7087CaC61aB5644b308642cc1c33Dc13"; // quick
     const rewardToken = "0xE06Bd4F5aAc8D0aA337D13eC88dB6defC6eAEefE"; // IXT token
-    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
+    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router address
 
     this.performanceFee = performanceFee;
     this.owner = owner;
