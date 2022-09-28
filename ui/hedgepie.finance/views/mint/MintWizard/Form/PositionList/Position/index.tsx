@@ -2,6 +2,7 @@ import { useWeb3React } from '@web3-react/core'
 import MintWizardContext from 'contexts/MintWizardContext'
 import React, { useEffect, useContext, useState } from 'react'
 import { Box, Image, Button, Input, ThemeUICSSObject, Text } from 'theme-ui'
+import toast from 'utils/toast'
 import CompositionSelect from './CompositionSelect'
 
 const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
@@ -50,6 +51,20 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
 
   const handleChangeWeight = (e) => {
     let newValue = parseInt(e.target.value, 10) || 0
+    let total = 0
+    formData.positions.forEach((p) => {
+      total = total + parseInt(p.weight)
+    })
+    total = total + parseInt(e.target.value)
+
+    if (total > 100) {
+      toast('Total Allocation can be below 100% only', 'warning')
+      onUpdate({
+        ...data,
+        weight: '0',
+      })
+      return
+    }
     if (newValue <= 100) {
       onUpdate({
         ...data,

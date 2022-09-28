@@ -14,6 +14,7 @@ const InitialStake = () => {
   const [tokenPrice, setTokenPrice] = useState(0)
   const [bnbBalance, setBNBBalance] = useState(0)
 
+  const [input, setInput] = useState('0')
   const { account, chainId } = useWeb3React()
 
   useEffect(() => {
@@ -49,9 +50,14 @@ const InitialStake = () => {
   }, [tokenPrice, formData.initialStake])
 
   const handleChange = (e) => {
-    if (Number.parseFloat(e.target.value) >= bnbBalance) {
+    if (!account) {
+      toast('Please connect your wallet, before entering the initial stake', 'warning')
+    }
+    if (account && Number.parseFloat(e.target.value) >= bnbBalance) {
       toast('Entered amount is greater than available BNB balance.', 'warning')
     }
+
+    setInput(e.target.value)
     setFormData({
       ...formData,
       initialStake: e.target.value,
@@ -153,9 +159,19 @@ const InitialStake = () => {
               pr: 2,
             }}
             type="number"
-            min={0}
-            value={formData.initialStake}
+            min="0"
+            value={input}
             onChange={handleChange}
+            onKeyUp={(e) => {
+              if (e.key === '-') {
+                setInput('0')
+                setFormData({
+                  ...formData,
+                  initialStake: '0',
+                  valueInUSD: 0,
+                })
+              }
+            }}
             onWheel={(e) => e.currentTarget.blur()}
           />
           {token}
