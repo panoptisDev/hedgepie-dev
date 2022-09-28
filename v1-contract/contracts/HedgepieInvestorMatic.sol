@@ -80,9 +80,9 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
         address _swapRouter,
         address _wmatic
     ) {
-        require(_ybnft != address(0), "Error: YBNFT address missing");
-        require(_swapRouter != address(0), "Error: swap router missing");
-        require(_wmatic != address(0), "Error: wmatic missing");
+        require(_ybnft != address(0), "YBNFT address missing");
+        require(_swapRouter != address(0), "swap router missing");
+        require(_wmatic != address(0), "wmatic missing");
 
         ybnft = _ybnft;
         swapRouter = _swapRouter;
@@ -111,12 +111,9 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
         uint256 _tokenId,
         uint256 _amount
     ) external payable nonReentrant {
-        require(_amount != 0, "Error: Amount can not be 0");
-        require(msg.value == _amount, "Error: Insufficient MATIC");
-        require(
-            IYBNFT(ybnft).exists(_tokenId),
-            "Error: nft tokenId is invalid"
-        );
+        require(_amount != 0, "Amount can not be 0");
+        require(msg.value == _amount, "Insufficient MATIC");
+        require(IYBNFT(ybnft).exists(_tokenId), "nft tokenId is invalid");
 
         IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
             _tokenId
@@ -146,10 +143,13 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                     );
                 }
             } else if (IAdapter(adapter.addr).liquidityToken() != address(0)) {
-                amountOut = getLPLiquidity(
+                amountOut = HedgepieLibraryMatic.getLPLiquidity(
                     adapter.addr,
                     adapter.token,
-                    amountIn
+                    amountIn,
+                    adapterManager,
+                    swapRouter,
+                    wmatic
                 );
             } else {
                 // get lp
@@ -194,10 +194,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                     amountOut =
                         IBEP20(adapter.token).balanceOf(address(this)) -
                         amountOut;
-                    require(
-                        success && amountOut != 0,
-                        "Error: Failed to get LP"
-                    );
+                    require(success && amountOut != 0, "Failed to get LP");
                 }
 
                 // deposit to adapter
@@ -227,7 +224,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
             (bool success, ) = payable(_user).call{
                 value: balances[1] - balances[0]
             }("");
-            require(success, "Error: Failed to send remained MATIC");
+            require(success, "Failed to send remained MATIC");
         }
 
         emit DepositMATIC(_user, ybnft, _tokenId, _amount);
@@ -243,12 +240,9 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
         external
         nonReentrant
     {
-        require(
-            IYBNFT(ybnft).exists(_tokenId),
-            "Error: nft tokenId is invalid"
-        );
+        require(IYBNFT(ybnft).exists(_tokenId), "nft tokenId is invalid");
         uint256 userAmount = userInfo[_user][ybnft][_tokenId];
-        require(userAmount != 0, "Error: Amount should be greater than 0");
+        require(userAmount != 0, "Amount should be greater than 0");
 
         IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
             _tokenId
@@ -324,7 +318,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
 
                         require(
                             success && balances[1] > balances[0],
-                            "Error: Failed to remove LP"
+                            "Failed to remove LP"
                         );
                     }
 
@@ -340,10 +334,13 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                     );
                 }
             } else if (IAdapter(adapter.addr).liquidityToken() != address(0)) {
-                amountOut += withdrawLPLiquidity(
+                amountOut += HedgepieLibraryMatic.withdrawLPLiquidity(
                     adapter.addr,
                     adapter.token,
-                    balances[2]
+                    balances[2],
+                    adapterManager,
+                    swapRouter,
+                    wmatic
                 );
             } else {
                 uint256 taxAmount;
@@ -442,7 +439,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
 
         if (amountOut != 0) {
             (bool success, ) = payable(_user).call{value: amountOut}("");
-            require(success, "Error: Failed to send MATIC");
+            require(success, "Failed to send MATIC");
         }
         emit WithdrawMATIC(_user, ybnft, _tokenId, userAmount);
     }
@@ -452,12 +449,9 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
      * @param _tokenId  YBNft token id
      */
     function claim(uint256 _tokenId) external nonReentrant {
-        require(
-            IYBNFT(ybnft).exists(_tokenId),
-            "Error: nft tokenId is invalid"
-        );
+        require(IYBNFT(ybnft).exists(_tokenId), "nft tokenId is invalid");
         uint256 userAmount = userInfo[msg.sender][ybnft][_tokenId];
-        require(userAmount != 0, "Error: Amount should be greater than 0");
+        require(userAmount != 0, "Amount should be greater than 0");
 
         IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
             _tokenId
@@ -481,7 +475,10 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
             userAdapter.userShares1 = adapterInfos[_tokenId][adapter.addr]
                 .accTokenPerShare1;
 
-            if (rewards[0] != 0) {
+            if (
+                rewards[0] != 0 &&
+                IAdapter(adapter.addr).rewardToken() != address(0)
+            ) {
                 amountOut += HedgepieLibraryMatic.swapforMatic(
                     adapter.addr,
                     rewards[0],
@@ -491,7 +488,10 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                 );
             }
 
-            if (rewards[1] != 0) {
+            if (
+                rewards[1] != 0 &&
+                IAdapter(adapter.addr).rewardToken1() != address(0)
+            ) {
                 amountOut += HedgepieLibraryMatic.swapforMatic(
                     adapter.addr,
                     rewards[1],
@@ -506,12 +506,12 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
             uint256 taxAmount = (amountOut *
                 IYBNFT(ybnft).performanceFee(_tokenId)) / 1e4;
             (bool success, ) = payable(treasuryAddr).call{value: taxAmount}("");
-            require(success, "Error: Failed to send MATIC to Treasury");
+            require(success, "Failed to send MATIC to Treasury");
 
             (success, ) = payable(msg.sender).call{
                 value: amountOut - taxAmount
             }("");
-            require(success, "Error: Failed to send MATIC");
+            require(success, "Failed to send MATIC");
             emit Claimed(msg.sender, amountOut);
         }
     }
@@ -522,7 +522,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
      */
     /// #if_succeeds {:msg "Adapter manager not set"} adapterManager == _adapterManager;
     function setAdapterManager(address _adapterManager) external onlyOwner {
-        require(_adapterManager != address(0), "Error: Invalid NFT address");
+        require(_adapterManager != address(0), "Invalid NFT address");
 
         adapterManager = _adapterManager;
 
@@ -562,14 +562,14 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
             );
 
         (bool success, ) = to.call{value: value}(callData);
-        require(success, "Error: Withdraw internal issue");
+        require(success, "Withdraw internal issue");
 
         if (IAdapter(_adapterAddr).isReward()) {
             (to, value, callData) = IAdapterManagerMatic(adapterManager)
                 .getRewardCallData(_adapterAddr);
 
             (success, ) = to.call{value: value}(callData);
-            require(success, "Error: getReward internal issue");
+            require(success, "getReward internal issue");
         }
 
         rewardTokenAmount[1] = tokens[1] != address(0)
@@ -743,77 +743,6 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
         }
 
         return rewards;
-    }
-
-    function getLPLiquidity(
-        address _adapterAddr,
-        address _adapterToken,
-        uint256 _amountIn
-    ) internal returns (uint256 amountOut) {
-        address _liquidity = IAdapter(_adapterAddr).liquidityToken();
-        amountOut = HedgepieLibraryMatic.swapOnRouter(
-            _adapterAddr,
-            _amountIn,
-            _liquidity,
-            swapRouter,
-            wmatic
-        );
-        IBEP20(_liquidity).approve(IAdapter(_adapterAddr).router(), amountOut);
-
-        uint256 beforeBalance = IBEP20(_adapterToken).balanceOf(address(this));
-
-        (
-            address to,
-            uint256 value,
-            bytes memory callData
-        ) = IAdapterManagerMatic(adapterManager).getAddLiqCallData(
-                _adapterAddr,
-                amountOut
-            );
-
-        (bool success, ) = to.call{value: value}(callData);
-        require(success, "Error: Pool internal issue");
-
-        unchecked {
-            amountOut =
-                IBEP20(_adapterToken).balanceOf(address(this)) -
-                beforeBalance;
-        }
-    }
-
-    function withdrawLPLiquidity(
-        address _adapterAddr,
-        address _adapterToken,
-        uint256 _amountIn
-    ) internal returns (uint256 amountOut) {
-        address _liquidity = IAdapter(_adapterAddr).liquidityToken();
-        uint256 beforeBalance = IBEP20(_liquidity).balanceOf(address(this));
-
-        IBEP20(_adapterToken).approve(
-            IAdapter(_adapterAddr).router(),
-            _amountIn
-        );
-
-        (
-            address to,
-            uint256 value,
-            bytes memory callData
-        ) = IAdapterManagerMatic(adapterManager).getRemoveLiqCallData(
-                _adapterAddr,
-                _amountIn
-            );
-
-        (bool success, ) = to.call{value: value}(callData);
-        require(success, "Error: Pool internal issue");
-
-        amountOut = IBEP20(_liquidity).balanceOf(address(this)) - beforeBalance;
-        amountOut = HedgepieLibraryMatic.swapforMatic(
-            _adapterAddr,
-            amountOut,
-            _liquidity,
-            swapRouter,
-            wmatic
-        );
     }
 
     receive() external payable {}

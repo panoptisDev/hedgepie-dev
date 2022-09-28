@@ -63,13 +63,13 @@ describe("StargateFarmAdapter Integration Test", function () {
     this.ybNft = await ybNftFactory.deploy();
     await this.ybNft.deployed();
 
-    const Lib = await ethers.getContractFactory("HedgepieLibrary");
+    const Lib = await ethers.getContractFactory("HedgepieLibraryMatic");
     const lib = await Lib.deploy();
 
     // Deploy Investor contract
     const investorFactory = await ethers.getContractFactory("HedgepieInvestorMatic", {
       libraries: {
-        HedgepieLibrary: lib.address,
+        HedgepieLibraryMatic: lib.address,
       },
     });
     this.investor = await investorFactory.deploy(this.ybNft.address, swapRouter, wmatic);
