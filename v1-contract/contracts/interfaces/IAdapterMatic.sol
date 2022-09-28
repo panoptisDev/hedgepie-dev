@@ -2,11 +2,10 @@
 pragma solidity ^0.8.4;
 
 import "./IWrap.sol";
+import "./IBaseAdapterMatic.sol";
 
 interface IAdapter {
     function isVault() external view returns (bool);
-
-    function noDeposit() external view returns (bool);
 
     function isReward() external view returns (bool);
 
@@ -21,6 +20,8 @@ interface IAdapter {
     function pendingReward1() external view returns (uint256);
 
     function pendingShares() external view returns (uint256);
+
+    function routerType() external view returns (IBaseAdapterMatic.RouterType);
 
     function name() external view returns (string memory);
 

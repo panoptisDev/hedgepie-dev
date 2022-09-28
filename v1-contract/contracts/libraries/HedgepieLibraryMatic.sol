@@ -191,9 +191,9 @@ library HedgepieLibraryMatic {
         address[2] memory tokens;
         tokens[0] = IPancakePair(_adapter.token).token0();
         tokens[1] = IPancakePair(_adapter.token).token1();
-        bool noDeposit = IAdapter(_adapter.addr).noDeposit();
+        IBaseAdapterMatic.RouterType routerType = IAdapter(_adapter.addr).routerType();
         address _router = IAdapter(_adapter.addr).router();
-        address _strategy = noDeposit ? IAdapter(_adapter.addr).strategy() : _router;
+        address _strategy = routerType == IBaseAdapterMatic.RouterType.None ? _router : IAdapter(_adapter.addr).strategy();
 
         uint256[2] memory tokenAmount;
         tokenAmount[0] = _amountIn / 2;
@@ -220,51 +220,8 @@ library HedgepieLibraryMatic {
             IBEP20(tokens[1]).approve(_strategy, tokenAmount[1]);
         }
 
-        if(noDeposit) {
-            uint256 tokenId = IAdapter(_adapter.addr).getLiquidityNFT(_account, _tokenId);
-
-            // wrap to wmatic
-            if(tokens[0] == wmatic) {
-                IWrap(wmatic).deposit(tokenAmount[0]);
-                IBEP20(wmatic).approve(_strategy, tokenAmount[0]);
-            } else if(tokens[0] == wmatic) {
-                IWrap(wmatic).deposit(tokenAmount[1]);
-                IBEP20(wmatic).approve(_strategy, tokenAmount[1]);
-            }
-            
-            if(tokenId != 0) {
-                INonfungiblePositionManager.IncreaseLiquidityParams memory params = 
-                    INonfungiblePositionManager.IncreaseLiquidityParams({
-                        tokenId: tokenId,
-                        amount0Desired: tokenAmount[0],
-                        amount1Desired: tokenAmount[1],
-                        amount0Min: 0,
-                        amount1Min: 0,
-                        deadline: block.timestamp + 2 hours
-                    });
-
-                (amountOut, , ) = INonfungiblePositionManager(_strategy).increaseLiquidity(params);
-            } else {
-                int24[2] memory ticks;
-                (ticks[0], ticks[1]) = IAdapter(_adapter.addr).getTick();
-                INonfungiblePositionManager.MintParams memory params =
-                    INonfungiblePositionManager.MintParams({
-                        token0: tokens[0],
-                        token1: tokens[1],
-                        fee: IPancakePair(_adapter.token).fee(),
-                        tickLower: ticks[0],
-                        tickUpper: ticks[1],
-                        amount0Desired: tokenAmount[0],
-                        amount1Desired: tokenAmount[1],
-                        amount0Min: 0,
-                        amount1Min: 0,
-                        recipient: address(this),
-                        deadline: block.timestamp + 2 hours
-                    });
-
-                (tokenId, amountOut, , ) = INonfungiblePositionManager(_strategy).mint(params);
-                IAdapter(_adapter.addr).setLiquidityNFT(_account, _tokenId, tokenId);
-            }
+        if(routerType == IBaseAdapterMatic.RouterType.UniswapV3) {
+            getUniswapV3LP(wmatic, _account, _strategy, _tokenId, tokens, tokenAmount, _adapter);
         } else if (tokenAmount[0] != 0 && tokenAmount[1] != 0) {
             if (tokens[0] == wmatic || tokens[1] == wmatic) {
                 (, , amountOut) = IPancakeRouter(_router).addLiquidityETH{
@@ -291,6 +248,62 @@ library HedgepieLibraryMatic {
             }
         }
     }
+
+    function getUniswapV3LP(
+        address wmatic,
+        address _account,
+        address _strategy,
+        uint256 _tokenId,
+        address[2] memory tokens,
+        uint256[2] memory tokenAmount,
+        IYBNFT.Adapter memory _adapter
+    ) public returns (uint256 amountOut) {
+        uint256 tokenId = IAdapter(_adapter.addr).getLiquidityNFT(_account, _tokenId);
+
+        // wrap to wmatic
+        if(tokens[0] == wmatic) {
+            IWrap(wmatic).deposit(tokenAmount[0]);
+            IBEP20(wmatic).approve(_strategy, tokenAmount[0]);
+        } else if(tokens[0] == wmatic) {
+            IWrap(wmatic).deposit(tokenAmount[1]);
+            IBEP20(wmatic).approve(_strategy, tokenAmount[1]);
+        }
+        
+        if(tokenId != 0) {
+            INonfungiblePositionManager.IncreaseLiquidityParams memory params = 
+                INonfungiblePositionManager.IncreaseLiquidityParams({
+                    tokenId: tokenId,
+                    amount0Desired: tokenAmount[0],
+                    amount1Desired: tokenAmount[1],
+                    amount0Min: 0,
+                    amount1Min: 0,
+                    deadline: block.timestamp + 2 hours
+                });
+
+            (amountOut, , ) = INonfungiblePositionManager(_strategy).increaseLiquidity(params);
+        } else {
+            int24[2] memory ticks;
+            (ticks[0], ticks[1]) = IAdapter(_adapter.addr).getTick();
+            INonfungiblePositionManager.MintParams memory params =
+                INonfungiblePositionManager.MintParams({
+                    token0: tokens[0],
+                    token1: tokens[1],
+                    fee: IPancakePair(_adapter.token).fee(),
+                    tickLower: ticks[0],
+                    tickUpper: ticks[1],
+                    amount0Desired: tokenAmount[0],
+                    amount1Desired: tokenAmount[1],
+                    amount0Min: 0,
+                    amount1Min: 0,
+                    recipient: address(this),
+                    deadline: block.timestamp + 2 hours
+                });
+
+            (tokenId, amountOut, , ) = INonfungiblePositionManager(_strategy).mint(params);
+            IAdapter(_adapter.addr).setLiquidityNFT(_account, _tokenId, tokenId);
+        }
+    }
+
 
     function withdrawLP(
         IYBNFT.Adapter memory _adapter,
