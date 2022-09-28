@@ -122,7 +122,7 @@ describe("StargateFarmAdapter Integration Test", function () {
         this.investor.connect(this.owner).depositMATIC(this.owner.address, 3, depositAmount.toString(), {
           value: depositAmount,
         })
-      ).to.be.revertedWith("Error: nft tokenId is invalid");
+      ).to.be.revertedWith("nft tokenId is invalid");
     });
 
     it("(2) should be reverted when amount is 0", async function () {
@@ -132,7 +132,7 @@ describe("StargateFarmAdapter Integration Test", function () {
         this.investor.depositMATIC(this.owner.address, 1, depositAmount.toString(), {
           value: depositAmount,
         })
-      ).to.be.revertedWith("Error: Amount can not be 0");
+      ).to.be.revertedWith("Amount can not be 0");
     });
 
     it("(3) deposit should success for Alice", async function () {
@@ -268,9 +268,7 @@ describe("StargateFarmAdapter Integration Test", function () {
   describe("withdrawMATIC() function test", function () {
     it("(1) should be reverted when nft tokenId is invalid", async function () {
       // withdraw to nftID: 3
-      await expect(this.investor.withdrawMATIC(this.owner.address, 3)).to.be.revertedWith(
-        "Error: nft tokenId is invalid"
-      );
+      await expect(this.investor.withdrawMATIC(this.owner.address, 3)).to.be.revertedWith("nft tokenId is invalid");
     });
 
     it("(2) should receive MATIC successfully after withdraw function for Alice", async function () {
