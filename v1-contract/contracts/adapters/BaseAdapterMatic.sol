@@ -2,9 +2,8 @@
 pragma solidity ^0.8.4;
 
 import "@openzeppelin/contracts/access/Ownable.sol";
-import "../interfaces/IBaseAdapterMatic.sol";
 
-abstract contract BaseAdapterMatic is Ownable, IBaseAdapterMatic {
+abstract contract BaseAdapterMatic is Ownable {
     uint256 public pid;
 
     address public stakingToken;
@@ -29,7 +28,7 @@ abstract contract BaseAdapterMatic is Ownable, IBaseAdapterMatic {
 
     bool public isVault;
 
-    RouterType public routerType;
+    bool public noDeposit;
 
     // inToken => outToken => paths
     mapping(address => mapping(address => address[])) public paths;
