@@ -27,7 +27,7 @@ describe("AaveMarketV3Adapter Integration Test", function () {
     const strategy = "0x794a61358D6845594F94dc1DB02A252b5b4814aD"; // LendingPoolV3
     const stakingToken = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063"; // DAI
     const repayToken = "0x82E64f49Ed5EC1bC6e43DAD4FC8Af9bb3A2312EE"; // aPolDAI - (Aave Polygon DAI)
-    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
+    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router address
 
     this.performanceFee = performanceFee;
     this.owner = owner;

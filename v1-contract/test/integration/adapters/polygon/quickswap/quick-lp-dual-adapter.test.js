@@ -30,7 +30,7 @@ describe("QuickLPDualAdapter Integration Test", function () {
     const stakingToken = "0x65752C54D9102BDFD69d351E1838A1Be83C924C6"; // Matic-stMatic LP
     const rewardToken = "0xf28164A485B0B2C90639E47b0f377b4a438a16B1"; // dQuick token
     const rewardToken1 = "0xC3C7d422809852031b44ab29EEC9F1EfF2A58756"; // LDO token
-    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
+    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router address
 
     this.owner = owner;
     this.alice = alice;
@@ -73,7 +73,7 @@ describe("QuickLPDualAdapter Integration Test", function () {
     const adapterManager = await ethers.getContractFactory("HedgepieAdapterManagerMatic");
     this.adapterManager = await adapterManager.deploy();
     
-    // set investor
+    // set investor in adapter
     await this.aAdapter.setInvestor(this.investor.address);
 
     // Mint NFTs
@@ -83,7 +83,7 @@ describe("QuickLPDualAdapter Integration Test", function () {
     // tokenID: 2
     await this.ybNft.mint([10000], [stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI2");
 
-    // Add Venus Adapter to AdapterManager
+    // Add QuickLPDual Adapter to AdapterManager
     await this.adapterManager.addAdapter(this.aAdapter.address);
 
     // Set investor in adapter manager
@@ -93,9 +93,6 @@ describe("QuickLPDualAdapter Integration Test", function () {
     await this.investor.setAdapterManager(this.adapterManager.address);
     await this.investor.setTreasury(this.owner.address);
 
-    // Set investor in vAdapter
-    await this.aAdapter.setInvestor(this.investor.address);
-    
     const stMatic = "0x3A58a54C066FdC0f2D55FC9C89F0415C92eBf3C4";
     await this.aAdapter.setPath(wmatic, stMatic, [wmatic, stMatic]);
     await this.aAdapter.setPath(stMatic, wmatic, [stMatic, wmatic]);

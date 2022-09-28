@@ -27,7 +27,7 @@ describe("QuickLPFarmAdapter Integration Test", function () {
     const strategy = "0x1098d71eCD0233929DA8a10579E96cBbbe78f7C2"; // USDC-ASTRAFER LP Farm
     const stakingToken = "0x01eBD3e57f4af47B7E96240e2B7B2227C902614A"; // USDC-ASTRAFER LP
     const rewardToken = "0x831753DD7087CaC61aB5644b308642cc1c33Dc13"; // Quick token
-    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
+    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router address
 
     this.owner = owner;
     this.alice = alice;
@@ -79,7 +79,7 @@ describe("QuickLPFarmAdapter Integration Test", function () {
     // tokenID: 2
     await this.ybNft.mint([10000], [stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI2");
 
-    // Add Venus Adapter to AdapterManager
+    // Add QuickLPFarm Adapter to AdapterManager
     await this.adapterManager.addAdapter(this.aAdapter.address);
 
     // Set investor in adapter manager
@@ -88,9 +88,6 @@ describe("QuickLPFarmAdapter Integration Test", function () {
     // Set adapter manager in investor
     await this.investor.setAdapterManager(this.adapterManager.address);
     await this.investor.setTreasury(this.owner.address);
-
-    // Set investor in vAdapter
-    await this.aAdapter.setInvestor(this.investor.address);
     
     const USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
     const ASTRAFER = "0xDfCe1e99A31C4597a3f8A8945cBfa9037655e335";

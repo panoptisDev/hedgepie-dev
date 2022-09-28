@@ -16,44 +16,37 @@ const forkNetwork = async () => {
   })
 }
 
-describe("CurveGaugeAdapter Integration Test", function () {
+describe("BeefySingleVaultAdapter Integration Test", function () {
   before("Deploy contract", async function () {
     await forkNetwork();
 
-    const [owner, alice, bob] = await ethers.getSigners();
+    const [owner, alice, bob, tom] = await ethers.getSigners();
 
     const performanceFee = 50;
     const wmatic = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
-    const strategy = "0x40c0e9376468b4f257d15f8c47e5d0c646c28880"; // crvEURTUS Gauge
-    const stakingToken = "0x600743B1d8A96438bD46836fD34977a00293f6Aa"; // Curve EURT-3Crv (crvEURTUSD)
-    const liquidityToken = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174" // USDC
-    const poolContract = "0x225fb4176f0e20cdb66b4a3df70ca3063281e855"; // deposit address
+    const strategy = "0x1A723371f9dc30653dafd826B60d9335bf867E35"; // Beefy QUICK token Vault
+    const stakingToken = "0xB5C064F955D8e7F38fE0460C556a72987494eE17"; // QUICK token
     const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router address
-    const rewardToken = "0x172370d5Cd63279eFa6d502DAB29171933a610AF" // CRV token
-    const rewardToken1 = ethers.constants.AddressZero;
 
     this.performanceFee = performanceFee;
     this.owner = owner;
     this.alice = alice;
     this.bob = bob;
+    this.tom = tom;
 
     this.bobAddr = bob.address;
     this.aliceAddr = alice.address;
+    this.tomAddr = tom.address;
     
     this.accTokenPerShare = BigNumber.from(0);
 
-    // Deploy CurveGauge Adapter contract
-    const curveAdapter = await ethers.getContractFactory("Curve4LPAdaper");
-    this.aAdapter = await curveAdapter.deploy(
+    // Deploy BeefySingleVault Adapter contract
+    const BeefyAdapter = await ethers.getContractFactory("BeefyVaultAdapterMatic");
+    this.aAdapter = await BeefyAdapter.deploy(
       strategy,
       stakingToken,
-      rewardToken,
-      rewardToken1,
-      liquidityToken,
-      poolContract,
-      2,
-      false,
-      "Curve::crvEURSUSD::Gauge"
+      ethers.constants.AddressZero,
+      "PolygonBeefy::QUICK::Vault"
     );
     await this.aAdapter.deployed();
 
@@ -63,7 +56,6 @@ describe("CurveGaugeAdapter Integration Test", function () {
 
     const Lib = await ethers.getContractFactory("HedgepieLibraryMatic");
     const lib = await Lib.deploy();
-    this.lib = lib;
 
     // Deploy Investor contract
     const investorFactory = await ethers.getContractFactory("HedgepieInvestorMatic", {
@@ -77,9 +69,6 @@ describe("CurveGaugeAdapter Integration Test", function () {
     // Deploy Adaptor Manager contract
     const adapterManager = await ethers.getContractFactory("HedgepieAdapterManagerMatic");
     this.adapterManager = await adapterManager.deploy();
-    
-    // set investor in adapter
-    await this.aAdapter.setInvestor(this.investor.address);
 
     // Mint NFTs
     // tokenID: 1
@@ -88,7 +77,7 @@ describe("CurveGaugeAdapter Integration Test", function () {
     // tokenID: 2
     await this.ybNft.mint([10000], [stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI2");
 
-    // Add Curve4LP Adapter to AdapterManager
+    // Add BeefySingleVault Adapter to AdapterManager
     await this.adapterManager.addAdapter(this.aAdapter.address);
 
     // Set investor in adapter manager
@@ -98,16 +87,16 @@ describe("CurveGaugeAdapter Integration Test", function () {
     await this.investor.setAdapterManager(this.adapterManager.address);
     await this.investor.setTreasury(this.owner.address);
 
-    await this.aAdapter.setPath(wmatic, liquidityToken, [wmatic, liquidityToken]);
-    await this.aAdapter.setPath(liquidityToken, wmatic, [liquidityToken, wmatic]);
+    // Set investor in adapter
+    await this.aAdapter.setInvestor(this.investor.address);
 
-    await this.aAdapter.setPath(wmatic, rewardToken, [wmatic, rewardToken]);
-    await this.aAdapter.setPath(rewardToken, wmatic, [rewardToken, wmatic]);
+    await this.aAdapter.setPath(wmatic, stakingToken, [wmatic, stakingToken]);
+    await this.aAdapter.setPath(stakingToken, wmatic, [stakingToken, wmatic]);
 
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
     console.log("Strategy: ", strategy);
-    console.log("CurveGaugeAdapter: ", this.aAdapter.address);
+    console.log("BeefySingleVaultAdapter: ", this.aAdapter.address);
   });
 
   describe("depositMATIC function test", function () {
@@ -174,31 +163,14 @@ describe("CurveGaugeAdapter Integration Test", function () {
           BigNumber.from(aliceAdapterInfos.amount)
         )
       ).to.eq(0);
-
-      const aliceWithdrable = await this.aAdapter.getWithdrawalAmount(
-        this.aliceAddr,
-        1
-      );
-      expect(
-        BigNumber.from(aliceWithdrable)
-      ).to.be.within(
-        BigNumber.from(aliceAdapterInfos.amount),
-        BigNumber.from(aliceAdapterInfos.amount).add(1)
-      );
-
-      // Check accTokenPerShare Info
-      this.accTokenPerShare = (
-        await this.investor.adapterInfos(1, this.aAdapter.address)
-      ).accTokenPerShare;
-      expect(BigNumber.from(this.accTokenPerShare)).to.eq(BigNumber.from(0));
     });
 
     it("(4)deposit should success for Bob", async function () {
-      // wait 40 mins
-      for (let i = 0; i < 7200; i++) {
-        await ethers.provider.send("evm_mine", []);
-      }
-
+      const aliceAdapterInfos = await this.investor.userAdapterInfos(
+        this.aliceAddr,
+        1,
+        this.aAdapter.address
+      );
       const beforeAdapterInfos = await this.investor.adapterInfos(
         1,
         this.aAdapter.address
@@ -220,7 +192,8 @@ describe("CurveGaugeAdapter Integration Test", function () {
         this.ybNft.address,
         1
       );
-      expect(Number(bobInfo) / Math.pow(10, 18)).to.eq(200);
+      const bobDeposit = Number(bobInfo) / Math.pow(10, 18);
+      expect(bobDeposit).to.eq(200);
 
       const bobAdapterInfos = await this.investor.userAdapterInfos(
         this.bobAddr,
@@ -238,69 +211,60 @@ describe("CurveGaugeAdapter Integration Test", function () {
           beforeAdapterInfos.totalStaked
         )
       ).to.eq(true);
-
-      const bobWithdrable = await this.aAdapter.getWithdrawalAmount(
-        this.bobAddr,
-        1
-      );
-      expect(BigNumber.from(bobWithdrable)).to.eq(
-        BigNumber.from(bobAdapterInfos.amount)
-      );
-
-      // Check accTokenPerShare Info
       expect(
-        BigNumber.from(
-          (await this.investor.adapterInfos(1, this.aAdapter.address))
-            .accTokenPerShare
-        ).eq(BigNumber.from(this.accTokenPerShare))
-      ).to.eq(true);
-      this.accTokenPerShare = (
-        await this.investor.adapterInfos(1, this.aAdapter.address)
-      ).accTokenPerShare;
+        BigNumber.from(afterAdapterInfos.totalStaked).sub(
+          aliceAdapterInfos.amount
+        )
+      ).to.eq(BigNumber.from(bobAdapterInfos.amount));
     }).timeout(50000000);
 
-    it("(5) test claim, pendingReward function and protocol-fee", async function () {
-      const beforeBNB = await ethers.provider.getBalance(this.aliceAddr);
-      const beforeBNBOwner = await ethers.provider.getBalance(
-        this.owner.address
+    it("(5)deposit should success for Tom", async function () {
+      const beforeAdapterInfos = await this.investor.adapterInfos(
+        1,
+        this.aAdapter.address
       );
-      const pending = await this.investor.pendingReward(this.aliceAddr, 1);
 
-      await this.investor.connect(this.alice).claim(1);
-      const gasPrice = await ethers.provider.getGasPrice();
-      const gas = await this.investor.connect(this.alice).estimateGas.claim(1);
+      const depositAmount = ethers.utils.parseEther("30");
+      await expect(
+        this.investor
+          .connect(this.tom)
+          .depositMATIC(this.tomAddr, 1, depositAmount, {
+            value: depositAmount,
+          })
+      )
+        .to.emit(this.investor, "DepositMATIC")
+        .withArgs(this.tomAddr, this.ybNft.address, 1, depositAmount);
 
-      const afterBNB = await ethers.provider.getBalance(this.aliceAddr);
-      const protocolFee = (
-        await ethers.provider.getBalance(this.owner.address)
-      ).sub(beforeBNBOwner);
-      const actualPending = afterBNB.sub(beforeBNB).add(gas.mul(gasPrice));
-      
-      if(pending > 0) {
-        expect(pending).to.be.within(
-          actualPending,
-          actualPending.add(BigNumber.from(2e14))
-        ) &&
-          expect(protocolFee).to.be.within(
-            actualPending.mul(this.performanceFee).div(1e4),
-            actualPending
-              .add(BigNumber.from(2e14))
-              .mul(this.performanceFee)
-              .div(1e4)
-          );
-      }
-    });
+      const tomInfo = await this.investor.userInfo(
+        this.tomAddr,
+        this.ybNft.address,
+        1
+      );
+      const tomDeposit = Number(tomInfo) / Math.pow(10, 18);
+      expect(tomDeposit).to.eq(30);
 
-    it("(6) test TVL & participants", async function () {
-      const nftInfo = await this.investor.nftInfo(this.ybNft.address, 1);
+      const tomAdapterInfos = await this.investor.userAdapterInfos(
+        this.tomAddr,
+        1,
+        this.aAdapter.address
+      );
+      expect(BigNumber.from(tomAdapterInfos.amount).gt(0)).to.eq(true);
 
+      const afterAdapterInfos = await this.investor.adapterInfos(
+        1,
+        this.aAdapter.address
+      );
       expect(
-        Number(ethers.utils.formatEther(BigNumber.from(nftInfo.tvl).toString()))
-      ).to.be.eq(300) &&
-        expect(BigNumber.from(nftInfo.totalParticipant).toString()).to.be.eq(
-          "2"
-        );
-    });
+        BigNumber.from(afterAdapterInfos.totalStaked).gt(
+          beforeAdapterInfos.totalStaked
+        )
+      ).to.eq(true);
+      expect(
+        BigNumber.from(afterAdapterInfos.totalStaked).sub(
+          tomAdapterInfos.amount
+        )
+      ).to.eq(BigNumber.from(beforeAdapterInfos.totalStaked));
+    }).timeout(50000000);
   });
 
   describe("withdrawMATIC() function test", function () {
@@ -353,32 +317,9 @@ describe("CurveGaugeAdapter Integration Test", function () {
         1
       );
       expect(BigNumber.from(bobWithdrable).gt(0)).to.eq(true);
-
-      // Check accTokenPerShare Info
-      expect(
-        BigNumber.from(
-          (await this.investor.adapterInfos(1, this.aAdapter.address))
-            .accTokenPerShare
-        ).eq(BigNumber.from(this.accTokenPerShare))
-      ).to.eq(true);
-
-      this.accTokenPerShare = (
-        await this.investor.adapterInfos(1, this.aAdapter.address)
-      ).accTokenPerShare;
     }).timeout(50000000);
 
-    it("(3) test TVL & participants after Alice withdraw", async function () {
-      const nftInfo = await this.investor.nftInfo(this.ybNft.address, 1);
-
-      expect(
-        Number(ethers.utils.formatEther(BigNumber.from(nftInfo.tvl).toString()))
-      ).to.be.eq(200) &&
-        expect(BigNumber.from(nftInfo.totalParticipant).toString()).to.be.eq(
-          "1"
-        );
-    });
-
-    it("(4)should receive MATIC successfully after withdraw function for Bob", async function () {
+    it("(3)should receive MATIC successfully after withdraw function for Bob", async function () {
       // withdraw from nftId: 1
       const beforeMATIC = await ethers.provider.getBalance(this.bobAddr);
 
@@ -407,27 +348,49 @@ describe("CurveGaugeAdapter Integration Test", function () {
       );
       expect(BigNumber.from(bobWithdrable)).to.eq(BigNumber.from(0));
 
-      // Check accTokenPerShare Info
-      expect(
-        BigNumber.from(
-          (await this.investor.adapterInfos(1, this.aAdapter.address))
-            .accTokenPerShare
-        ).eq(BigNumber.from(this.accTokenPerShare))
-      ).to.eq(true);
-      this.accTokenPerShare = (
-        await this.investor.adapterInfos(1, this.aAdapter.address)
-      ).accTokenPerShare;
+      const tomInfo = await this.investor.userInfo(
+        this.tomAddr,
+        this.ybNft.address,
+        1
+      );
+      const tomDeposit = Number(tomInfo) / Math.pow(10, 18);
+      expect(tomDeposit).to.eq(30);
+
+      const tomWithdrable = await this.aAdapter.getWithdrawalAmount(
+        this.tomAddr,
+        1
+      );
+      expect(BigNumber.from(tomWithdrable).gt(0)).to.eq(true);
     }).timeout(50000000);
 
-    it("(5) test TVL & participants after Alice & Bob withdraw", async function () {
-      const nftInfo = await this.investor.nftInfo(this.ybNft.address, 1);
+    it("(4)should receive MATIC successfully after withdraw function for Tom", async function () {
+      // withdraw from nftId: 1
+      const beforeMATIC = await ethers.provider.getBalance(this.tomAddr);
 
-      expect(
-        Number(ethers.utils.formatEther(BigNumber.from(nftInfo.tvl).toString()))
-      ).to.be.eq(0) &&
-        expect(BigNumber.from(nftInfo.totalParticipant).toString()).to.be.eq(
-          "0"
-        );
-    });
+      await expect(
+        this.investor
+          .connect(this.tom)
+          .withdrawMATIC(this.tomAddr, 1)
+      ).to.emit(this.investor, "WithdrawMATIC");
+
+      const afterMATIC = await ethers.provider.getBalance(this.tomAddr);
+
+      expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(
+        true
+      );
+
+      const tomInfo = await this.investor.userInfo(
+        this.tomAddr,
+        this.ybNft.address,
+        1
+      );
+      expect(tomInfo).to.eq(BigNumber.from(0));
+
+      const tomWithdrable = await this.aAdapter.getWithdrawalAmount(
+        this.tomAddr,
+        1
+      );
+      expect(tomWithdrable).to.eq(0);
+    }).timeout(50000000);
   });
 });
