@@ -10,8 +10,11 @@ function DashboardFunds() {
         borderRadius: '16px',
         boxShadow: '-1px 1px 8px 2px rgba(0, 0, 0, 0.1)',
         width: '100%',
-        minHeight: '20rem',
-        padding: '2.5rem 1.5rem 1.5rem 1.5rem',
+        minHeight: '18rem',
+        padding: '1.5rem 1.5rem 1.5rem 1.5rem',
+        display: 'flex',
+        flexDirection: 'column',
+        gap: '10px',
       }}
     >
       <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '24px', color: '#000000' }}>My Strategies</Text>

@@ -2,6 +2,7 @@ import moment from 'moment'
 import React from 'react'
 import { ArrowRight } from 'react-feather'
 import { Box, Text } from 'theme-ui'
+import DashboardInvestmentChart from './DashboardInvestmentChart'
 
 function DashboardOverview() {
   const date = moment().format('DD/MM/yyyy')
@@ -87,8 +88,9 @@ function DashboardOverview() {
               display: 'flex',
               flexDirection: 'row',
               borderRadius: '8px',
-              border: '3px solid #D9D9D9',
+              border: '2px solid #EFA3C2',
               alignItems: 'center',
+              cursor: 'pointer',
             }}
           >
             <Text sx={{ fontFamily: 'Inter', fontSize: '13px', fontWeight: '600', color: '#1A1A1A' }}>Explore</Text>
@@ -105,7 +107,16 @@ function DashboardOverview() {
             backgroundColor: '#FFFFFF',
           }}
         >
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '25px', margin: '2rem 1rem', height: '18rem' }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '25px',
+              margin: '1rem 1rem',
+              height: '18rem',
+              padding: '0rem 0.75rem',
+            }}
+          >
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: '25px', alignItems: 'center' }}>
               <Text sx={{ color: '#000000', fontSize: '16px', fontWeight: '600', fontFamily: 'Inter' }}>
                 Total Invested
@@ -122,6 +133,9 @@ function DashboardOverview() {
                 </Box>
               </Box>
               <Text sx={{ fontFamily: 'Inter', fontSize: '24px', fontWeight: '600', marginLeft: 'auto' }}>$5,987</Text>
+            </Box>
+            <Box sx={{ width: '100%', height: '100%' }}>
+              <DashboardInvestmentChart />
             </Box>
           </Box>
         </Box>
