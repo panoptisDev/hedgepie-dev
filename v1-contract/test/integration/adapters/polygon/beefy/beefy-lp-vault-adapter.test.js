@@ -16,7 +16,7 @@ const forkNetwork = async () => {
   });
 };
 
-describe("UniswapLPAdapter Integration Test", function () {
+describe("BeefyLPVaultAdapter Integration Test", function () {
   before("Deploy contract", async function () {
     await forkNetwork();
 
@@ -24,11 +24,12 @@ describe("UniswapLPAdapter Integration Test", function () {
 
     const performanceFee = 50;
     const wmatic = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
-    const USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
-    const strategy = "0xC36442b4a4522E871399CD717aBDD847Ab11FE88"; // NonfungiblePositionManager
-    const stakingToken = "0xA374094527e1673A86dE625aa59517c5dE346d32"; // USDC-WMATIC Uniswap v3 pool
-    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
+    const LCDToken = "0xc2A45FE7d40bCAc8369371B08419DDAFd3131b4a";
+    const strategy = "0x8c9dE3b735a154d8fC1e94183eA9b021913AC88B"; // LCD-Matic Vault
+    const stakingToken = "0xAab5254e17380511887aabA7e96a5339A519E26a"; // LCD-Matic LP
+    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router address
 
+    this.performanceFee = performanceFee;
     this.owner = owner;
     this.alice = alice;
     this.bob = bob;
@@ -38,25 +39,16 @@ describe("UniswapLPAdapter Integration Test", function () {
     this.aliceAddr = alice.address;
     this.tomAddr = tom.address;
 
-    this.lower = -500000;
-    this.upper = -300000;
+    this.accTokenPerShare = BigNumber.from(0);
 
-    // Deploy Uniswap LP Adapter contract
-    const uniswapV3LpAdapter = await ethers.getContractFactory("UniswapLPAdapter");
-    this.aAdapter = await uniswapV3LpAdapter.deploy(
-      strategy,
-      stakingToken,
-      swapRouter,
-      this.lower,
-      this.upper,
-      "Uniswap::USDC-WMATIC::LPAdapter"
-    );
+    // Deploy BeefyLPVault Adapter contract
+    const BeefyAdapter = await ethers.getContractFactory("BeefyVaultAdapterMatic");
+    this.aAdapter = await BeefyAdapter.deploy(strategy, stakingToken, swapRouter, "PolygonBeefy::LCD-Matic LP::Vault");
     await this.aAdapter.deployed();
 
     // Deploy YBNFT contract
     const ybNftFactory = await ethers.getContractFactory("YBNFT");
     this.ybNft = await ybNftFactory.deploy();
-    await this.ybNft.deployed();
 
     const Lib = await ethers.getContractFactory("HedgepieLibraryMatic");
     const lib = await Lib.deploy();
@@ -73,10 +65,6 @@ describe("UniswapLPAdapter Integration Test", function () {
     // Deploy Adaptor Manager contract
     const adapterManager = await ethers.getContractFactory("HedgepieAdapterManagerMatic");
     this.adapterManager = await adapterManager.deploy();
-    this.adapterManager.deployed();
-
-    // set investor
-    await this.aAdapter.setInvestor(this.investor.address);
 
     // Mint NFTs
     // tokenID: 1
@@ -85,7 +73,7 @@ describe("UniswapLPAdapter Integration Test", function () {
     // tokenID: 2
     await this.ybNft.mint([10000], [stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI2");
 
-    // Add Venus Adapter to AdapterManager
+    // Add BeefyLPVault Adapter to AdapterManager
     await this.adapterManager.addAdapter(this.aAdapter.address);
 
     // Set investor in adapter manager
@@ -95,16 +83,16 @@ describe("UniswapLPAdapter Integration Test", function () {
     await this.investor.setAdapterManager(this.adapterManager.address);
     await this.investor.setTreasury(this.owner.address);
 
-    // Set investor in vAdapter
+    // Set investor in adapter
     await this.aAdapter.setInvestor(this.investor.address);
 
-    await this.aAdapter.setPath(wmatic, USDC, [wmatic, USDC]);
-    await this.aAdapter.setPath(USDC, wmatic, [USDC, wmatic]);
+    await this.aAdapter.setPath(wmatic, LCDToken, [wmatic, LCDToken]);
+    await this.aAdapter.setPath(LCDToken, wmatic, [LCDToken, wmatic]);
 
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
     console.log("Strategy: ", strategy);
-    console.log("UniswapLPAdapter: ", this.aAdapter.address);
+    console.log("BeefyLPVaultAdapter: ", this.aAdapter.address);
   });
 
   describe("depositMATIC function test", function () {
@@ -147,9 +135,6 @@ describe("UniswapLPAdapter Integration Test", function () {
 
       const adapterInfos = await this.investor.adapterInfos(1, this.aAdapter.address);
       expect(BigNumber.from(adapterInfos.totalStaked).sub(BigNumber.from(aliceAdapterInfos.amount))).to.eq(0);
-
-      const aliceWithdrable = await this.aAdapter.getWithdrawalAmount(this.aliceAddr, 1);
-      expect(BigNumber.from(aliceWithdrable)).to.eq(BigNumber.from(aliceAdapterInfos.amount));
     });
 
     it("(4)deposit should success for Bob", async function () {
@@ -177,9 +162,6 @@ describe("UniswapLPAdapter Integration Test", function () {
       expect(BigNumber.from(afterAdapterInfos.totalStaked).sub(aliceAdapterInfos.amount)).to.eq(
         BigNumber.from(bobAdapterInfos.amount)
       );
-
-      const bobWithdrable = await this.aAdapter.getWithdrawalAmount(this.bobAddr, 1);
-      expect(BigNumber.from(bobWithdrable)).to.eq(BigNumber.from(bobAdapterInfos.amount));
     }).timeout(50000000);
 
     it("(5)deposit should success for Tom", async function () {
@@ -206,9 +188,6 @@ describe("UniswapLPAdapter Integration Test", function () {
       expect(BigNumber.from(afterAdapterInfos.totalStaked).sub(tomAdapterInfos.amount)).to.eq(
         BigNumber.from(beforeAdapterInfos.totalStaked)
       );
-
-      const tomWithdrable = await this.aAdapter.getWithdrawalAmount(this.tomAddr, 1);
-      expect(BigNumber.from(tomWithdrable)).to.eq(BigNumber.from(tomAdapterInfos.amount));
     }).timeout(50000000);
   });
 
@@ -229,7 +208,7 @@ describe("UniswapLPAdapter Integration Test", function () {
 
       const afterMATIC = await ethers.provider.getBalance(this.aliceAddr);
 
-      expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(false);
+      expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(true);
 
       const aliceInfo = await this.investor.userInfo(this.aliceAddr, this.ybNft.address, 1);
       expect(aliceInfo).to.eq(BigNumber.from(0));
@@ -256,7 +235,7 @@ describe("UniswapLPAdapter Integration Test", function () {
 
       const afterMATIC = await ethers.provider.getBalance(this.bobAddr);
 
-      expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(false);
+      expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(true);
 
       const bobInfo = await this.investor.userInfo(this.bobAddr, this.ybNft.address, 1);
       expect(bobInfo).to.eq(BigNumber.from(0));
@@ -283,7 +262,7 @@ describe("UniswapLPAdapter Integration Test", function () {
 
       const afterMATIC = await ethers.provider.getBalance(this.tomAddr);
 
-      expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(false);
+      expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(true);
 
       const tomInfo = await this.investor.userInfo(this.tomAddr, this.ybNft.address, 1);
       expect(tomInfo).to.eq(BigNumber.from(0));

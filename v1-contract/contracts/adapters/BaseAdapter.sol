@@ -113,7 +113,7 @@ abstract contract BaseAdapter is Ownable {
      * @notice Set investor
      * @param _investor  address of investor
      */
-    /// #if_succeeds {:msg "Investor not set correctly"} investor != old(investor);  
+    /// #if_succeeds {:msg "Investor not set correctly"} investor != old(investor);
     function setInvestor(address _investor) external onlyOwner {
         require(_investor != address(0), "Error: Investor zero address");
         investor = _investor;

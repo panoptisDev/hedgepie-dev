@@ -16,6 +16,14 @@ interface IAdapter {
 
     function strategy() external view returns (address);
 
+    function lpStakingToken() external view returns (address);
+
+    function lpProvider() external view returns (address);
+
+    function lpPoolId() external view returns (uint256);
+
+    function poolID() external view returns (address);
+
     function pendingReward() external view returns (uint256);
 
     function pendingReward1() external view returns (uint256);
@@ -115,6 +123,24 @@ interface IAdapter {
         external
         view
         returns (uint256);
+
+    function getLPCallData(uint256 _amount)
+        external
+        view
+        returns (
+            address to,
+            uint256 value,
+            bytes memory data
+        );
+
+    function removeLPCallData(uint256 _amount)
+        external
+        view
+        returns (
+            address to,
+            uint256 value,
+            bytes memory data
+        );
 
     function getPaths(address _inToken, address _outToken)
         external
