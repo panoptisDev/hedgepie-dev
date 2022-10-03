@@ -95,6 +95,26 @@ library HedgepieLibraryMatic {
         }
     }
 
+    function getDepositAmount(
+        address[2] memory addrs, 
+        address _adapter, 
+        bool isVault
+    ) 
+        public 
+        view 
+        returns(uint256 amountOut) 
+    {
+        amountOut = addrs[0] != address(0)
+            ? IBEP20(addrs[0]).balanceOf(address(this))
+            : (
+                isVault
+                    ? IAdapter(_adapter).pendingShares()
+                    : addrs[1] != address(0)
+                    ? IBEP20(addrs[1]).balanceOf(address(this))
+                    : 0
+            );
+    }
+
     function depositToAdapter(
         address _adapterManager,
         address _account,
@@ -104,21 +124,14 @@ library HedgepieLibraryMatic {
         HedgepieInvestorMatic.UserAdapterInfo storage _userAdapterInfo,
         HedgepieInvestorMatic.AdapterInfo storage _adapterInfo
     ) public {
-        uint256[3] memory amounts;
+        uint256[6] memory amounts;
         address[2] memory addrs;
         addrs[0] = IAdapter(_adapter.addr).repayToken();
         addrs[1] = IAdapter(_adapter.addr).rewardToken();
         bool isVault = IAdapter(_adapter.addr).isVault();
 
-        amounts[0] = addrs[0] != address(0)
-            ? IBEP20(addrs[0]).balanceOf(address(this))
-            : (
-                isVault
-                    ? IAdapter(_adapter.addr).pendingShares()
-                    : addrs[1] != address(0)
-                    ? IBEP20(addrs[1]).balanceOf(address(this))
-                    : 0
-            );
+        amounts[0] = getDepositAmount(addrs, _adapter.addr, isVault);
+        amounts[3] = getDepositAmount([addrs[0], IAdapter(_adapter.addr).rewardToken1()], _adapter.addr, isVault);
 
         (
             address to,
@@ -138,18 +151,12 @@ library HedgepieLibraryMatic {
         (bool success, ) = to.call{value: value}(callData);
         require(success, "Error: Deposit internal issue");
 
-        amounts[1] = addrs[0] != address(0)
-            ? IBEP20(addrs[0]).balanceOf(address(this))
-            : (
-                isVault
-                    ? IAdapter(_adapter.addr).pendingShares()
-                    : addrs[1] != address(0)
-                    ? IBEP20(addrs[1]).balanceOf(address(this))
-                    : 0
-            );
+        amounts[1] = getDepositAmount(addrs, _adapter.addr, isVault);
+        amounts[4] = getDepositAmount([addrs[0], IAdapter(_adapter.addr).rewardToken1()], _adapter.addr, isVault);
 
         unchecked {
             amounts[2] = amounts[1] - amounts[0];
+            amounts[5] = amounts[4] - amounts[3];
         }
         if (addrs[1] != address(0)) {
             // Farm Pool
@@ -157,18 +164,18 @@ library HedgepieLibraryMatic {
                 amounts[2] += _amount;
 
             if (
-                amounts[2] != 0 &&
                 _adapterInfo.totalStaked != 0 &&
                 addrs[0] == address(0)
             ) {
-                unchecked {
+                if(amounts[2] != 0)
                     _adapterInfo.accTokenPerShare +=
                         (amounts[2] * 1e12) /
                         _adapterInfo.totalStaked;
+                
+                if(amounts[5] != 0)
                     _adapterInfo.accTokenPerShare1 +=
-                        (amounts[2] * 1e12) /
+                        (amounts[5] * 1e12) /
                         _adapterInfo.totalStaked;
-                }
             }
 
             if (_userAdapterInfo.amount == 0) {
