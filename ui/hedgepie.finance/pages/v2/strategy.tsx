@@ -4,12 +4,12 @@ import type { NextPage } from 'next'
 import { HedgePieFinance } from 'components/HedgePieFinance'
 import { Box } from 'theme-ui'
 import DashboardPage from 'v2/components/DashboardPage'
-import StrategyInfo from 'v2/components/StrategyInfo'
+import StrategyInfo from 'v2/components/Strategy/StrategyInfo'
 
 const Strategy: NextPage = () => {
   return (
     <HedgePieFinance isV2={true}>
-      <DashboardPage>
+      <DashboardPage tab="stats">
         <StrategyInfo />
       </DashboardPage>
     </HedgePieFinance>

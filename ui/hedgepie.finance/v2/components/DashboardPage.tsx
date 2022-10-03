@@ -5,10 +5,11 @@ import Sidebar, { SidebarItemType } from './Sidebar'
 
 interface DashboardPageProps {
   children: React.ReactNode
+  tab?: SidebarItemType
 }
 
 function DashboardPage(props: DashboardPageProps) {
-  const { children } = props
+  const { children, tab } = props
   const [activeTab, setActiveTab] = useState<SidebarItemType>('home')
   const value = React.useMemo(
     () => ({
@@ -17,6 +18,10 @@ function DashboardPage(props: DashboardPageProps) {
     }),
     [activeTab, setActiveTab],
   )
+
+  useEffect(() => {
+    tab && setActiveTab(tab)
+  }, [tab])
 
   return (
     <DashboardContext.Provider value={value}>
