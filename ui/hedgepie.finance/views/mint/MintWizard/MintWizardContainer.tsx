@@ -38,7 +38,7 @@ const MintWizard = () => {
           },
         }}
       >
-        YB NFT Minting
+        Fund Minting
       </Box>
       <Box
         sx={{
