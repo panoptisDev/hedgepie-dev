@@ -409,15 +409,13 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                                 .transfer(treasuryAddr, taxAmount);
                         }
 
-                        if (rewards[0] != 0) {
-                            amountOut += HedgepieLibraryMatic.swapforMatic(
-                                adapter.addr,
-                                rewards[1] - taxAmount,
-                                IAdapter(adapter.addr).rewardToken1(),
-                                swapRouter,
-                                wmatic
-                            );
-                        }
+                        amountOut += HedgepieLibraryMatic.swapforMatic(
+                            adapter.addr,
+                            rewards[1] - taxAmount,
+                            IAdapter(adapter.addr).rewardToken1(),
+                            swapRouter,
+                            wmatic
+                        );
                     }
                 }
             }
@@ -595,8 +593,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
 
             if (
                 tokens[2] != address(0) &&
-                rewardTokenAmount[3] - rewardTokenAmount[2] != 0 &&
-                adapter.accTokenPerShare1 != 0
+                rewardTokenAmount[3] - rewardTokenAmount[2] != 0
             ) {
                 adapter.accTokenPerShare1 +=
                     ((rewardTokenAmount[3] - rewardTokenAmount[2]) * 1e12) /
