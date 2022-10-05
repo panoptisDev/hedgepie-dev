@@ -7,6 +7,7 @@ import toast from 'utils/toast'
 import axios from 'axios'
 import { getBalanceInEther } from 'utils/formatBalance'
 import BigNumber from 'bignumber.js'
+import { ArrowLeft } from 'react-feather'
 
 const FormInitialStake = () => {
   const { wizard, setWizard, account, formData } = React.useContext(MintWizardContext)
@@ -61,18 +62,18 @@ const FormInitialStake = () => {
         }}
       >
         <InitialStake />
-        <Box mt={24}>
+        <Box mt={24} sx={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
           <Button
             variant="primary"
             sx={{
               height: 64,
               width: '100%',
-              border: '1px solid #1799DE',
               borderRadius: 6,
               padding: 0,
               cursor: 'pointer',
               transition: 'all .2s',
               fontSize: '20px',
+              background: 'linear-gradient(333.11deg, #1799DE -34.19%, #E98EB3 87.94%)',
             }}
             onClick={handleNext}
           >

@@ -96,147 +96,223 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
   }
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: ['column', 'column', 'row'],
-        gap: 1,
-        position: 'relative',
-      }}
-    >
-      <Box sx={{ flex: '1 1 0' }}>
+    <>
+      <tr>
         <CompositionSelect value={data} onProtocolSelect={handleProtocolSelect} onPoolSelect={handlePoolSelect} />
-      </Box>
-      <Box
-        sx={{
-          flex: '1 1 0',
-          padding: [10, 10, '0 0 0 30px'],
-          marginLeft: [-25, -25, -10],
-        }}
-      >
-        <Box
+        <td>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              height: '60px',
+              fontSize: '26px',
+              fontWeight: '600',
+              border: '1px solid #8BCCEE',
+              background: '#F2F9FD',
+              borderRadius: '8px',
+              paddingRight: '10px',
+            }}
+          >
+            {data.locked ? (
+              <Box
+                sx={{
+                  width: 50,
+                  height: 50,
+                  textAlign: 'right',
+                  pr: 2,
+                  fontWeight: 500,
+                }}
+              >
+                {data.weight}
+              </Box>
+            ) : (
+              <Input
+                className="weight-input"
+                sx={{
+                  border: 'none',
+                  outline: 'none',
+                  padding: 0,
+                  textAlign: 'right',
+                  pr: 2,
+                  width: 60,
+                  height: '100%',
+                }}
+                type="number"
+                min={0}
+                max={100}
+                value={data.weight}
+                onChange={handleChangeWeight}
+                onWheel={(e) => e.currentTarget.blur()}
+              />
+            )}
+            <Box sx={{}}>%</Box>
+          </Box>
+        </td>
+        <td>
+          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
+            <Button
+              sx={{
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: '#3B3969',
+                borderRadius: '4px',
+                color: '#FFFFFF',
+                flexShrink: 0,
+                padding: '5px',
+
+                ':hover': {
+                  cursor: 'pointer',
+                  backgroundColor: '#ccc',
+                },
+              }}
+              onClick={onMaxClick}
+            >
+              MAX
+            </Button>
+            <Button variant="icon" className="position-lock" onClick={handleLock}>
+              <Image src="/images/icon-lock.png" />
+            </Button>
+            <Button variant="icon" className="position-delete" onClick={onDelete} sx={{ marginRight: [0, 38, 0] }}>
+              <Image src="/images/icon-trash.png" />
+            </Button>
+          </Box>
+        </td>
+        {/* <Box
           sx={{
-            display: 'flex',
-            alignItems: 'center',
-            backgroundColor: '#fff',
-            height: 62,
-            width: ['100%', 'max-content', 'max-content'],
-            borderRadius: 8,
-            // paddingLeft: 16,
-            marginLeft: 15,
-            paddingRight: 16,
+            flex: '1 1 0',
+            padding: [10, 10, '0 0 0 30px'],
+            marginLeft: [-25, -25, -10],
           }}
         >
           <Box
-            as="label"
             sx={{
-              flex: 1,
-              fontSize: 30,
-              fontWeight: 700,
-              color: data.locked ? '#ccc' : '#0A3F5C',
               display: 'flex',
               alignItems: 'center',
-              userSelect: 'none',
-              [`@media screen and (min-width: 500px)`]: {
-                fontSize: 30,
-              },
+              backgroundColor: '#fff',
+              height: 62,
+              width: ['100%', 'max-content', 'max-content'],
+              borderRadius: 8,
+              // paddingLeft: 16,
+              marginLeft: 15,
+              paddingRight: 16,
             }}
           >
-            <Box sx={{ width: 150 }}>
-              <Box sx={{ display: 'flex' }}>
-                {data.locked ? (
+            <Box
+              as="label"
+              sx={{
+                flex: 1,
+                fontSize: 30,
+                fontWeight: 700,
+                color: data.locked ? '#ccc' : '#0A3F5C',
+                display: 'flex',
+                alignItems: 'center',
+                userSelect: 'none',
+                [`@media screen and (min-width: 500px)`]: {
+                  fontSize: 30,
+                },
+              }}
+            >
+              <Box sx={{ width: 150 }}>
+                <td>
+                  <Box sx={{ display: 'flex' }}>
+                    {data.locked ? (
+                      <Box
+                        sx={{
+                          width: 50,
+                          height: 50,
+                          textAlign: 'right',
+                          pr: 2,
+                          fontWeight: 500,
+                        }}
+                      >
+                        {data.weight}
+                      </Box>
+                    ) : (
+                      <Input
+                        className="weight-input"
+                        sx={{
+                          border: 'none',
+                          outline: 'none',
+                          padding: 0,
+                          textAlign: 'right',
+                          pr: 2,
+                          width: 60,
+                          marginLeft: '10px',
+                        }}
+                        type="number"
+                        min={0}
+                        max={100}
+                        value={data.weight}
+                        onChange={handleChangeWeight}
+                        onWheel={(e) => e.currentTarget.blur()}
+                      />
+                    )}
+                    <Box sx={{ height: 44 }}>%</Box>
+                  </Box>
+                </td>
+                {bnbValue ? (
                   <Box
                     sx={{
-                      width: 50,
-                      height: 50,
-                      textAlign: 'right',
-                      pr: 2,
-                      fontWeight: 500,
+                      marginLeft: 20,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignContent: 'center',
+                      gap: '0.3rem',
                     }}
                   >
-                    {data.weight}
-                  </Box>
+                    <Text sx={{ fontSize: 15, fontWeight: 400 }}>{bnbValue ? bnbValue + ' ' + token : ''}</Text>
+                    {/* <Text sx={{ fontSize: 14, fontWeight: 400 }}>{usdValue ? usdValue : ''}</Text> */}
+        {/* </Box>
                 ) : (
-                  <Input
-                    className="weight-input"
+                  <Box
                     sx={{
-                      border: 'none',
-                      outline: 'none',
-                      padding: 0,
-                      textAlign: 'right',
-                      pr: 2,
-                      width: 60,
-                      marginLeft: '10px',
+                      marginLeft: 20,
+                      height: 15,
+                      display: 'flex',
+                      flexDirection: 'column',
+                      justifyContent: 'center',
+                      alignContent: 'center',
+                      gap: '0.3rem',
                     }}
-                    type="number"
-                    min={0}
-                    max={100}
-                    value={data.weight}
-                    onChange={handleChangeWeight}
-                    onWheel={(e) => e.currentTarget.blur()}
-                  />
+                  ></Box>
                 )}
-                <Box sx={{ height: 44 }}>%</Box>
               </Box>
-              {bnbValue ? (
-                <Box
-                  sx={{
-                    marginLeft: 20,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignContent: 'center',
-                    gap: '0.3rem',
-                  }}
-                >
-                  <Text sx={{ fontSize: 15, fontWeight: 400 }}>{bnbValue ? bnbValue + ' ' + token : ''}</Text>
-                  {/* <Text sx={{ fontSize: 14, fontWeight: 400 }}>{usdValue ? usdValue : ''}</Text> */}
-                </Box>
-              ) : (
-                <Box
-                  sx={{
-                    marginLeft: 20,
-                    height: 15,
-                    display: 'flex',
-                    flexDirection: 'column',
-                    justifyContent: 'center',
-                    alignContent: 'center',
-                    gap: '0.3rem',
-                  }}
-                ></Box>
-              )}
             </Box>
-          </Box>
-          <Button
-            sx={{
-              width: 40,
-              height: 20,
-              display: 'flex',
-              alignItems: 'center',
-              justifyContent: 'center',
-              backgroundColor: 'rgba(160, 160, 160, 0.32)',
-              borderRadius: '4px',
-              color: '#8E8DA0',
-              flexShrink: 0,
-              margin: '0 8px 0 32px',
+            <Button
+              sx={{
+                width: 40,
+                height: 20,
+                display: 'flex',
+                alignItems: 'center',
+                justifyContent: 'center',
+                backgroundColor: 'rgba(160, 160, 160, 0.32)',
+                borderRadius: '4px',
+                color: '#8E8DA0',
+                flexShrink: 0,
+                margin: '0 8px 0 32px',
 
-              ':hover': {
-                cursor: 'pointer',
-                backgroundColor: '#ccc',
-              },
-            }}
-            onClick={onMaxClick}
-          >
-            MAX
-          </Button>
-          <Button variant="icon" className="position-lock" onClick={handleLock}>
-            <Image src="/images/icon-lock.png" />
-          </Button>
-          <Button variant="icon" className="position-delete" onClick={onDelete} sx={{ marginRight: [0, 38, 0] }}>
-            <Image src="/images/icon-trash.png" />
-          </Button>
-        </Box>
-      </Box>
+                ':hover': {
+                  cursor: 'pointer',
+                  backgroundColor: '#ccc',
+                },
+              }}
+              onClick={onMaxClick}
+            >
+              MAX
+            </Button>
+            <Button variant="icon" className="position-lock" onClick={handleLock}>
+              <Image src="/images/icon-lock.png" />
+            </Button>
+            <Button variant="icon" className="position-delete" onClick={onDelete} sx={{ marginRight: [0, 38, 0] }}>
+              <Image src="/images/icon-trash.png" />
+            </Button>
+          </Box>
+        // </Box> */}
+      </tr>
       {/* <Box
         sx={{
           display: 'none',
@@ -251,7 +327,7 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
           },
         }}
       /> */}
-    </Box>
+    </>
   )
 }
 
