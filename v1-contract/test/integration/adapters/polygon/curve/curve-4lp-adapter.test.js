@@ -201,17 +201,17 @@ describe("CurveGaugeAdapter Integration Test", function () {
     }).timeout(50000000);
 
     it("(5) test claim, pendingReward function and protocol-fee", async function () {
-      const beforeBNB = await ethers.provider.getBalance(this.aliceAddr);
-      const beforeBNBOwner = await ethers.provider.getBalance(this.owner.address);
+      const beforeMatic = await ethers.provider.getBalance(this.aliceAddr);
+      const beforeMaticOwner = await ethers.provider.getBalance(this.owner.address);
       const pending = await this.investor.pendingReward(this.aliceAddr, 1);
 
       await this.investor.connect(this.alice).claim(1);
       const gasPrice = await ethers.provider.getGasPrice();
       const gas = await this.investor.connect(this.alice).estimateGas.claim(1);
 
-      const afterBNB = await ethers.provider.getBalance(this.aliceAddr);
-      const protocolFee = (await ethers.provider.getBalance(this.owner.address)).sub(beforeBNBOwner);
-      const actualPending = afterBNB.sub(beforeBNB).add(gas.mul(gasPrice));
+      const afterMatic = await ethers.provider.getBalance(this.aliceAddr);
+      const protocolFee = (await ethers.provider.getBalance(this.owner.address)).sub(beforeMaticOwner);
+      const actualPending = afterMatic.sub(beforeMatic).add(gas.mul(gasPrice));
 
       if (pending > 0) {
         expect(pending).to.be.within(actualPending, actualPending.add(BigNumber.from(2e14))) &&

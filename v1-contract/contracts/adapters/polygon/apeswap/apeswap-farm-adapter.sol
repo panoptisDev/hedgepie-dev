@@ -3,6 +3,13 @@ pragma solidity ^0.8.4;
 
 import "../../BaseAdapterMatic.sol";
 
+interface IStrategy {
+    function pendingBanana(uint256 _pid, address _user)
+        external
+        view
+        returns (uint256);
+}
+
 contract ApeswapFarmAdapter is BaseAdapterMatic {
     /**
      * @notice Construct
@@ -77,4 +84,18 @@ contract ApeswapFarmAdapter is BaseAdapterMatic {
             investor
         );
     }
+
+    /**
+     * @notice Get pending reward
+     */
+    function pendingReward() external view override returns (uint256) {
+        return IStrategy(strategy).pendingBanana(pid, investor);
+    }
+
+    /**
+     * @notice Get pending reward
+     */
+    function pendingReward1() external pure returns (uint256) {
+        return 0;
+    }    
 }

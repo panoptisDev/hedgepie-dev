@@ -20,7 +20,7 @@ describe("ApeswapLPFarmAdapter Integration Test", function () {
   before("Deploy contract", async function () {
     await forkNetwork();
 
-    const [owner, alice, bob, tom] = await ethers.getSigners();
+    const [owner, alice, bob] = await ethers.getSigners();
 
     const performanceFee = 50;
     const wmatic = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
@@ -34,11 +34,11 @@ describe("ApeswapLPFarmAdapter Integration Test", function () {
     this.owner = owner;
     this.alice = alice;
     this.bob = bob;
-    this.tom = tom;
 
     this.bobAddr = bob.address;
     this.aliceAddr = alice.address;
-    this.tomAddr = tom.address;
+
+    this.accTokenPerShare = BigNumber.from(0);
 
     // Deploy Apeswap LPFarm Adapter contract
     const ApeswapAdapter = await ethers.getContractFactory("ApeswapFarmAdapter");
@@ -97,7 +97,6 @@ describe("ApeswapLPFarmAdapter Integration Test", function () {
     await this.aAdapter.setPath(USDC, wmatic, [USDC, wmatic]);
     await this.aAdapter.setPath(wmatic, DAI, [wmatic, DAI]);
     await this.aAdapter.setPath(DAI, wmatic, [DAI, wmatic]);
-
     await this.aAdapter.setPath(wmatic, rewardToken, [wmatic, rewardToken]);
     await this.aAdapter.setPath(rewardToken, wmatic, [rewardToken, wmatic]);
 
@@ -149,11 +148,22 @@ describe("ApeswapLPFarmAdapter Integration Test", function () {
       expect(BigNumber.from(adapterInfos.totalStaked).sub(BigNumber.from(aliceAdapterInfos.amount))).to.eq(0);
 
       const aliceWithdrable = await this.aAdapter.getWithdrawalAmount(this.aliceAddr, 1);
-      expect(BigNumber.from(aliceWithdrable)).to.eq(BigNumber.from(aliceAdapterInfos.amount));
+      expect(BigNumber.from(aliceWithdrable)).to.be.within(
+        BigNumber.from(aliceAdapterInfos.amount),
+        BigNumber.from(aliceAdapterInfos.amount).add(1)
+      );
+
+      // Check accTokenPerShare Info
+      this.accTokenPerShare = (await this.investor.adapterInfos(1, this.aAdapter.address)).accTokenPerShare;
+      expect(BigNumber.from(this.accTokenPerShare)).to.eq(BigNumber.from(0));
     });
 
     it("(4)deposit should success for Bob", async function () {
-      const aliceAdapterInfos = await this.investor.userAdapterInfos(this.aliceAddr, 1, this.aAdapter.address);
+      // wait 40 mins
+      for (let i = 0; i < 7200; i++) {
+        await ethers.provider.send("evm_mine", []);
+      }
+
       const beforeAdapterInfos = await this.investor.adapterInfos(1, this.aAdapter.address);
 
       const depositAmount = ethers.utils.parseEther("200");
@@ -166,50 +176,54 @@ describe("ApeswapLPFarmAdapter Integration Test", function () {
         .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
 
       const bobInfo = await this.investor.userInfo(this.bobAddr, this.ybNft.address, 1);
-      const bobDeposit = Number(bobInfo) / Math.pow(10, 18);
-      expect(bobDeposit).to.eq(200);
+      expect(Number(bobInfo) / Math.pow(10, 18)).to.eq(200);
 
       const bobAdapterInfos = await this.investor.userAdapterInfos(this.bobAddr, 1, this.aAdapter.address);
       expect(BigNumber.from(bobAdapterInfos.amount).gt(0)).to.eq(true);
 
       const afterAdapterInfos = await this.investor.adapterInfos(1, this.aAdapter.address);
       expect(BigNumber.from(afterAdapterInfos.totalStaked).gt(beforeAdapterInfos.totalStaked)).to.eq(true);
-      expect(BigNumber.from(afterAdapterInfos.totalStaked).sub(aliceAdapterInfos.amount)).to.eq(
-        BigNumber.from(bobAdapterInfos.amount)
-      );
 
       const bobWithdrable = await this.aAdapter.getWithdrawalAmount(this.bobAddr, 1);
       expect(BigNumber.from(bobWithdrable)).to.eq(BigNumber.from(bobAdapterInfos.amount));
+
+      // Check accTokenPerShare Info
+      expect(
+        BigNumber.from((await this.investor.adapterInfos(1, this.aAdapter.address)).accTokenPerShare).eq(
+          BigNumber.from(this.accTokenPerShare)
+        )
+      ).to.eq(true);
+      this.accTokenPerShare = (await this.investor.adapterInfos(1, this.aAdapter.address)).accTokenPerShare;
     }).timeout(50000000);
 
-    it("(5)deposit should success for Tom", async function () {
-      const beforeAdapterInfos = await this.investor.adapterInfos(1, this.aAdapter.address);
+    it("(5) test claim, pendingReward function and protocol-fee", async function () {
+      const beforeMatic = await ethers.provider.getBalance(this.aliceAddr);
+      const beforeMaticOwner = await ethers.provider.getBalance(this.owner.address);
+      const pending = await this.investor.pendingReward(this.aliceAddr, 1);
 
-      const depositAmount = ethers.utils.parseEther("30");
-      await expect(
-        this.investor.connect(this.tom).depositMATIC(this.tomAddr, 1, depositAmount, {
-          value: depositAmount,
-        })
-      )
-        .to.emit(this.investor, "DepositMATIC")
-        .withArgs(this.tomAddr, this.ybNft.address, 1, depositAmount);
+      await this.investor.connect(this.alice).claim(1);
+      const gasPrice = await ethers.provider.getGasPrice();
+      const gas = await this.investor.connect(this.alice).estimateGas.claim(1);
 
-      const tomInfo = await this.investor.userInfo(this.tomAddr, this.ybNft.address, 1);
-      const tomDeposit = Number(tomInfo) / Math.pow(10, 18);
-      expect(tomDeposit).to.eq(30);
+      const afterMatic = await ethers.provider.getBalance(this.aliceAddr);
+      const protocolFee = (await ethers.provider.getBalance(this.owner.address)).sub(beforeMaticOwner);
+      const actualPending = afterMatic.sub(beforeMatic).add(gas.mul(gasPrice));
 
-      const tomAdapterInfos = await this.investor.userAdapterInfos(this.tomAddr, 1, this.aAdapter.address);
-      expect(BigNumber.from(tomAdapterInfos.amount).gt(0)).to.eq(true);
+      if (pending > 0) {
+        expect(pending).to.be.within(actualPending, actualPending.add(BigNumber.from(2e14))) &&
+          expect(protocolFee).to.be.within(
+            actualPending.mul(this.performanceFee).div(1e4),
+            actualPending.add(BigNumber.from(2e14)).mul(this.performanceFee).div(1e4)
+          );
+      }
+    });
 
-      const afterAdapterInfos = await this.investor.adapterInfos(1, this.aAdapter.address);
-      expect(BigNumber.from(afterAdapterInfos.totalStaked).gt(beforeAdapterInfos.totalStaked)).to.eq(true);
-      expect(BigNumber.from(afterAdapterInfos.totalStaked).sub(tomAdapterInfos.amount)).to.eq(
-        BigNumber.from(beforeAdapterInfos.totalStaked)
-      );
+    it("(6) test TVL & participants", async function () {
+      const nftInfo = await this.investor.nftInfo(this.ybNft.address, 1);
 
-      const tomWithdrable = await this.aAdapter.getWithdrawalAmount(this.tomAddr, 1);
-      expect(BigNumber.from(tomWithdrable)).to.eq(BigNumber.from(tomAdapterInfos.amount));
-    }).timeout(50000000);
+      expect(Number(ethers.utils.formatEther(BigNumber.from(nftInfo.tvl).toString()))).to.be.eq(300) &&
+        expect(BigNumber.from(nftInfo.totalParticipant).toString()).to.be.eq("2");
+    });
   });
 
   describe("withdrawMATIC() function test", function () {
@@ -243,9 +257,25 @@ describe("ApeswapLPFarmAdapter Integration Test", function () {
 
       const bobWithdrable = await this.aAdapter.getWithdrawalAmount(this.bobAddr, 1);
       expect(BigNumber.from(bobWithdrable).gt(0)).to.eq(true);
+
+      // Check accTokenPerShare Info
+      expect(
+        BigNumber.from((await this.investor.adapterInfos(1, this.aAdapter.address)).accTokenPerShare).eq(
+          BigNumber.from(this.accTokenPerShare)
+        )
+      ).to.eq(true);
+
+      this.accTokenPerShare = (await this.investor.adapterInfos(1, this.aAdapter.address)).accTokenPerShare;
     }).timeout(50000000);
 
-    it("(3)should receive MATIC successfully after withdraw function for Bob", async function () {
+    it("(3) test TVL & participants after Alice withdraw", async function () {
+      const nftInfo = await this.investor.nftInfo(this.ybNft.address, 1);
+
+      expect(Number(ethers.utils.formatEther(BigNumber.from(nftInfo.tvl).toString()))).to.be.eq(200) &&
+        expect(BigNumber.from(nftInfo.totalParticipant).toString()).to.be.eq("1");
+    });
+
+    it("(4)should receive MATIC successfully after withdraw function for Bob", async function () {
       // withdraw from nftId: 1
       const beforeMATIC = await ethers.provider.getBalance(this.bobAddr);
 
@@ -264,32 +294,20 @@ describe("ApeswapLPFarmAdapter Integration Test", function () {
       const bobWithdrable = await this.aAdapter.getWithdrawalAmount(this.bobAddr, 1);
       expect(BigNumber.from(bobWithdrable)).to.eq(BigNumber.from(0));
 
-      const tomInfo = await this.investor.userInfo(this.tomAddr, this.ybNft.address, 1);
-      const tomDeposit = Number(tomInfo) / Math.pow(10, 18);
-      expect(tomDeposit).to.eq(30);
-
-      const tomWithdrable = await this.aAdapter.getWithdrawalAmount(this.tomAddr, 1);
-      expect(BigNumber.from(tomWithdrable).gt(0)).to.eq(true);
+      // Check accTokenPerShare Info
+      expect(
+        BigNumber.from((await this.investor.adapterInfos(1, this.aAdapter.address)).accTokenPerShare).eq(
+          BigNumber.from(this.accTokenPerShare)
+        )
+      ).to.eq(true);
+      this.accTokenPerShare = (await this.investor.adapterInfos(1, this.aAdapter.address)).accTokenPerShare;
     }).timeout(50000000);
 
-    it("(4)should receive MATIC successfully after withdraw function for Tom", async function () {
-      // withdraw from nftId: 1
-      const beforeMATIC = await ethers.provider.getBalance(this.tomAddr);
+    it("(5) test TVL & participants after Alice & Bob withdraw", async function () {
+      const nftInfo = await this.investor.nftInfo(this.ybNft.address, 1);
 
-      await expect(this.investor.connect(this.tom).withdrawMATIC(this.tomAddr, 1)).to.emit(
-        this.investor,
-        "WithdrawMATIC"
-      );
-
-      const afterMATIC = await ethers.provider.getBalance(this.tomAddr);
-
-      expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(true);
-
-      const tomInfo = await this.investor.userInfo(this.tomAddr, this.ybNft.address, 1);
-      expect(tomInfo).to.eq(BigNumber.from(0));
-
-      const tomWithdrable = await this.aAdapter.getWithdrawalAmount(this.tomAddr, 1);
-      expect(tomWithdrable).to.eq(0);
-    }).timeout(50000000);
+      expect(Number(ethers.utils.formatEther(BigNumber.from(nftInfo.tvl).toString()))).to.be.eq(0) &&
+        expect(BigNumber.from(nftInfo.totalParticipant).toString()).to.be.eq("0");
+    });
   });
 });
