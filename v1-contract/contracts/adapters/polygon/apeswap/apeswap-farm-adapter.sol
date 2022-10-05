@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import "../../BaseAdapterMatic.sol";
 
-contract ApeFarmAdapter is BaseAdapterMatic {
+contract ApeswapFarmAdapter is BaseAdapterMatic {
     /**
      * @notice Construct
      * @param _pid  number of poolid
