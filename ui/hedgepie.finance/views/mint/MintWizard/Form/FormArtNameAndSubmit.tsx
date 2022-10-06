@@ -44,11 +44,21 @@ const FormArtNameAndSubmit = () => {
       }}
     >
       <Box sx={{ flex: 1 }}>
-        <Box>
-          <UploadArtwork />
-        </Box>
-        <Box mt={3}>
-          <NftName />
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px',
+            border: '2px solid #D9D9D9',
+            borderRadius: '8px',
+          }}
+        >
+          <Box>
+            <UploadArtwork />
+          </Box>
+          <Box mt={3}>
+            <NftName />
+          </Box>
         </Box>
         <Box mt={24}>
           <SubmitMint />

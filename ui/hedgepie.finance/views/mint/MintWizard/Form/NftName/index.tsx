@@ -16,7 +16,6 @@ const NftName = () => {
     <Box
       sx={{
         padding: 3,
-        backgroundColor: '#E5F6FF',
         borderRadius: 8,
         [`@media screen and (min-width: 500px)`]: {
           padding: 24,
@@ -33,7 +32,7 @@ const NftName = () => {
           },
         }}
       >
-        NFT Name
+        Fund Name
       </Box>
       <Box
         sx={{
@@ -45,7 +44,7 @@ const NftName = () => {
           },
         }}
       >
-        Provide a name you want to give your NFT
+        Provide a name you want to give your YB-NFT
       </Box>
       <Box mt={24}>
         <Input
@@ -53,18 +52,19 @@ const NftName = () => {
           className="nft-name-input"
           sx={{
             height: 62,
-            width: '80%',
-            backgroundColor: '#fff',
+            width: '50%',
+            backgroundColor: '#F3F3F3',
+            border: '1.5px solid #E3E3E3',
             borderRadius: 8,
-            fontSize: 30,
+            fontSize: 24,
             paddingLeft: 24,
             paddingRight: 24,
-            border: 'none',
             outline: 'none',
           }}
           // placeholder="NFT Title ..."
           value={formData.nftName}
           onChange={handleNameChange}
+          placeholder="Name this YB-NFT"
         />
       </Box>
     </Box>

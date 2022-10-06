@@ -103,27 +103,32 @@ const PositionList = () => {
           <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
             <div
               style={{
-                fontWeight: 600,
-                fontSize: '16px',
-                lineHeight: '14px',
-                textAlign: 'center',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                color: '#1380B9',
-              }}
-            >
-              ADD POSITION
-            </div>
-            <div
-              style={{
                 fontSize: '32px',
                 backgroundColor: '#D1EBF8',
                 paddingRight: '5px',
                 paddingLeft: '5px',
-                borderRadius: 4,
+                borderRadius: 60,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '30px',
+                height: '30px',
               }}
             >
               +
+            </div>
+            <div
+              style={{
+                fontWeight: 600,
+                fontSize: '16px',
+                lineHeight: '14px',
+                textAlign: 'center',
+                letterSpacing: '1px',
+                color: '#000',
+                fontFamily: 'Inter',
+              }}
+            >
+              Add position
             </div>
           </div>
         </Button>

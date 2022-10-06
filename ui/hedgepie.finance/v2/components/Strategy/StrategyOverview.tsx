@@ -1,9 +1,20 @@
 import Image from 'next/image'
-import React from 'react'
-import { ArrowRight } from 'react-feather'
+import React, { useState } from 'react'
 import { Box, Text } from 'theme-ui'
 
 function StrategyOverview() {
+  const [fundName, setFundName] = useState('Fund XYZ')
+  const [createdDate, setCreatedDate] = useState('14/09/2022')
+  const [description, setDescription] = useState(
+    'Descriptive text for the Fund goes here. Any relevant information will be displayed.',
+  )
+  const [performanceFee, setPerformanceFee] = useState('5.15%')
+  const [reward, setReward] = useState('$5,150')
+  const [stake, setStake] = useState('15 BNB')
+  const [tvl, setTVL] = useState('$245,301')
+  const [apy, setAPY] = useState('12%')
+  const [investors, setInvestors] = useState('400')
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Title Section */}
@@ -38,11 +49,11 @@ function StrategyOverview() {
           }}
         >
           <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '1rem' }}>
-            <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '20px', color: '#000000' }}>Fund XYZ</Text>
+            <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '20px', color: '#000000' }}>{fundName}</Text>
             <Text
               sx={{ fontFamily: 'Inter', fontWeight: '500', fontSize: '16px', color: '#4F4F4F', marginLeft: 'auto' }}
             >
-              Created: 14/09/2022
+              Created: {createdDate}
             </Text>
           </Box>
           <Box
@@ -56,7 +67,7 @@ function StrategyOverview() {
           ></Box>
           <Box sx={{ maxWidth: '28rem' }}>
             <Text sx={{ fontFamily: 'Inter', fontWeight: '500', fontSize: '16px', color: '#4F4F4F' }}>
-              Descriptive text for the Fund goes here. Any relevant information will be displayed.
+              {description}
             </Text>
           </Box>
           <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
@@ -73,7 +84,7 @@ function StrategyOverview() {
                 }}
               >
                 <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}>Pref. Fee</Text>
-                <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>5.5%</Text>
+                <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{performanceFee}</Text>
               </Box>
               <Box
                 sx={{
@@ -92,7 +103,7 @@ function StrategyOverview() {
                     <Image src="/icons/info.svg" width={20} height={20} />
                   </Box>
                 </Box>
-                <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>12%</Text>
+                <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{apy}</Text>
               </Box>
               <Box
                 sx={{
@@ -106,7 +117,7 @@ function StrategyOverview() {
                 }}
               >
                 <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}># Investors</Text>
-                <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>150</Text>
+                <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{investors}</Text>
               </Box>
             </Box>
 
@@ -128,7 +139,7 @@ function StrategyOverview() {
                     <Image src="/icons/info.svg" width={20} height={20} />
                   </Box>
                 </Box>
-                <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>$100,345</Text>
+                <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{tvl}</Text>
               </Box>
               <Box
                 sx={{
@@ -143,7 +154,7 @@ function StrategyOverview() {
               >
                 <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}>Your Stake</Text>
                 <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>15 BNB</Text>
+                  <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{stake}</Text>
                   <Text sx={{ color: '#DF4886', fontWeight: '500', fontSize: '14px', marginLeft: '3px' }}>
                     $10,580.42
                   </Text>
@@ -232,7 +243,7 @@ function StrategyOverview() {
               }}
             >
               <Text sx={{ fontSize: '16px', fontFamily: 'Inter', color: '#94A3B8' }}>Your Yield</Text>
-              <Text sx={{ color: '#FFFFFF', fontWeight: '600', fontFamily: 'Inter', fontSize: '24px' }}>$5,150</Text>
+              <Text sx={{ color: '#FFFFFF', fontWeight: '600', fontFamily: 'Inter', fontSize: '24px' }}>{reward}</Text>
             </Box>
             <Box sx={{ display: 'flex', gap: '10px', flexDirection: 'row', alignItems: 'center' }}>
               <Box
