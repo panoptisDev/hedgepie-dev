@@ -1,9 +1,20 @@
 import Image from 'next/image'
 import React from 'react'
 import { Box, Text } from 'theme-ui'
+import MintWizard from 'views/mint/MintWizard'
+import { Modal, useModal } from 'widgets/Modal'
 import YieldStakeDoughnut from '../Dashboard/YieldStakeDoughnut'
 
 function StrategyComposition() {
+  const [onMintModal] = useModal(
+    <Modal title="">
+      <Box sx={{ width: '1000vw' }}>
+        <MintWizard />
+      </Box>
+    </Modal>,
+    false,
+  )
+
   return (
     <Box
       sx={{
@@ -30,6 +41,9 @@ function StrategyComposition() {
             marginLeft: 'auto',
             cursor: 'pointer',
           }}
+          // onClick={() => {
+          //   onMintModal()
+          // }}
         >
           <Image src="/icons/edit_square.svg" width={20} height={20} />
         </Box>
