@@ -356,7 +356,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                     // Convert rewards to MATIC
                     uint256[2] memory rewards;
                     (rewards[0], rewards[1]) = HedgepieLibraryMatic
-                        .getRewardsMatic(
+                        .getRewards(
                             adapterInfos[_tokenId][adapter.addr],
                             userAdapterInfos[msg.sender][_tokenId][
                                 adapter.addr
@@ -463,7 +463,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                 _tokenId
             ][adapter.addr];
 
-            (rewards[0], rewards[1]) = HedgepieLibraryMatic.getRewardsMatic(
+            (rewards[0], rewards[1]) = HedgepieLibraryMatic.getRewards(
                 adapterInfos[_tokenId][adapter.addr],
                 userAdapterInfos[msg.sender][_tokenId][adapter.addr],
                 adapter.addr

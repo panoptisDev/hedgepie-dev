@@ -16,7 +16,7 @@ const forkNetwork = async () => {
   });
 };
 
-describe("CurveGaugeAdapter Integration Test", function () {
+describe("ApeswapLPFarmAdapter Integration Test", function () {
   before("Deploy contract", async function () {
     await forkNetwork();
 
@@ -24,15 +24,13 @@ describe("CurveGaugeAdapter Integration Test", function () {
 
     const performanceFee = 50;
     const wmatic = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
-    const strategy = "0x40c0e9376468b4f257d15f8c47e5d0c646c28880"; // crvEURTUS Gauge
-    const stakingToken = "0x600743B1d8A96438bD46836fD34977a00293f6Aa"; // Curve EURT-3Crv (crvEURTUSD)
-    const liquidityToken = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174"; // USDC
-    const poolContract = "0x225fb4176f0e20cdb66b4a3df70ca3063281e855"; // deposit address
-    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
-    const rewardToken = "0x172370d5Cd63279eFa6d502DAB29171933a610AF"; // CRV token
-    const rewardToken1 = ethers.constants.AddressZero;
+    const USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
+    const DAI = "0x8f3Cf7ad23Cd3CaDbD9735AFf958023239c6A063";
+    const strategy = "0x54aff400858Dcac39797a81894D9920f16972D1D"; // MiniApeV2
+    const stakingToken = "0x5b13B583D4317aB15186Ed660A1E4C65C10da659"; // USDC-DAI Apeswap LP
+    const rewardToken = "0x5d47bAbA0d66083C52009271faF3F50DCc01023C"; // BANANA token
+    const swapRouter = "0xC0788A3aD43d79aa53B09c2EaCc313A787d1d607"; // apeswap router v2 address
 
-    this.performanceFee = performanceFee;
     this.owner = owner;
     this.alice = alice;
     this.bob = bob;
@@ -42,18 +40,16 @@ describe("CurveGaugeAdapter Integration Test", function () {
 
     this.accTokenPerShare = BigNumber.from(0);
 
-    // Deploy CurveGauge Adapter contract
-    const curveAdapter = await ethers.getContractFactory("Curve4LPAdaper");
-    this.aAdapter = await curveAdapter.deploy(
+    // Deploy Apeswap LPFarm Adapter contract
+    const ApeswapAdapter = await ethers.getContractFactory("ApeswapFarmAdapter");
+    this.aAdapter = await ApeswapAdapter.deploy(
+      5, // pid
       strategy,
       stakingToken,
       rewardToken,
-      rewardToken1,
-      liquidityToken,
-      poolContract,
-      2,
-      false,
-      "Curve::crvEURSUSD::Gauge"
+      ethers.constants.AddressZero,
+      swapRouter,
+      "Apeswap::USDC-DAI LP::Farm"
     );
     await this.aAdapter.deployed();
 
@@ -63,7 +59,6 @@ describe("CurveGaugeAdapter Integration Test", function () {
 
     const Lib = await ethers.getContractFactory("HedgepieLibraryMatic");
     const lib = await Lib.deploy();
-    this.lib = lib;
 
     // Deploy Investor contract
     const investorFactory = await ethers.getContractFactory("HedgepieInvestorMatic", {
@@ -88,7 +83,7 @@ describe("CurveGaugeAdapter Integration Test", function () {
     // tokenID: 2
     await this.ybNft.mint([10000], [stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI2");
 
-    // Add Curve4LP Adapter to AdapterManager
+    // Add ApeswapLPFarm Adapter to AdapterManager
     await this.adapterManager.addAdapter(this.aAdapter.address);
 
     // Set investor in adapter manager
@@ -97,17 +92,18 @@ describe("CurveGaugeAdapter Integration Test", function () {
     // Set adapter manager in investor
     await this.investor.setAdapterManager(this.adapterManager.address);
     await this.investor.setTreasury(this.owner.address);
-
-    await this.aAdapter.setPath(wmatic, liquidityToken, [wmatic, liquidityToken]);
-    await this.aAdapter.setPath(liquidityToken, wmatic, [liquidityToken, wmatic]);
-
+    
+    await this.aAdapter.setPath(wmatic, USDC, [wmatic, USDC]);
+    await this.aAdapter.setPath(USDC, wmatic, [USDC, wmatic]);
+    await this.aAdapter.setPath(wmatic, DAI, [wmatic, DAI]);
+    await this.aAdapter.setPath(DAI, wmatic, [DAI, wmatic]);
     await this.aAdapter.setPath(wmatic, rewardToken, [wmatic, rewardToken]);
     await this.aAdapter.setPath(rewardToken, wmatic, [rewardToken, wmatic]);
 
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
     console.log("Strategy: ", strategy);
-    console.log("CurveGaugeAdapter: ", this.aAdapter.address);
+    console.log("ApeswapLPFarmAdapter: ", this.aAdapter.address);
   });
 
   describe("depositMATIC function test", function () {

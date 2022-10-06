@@ -74,7 +74,7 @@ library HedgepieLibraryMatic {
         }
     }
 
-    function getRewardsMatic(
+    function getRewards(
         HedgepieInvestorMatic.AdapterInfo calldata _adapter,
         HedgepieInvestorMatic.UserAdapterInfo calldata _userAdapterInfo,
         address _adapterAddr
@@ -121,14 +121,15 @@ library HedgepieLibraryMatic {
         HedgepieInvestorMatic.AdapterInfo storage _adapterInfo
     ) public {
         uint256[6] memory amounts;
-        address[2] memory addrs;
+        address[3] memory addrs;
         addrs[0] = IAdapter(_adapter.addr).repayToken();
         addrs[1] = IAdapter(_adapter.addr).rewardToken();
+        addrs[2] = IAdapter(_adapter.addr).rewardToken1();
         bool isVault = IAdapter(_adapter.addr).isVault();
 
-        amounts[0] = getDepositAmount(addrs, _adapter.addr, isVault);
+        amounts[0] = getDepositAmount([addrs[0], addrs[1]], _adapter.addr, isVault);
         amounts[3] = getDepositAmount(
-            [addrs[0], IAdapter(_adapter.addr).rewardToken1()],
+            [addrs[0], addrs[2]],
             _adapter.addr,
             isVault
         );
@@ -151,9 +152,9 @@ library HedgepieLibraryMatic {
         (bool success, ) = to.call{value: value}(callData);
         require(success, "Error: Deposit internal issue");
 
-        amounts[1] = getDepositAmount(addrs, _adapter.addr, isVault);
+        amounts[1] = getDepositAmount([addrs[0], addrs[1]], _adapter.addr, isVault);
         amounts[4] = getDepositAmount(
-            [addrs[0], IAdapter(_adapter.addr).rewardToken1()],
+            [addrs[0], addrs[2]],
             _adapter.addr,
             isVault
         );
@@ -169,9 +170,9 @@ library HedgepieLibraryMatic {
 
             if (_adapterInfo.totalStaked != 0 && addrs[0] == address(0)) {
                 if (amounts[2] != 0)
-                    _adapterInfo.accTokenPerShare +=
-                        (amounts[2] * 1e12) /
-                        _adapterInfo.totalStaked;
+                _adapterInfo.accTokenPerShare +=
+                    (amounts[2] * 1e12) /
+                    _adapterInfo.totalStaked;
 
                 if (amounts[5] != 0)
                     _adapterInfo.accTokenPerShare1 +=
