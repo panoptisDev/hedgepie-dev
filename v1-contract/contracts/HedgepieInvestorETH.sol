@@ -138,15 +138,6 @@ contract HedgepieInvestorETH is Ownable, ReentrancyGuard, IERC721Receiver {
                         weth
                     );
                 }
-            } else if (IAdapterETH(adapter.addr).liquidityToken() != address(0)) {
-                amountOut = HedgepieLibraryETH.getLPLiquidity(
-                    adapter.addr,
-                    adapter.token,
-                    amountIn,
-                    adapterManager,
-                    swapRouter,
-                    weth
-                );
             } else {
                 // get lp
                 amountOut = HedgepieLibraryETH.getLP(
@@ -282,15 +273,6 @@ contract HedgepieInvestorETH is Ownable, ReentrancyGuard, IERC721Receiver {
                         weth
                     );
                 }
-            } else if (IAdapterETH(adapter.addr).liquidityToken() != address(0)) {
-                amountOut += HedgepieLibraryETH.withdrawLPLiquidity(
-                    adapter.addr,
-                    adapter.token,
-                    balances[2],
-                    adapterManager,
-                    swapRouter,
-                    weth
-                );
             } else {
                 uint256 taxAmount;
                 amountOut += HedgepieLibraryETH.withdrawLP(
