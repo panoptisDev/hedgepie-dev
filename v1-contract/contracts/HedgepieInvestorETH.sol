@@ -118,7 +118,7 @@ contract HedgepieInvestorETH is Ownable, ReentrancyGuard, IERC721Receiver {
         );
 
         uint256[2] memory balances;
-        balances[0] = address(this).balance;
+        balances[0] = address(this).balance - _amount;
 
         for (uint8 i = 0; i < adapterInfo.length; i++) {
             IYBNFT.Adapter memory adapter = adapterInfo[i];
@@ -218,7 +218,6 @@ contract HedgepieInvestorETH is Ownable, ReentrancyGuard, IERC721Receiver {
 
         uint256 amountOut;
         uint256[3] memory balances;
-
         for (uint8 i = 0; i < adapterInfo.length; i++) {
             IYBNFT.Adapter memory adapter = adapterInfo[i];
             UserAdapterInfo storage userAdapter = userAdapterInfos[msg.sender][
@@ -343,10 +342,10 @@ contract HedgepieInvestorETH is Ownable, ReentrancyGuard, IERC721Receiver {
 
         userInfo[_user][ybnft][_tokenId] -= userAmount;
 
-        if (amountOut != 0) {
-            (bool success, ) = payable(_user).call{value: amountOut}("");
-            require(success, "Failed to send ETH");
-        }
+        // if (amountOut != 0) {
+        //     (bool success, ) = payable(_user).call{value: amountOut}("");
+        //     require(success, "Failed to send ETH");
+        // }
         emit WithdrawETH(_user, ybnft, _tokenId, userAmount);
     }
 
@@ -556,9 +555,8 @@ contract HedgepieInvestorETH is Ownable, ReentrancyGuard, IERC721Receiver {
                         (reserve1 * tokenRewards) /
                         IPancakePair(pairToken).totalSupply();
 
-                    if (tokens[0] == weth) rewards += amounts[0];
-                    else
-                        rewards += IPancakeRouter(swapRouter).getAmountsOut(
+                    rewards += tokens[0] == weth ? amounts[0] :
+                        IPancakeRouter(swapRouter).getAmountsOut(
                             amounts[0],
                             HedgepieLibraryETH.getPaths(
                                 adapter.addr,
@@ -567,9 +565,8 @@ contract HedgepieInvestorETH is Ownable, ReentrancyGuard, IERC721Receiver {
                             )
                         )[1];
 
-                    if (tokens[1] == weth) rewards += amounts[1];
-                    else
-                        rewards += IPancakeRouter(swapRouter).getAmountsOut(
+                    rewards += tokens[1] == weth ? amounts[1] :
+                        IPancakeRouter(swapRouter).getAmountsOut(
                             amounts[1],
                             HedgepieLibraryETH.getPaths(
                                 adapter.addr,
@@ -593,5 +590,23 @@ contract HedgepieInvestorETH is Ownable, ReentrancyGuard, IERC721Receiver {
         bytes calldata
     ) external pure override returns (bytes4) {
         return this.onERC721Received.selector;
+    }
+
+    function testFunc() external view returns(bytes[] memory params) {
+        params[0] = abi.encodeWithSignature(
+            "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))",
+            335962,
+            uint128(11985536607698),
+            0,
+            0,
+            block.timestamp + 2 hours
+        );
+        params[1] = abi.encodeWithSignature(
+            "collect((uint256,address,uint128,uint128))",
+            335962,
+            address(this),
+            type(uint128).max,
+            type(uint128).max
+        );
     }
 }

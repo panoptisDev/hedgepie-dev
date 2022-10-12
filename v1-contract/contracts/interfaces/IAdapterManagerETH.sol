@@ -24,4 +24,6 @@ interface IAdapterManagerETH {
             uint256 value,
             bytes memory data
         );
+
+    function multicall(bytes[] memory data) external;
 }

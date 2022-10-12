@@ -56,8 +56,7 @@ library HedgepieLibraryETH {
             address[] memory path = getPaths(_adapter, _inToken, weth);
             uint256 beforeBalance = address(this).balance;
 
-            IBEP20(_inToken).approve(address(_router), _amountIn);
-
+            IBEP20(_inToken).approve(_router, _amountIn);
             IPancakeRouter(_router)
                 .swapExactTokensForETHSupportingFeeOnTransferTokens(
                     _amountIn,
@@ -67,8 +66,7 @@ library HedgepieLibraryETH {
                     block.timestamp + 2 hours
                 );
 
-            uint256 afterBalance = address(this).balance;
-            amountOut = afterBalance - beforeBalance;
+            amountOut = address(this).balance - beforeBalance;
         }
     }
 
@@ -192,7 +190,7 @@ library HedgepieLibraryETH {
             ? IAdapterETH(_adapter.addr).strategy()
             : _router;
 
-        uint256[2] memory tokenAmount;
+        uint256[4] memory tokenAmount;
         tokenAmount[0] = _amountIn / 2;
         tokenAmount[1] = _amountIn - tokenAmount[0];
         if (tokens[0] != weth) {
@@ -232,7 +230,7 @@ library HedgepieLibraryETH {
             }
 
             if (tokenId != 0) {
-                (amountOut, , ) = INonfungiblePositionManager(
+                (amountOut, tokenAmount[2], tokenAmount[3]) = INonfungiblePositionManager(
                     _strategy
                 ).increaseLiquidity(
                     INonfungiblePositionManager
@@ -263,7 +261,7 @@ library HedgepieLibraryETH {
                         deadline: block.timestamp + 2 hours
                     });
 
-                (tokenId, amountOut, , ) = INonfungiblePositionManager(
+                (tokenId, amountOut, tokenAmount[2], tokenAmount[3]) = INonfungiblePositionManager(
                     _strategy
                 ).mint(params);
                 IAdapterETH(_adapter.addr).setLiquidityNFT(
@@ -271,6 +269,16 @@ library HedgepieLibraryETH {
                     _tokenId,
                     tokenId
                 );
+            }
+
+            if(tokenAmount[2] < tokenAmount[0]) {
+                swapforETH(_adapter.addr, tokenAmount[0] - tokenAmount[2], tokens[0], _router, weth);
+                IBEP20(tokens[0]).approve(_strategy, 0);
+            }
+
+            if(tokenAmount[3] < tokenAmount[1]) {
+                swapforETH(_adapter.addr, tokenAmount[1] - tokenAmount[3], tokens[1], _router, weth);
+                IBEP20(tokens[1]).approve(_strategy, 0);
             }
         } else if (tokenAmount[0] != 0 && tokenAmount[1] != 0) {
             if (tokens[0] == weth || tokens[1] == weth) {
@@ -306,11 +314,10 @@ library HedgepieLibraryETH {
         uint256 _amountIn,
         uint256 _tokenId
     ) public returns (uint256 amountOut) {
-        address[2] memory tokens;
+        address[3] memory tokens;
         tokens[0] = IPancakePair(_adapter.token).token0();
         tokens[1] = IPancakePair(_adapter.token).token1();
-
-        address _router = IAdapterETH(_adapter.addr).router();
+        tokens[2] = IAdapterETH(_adapter.addr).router();
 
         if (IAdapterETH(_adapter.addr).noDeposit()) {
             uint256 tokenId = IAdapterETH(_adapter.addr).getLiquidityNFT(
@@ -319,42 +326,64 @@ library HedgepieLibraryETH {
             );
             require(tokenId != 0, "Invalid request");
 
-            INonfungiblePositionManager.DecreaseLiquidityParams
-                memory params = INonfungiblePositionManager
-                    .DecreaseLiquidityParams({
-                        tokenId: tokenId,
-                        liquidity: uint128(_amountIn),
-                        amount0Min: 0,
-                        amount1Min: 0,
-                        deadline: block.timestamp + 2 hours
-                    });
-            (uint256 amount0, uint256 amount1) = INonfungiblePositionManager(
+            uint256[2] memory amounts;
+            (amounts[0], amounts[1]) = INonfungiblePositionManager(
                 IAdapterETH(_adapter.addr).strategy()
-            ).decreaseLiquidity(params);
+            ).decreaseLiquidity(
+                INonfungiblePositionManager
+                .DecreaseLiquidityParams({
+                    tokenId: tokenId,
+                    liquidity: uint128(_amountIn),
+                    amount0Min: 0,
+                    amount1Min: 0,
+                    deadline: block.timestamp + 2 hours
+                })
+            );
 
-            if (amount0 != 0) {
-                if (tokens[0] == weth) {
-                    IWrap(weth).withdraw(amount0);
-                    amountOut += amount0;
-                } else {
-                    amountOut += swapforETH(_adapter.addr, amount0, tokens[0], _router, weth);
-                }
-            }
+            INonfungiblePositionManager(
+                IAdapterETH(_adapter.addr).strategy()
+            ).collect(
+                INonfungiblePositionManager.CollectParams({
+                    tokenId: tokenId,
+                    recipient: address(this),
+                    amount0Max: type(uint128).max,
+                    amount1Max: type(uint128).max
+                })
+            );
 
-            if (amount1 != 0) {
-                if (tokens[1] == weth) {
-                    IWrap(weth).withdraw(amount1);
-                    amountOut += amount1;
-                } else {
-                    amountOut += swapforETH(_adapter.addr, amount1, tokens[1], _router, weth);
-                }
-            }
+            bytes[] memory params;
+            params[0] = abi.encodeWithSignature(
+                "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))",
+                tokenId,
+                uint128(_amountIn),
+                0,
+                0,
+                block.timestamp + 2 hours
+            );
+            params[1] = abi.encodeWithSignature(
+                "collect((uint256,address,uint128,uint128))",
+                tokenId,
+                address(this),
+                type(uint128).max,
+                type(uint128).max
+            );
+            IAdapterManagerETH(IAdapterETH(_adapter.addr).strategy()).multicall(params);
+
+            require(address(this).balance > 0, "err here");
+
+            if (amounts[0] != 0)
+                amountOut += tokens[0] == weth ? amounts[0] :
+                    swapforETH(_adapter.addr, amounts[0], tokens[0], tokens[2], weth);
+
+            if (amounts[1] != 0)
+                amountOut += tokens[1] == weth ? amounts[1] :
+                    swapforETH(_adapter.addr, amounts[1], tokens[1], tokens[2], weth);
         } else {
-            IBEP20(_adapter.token).approve(_router, _amountIn);
+            IBEP20(_adapter.token).approve(tokens[2], _amountIn);
             if (tokens[0] == weth || tokens[1] == weth) {
                 address tokenAddr = tokens[0] == weth ? tokens[1] : tokens[0];
                 (uint256 amountToken, uint256 amountETH) = IPancakeRouter(
-                    _router
+                    tokens[2]
                 ).removeLiquidityETH(
                     tokenAddr,
                     _amountIn,
@@ -369,11 +398,11 @@ library HedgepieLibraryETH {
                     _adapter.addr,
                     amountToken,
                     tokenAddr,
-                    _router,
+                    tokens[2],
                     weth
                 );
             } else {
-                (uint256 amountA, uint256 amountB) = IPancakeRouter(_router)
+                (uint256 amountA, uint256 amountB) = IPancakeRouter(tokens[2])
                     .removeLiquidity(
                         tokens[0],
                         tokens[1],
@@ -388,14 +417,14 @@ library HedgepieLibraryETH {
                     _adapter.addr,
                     amountA,
                     tokens[0],
-                    _router,
+                    tokens[2],
                     weth
                 );
                 amountOut += swapforETH(
                     _adapter.addr,
                     amountB,
                     tokens[1],
-                    _router,
+                    tokens[2],
                     weth
                 );
             }
