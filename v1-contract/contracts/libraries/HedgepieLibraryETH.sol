@@ -224,28 +224,27 @@ library HedgepieLibraryETH {
             );
 
             // wrap to weth
-            if (tokens[0] == weth) {
-                IWrap(weth).deposit(tokenAmount[0]);
-                IBEP20(weth).approve(_strategy, tokenAmount[0]);
-            } else if (tokens[0] == weth) {
-                IWrap(weth).deposit(tokenAmount[1]);
-                IBEP20(weth).approve(_strategy, tokenAmount[1]);
+            if (tokens[0] == weth || tokens[1] == weth) {
+                IWrap(weth).deposit {
+                    value: tokens[0] == weth ? tokenAmount[0] : tokenAmount[1]
+                }();
+                IBEP20(weth).approve(_strategy, tokens[0] == weth ? tokenAmount[0] : tokenAmount[1]);
             }
 
             if (tokenId != 0) {
-                INonfungiblePositionManager.IncreaseLiquidityParams
-                    memory params = INonfungiblePositionManager
-                        .IncreaseLiquidityParams({
-                            tokenId: tokenId,
-                            amount0Desired: tokenAmount[0],
-                            amount1Desired: tokenAmount[1],
-                            amount0Min: 0,
-                            amount1Min: 0,
-                            deadline: block.timestamp + 2 hours
-                        });
-
-                (amountOut, , ) = INonfungiblePositionManager(_strategy)
-                    .increaseLiquidity(params);
+                (amountOut, , ) = INonfungiblePositionManager(
+                    _strategy
+                ).increaseLiquidity(
+                    INonfungiblePositionManager
+                    .IncreaseLiquidityParams({
+                        tokenId: tokenId,
+                        amount0Desired: tokenAmount[0],
+                        amount1Desired: tokenAmount[1],
+                        amount0Min: 0,
+                        amount1Min: 0,
+                        deadline: block.timestamp + 2 hours
+                    })
+                );
             } else {
                 int24[2] memory ticks;
                 (ticks[0], ticks[1]) = IAdapterETH(_adapter.addr).getTick();
@@ -333,44 +332,37 @@ library HedgepieLibraryETH {
                 IAdapterETH(_adapter.addr).strategy()
             ).decreaseLiquidity(params);
 
-            if (amountOut != 0) {
+            if (amount0 != 0) {
                 if (tokens[0] == weth) {
-                    IWrap(tokens[0]).withdraw(amount0);
+                    IWrap(weth).withdraw(amount0);
                     amountOut += amount0;
                 } else {
-                    amountOut += swapforETH(
-                        _adapter.addr,
-                        amount0,
-                        tokens[0],
-                        _router,
-                        weth
-                    );
+                    amountOut += swapforETH(_adapter.addr, amount0, tokens[0], _router, weth);
                 }
             }
 
             if (amount1 != 0) {
                 if (tokens[1] == weth) {
-                    IWrap(tokens[1]).withdraw(amount1);
+                    IWrap(weth).withdraw(amount1);
                     amountOut += amount1;
                 } else {
-                    // amountOut += swapforETH(_adapter, amount1, token1, _router, weth);
+                    amountOut += swapforETH(_adapter.addr, amount1, tokens[1], _router, weth);
                 }
             }
         } else {
             IBEP20(_adapter.token).approve(_router, _amountIn);
-
             if (tokens[0] == weth || tokens[1] == weth) {
                 address tokenAddr = tokens[0] == weth ? tokens[1] : tokens[0];
                 (uint256 amountToken, uint256 amountETH) = IPancakeRouter(
                     _router
                 ).removeLiquidityETH(
-                        tokenAddr,
-                        _amountIn,
-                        0,
-                        0,
-                        address(this),
-                        block.timestamp + 2 hours
-                    );
+                    tokenAddr,
+                    _amountIn,
+                    0,
+                    0,
+                    address(this),
+                    block.timestamp + 2 hours
+                );
 
                 amountOut = amountETH;
                 amountOut += swapforETH(

@@ -253,12 +253,11 @@ library HedgepieLibraryMatic {
             );
 
             // wrap to wmatic
-            if (tokens[0] == wmatic) {
-                IWrap(wmatic).deposit(tokenAmount[0]);
-                IBEP20(wmatic).approve(_strategy, tokenAmount[0]);
-            } else if (tokens[0] == wmatic) {
-                IWrap(wmatic).deposit(tokenAmount[1]);
-                IBEP20(wmatic).approve(_strategy, tokenAmount[1]);
+            if (tokens[0] == wmatic || tokens[1] == wmatic) {
+                IWrap(wmatic).deposit {
+                    value: tokens[0] == wmatic ? tokenAmount[0] : tokenAmount[1]
+                }();
+                IBEP20(wmatic).approve(_strategy, tokens[0] == wmatic ? tokenAmount[0] : tokenAmount[1]);
             }
 
             if (tokenId != 0) {
@@ -362,18 +361,12 @@ library HedgepieLibraryMatic {
                 IAdapterMatic(_adapter.addr).strategy()
             ).decreaseLiquidity(params);
 
-            if (amountOut != 0) {
+            if (amount0 != 0) {
                 if (tokens[0] == wmatic) {
                     IWrap(tokens[0]).withdraw(amount0);
                     amountOut += amount0;
                 } else {
-                    amountOut += swapforMatic(
-                        _adapter.addr,
-                        amount0,
-                        tokens[0],
-                        _router,
-                        wmatic
-                    );
+                    amountOut += swapforMatic(_adapter.addr, amount0, tokens[0], _router, wmatic);
                 }
             }
 

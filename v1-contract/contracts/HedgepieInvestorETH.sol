@@ -204,7 +204,7 @@ contract HedgepieInvestorETH is Ownable, ReentrancyGuard, IERC721Receiver {
      * @param _tokenId  YBNft token id
      */
     /// #if_succeeds {:msg "userInfo not decreased"} userInfo[_user][ybnft][_tokenId] < old(userInfo[_user][ybnft][_tokenId]);
-    function withdraweth(address _user, uint256 _tokenId)
+    function withdrawETH(address _user, uint256 _tokenId)
         external
         nonReentrant
     {

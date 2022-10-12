@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import "../../BaseAdapterETH.sol";
 
-contract UniswapLPAdapter is BaseAdapterETH {
+contract UniswapV3LPAdapter is BaseAdapterETH {
     // user => nft id => tokenID
     mapping(address => mapping(uint256 => uint256)) public liquidityNFT;
 
