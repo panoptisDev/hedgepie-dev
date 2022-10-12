@@ -346,38 +346,16 @@ library HedgepieLibraryETH {
                 INonfungiblePositionManager.CollectParams({
                     tokenId: tokenId,
                     recipient: address(this),
-                    amount0Max: type(uint128).max,
-                    amount1Max: type(uint128).max
+                    amount0Max: uint128(amounts[0]),
+                    amount1Max: uint128(amounts[1])
                 })
             );
 
-            bytes[] memory params;
-            params[0] = abi.encodeWithSignature(
-                "decreaseLiquidity((uint256,uint128,uint256,uint256,uint256))",
-                tokenId,
-                uint128(_amountIn),
-                0,
-                0,
-                block.timestamp + 2 hours
-            );
-            params[1] = abi.encodeWithSignature(
-                "collect((uint256,address,uint128,uint128))",
-                tokenId,
-                address(this),
-                type(uint128).max,
-                type(uint128).max
-            );
-            IAdapterManagerETH(IAdapterETH(_adapter.addr).strategy()).multicall(params);
-
-            require(address(this).balance > 0, "err here");
-
             if (amounts[0] != 0)
-                amountOut += tokens[0] == weth ? amounts[0] :
-                    swapforETH(_adapter.addr, amounts[0], tokens[0], tokens[2], weth);
+                amountOut += swapforETH(_adapter.addr, amounts[0], tokens[0], tokens[2], weth);
 
             if (amounts[1] != 0)
-                amountOut += tokens[1] == weth ? amounts[1] :
-                    swapforETH(_adapter.addr, amounts[1], tokens[1], tokens[2], weth);
+                amountOut += swapforETH(_adapter.addr, amounts[1], tokens[1], tokens[2], weth);
         } else {
             IBEP20(_adapter.token).approve(tokens[2], _amountIn);
             if (tokens[0] == weth || tokens[1] == weth) {
