@@ -1,7 +1,12 @@
-import React, { useState } from 'react'
+import { useWeb3React } from '@web3-react/core'
+import { useYBNFTMint } from 'hooks/useYBNFTMint'
+import React, { useEffect, useState } from 'react'
 import { Box, Text } from 'theme-ui'
 
 function DashboardFunds() {
+  const { getOwnerOf } = useYBNFTMint()
+  const { account } = useWeb3React()
+  const [owned, setOwned] = useState<number[]>([])
   const [funds, setFunds] = useState([
     {
       name: 'Fund XYZ',
@@ -34,6 +39,33 @@ function DashboardFunds() {
       yield: '$5,150',
     },
   ])
+
+  const { getMaxTokenId } = useYBNFTMint()
+
+  // START - Interaction with Contracts
+
+  // START - Get all token IDs minted by account
+  useEffect(() => {
+    const getOwnedYBNFTS = async () => {
+      const maxTokenId = await getMaxTokenId()
+      let ownedNFTs: number[] = []
+      for (let i = 1; i <= maxTokenId; i++) {
+        const owner = await getOwnerOf(i)
+        if (owner === account) ownedNFTs.push(i)
+      }
+      setOwned(ownedNFTs)
+    }
+    getOwnedYBNFTS()
+  }, [])
+  // END - Get all token IDs minted by account
+
+  // START - Get info of tokens owned by user
+  useEffect(() => {
+    if (!owned.length) return
+  }, [owned])
+  // END - Get info of tokens owned by user
+
+  // END - Interaction with Contracts
   return (
     <Box
       sx={{

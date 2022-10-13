@@ -117,6 +117,11 @@ export const fetchMaxTokenId = async (ybnftMintContract) => {
   return maxTokenId
 }
 
+export const fetchOwnerOf = async (ybnftMintContract, tokenId) => {
+  const owner = await ybnftMintContract.methods.ownerOf(tokenId).call()
+  return owner
+}
+
 export const fetchTokenUri = async (ybnftMintContract, tokenId) => {
   const tokenUri = await ybnftMintContract.methods.tokenURI(tokenId).call()
   return tokenUri
