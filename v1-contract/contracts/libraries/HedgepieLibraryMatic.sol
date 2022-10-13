@@ -221,7 +221,7 @@ library HedgepieLibraryMatic {
             ? IAdapterMatic(_adapter.addr).strategy()
             : _router;
 
-        uint256[2] memory tokenAmount;
+        uint256[4] memory tokenAmount;
         tokenAmount[0] = _amountIn / 2;
         tokenAmount[1] = _amountIn - tokenAmount[0];
         if (tokens[0] != wmatic) {
@@ -261,19 +261,19 @@ library HedgepieLibraryMatic {
             }
 
             if (tokenId != 0) {
-                INonfungiblePositionManager.IncreaseLiquidityParams
-                    memory params = INonfungiblePositionManager
-                        .IncreaseLiquidityParams({
-                            tokenId: tokenId,
-                            amount0Desired: tokenAmount[0],
-                            amount1Desired: tokenAmount[1],
-                            amount0Min: 0,
-                            amount1Min: 0,
-                            deadline: block.timestamp + 2 hours
-                        });
-
-                (amountOut, , ) = INonfungiblePositionManager(_strategy)
-                    .increaseLiquidity(params);
+                (amountOut, tokenAmount[2], tokenAmount[3]) = INonfungiblePositionManager(
+                    _strategy
+                ).increaseLiquidity(
+                    INonfungiblePositionManager
+                    .IncreaseLiquidityParams({
+                        tokenId: tokenId,
+                        amount0Desired: tokenAmount[0],
+                        amount1Desired: tokenAmount[1],
+                        amount0Min: 0,
+                        amount1Min: 0,
+                        deadline: block.timestamp + 2 hours
+                    })
+                );
             } else {
                 int24[2] memory ticks;
                 (ticks[0], ticks[1]) = IAdapterMatic(_adapter.addr).getTick();
@@ -292,7 +292,7 @@ library HedgepieLibraryMatic {
                         deadline: block.timestamp + 2 hours
                     });
 
-                (tokenId, amountOut, , ) = INonfungiblePositionManager(
+                (tokenId, amountOut, tokenAmount[2], tokenAmount[3]) = INonfungiblePositionManager(
                     _strategy
                 ).mint(params);
                 IAdapterMatic(_adapter.addr).setLiquidityNFT(
@@ -300,6 +300,16 @@ library HedgepieLibraryMatic {
                     _tokenId,
                     tokenId
                 );
+            }
+
+            if(tokenAmount[2] < tokenAmount[0]) {
+                swapforMatic(_adapter.addr, tokenAmount[0] - tokenAmount[2], tokens[0], _router, wmatic);
+                IBEP20(tokens[0]).approve(_strategy, 0);
+            }
+
+            if(tokenAmount[3] < tokenAmount[1]) {
+                swapforMatic(_adapter.addr, tokenAmount[1] - tokenAmount[3], tokens[1], _router, wmatic);
+                IBEP20(tokens[1]).approve(_strategy, 0);
             }
         } else if (tokenAmount[0] != 0 && tokenAmount[1] != 0) {
             if (tokens[0] == wmatic || tokens[1] == wmatic) {
@@ -335,11 +345,10 @@ library HedgepieLibraryMatic {
         uint256 _amountIn,
         uint256 _tokenId
     ) public returns (uint256 amountOut) {
-        address[2] memory tokens;
+        address[3] memory tokens;
         tokens[0] = IPancakePair(_adapter.token).token0();
         tokens[1] = IPancakePair(_adapter.token).token1();
-
-        address _router = IAdapterMatic(_adapter.addr).router();
+        tokens[2] = IAdapterMatic(_adapter.addr).router();
 
         if (IAdapterMatic(_adapter.addr).noDeposit()) {
             uint256 tokenId = IAdapterMatic(_adapter.addr).getLiquidityNFT(
@@ -348,43 +357,43 @@ library HedgepieLibraryMatic {
             );
             require(tokenId != 0, "Invalid request");
 
-            INonfungiblePositionManager.DecreaseLiquidityParams
-                memory params = INonfungiblePositionManager
-                    .DecreaseLiquidityParams({
-                        tokenId: tokenId,
-                        liquidity: uint128(_amountIn),
-                        amount0Min: 0,
-                        amount1Min: 0,
-                        deadline: block.timestamp + 2 hours
-                    });
-            (uint256 amount0, uint256 amount1) = INonfungiblePositionManager(
+            uint256[2] memory amounts;
+            (amounts[0], amounts[1]) = INonfungiblePositionManager(
                 IAdapterMatic(_adapter.addr).strategy()
-            ).decreaseLiquidity(params);
+            ).decreaseLiquidity(
+                INonfungiblePositionManager
+                .DecreaseLiquidityParams({
+                    tokenId: tokenId,
+                    liquidity: uint128(_amountIn),
+                    amount0Min: 0,
+                    amount1Min: 0,
+                    deadline: block.timestamp + 2 hours
+                })
+            );
 
-            if (amount0 != 0) {
-                if (tokens[0] == wmatic) {
-                    IWrap(tokens[0]).withdraw(amount0);
-                    amountOut += amount0;
-                } else {
-                    amountOut += swapforMatic(_adapter.addr, amount0, tokens[0], _router, wmatic);
-                }
-            }
+            INonfungiblePositionManager(
+                IAdapterMatic(_adapter.addr).strategy()
+            ).collect(
+                INonfungiblePositionManager.CollectParams({
+                    tokenId: tokenId,
+                    recipient: address(this),
+                    amount0Max: uint128(amounts[0]),
+                    amount1Max: uint128(amounts[1])
+                })
+            );
 
-            if (amount1 != 0) {
-                if (tokens[1] == wmatic) {
-                    IWrap(tokens[1]).withdraw(amount1);
-                    amountOut += amount1;
-                } else {
-                    // amountOut += swapforMatic(_adapter, amount1, token1, _router, wmatic);
-                }
-            }
+            if (amounts[0] != 0)
+                amountOut += swapforMatic(_adapter.addr, amounts[0], tokens[0], tokens[2], wmatic);
+
+            if (amounts[1] != 0)
+                amountOut += swapforMatic(_adapter.addr, amounts[1], tokens[1], tokens[2], wmatic);
         } else {
-            IBEP20(_adapter.token).approve(_router, _amountIn);
+            IBEP20(_adapter.token).approve(tokens[2], _amountIn);
 
             if (tokens[0] == wmatic || tokens[1] == wmatic) {
                 address tokenAddr = tokens[0] == wmatic ? tokens[1] : tokens[0];
                 (uint256 amountToken, uint256 amountETH) = IPancakeRouter(
-                    _router
+                    tokens[2]
                 ).removeLiquidityETH(
                         tokenAddr,
                         _amountIn,
@@ -399,11 +408,11 @@ library HedgepieLibraryMatic {
                     _adapter.addr,
                     amountToken,
                     tokenAddr,
-                    _router,
+                    tokens[2],
                     wmatic
                 );
             } else {
-                (uint256 amountA, uint256 amountB) = IPancakeRouter(_router)
+                (uint256 amountA, uint256 amountB) = IPancakeRouter(tokens[2])
                     .removeLiquidity(
                         tokens[0],
                         tokens[1],
@@ -418,14 +427,14 @@ library HedgepieLibraryMatic {
                     _adapter.addr,
                     amountA,
                     tokens[0],
-                    _router,
+                    tokens[2],
                     wmatic
                 );
                 amountOut += swapforMatic(
                     _adapter.addr,
                     amountB,
                     tokens[1],
-                    _router,
+                    tokens[2],
                     wmatic
                 );
             }

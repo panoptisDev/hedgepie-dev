@@ -120,7 +120,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
         );
 
         uint256[2] memory balances;
-        balances[0] = address(this).balance;
+        balances[0] = address(this).balance - _amount;
 
         for (uint8 i = 0; i < adapterInfo.length; i++) {
             IYBNFT.Adapter memory adapter = adapterInfo[i];
