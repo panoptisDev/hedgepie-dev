@@ -4,7 +4,7 @@ pragma solidity ^0.8.4;
 import "./libraries/Ownable.sol";
 import "./interfaces/IAdapterMatic.sol";
 
-contract HedgepieAdapterManagerMatic is Ownable {
+contract HedgepieAdapterManagerETH is Ownable {
     struct AdapterInfo {
         address addr;
         string name;
@@ -104,54 +104,6 @@ contract HedgepieAdapterManagerMatic is Ownable {
     {
         require(_amount > 0, "Amount can not be 0");
         return IAdapterMatic(_adapter).getDevestCallData(_amount);
-    }
-
-    /**
-     * @notice Get reward call data of adapter contract
-     * @param _adapter  adapter address
-     */
-    function getRewardCallData(address _adapter)
-        external
-        view
-        onlyActiveAdapter(_adapter)
-        onlyInvestor
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        )
-    {
-        return IAdapterMatic(_adapter).getRewardCallData();
-    }
-
-    function getAddLiqCallData(address _adapter, uint256 _amount)
-        external
-        view
-        onlyActiveAdapter(_adapter)
-        onlyInvestor
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        )
-    {
-        require(_amount > 0, "Amount can not be 0");
-        return IAdapterMatic(_adapter).getAddLiqCallData(_amount);
-    }
-
-    function getRemoveLiqCallData(address _adapter, uint256 _amount)
-        external
-        view
-        onlyActiveAdapter(_adapter)
-        onlyInvestor
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        )
-    {
-        require(_amount > 0, "Amount can not be 0");
-        return IAdapterMatic(_adapter).getRemoveLiqCallData(_amount);
     }
 
     // ===== Owner functions =====

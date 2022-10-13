@@ -7,21 +7,20 @@ import "./SafeBEP20.sol";
 import "./Ownable.sol";
 
 import "../interfaces/IYBNFT.sol";
+import "../interfaces/IAdapterETH.sol";
 import "../interfaces/IPancakePair.sol";
-import "../interfaces/IAdapterMatic.sol";
 import "../interfaces/IPancakeRouter.sol";
-import "../interfaces/IVaultStrategy.sol";
-import "../interfaces/IAdapterManagerMatic.sol";
+import "../interfaces/IAdapterManagerETH.sol";
 
-import "../HedgepieInvestorMatic.sol";
+import "../HedgepieInvestorETH.sol";
 
-library HedgepieLibraryMatic {
+library HedgepieLibraryETH {
     function getPaths(
         address _adapter,
         address _inToken,
         address _outToken
     ) public view returns (address[] memory path) {
-        return IAdapterMatic(_adapter).getPaths(_inToken, _outToken);
+        return IAdapterETH(_adapter).getPaths(_inToken, _outToken);
     }
 
     function swapOnRouter(
@@ -29,9 +28,9 @@ library HedgepieLibraryMatic {
         uint256 _amountIn,
         address _outToken,
         address _router,
-        address wmatic
+        address weth
     ) public returns (uint256 amountOut) {
-        address[] memory path = getPaths(_adapter, wmatic, _outToken);
+        address[] memory path = getPaths(_adapter, weth, _outToken);
         uint256 beforeBalance = IBEP20(_outToken).balanceOf(address(this));
 
         IPancakeRouter(_router)
@@ -43,22 +42,21 @@ library HedgepieLibraryMatic {
         amountOut = afterBalance - beforeBalance;
     }
 
-    function swapforMatic(
+    function swapforETH(
         address _adapter,
         uint256 _amountIn,
         address _inToken,
         address _router,
-        address wmatic
+        address weth
     ) public returns (uint256 amountOut) {
-        if (_inToken == wmatic) {
-            IWrap(wmatic).withdraw(_amountIn);
+        if (_inToken == weth) {
+            IWrap(weth).withdraw(_amountIn);
             amountOut = _amountIn;
         } else {
-            address[] memory path = getPaths(_adapter, _inToken, wmatic);
+            address[] memory path = getPaths(_adapter, _inToken, weth);
             uint256 beforeBalance = address(this).balance;
 
-            IBEP20(_inToken).approve(address(_router), _amountIn);
-
+            IBEP20(_inToken).approve(_router, _amountIn);
             IPancakeRouter(_router)
                 .swapExactTokensForETHSupportingFeeOnTransferTokens(
                     _amountIn,
@@ -68,27 +66,22 @@ library HedgepieLibraryMatic {
                     block.timestamp + 2 hours
                 );
 
-            uint256 afterBalance = address(this).balance;
-            amountOut = afterBalance - beforeBalance;
+            amountOut = address(this).balance - beforeBalance;
         }
     }
 
     function getRewards(
-        HedgepieInvestorMatic.AdapterInfo calldata _adapter,
-        HedgepieInvestorMatic.UserAdapterInfo calldata _userAdapterInfo,
+        HedgepieInvestorETH.AdapterInfo calldata _adapter,
+        HedgepieInvestorETH.UserAdapterInfo calldata _userAdapterInfo,
         address _adapterAddr
-    ) public view returns (uint256 reward, uint256 reward1) {
+    ) public view returns (uint256 reward) {
         if (
-            IAdapterMatic(_adapterAddr).rewardToken() != address(0) &&
+            IAdapterETH(_adapterAddr).rewardToken() != address(0) &&
             _adapter.totalStaked != 0 &&
             _adapter.accTokenPerShare != 0
         ) {
             reward =
                 ((_adapter.accTokenPerShare - _userAdapterInfo.userShares) *
-                    _userAdapterInfo.amount) /
-                1e12;
-            reward1 =
-                ((_adapter.accTokenPerShare1 - _userAdapterInfo.userShares1) *
                     _userAdapterInfo.amount) /
                 1e12;
         }
@@ -103,7 +96,7 @@ library HedgepieLibraryMatic {
             ? IBEP20(addrs[0]).balanceOf(address(this))
             : (
                 isVault
-                    ? IAdapterMatic(_adapter).pendingShares()
+                    ? IAdapterETH(_adapter).pendingShares()
                     : addrs[1] != address(0)
                     ? IBEP20(addrs[1]).balanceOf(address(this))
                     : 0
@@ -116,34 +109,28 @@ library HedgepieLibraryMatic {
         uint256 _tokenId,
         uint256 _amount,
         IYBNFT.Adapter memory _adapter,
-        HedgepieInvestorMatic.UserAdapterInfo storage _userAdapterInfo,
-        HedgepieInvestorMatic.AdapterInfo storage _adapterInfo
+        HedgepieInvestorETH.UserAdapterInfo storage _userAdapterInfo,
+        HedgepieInvestorETH.AdapterInfo storage _adapterInfo
     ) public {
-        uint256[6] memory amounts;
-        address[3] memory addrs;
-        addrs[0] = IAdapterMatic(_adapter.addr).repayToken();
-        addrs[1] = IAdapterMatic(_adapter.addr).rewardToken();
-        addrs[2] = IAdapterMatic(_adapter.addr).rewardToken1();
-        bool isVault = IAdapterMatic(_adapter.addr).isVault();
+        uint256[3] memory amounts;
+        address[2] memory addrs;
+        addrs[0] = IAdapterETH(_adapter.addr).repayToken();
+        addrs[1] = IAdapterETH(_adapter.addr).rewardToken();
+        bool isVault = IAdapterETH(_adapter.addr).isVault();
 
         amounts[0] = getDepositAmount([addrs[0], addrs[1]], _adapter.addr, isVault);
-        amounts[3] = getDepositAmount(
-            [addrs[0], addrs[2]],
-            _adapter.addr,
-            isVault
-        );
 
         (
             address to,
             uint256 value,
             bytes memory callData
-        ) = IAdapterManagerMatic(_adapterManager).getDepositCallData(
+        ) = IAdapterManagerETH(_adapterManager).getDepositCallData(
                 _adapter.addr,
                 _amount
             );
 
         IBEP20(_adapter.token).approve(
-            IAdapterManagerMatic(_adapterManager).getAdapterStrat(
+            IAdapterManagerETH(_adapterManager).getAdapterStrat(
                 _adapter.addr
             ),
             _amount
@@ -152,19 +139,11 @@ library HedgepieLibraryMatic {
         require(success, "Error: Deposit internal issue");
 
         amounts[1] = getDepositAmount([addrs[0], addrs[1]], _adapter.addr, isVault);
-        amounts[4] = getDepositAmount(
-            [addrs[0], addrs[2]],
-            _adapter.addr,
-            isVault
-        );
-
-        unchecked {
-            amounts[2] = amounts[1] - amounts[0];
-            amounts[5] = amounts[4] - amounts[3];
-        }
+        
+        unchecked { amounts[2] = amounts[1] - amounts[0]; }
         if (addrs[1] != address(0)) {
             // Farm Pool
-            if (addrs[1] == IAdapterMatic(_adapter.addr).stakingToken())
+            if (addrs[1] == IAdapterETH(_adapter.addr).stakingToken())
                 amounts[2] += _amount;
 
             if (_adapterInfo.totalStaked != 0 && addrs[0] == address(0)) {
@@ -172,33 +151,23 @@ library HedgepieLibraryMatic {
                 _adapterInfo.accTokenPerShare +=
                     (amounts[2] * 1e12) /
                     _adapterInfo.totalStaked;
-
-                if (amounts[5] != 0)
-                    _adapterInfo.accTokenPerShare1 +=
-                        (amounts[5] * 1e12) /
-                        _adapterInfo.totalStaked;
             }
 
-            if (_userAdapterInfo.amount == 0) {
+            if (_userAdapterInfo.amount == 0)
                 _userAdapterInfo.userShares = _adapterInfo.accTokenPerShare;
-                _userAdapterInfo.userShares1 = _adapterInfo.accTokenPerShare1;
-            }
 
             amounts[2] = _amount;
         } else if (isVault) {
             require(amounts[2] > 0, "Error: Deposit failed");
 
-            unchecked {
-                _userAdapterInfo.userShares += amounts[2];
-                _userAdapterInfo.userShares1 += amounts[2];
-            }
+            unchecked { _userAdapterInfo.userShares += amounts[2]; }
         } else if (addrs[0] != address(0)) {
             require(amounts[2] > 0, "Error: Deposit failed");
         } else {
             amounts[2] = _amount;
         }
 
-        IAdapterMatic(_adapter.addr).increaseWithdrawalAmount(
+        IAdapterETH(_adapter.addr).increaseWithdrawalAmount(
             _account,
             _tokenId,
             amounts[2]
@@ -207,7 +176,7 @@ library HedgepieLibraryMatic {
 
     function getLP(
         IYBNFT.Adapter memory _adapter,
-        address wmatic,
+        address weth,
         address _account,
         uint256 _amountIn,
         uint256 _tokenId
@@ -215,49 +184,49 @@ library HedgepieLibraryMatic {
         address[2] memory tokens;
         tokens[0] = IPancakePair(_adapter.token).token0();
         tokens[1] = IPancakePair(_adapter.token).token1();
-        bool noDeposit = IAdapterMatic(_adapter.addr).noDeposit();
-        address _router = IAdapterMatic(_adapter.addr).router();
+        bool noDeposit = IAdapterETH(_adapter.addr).noDeposit();
+        address _router = IAdapterETH(_adapter.addr).router();
         address _strategy = noDeposit
-            ? IAdapterMatic(_adapter.addr).strategy()
+            ? IAdapterETH(_adapter.addr).strategy()
             : _router;
 
         uint256[4] memory tokenAmount;
         tokenAmount[0] = _amountIn / 2;
         tokenAmount[1] = _amountIn - tokenAmount[0];
-        if (tokens[0] != wmatic) {
+        if (tokens[0] != weth) {
             tokenAmount[0] = swapOnRouter(
                 _adapter.addr,
                 tokenAmount[0],
                 tokens[0],
                 _router,
-                wmatic
+                weth
             );
             IBEP20(tokens[0]).approve(_strategy, tokenAmount[0]);
         }
 
-        if (tokens[1] != wmatic) {
+        if (tokens[1] != weth) {
             tokenAmount[1] = swapOnRouter(
                 _adapter.addr,
                 tokenAmount[1],
                 tokens[1],
                 _router,
-                wmatic
+                weth
             );
             IBEP20(tokens[1]).approve(_strategy, tokenAmount[1]);
         }
 
         if (noDeposit) {
-            uint256 tokenId = IAdapterMatic(_adapter.addr).getLiquidityNFT(
+            uint256 tokenId = IAdapterETH(_adapter.addr).getLiquidityNFT(
                 _account,
                 _tokenId
             );
 
-            // wrap to wmatic
-            if (tokens[0] == wmatic || tokens[1] == wmatic) {
-                IWrap(wmatic).deposit {
-                    value: tokens[0] == wmatic ? tokenAmount[0] : tokenAmount[1]
+            // wrap to weth
+            if (tokens[0] == weth || tokens[1] == weth) {
+                IWrap(weth).deposit {
+                    value: tokens[0] == weth ? tokenAmount[0] : tokenAmount[1]
                 }();
-                IBEP20(wmatic).approve(_strategy, tokens[0] == wmatic ? tokenAmount[0] : tokenAmount[1]);
+                IBEP20(weth).approve(_strategy, tokens[0] == weth ? tokenAmount[0] : tokenAmount[1]);
             }
 
             if (tokenId != 0) {
@@ -276,7 +245,7 @@ library HedgepieLibraryMatic {
                 );
             } else {
                 int24[2] memory ticks;
-                (ticks[0], ticks[1]) = IAdapterMatic(_adapter.addr).getTick();
+                (ticks[0], ticks[1]) = IAdapterETH(_adapter.addr).getTick();
                 INonfungiblePositionManager.MintParams
                     memory params = INonfungiblePositionManager.MintParams({
                         token0: tokens[0],
@@ -295,7 +264,7 @@ library HedgepieLibraryMatic {
                 (tokenId, amountOut, tokenAmount[2], tokenAmount[3]) = INonfungiblePositionManager(
                     _strategy
                 ).mint(params);
-                IAdapterMatic(_adapter.addr).setLiquidityNFT(
+                IAdapterETH(_adapter.addr).setLiquidityNFT(
                     _account,
                     _tokenId,
                     tokenId
@@ -303,21 +272,21 @@ library HedgepieLibraryMatic {
             }
 
             if(tokenAmount[2] < tokenAmount[0]) {
-                swapforMatic(_adapter.addr, tokenAmount[0] - tokenAmount[2], tokens[0], _router, wmatic);
+                swapforETH(_adapter.addr, tokenAmount[0] - tokenAmount[2], tokens[0], _router, weth);
                 IBEP20(tokens[0]).approve(_strategy, 0);
             }
 
             if(tokenAmount[3] < tokenAmount[1]) {
-                swapforMatic(_adapter.addr, tokenAmount[1] - tokenAmount[3], tokens[1], _router, wmatic);
+                swapforETH(_adapter.addr, tokenAmount[1] - tokenAmount[3], tokens[1], _router, weth);
                 IBEP20(tokens[1]).approve(_strategy, 0);
             }
         } else if (tokenAmount[0] != 0 && tokenAmount[1] != 0) {
-            if (tokens[0] == wmatic || tokens[1] == wmatic) {
+            if (tokens[0] == weth || tokens[1] == weth) {
                 (, , amountOut) = IPancakeRouter(_router).addLiquidityETH{
-                    value: tokens[0] == wmatic ? tokenAmount[0] : tokenAmount[1]
+                    value: tokens[0] == weth ? tokenAmount[0] : tokenAmount[1]
                 }(
-                    tokens[0] == wmatic ? tokens[1] : tokens[0],
-                    tokens[0] == wmatic ? tokenAmount[1] : tokenAmount[0],
+                    tokens[0] == weth ? tokens[1] : tokens[0],
+                    tokens[0] == weth ? tokenAmount[1] : tokenAmount[0],
                     0,
                     0,
                     address(this),
@@ -340,7 +309,7 @@ library HedgepieLibraryMatic {
 
     function withdrawLP(
         IYBNFT.Adapter memory _adapter,
-        address wmatic,
+        address weth,
         address _account,
         uint256 _amountIn,
         uint256 _tokenId
@@ -348,10 +317,10 @@ library HedgepieLibraryMatic {
         address[3] memory tokens;
         tokens[0] = IPancakePair(_adapter.token).token0();
         tokens[1] = IPancakePair(_adapter.token).token1();
-        tokens[2] = IAdapterMatic(_adapter.addr).router();
+        tokens[2] = IAdapterETH(_adapter.addr).router();
 
-        if (IAdapterMatic(_adapter.addr).noDeposit()) {
-            uint256 tokenId = IAdapterMatic(_adapter.addr).getLiquidityNFT(
+        if (IAdapterETH(_adapter.addr).noDeposit()) {
+            uint256 tokenId = IAdapterETH(_adapter.addr).getLiquidityNFT(
                 _account,
                 _tokenId
             );
@@ -359,7 +328,7 @@ library HedgepieLibraryMatic {
 
             uint256[2] memory amounts;
             (amounts[0], amounts[1]) = INonfungiblePositionManager(
-                IAdapterMatic(_adapter.addr).strategy()
+                IAdapterETH(_adapter.addr).strategy()
             ).decreaseLiquidity(
                 INonfungiblePositionManager
                 .DecreaseLiquidityParams({
@@ -372,7 +341,7 @@ library HedgepieLibraryMatic {
             );
 
             INonfungiblePositionManager(
-                IAdapterMatic(_adapter.addr).strategy()
+                IAdapterETH(_adapter.addr).strategy()
             ).collect(
                 INonfungiblePositionManager.CollectParams({
                     tokenId: tokenId,
@@ -383,33 +352,32 @@ library HedgepieLibraryMatic {
             );
 
             if (amounts[0] != 0)
-                amountOut += swapforMatic(_adapter.addr, amounts[0], tokens[0], tokens[2], wmatic);
+                amountOut += swapforETH(_adapter.addr, amounts[0], tokens[0], tokens[2], weth);
 
             if (amounts[1] != 0)
-                amountOut += swapforMatic(_adapter.addr, amounts[1], tokens[1], tokens[2], wmatic);
+                amountOut += swapforETH(_adapter.addr, amounts[1], tokens[1], tokens[2], weth);
         } else {
             IBEP20(_adapter.token).approve(tokens[2], _amountIn);
-
-            if (tokens[0] == wmatic || tokens[1] == wmatic) {
-                address tokenAddr = tokens[0] == wmatic ? tokens[1] : tokens[0];
+            if (tokens[0] == weth || tokens[1] == weth) {
+                address tokenAddr = tokens[0] == weth ? tokens[1] : tokens[0];
                 (uint256 amountToken, uint256 amountETH) = IPancakeRouter(
                     tokens[2]
                 ).removeLiquidityETH(
-                        tokenAddr,
-                        _amountIn,
-                        0,
-                        0,
-                        address(this),
-                        block.timestamp + 2 hours
-                    );
+                    tokenAddr,
+                    _amountIn,
+                    0,
+                    0,
+                    address(this),
+                    block.timestamp + 2 hours
+                );
 
                 amountOut = amountETH;
-                amountOut += swapforMatic(
+                amountOut += swapforETH(
                     _adapter.addr,
                     amountToken,
                     tokenAddr,
                     tokens[2],
-                    wmatic
+                    weth
                 );
             } else {
                 (uint256 amountA, uint256 amountB) = IPancakeRouter(tokens[2])
@@ -423,98 +391,21 @@ library HedgepieLibraryMatic {
                         block.timestamp + 2 hours
                     );
 
-                amountOut += swapforMatic(
+                amountOut += swapforETH(
                     _adapter.addr,
                     amountA,
                     tokens[0],
                     tokens[2],
-                    wmatic
+                    weth
                 );
-                amountOut += swapforMatic(
+                amountOut += swapforETH(
                     _adapter.addr,
                     amountB,
                     tokens[1],
                     tokens[2],
-                    wmatic
+                    weth
                 );
             }
         }
-    }
-
-    function getLPLiquidity(
-        address _adapterAddr,
-        address _adapterToken,
-        uint256 _amountIn,
-        address _adapterManager,
-        address _swapRouter,
-        address _wmatic
-    ) public returns (uint256 amountOut) {
-        address _liquidity = IAdapterMatic(_adapterAddr).liquidityToken();
-        amountOut = swapOnRouter(
-            _adapterAddr,
-            _amountIn,
-            _liquidity,
-            _swapRouter,
-            _wmatic
-        );
-        IBEP20(_liquidity).approve(IAdapterMatic(_adapterAddr).router(), amountOut);
-
-        uint256 beforeBalance = IBEP20(_adapterToken).balanceOf(address(this));
-
-        (
-            address to,
-            uint256 value,
-            bytes memory callData
-        ) = IAdapterManagerMatic(_adapterManager).getAddLiqCallData(
-                _adapterAddr,
-                amountOut
-            );
-
-        (bool success, ) = to.call{value: value}(callData);
-        require(success, "Error: Pool internal issue");
-
-        unchecked {
-            amountOut =
-                IBEP20(_adapterToken).balanceOf(address(this)) -
-                beforeBalance;
-        }
-    }
-
-    function withdrawLPLiquidity(
-        address _adapterAddr,
-        address _adapterToken,
-        uint256 _amountIn,
-        address _adapterManager,
-        address _swapRouter,
-        address _wmatic
-    ) public returns (uint256 amountOut) {
-        address _liquidity = IAdapterMatic(_adapterAddr).liquidityToken();
-        uint256 beforeBalance = IBEP20(_liquidity).balanceOf(address(this));
-
-        IBEP20(_adapterToken).approve(
-            IAdapterMatic(_adapterAddr).router(),
-            _amountIn
-        );
-
-        (
-            address to,
-            uint256 value,
-            bytes memory callData
-        ) = IAdapterManagerMatic(_adapterManager).getRemoveLiqCallData(
-                _adapterAddr,
-                _amountIn
-            );
-
-        (bool success, ) = to.call{value: value}(callData);
-        require(success, "Error: Pool internal issue");
-
-        amountOut = IBEP20(_liquidity).balanceOf(address(this)) - beforeBalance;
-        amountOut = swapforMatic(
-            _adapterAddr,
-            amountOut,
-            _liquidity,
-            _swapRouter,
-            _wmatic
-        );
     }
 }

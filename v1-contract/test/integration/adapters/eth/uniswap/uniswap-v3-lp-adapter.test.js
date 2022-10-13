@@ -9,25 +9,25 @@ const forkNetwork = async () => {
     params: [
       {
         forking: {
-          jsonRpcUrl: "https://polygon-rpc.com",
+          jsonRpcUrl: "https://rpc.ankr.com/eth",
         },
       },
     ],
   });
 };
 
-describe("UniswapLPAdapter Integration Test", function () {
+describe("UniswapV3LPAdapter Integration Test", function () {
   before("Deploy contract", async function () {
     await forkNetwork();
 
     const [owner, alice, bob, tom] = await ethers.getSigners();
 
     const performanceFee = 50;
-    const wmatic = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
-    const USDC = "0x2791Bca1f2de4661ED88A30C99A7a9449Aa84174";
+    const weth = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+    const Matic = "0x7D1AfA7B718fb893dB30A3aBc0Cfc608AaCfeBB0";
     const strategy = "0xC36442b4a4522E871399CD717aBDD847Ab11FE88"; // NonfungiblePositionManager
-    const stakingToken = "0xA374094527e1673A86dE625aa59517c5dE346d32"; // USDC-WMATIC Uniswap v3 pool
-    const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap rounter address
+    const stakingToken = "0x290A6a7460B308ee3F19023D2D00dE604bcf5B42"; // Matic-WETH Uniswap v3 pool
+    const swapRouter = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"; // Uniswap V2 rounter address
 
     this.owner = owner;
     this.alice = alice;
@@ -38,18 +38,18 @@ describe("UniswapLPAdapter Integration Test", function () {
     this.aliceAddr = alice.address;
     this.tomAddr = tom.address;
 
-    this.lower = -500000;
-    this.upper = -300000;
+    this.lower = -75480;
+    this.upper = -75420;
 
-    // Deploy Uniswap LP Adapter contract
-    const uniswapV3LpAdapter = await ethers.getContractFactory("UniswapLPAdapter");
-    this.aAdapter = await uniswapV3LpAdapter.deploy(
+    // Deploy UniswapV3LPAdapter contract
+    const UniswapV3LpAdapter = await ethers.getContractFactory("UniswapV3LPAdapter");
+    this.aAdapter = await UniswapV3LpAdapter.deploy(
       strategy,
       stakingToken,
       swapRouter,
       this.lower,
       this.upper,
-      "Uniswap::USDC-WMATIC::LPAdapter"
+      "UniswapV3::Matic-WETH::LP"
     );
     await this.aAdapter.deployed();
 
@@ -58,20 +58,21 @@ describe("UniswapLPAdapter Integration Test", function () {
     this.ybNft = await ybNftFactory.deploy();
     await this.ybNft.deployed();
 
-    const Lib = await ethers.getContractFactory("HedgepieLibraryMatic");
+    const Lib = await ethers.getContractFactory("HedgepieLibraryETH");
     const lib = await Lib.deploy();
+    await lib.deployed();
 
     // Deploy Investor contract
-    const investorFactory = await ethers.getContractFactory("HedgepieInvestorMatic", {
+    const investorFactory = await ethers.getContractFactory("HedgepieInvestorETH", {
       libraries: {
-        HedgepieLibraryMatic: lib.address,
+        HedgepieLibraryETH: lib.address,
       },
     });
-    this.investor = await investorFactory.deploy(this.ybNft.address, swapRouter, wmatic);
+    this.investor = await investorFactory.deploy(this.ybNft.address, swapRouter, weth);
     await this.investor.deployed();
 
     // Deploy Adaptor Manager contract
-    const adapterManager = await ethers.getContractFactory("HedgepieAdapterManagerMatic");
+    const adapterManager = await ethers.getContractFactory("HedgepieAdapterManagerETH");
     this.adapterManager = await adapterManager.deploy();
     this.adapterManager.deployed();
 
@@ -85,7 +86,7 @@ describe("UniswapLPAdapter Integration Test", function () {
     // tokenID: 2
     await this.ybNft.mint([10000], [stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI2");
 
-    // Add Venus Adapter to AdapterManager
+    // Add UniswapV3LPAdapter to AdapterManager
     await this.adapterManager.addAdapter(this.aAdapter.address);
 
     // Set investor in adapter manager
@@ -95,24 +96,25 @@ describe("UniswapLPAdapter Integration Test", function () {
     await this.investor.setAdapterManager(this.adapterManager.address);
     await this.investor.setTreasury(this.owner.address);
 
-    // Set investor in vAdapter
+    // Set investor in UniswapV3LPAdapter
     await this.aAdapter.setInvestor(this.investor.address);
 
-    await this.aAdapter.setPath(wmatic, USDC, [wmatic, USDC]);
-    await this.aAdapter.setPath(USDC, wmatic, [USDC, wmatic]);
+    // set path
+    await this.aAdapter.setPath(weth, Matic, [weth, Matic]);
+    await this.aAdapter.setPath(Matic, weth, [Matic, weth]);
 
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
     console.log("Strategy: ", strategy);
-    console.log("UniswapLPAdapter: ", this.aAdapter.address);
+    console.log("UniswapV3LPAdapter: ", this.aAdapter.address);
   });
 
-  describe("depositMATIC function test", function () {
+  describe("depositETH function test", function () {
     it("(1)should be reverted when nft tokenId is invalid", async function () {
       // deposit to nftID: 3
       const depositAmount = ethers.utils.parseEther("1");
       await expect(
-        this.investor.connect(this.owner).depositMATIC(this.owner.address, 3, depositAmount.toString(), {
+        this.investor.connect(this.owner).depositETH(this.owner.address, 3, depositAmount.toString(), {
           value: depositAmount,
         })
       ).to.be.revertedWith("nft tokenId is invalid");
@@ -122,7 +124,7 @@ describe("UniswapLPAdapter Integration Test", function () {
       // deposit to nftID: 1
       const depositAmount = ethers.utils.parseEther("0");
       await expect(
-        this.investor.depositMATIC(this.owner.address, 1, depositAmount.toString(), {
+        this.investor.depositETH(this.owner.address, 1, depositAmount.toString(), {
           value: depositAmount,
         })
       ).to.be.revertedWith("Amount can not be 0");
@@ -130,12 +132,13 @@ describe("UniswapLPAdapter Integration Test", function () {
 
     it("(3)deposit should success for Alice", async function () {
       const depositAmount = ethers.utils.parseEther("100");
+
       await expect(
-        this.investor.connect(this.alice).depositMATIC(this.aliceAddr, 1, depositAmount, {
+        this.investor.connect(this.alice).depositETH(this.aliceAddr, 1, depositAmount, {
           value: depositAmount,
         })
       )
-        .to.emit(this.investor, "DepositMATIC")
+        .to.emit(this.investor, "DepositETH")
         .withArgs(this.aliceAddr, this.ybNft.address, 1, depositAmount);
 
       const aliceInfo = await this.investor.userInfo(this.aliceAddr, this.ybNft.address, 1);
@@ -158,20 +161,20 @@ describe("UniswapLPAdapter Integration Test", function () {
 
       const depositAmount = ethers.utils.parseEther("100");
       await expect(
-        this.investor.connect(this.bob).depositMATIC(this.bobAddr, 1, depositAmount, {
+        this.investor.connect(this.bob).depositETH(this.bobAddr, 1, depositAmount, {
           value: depositAmount,
         })
       )
-        .to.emit(this.investor, "DepositMATIC")
+        .to.emit(this.investor, "DepositETH")
         .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
 
         await expect(
-          this.investor.connect(this.bob).depositMATIC(this.bobAddr, 1, depositAmount, {
-            value: depositAmount,
-          })
-        )
-          .to.emit(this.investor, "DepositMATIC")
-          .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
+            this.investor.connect(this.bob).depositETH(this.bobAddr, 1, depositAmount, {
+              value: depositAmount,
+            })
+          )
+            .to.emit(this.investor, "DepositETH")
+            .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
 
       const bobInfo = await this.investor.userInfo(this.bobAddr, this.ybNft.address, 1);
       const bobDeposit = Number(bobInfo) / Math.pow(10, 18);
@@ -195,11 +198,11 @@ describe("UniswapLPAdapter Integration Test", function () {
 
       const depositAmount = ethers.utils.parseEther("30");
       await expect(
-        this.investor.connect(this.tom).depositMATIC(this.tomAddr, 1, depositAmount, {
+        this.investor.connect(this.tom).depositETH(this.tomAddr, 1, depositAmount, {
           value: depositAmount,
         })
       )
-        .to.emit(this.investor, "DepositMATIC")
+        .to.emit(this.investor, "DepositETH")
         .withArgs(this.tomAddr, this.ybNft.address, 1, depositAmount);
 
       const tomInfo = await this.investor.userInfo(this.tomAddr, this.ybNft.address, 1);
@@ -220,34 +223,34 @@ describe("UniswapLPAdapter Integration Test", function () {
     }).timeout(50000000);
 
     it("(6) test TVL & participants", async function () {
-      const nftInfo = await this.investor.nftInfo(this.ybNft.address, 1);
-
-      expect(
-        Number(ethers.utils.formatEther(BigNumber.from(nftInfo.tvl).toString()))
-      ).to.be.eq(330) &&
-        expect(BigNumber.from(nftInfo.totalParticipant).toString()).to.be.eq(
-          "3"
-        );
+        const nftInfo = await this.investor.nftInfo(this.ybNft.address, 1);
+  
+        expect(
+          Number(ethers.utils.formatEther(BigNumber.from(nftInfo.tvl).toString()))
+        ).to.be.eq(330) &&
+          expect(BigNumber.from(nftInfo.totalParticipant).toString()).to.be.eq(
+            "3"
+          );
     });
   });
 
-  describe("withdrawMATIC() function test", function () {
+  describe("WithdrawETH() function test", function () {
     it("(1)should be reverted when nft tokenId is invalid", async function () {
       // withdraw to nftID: 3
-      await expect(this.investor.withdrawMATIC(this.owner.address, 3)).to.be.revertedWith("nft tokenId is invalid");
+      await expect(this.investor.withdrawETH(this.owner.address, 3)).to.be.revertedWith("nft tokenId is invalid");
     });
 
-    it("(2)should receive MATIC successfully after withdraw function for Alice", async function () {
+    it("(2)should receive ETH successfully after withdraw function for Alice", async function () {
       // withdraw from nftId: 1
-      const beforeMATIC = await ethers.provider.getBalance(this.aliceAddr);
+      const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
 
-      await expect(this.investor.connect(this.alice).withdrawMATIC(this.aliceAddr, 1)).to.emit(
+      await expect(this.investor.connect(this.alice).withdrawETH(this.aliceAddr, 1)).to.emit(
         this.investor,
-        "WithdrawMATIC"
+        "WithdrawETH"
       );
 
-      const afterMATIC = await ethers.provider.getBalance(this.aliceAddr);
-      expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(true);
+      const afterETH = await ethers.provider.getBalance(this.aliceAddr);
+      expect(BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))).to.eq(true);
 
       const aliceInfo = await this.investor.userInfo(this.aliceAddr, this.ybNft.address, 1);
       expect(aliceInfo).to.eq(BigNumber.from(0));
@@ -263,17 +266,21 @@ describe("UniswapLPAdapter Integration Test", function () {
       expect(BigNumber.from(bobWithdrable).gt(0)).to.eq(true);
     }).timeout(50000000);
 
-    it("(3)should receive MATIC successfully after withdraw function for Bob", async function () {
+    it("(3)should receive ETH successfully after withdraw function for Bob", async function () {
       // withdraw from nftId: 1
-      const beforeMATIC = await ethers.provider.getBalance(this.bobAddr);
+      const beforeETH = await ethers.provider.getBalance(this.bobAddr);
 
-      await expect(this.investor.connect(this.bob).withdrawMATIC(this.bobAddr, 1)).to.emit(
+      console.log(await ethers.provider.getBalance(this.investor.address));
+
+      await expect(this.investor.connect(this.bob).withdrawETH(this.bobAddr, 1)).to.emit(
         this.investor,
-        "WithdrawMATIC"
+        "WithdrawETH"
       );
 
-      const afterMATIC = await ethers.provider.getBalance(this.bobAddr);
-      expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(true);
+      console.log(await ethers.provider.getBalance(this.investor.address));
+
+      const afterETH = await ethers.provider.getBalance(this.bobAddr);
+      expect(BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))).to.eq(true);
 
       const bobInfo = await this.investor.userInfo(this.bobAddr, this.ybNft.address, 1);
       expect(bobInfo).to.eq(BigNumber.from(0));
@@ -289,17 +296,21 @@ describe("UniswapLPAdapter Integration Test", function () {
       expect(BigNumber.from(tomWithdrable).gt(0)).to.eq(true);
     }).timeout(50000000);
 
-    it("(4)should receive MATIC successfully after withdraw function for Tom", async function () {
+    it("(4)should receive ETH successfully after withdraw function for Tom", async function () {
       // withdraw from nftId: 1
-      const beforeMATIC = await ethers.provider.getBalance(this.tomAddr);
+      const beforeETH = await ethers.provider.getBalance(this.tomAddr);
 
-      await expect(this.investor.connect(this.tom).withdrawMATIC(this.tomAddr, 1)).to.emit(
+      console.log(await ethers.provider.getBalance(this.investor.address));
+
+      await expect(this.investor.connect(this.tom).withdrawETH(this.tomAddr, 1)).to.emit(
         this.investor,
-        "WithdrawMATIC"
+        "WithdrawETH"
       );
 
-      const afterMATIC = await ethers.provider.getBalance(this.tomAddr);
-      expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(true);
+      console.log(await ethers.provider.getBalance(this.investor.address));
+
+      const afterETH = await ethers.provider.getBalance(this.tomAddr);
+      expect(BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))).to.eq(true);
 
       const tomInfo = await this.investor.userInfo(this.tomAddr, this.ybNft.address, 1);
       expect(tomInfo).to.eq(BigNumber.from(0));

@@ -5,4 +5,6 @@ interface IWrap {
     function deposit(uint256 amount) external;
 
     function withdraw(uint256 share) external;
+
+    function deposit() external payable;
 }
