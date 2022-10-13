@@ -186,7 +186,7 @@ function DashboardOverview() {
               }}
             >
               <Text sx={{ fontFamily: 'Inter', fontSize: '20px', color: '#14114B', fontWeight: '600' }}>
-                The Plots of your Historic data shall appear here soon 🎉
+                Insights of your Historic data shall appear here soon 🎉
               </Text>
             </Box>
           ) : (

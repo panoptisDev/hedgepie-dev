@@ -1,46 +1,20 @@
 import { useWeb3React } from '@web3-react/core'
+import { useInvestor } from 'hooks/useInvestor'
 import { useYBNFTMint } from 'hooks/useYBNFTMint'
 import React, { useEffect, useState } from 'react'
 import { Box, Text } from 'theme-ui'
+import { getBalanceInEther } from 'utils/formatBalance'
+import { getPrice } from 'utils/getTokenPrice'
 
 function DashboardFunds() {
   const { getOwnerOf } = useYBNFTMint()
   const { account } = useWeb3React()
   const [owned, setOwned] = useState<number[]>([])
-  const [funds, setFunds] = useState([
-    {
-      name: 'Fund XYZ',
-      createdDate: '04/09/2022',
-      lastUpdated: '2d ago',
-      investors: '20',
-      tvl: '$256,302',
-      stake: '15 BNB',
-      apy: '15%',
-      yield: '$5,150',
-    },
-    {
-      name: 'Fund XYZ',
-      createdDate: '04/09/2022',
-      lastUpdated: '2d ago',
-      investors: '20',
-      tvl: '$256,302',
-      stake: '15 BNB',
-      apy: '15%',
-      yield: '$5,150',
-    },
-    {
-      name: 'Fund XYZ',
-      createdDate: '04/09/2022',
-      lastUpdated: '2d ago',
-      investors: '20',
-      tvl: '$256,302',
-      stake: '15 BNB',
-      apy: '15%',
-      yield: '$5,150',
-    },
-  ])
+  const [funds, setFunds] = useState<any[]>([])
+  const [fundsLoading, setFundsLoading] = useState<boolean>(false)
 
-  const { getMaxTokenId } = useYBNFTMint()
+  const { getMaxTokenId, getTokenUri } = useYBNFTMint()
+  const { getNFTInfo, getBalance, getYield } = useInvestor()
 
   // START - Interaction with Contracts
 
@@ -62,6 +36,45 @@ function DashboardFunds() {
   // START - Get info of tokens owned by user
   useEffect(() => {
     if (!owned.length) return
+    const fetchFundsData = async () => {
+      setFundsLoading(true)
+      let fundData: any[] = []
+      for (let index = 0; index < owned.length; index++) {
+        let i = owned[index]
+
+        const nftInfo = await getNFTInfo(i)
+        const bnbPrice = await getPrice('BNB')
+        const tvl = bnbPrice ? `$${Number(getBalanceInEther(nftInfo.tvl) * bnbPrice).toFixed(3)} USD` : 'N/A'
+        const totalStaked = `${getBalanceInEther(nftInfo.tvl)} BNB`
+        let reward = await getYield(i)
+        let invested = await getBalance(i)
+        console.log('invested:' + invested)
+        const tokenUri = await getTokenUri(i)
+        if (!tokenUri.includes('.ipfs.')) {
+          return
+        }
+        let metadataFile: any = undefined
+        try {
+          metadataFile = await fetch(tokenUri)
+        } catch (err) {
+          return
+        }
+        const metadata = await metadataFile.json()
+        let fundObj = {
+          name: metadata.name,
+          investors: nftInfo.totalParticipant,
+          tvl: tvl,
+          stake: getBalanceInEther(invested).toFixed(3).toString() + ' BNB',
+          apy: '15%',
+          yield: getBalanceInEther(reward).toFixed(3).toString() + ' BNB',
+        }
+        fundData.push(fundObj)
+      }
+
+      setFunds(fundData)
+      setFundsLoading(false)
+    }
+    fetchFundsData()
   }, [owned])
   // END - Get info of tokens owned by user
 
