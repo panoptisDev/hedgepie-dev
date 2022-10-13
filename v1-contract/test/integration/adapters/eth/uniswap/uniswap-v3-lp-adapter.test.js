@@ -41,9 +41,9 @@ describe("UniswapV3LPAdapter Integration Test", function () {
     this.lower = -75480;
     this.upper = -75420;
 
-    // Deploy Uniswap LP Adapter contract
-    const uniswapV3LpAdapter = await ethers.getContractFactory("UniswapV3LPAdapter");
-    this.aAdapter = await uniswapV3LpAdapter.deploy(
+    // Deploy UniswapV3LPAdapter contract
+    const UniswapV3LpAdapter = await ethers.getContractFactory("UniswapV3LPAdapter");
+    this.aAdapter = await UniswapV3LpAdapter.deploy(
       strategy,
       stakingToken,
       swapRouter,
@@ -86,7 +86,7 @@ describe("UniswapV3LPAdapter Integration Test", function () {
     // tokenID: 2
     await this.ybNft.mint([10000], [stakingToken], [this.aAdapter.address], performanceFee, "test tokenURI2");
 
-    // Add Venus Adapter to AdapterManager
+    // Add UniswapV3LPAdapter to AdapterManager
     await this.adapterManager.addAdapter(this.aAdapter.address);
 
     // Set investor in adapter manager
@@ -96,9 +96,10 @@ describe("UniswapV3LPAdapter Integration Test", function () {
     await this.investor.setAdapterManager(this.adapterManager.address);
     await this.investor.setTreasury(this.owner.address);
 
-    // Set investor in vAdapter
+    // Set investor in UniswapV3LPAdapter
     await this.aAdapter.setInvestor(this.investor.address);
 
+    // set path
     await this.aAdapter.setPath(weth, Matic, [weth, Matic]);
     await this.aAdapter.setPath(Matic, weth, [Matic, weth]);
 
