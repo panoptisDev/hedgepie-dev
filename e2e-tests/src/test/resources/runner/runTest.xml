@@ -1,0 +1,17 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<!DOCTYPE suite SYSTEM "http://testng.org/testng-1.0.dtd">
+<suite guice-stage="DEVELOPMENT" name="Hedgepie  App Automation">
+  <listeners>
+    <listener class-name="com.hedgepie.listeners.ExtentListeners"/>
+    <listener class-name="com.hedgepie.errorCollectors.TestListenerAdapter" /> 
+     
+     <!--  -->
+     <listener class-name="com.hedgepie.listeners.TestFilterListener" />
+  </listeners>
+  <test name="Hedge Pie Automation - Tests">
+    <classes>
+      	<class name="com.hedgepie.test.TestDashboard"/>
+    </classes>
+  </test>
+</suite> 
+ 	 	
