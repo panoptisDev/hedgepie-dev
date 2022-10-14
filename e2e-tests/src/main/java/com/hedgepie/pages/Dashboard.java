@@ -84,6 +84,23 @@ public class Dashboard extends BaseClass {
 	@FindBy(xpath = "//textArea")
 	WebElement stakeAmountDescription;
 
+	@FindBy(xpath = "(//*[contains(@class,'css-1k96gca')])[1]")
+	private WebElement selectedProtocolValue;
+
+	@FindBy(xpath = "(//*[contains(@class,'css-1k96gca')])[2]")
+	private WebElement selectedPoolValue;
+
+	@FindBy(xpath = "(//input[contains(@class,'weight-input')])[1]")
+	private WebElement compositionWeightInput;
+
+	@FindBy(xpath = "//input[contains(@class,'weight-input')]")
+	List<WebElement> stakePositionsList;
+
+	@FindBy(xpath = "(//button[contains(@class,'position-delete')])[last()]")
+	private WebElement btnDeleteStakePosition;
+
+	@FindBy(xpath = "(//button[contains(@class,'position-lock')])[1]")
+	private WebElement allocationLockButton;
 	
 	public Dashboard() {
 		PageFactory.initElements(driver, this);
@@ -328,6 +345,52 @@ public class Dashboard extends BaseClass {
 	public String getMintDescriptionFieldText() {
 		return getElementAttributeValue(stakeAmountDescription,"value");
 	}
+
+	public boolean verifyProtocolDropdownIsEnabled() {
+		return isElementEnabled(protocolSelector);
+	}
+	
+	public boolean verifyPoolDropdownIsEnabled() {
+		return isElementEnabled(poolSelector);
+	}
+
+	public String getSelectedProtocolValue() {
+		return getElementText(selectedProtocolValue);
+	}
+
+	public String getSelectedProolValue() {
+		return getElementText(selectedPoolValue);
+	}
+
+	public boolean verifyCompositionWeightInputIsEnabled() {
+		return isElementDisplayed(compositionWeightInput);
+	}
+	
+	public void enterCompositionWeight(String weight) {
+		type(compositionWeightInput,weight);
+	}
+	
+	public String getCompositionWeightValue() {
+		return getElementAttributeValue(compositionWeightInput, "value");
+	}
+
+	public int getCurrentStakePositionsSize() {
+		return stakePositionsList.size();
+	}
+
+	public void clickOnDeletePositionButton() {
+		click(btnDeleteStakePosition);
+	}
+
+	public void clickOnAllocationLockButton() {
+		click(allocationLockButton);
+	}
+	
+	public boolean verifyAllocationPercentageInputIsDisplaying() {
+		return isElementDisplayed(compositionWeightInput);
+	}
+
+
 	
 	
 	

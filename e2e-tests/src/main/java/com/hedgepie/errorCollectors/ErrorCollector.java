@@ -177,6 +177,17 @@ public class ErrorCollector {
 		}
     }
     
+    public static void verifyNotEquals(int actual, int expected, String failMessage) {
+    	try {
+    		assertNotEquals(actual, expected);
+    		BaseClass.extentReport.log(Status.PASS, "Expected: "+expected+" Actual: "+actual);
+		} catch(Throwable e) {
+			BaseClass.extentReport.log(Status.FAIL, "Expected: "+expected+" Actual: "+actual+"--"+ failMessage);
+			ExtentListeners.captureErrorAndScreenshot(e);
+			addVerificationFailure(e);
+		}
+    }
+    
     public static void verifyEquals(List<String> actual, List<String> expected, String failMessage) {
     	try {
     		assertEquals(actual, expected);

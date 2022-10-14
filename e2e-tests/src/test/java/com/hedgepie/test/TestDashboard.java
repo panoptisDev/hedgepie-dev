@@ -645,7 +645,7 @@ public class TestDashboard extends BaseClass{
 			
 	}
 	
-@Test 
+	//@Test 
 	
 	public void TC_31_VerifyUserShouldBeAbleToMintNFT(){
 
@@ -689,7 +689,7 @@ public class TestDashboard extends BaseClass{
 			ErrorCollector.extentLogInfo("Step "+(++step)+" : Select Protocol : ApeSwap");
 			lp.selectProtocol("ApeSwap");
 			
-			ErrorCollector.extentLogInfo("Step "+(++step)+" : Select Pool : ApeSwap");
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Select Pool : BUSD-WBNB Farm");
 			lp.selectPool("BUSD-WBNB Farm");
 			
 			ErrorCollector.extentLogInfo("Step "+(++step)+" : Enter percentage : 100");
@@ -1154,6 +1154,469 @@ public class TestDashboard extends BaseClass{
 			
 	}
 
+	
+	@Test 
+	public void TC_40_VerifyUserShouldBeAbleToSelectProtocolWhileMintingNFT(){
+
+		    initConfiguration();
+			lp = new Dashboard();
+			lp.initMetamaskWithNetwork();
+			int step=0;
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Visit web url");
+			openURL("AppURL");
+			waitTime(3000);
+						
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Connect Wallet' button is showing on landing page top bar.");
+			ErrorCollector.verifyTrue(lp.isDisplayingOnUserDashboard("Connect Wallet"),"Verified 'Connect Wallet' is showing on landing page top bar.");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Connect Wallet' menu");
+			lp.clickOnMenu("Connect Wallet");
+
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Metamask' in popup");
+			lp.clickOnMenu("Metamask");
+			waitTime(3000);
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Proceed Metamask login.");
+			lp.connectWallet();
+			
+			waitTime(1000);
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Wallet address' is displaying.");
+			ErrorCollector.verifyTrue(lp.isDisplayingOnUserDashboard("0x"),"Verified 'Wallet address' is displaying.");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Mint' menu");
+			lp.clickOnMenu("Mint");
+
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Mint' page is displaying.");
+			waitTime(3000);
+			ErrorCollector.verifyTrue(driver.getCurrentUrl().contains("mint"),"Verified 'Mint' page is displaying.");
+		
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify initial stake amount is enabled.");
+			ErrorCollector.verifyTrue(lp.isStakeAmountFieldEnabled(),"Verified  initial stake amount is enabled.");
+			
+			String amount = "0.00000125";
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Enter initial Stake amount : "+amount);
+			lp.enterInitialStakeForMint(amount);
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Next Step' button.");
+			lp.clickOnTextContains("Next Step");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify protocol dropdown is enabled.");
+			ErrorCollector.verifyTrue(lp.verifyProtocolDropdownIsEnabled(),"Verified protocol dropdown is enabled.");
+			
+			String protocol = "ApeSwap";
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Select Protocol : ApeSwap");
+			lp.selectProtocol("ApeSwap");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify selected protocol is correct.");
+			ErrorCollector.verifyEquals(lp.getSelectedProtocolValue(), protocol);
+			
+			
+	}
+	
+
+	
+	@Test 
+	public void TC_41_VerifyUserShouldBeAbleToSelectPoollWhileMintingNFT(){
+
+		    initConfiguration();
+			lp = new Dashboard();
+			lp.initMetamaskWithNetwork();
+			int step=0;
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Visit web url");
+			openURL("AppURL");
+			waitTime(3000);
+						
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Connect Wallet' button is showing on landing page top bar.");
+			ErrorCollector.verifyTrue(lp.isDisplayingOnUserDashboard("Connect Wallet"),"Verified 'Connect Wallet' is showing on landing page top bar.");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Connect Wallet' menu");
+			lp.clickOnMenu("Connect Wallet");
+
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Metamask' in popup");
+			lp.clickOnMenu("Metamask");
+			waitTime(3000);
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Proceed Metamask login.");
+			lp.connectWallet();
+			
+			waitTime(1000);
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Wallet address' is displaying.");
+			ErrorCollector.verifyTrue(lp.isDisplayingOnUserDashboard("0x"),"Verified 'Wallet address' is displaying.");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Mint' menu");
+			lp.clickOnMenu("Mint");
+
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Mint' page is displaying.");
+			waitTime(3000);
+			ErrorCollector.verifyTrue(driver.getCurrentUrl().contains("mint"),"Verified 'Mint' page is displaying.");
+		
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify initial stake amount is enabled.");
+			ErrorCollector.verifyTrue(lp.isStakeAmountFieldEnabled(),"Verified  initial stake amount is enabled.");
+			
+			String amount = "0.00000125";
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Enter initial Stake amount : "+amount);
+			lp.enterInitialStakeForMint(amount);
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Next Step' button.");
+			lp.clickOnTextContains("Next Step");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Select Protocol : ApeSwap");
+			lp.selectProtocol("ApeSwap");
+		
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify pool dropdown is enabled.");
+			ErrorCollector.verifyTrue(lp.verifyPoolDropdownIsEnabled(),"Verified pool dropdown is enabled.");
+			
+			String  pool= "BUSD-WBNB Farm";
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Select Pool : "+pool);
+			lp.selectPool(pool);
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify selected pool is correct.");
+			ErrorCollector.verifyEquals(lp.getSelectedProolValue(), pool);
+			
+			
+	}
+	
+
+	
+	@Test 
+	public void TC_42_VerifyUserShouldBeAbleToSetAllocationPercentageWhileMintingNFT(){
+
+		    initConfiguration();
+			lp = new Dashboard();
+			lp.initMetamaskWithNetwork();
+			int step=0;
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Visit web url");
+			openURL("AppURL");
+			waitTime(3000);
+						
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Connect Wallet' button is showing on landing page top bar.");
+			ErrorCollector.verifyTrue(lp.isDisplayingOnUserDashboard("Connect Wallet"),"Verified 'Connect Wallet' is showing on landing page top bar.");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Connect Wallet' menu");
+			lp.clickOnMenu("Connect Wallet");
+
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Metamask' in popup");
+			lp.clickOnMenu("Metamask");
+			waitTime(3000);
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Proceed Metamask login.");
+			lp.connectWallet();
+			
+			waitTime(1000);
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Wallet address' is displaying.");
+			ErrorCollector.verifyTrue(lp.isDisplayingOnUserDashboard("0x"),"Verified 'Wallet address' is displaying.");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Mint' menu");
+			lp.clickOnMenu("Mint");
+
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Mint' page is displaying.");
+			waitTime(3000);
+			ErrorCollector.verifyTrue(driver.getCurrentUrl().contains("mint"),"Verified 'Mint' page is displaying.");
+		
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify initial stake amount is enabled.");
+			ErrorCollector.verifyTrue(lp.isStakeAmountFieldEnabled(),"Verified  initial stake amount is enabled.");
+			
+			String amount = "0.00000125";
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Enter initial Stake amount : "+amount);
+			lp.enterInitialStakeForMint(amount);
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Next Step' button.");
+			lp.clickOnTextContains("Next Step");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Select Protocol : ApeSwap");
+			lp.selectProtocol("ApeSwap");
+		
+			
+			String  pool= "BUSD-WBNB Farm";
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Select Pool : "+pool);
+			lp.selectPool(pool);
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify percentage input is enabled.");
+			ErrorCollector.verifyTrue(lp.verifyCompositionWeightInputIsEnabled(),"Verified percentage input is enabled..");
+			
+			String percentage = "10";
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Enter composition percentage value: "+percentage);
+			lp.enterCompositionWeight(percentage);
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify composition value is correct.");
+			ErrorCollector.verifyEquals(lp.getCompositionWeightValue(), percentage,"Composition values are not equal.");
+			
+			
+	}
+	
+	@Test 
+	public void TC_43_VerifyUserisAbleToAddMultipleStakePositions(){
+
+		    initConfiguration();
+			lp = new Dashboard();
+			lp.initMetamaskWithNetwork();
+			int step=0;
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Visit web url");
+			openURL("AppURL");
+			waitTime(3000);
+						
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Connect Wallet' button is showing on landing page top bar.");
+			ErrorCollector.verifyTrue(lp.isDisplayingOnUserDashboard("Connect Wallet"),"Verified 'Connect Wallet' is showing on landing page top bar.");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Connect Wallet' menu");
+			lp.clickOnMenu("Connect Wallet");
+
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Metamask' in popup");
+			lp.clickOnMenu("Metamask");
+			waitTime(3000);
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Proceed Metamask login.");
+			lp.connectWallet();
+			
+			waitTime(1000);
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Wallet address' is displaying.");
+			ErrorCollector.verifyTrue(lp.isDisplayingOnUserDashboard("0x"),"Verified 'Wallet address' is displaying.");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Mint' menu");
+			lp.clickOnMenu("Mint");
+
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Mint' page is displaying.");
+			waitTime(3000);
+			ErrorCollector.verifyTrue(driver.getCurrentUrl().contains("mint"),"Verified 'Mint' page is displaying.");
+		
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify initial stake amount is enabled.");
+			ErrorCollector.verifyTrue(lp.isStakeAmountFieldEnabled(),"Verified  initial stake amount is enabled.");
+			
+			String amount = "0.00000125";
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Enter initial Stake amount : "+amount);
+			lp.enterInitialStakeForMint(amount);
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Next Step' button.");
+			lp.clickOnTextContains("Next Step");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Get current Stake Positions Size.");
+			int currentSize = lp.getCurrentStakePositionsSize();
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Add Position' button.");
+			lp.clickOnTextContains("Add position");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify stake positions are increased.");
+			waitTime(1000);
+			ErrorCollector.verifyNotEquals(lp.getCurrentStakePositionsSize(), currentSize, amount);
+	}
+	
+
+	
+	//@Test  BUG
+	public void TC_44_VerifyUserisAbleToStakePercentageAssignToMiltiplePositionsAreCorrectlyDivided(){
+
+		    initConfiguration();
+			lp = new Dashboard();
+			lp.initMetamaskWithNetwork();
+			int step=0;
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Visit web url");
+			openURL("AppURL");
+			waitTime(3000);
+						
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Connect Wallet' button is showing on landing page top bar.");
+			ErrorCollector.verifyTrue(lp.isDisplayingOnUserDashboard("Connect Wallet"),"Verified 'Connect Wallet' is showing on landing page top bar.");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Connect Wallet' menu");
+			lp.clickOnMenu("Connect Wallet");
+
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Metamask' in popup");
+			lp.clickOnMenu("Metamask");
+			waitTime(3000);
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Proceed Metamask login.");
+			lp.connectWallet();
+			
+			waitTime(1000);
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Wallet address' is displaying.");
+			ErrorCollector.verifyTrue(lp.isDisplayingOnUserDashboard("0x"),"Verified 'Wallet address' is displaying.");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Mint' menu");
+			lp.clickOnMenu("Mint");
+
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Mint' page is displaying.");
+			waitTime(3000);
+			ErrorCollector.verifyTrue(driver.getCurrentUrl().contains("mint"),"Verified 'Mint' page is displaying.");
+		
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify initial stake amount is enabled.");
+			ErrorCollector.verifyTrue(lp.isStakeAmountFieldEnabled(),"Verified  initial stake amount is enabled.");
+			
+			String amount = "0.00000125";
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Enter initial Stake amount : "+amount);
+			lp.enterInitialStakeForMint(amount);
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Next Step' button.");
+			lp.clickOnTextContains("Next Step");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Add Position' button.");
+			lp.clickOnTextContains("Add position");
+			
+//			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify stake positions percentage divided correctly.");
+//			waitTime(1000);
+//			ErrorCollector.verifyNotEquals(lp.getCurrentStakePositionsSize(), 12, amount);
+	}
+	
+
+	
+	@Test 
+	public void TC_45_VerifyUserisAbleToDeleteStakePosition(){
+
+		    initConfiguration();
+			lp = new Dashboard();
+			lp.initMetamaskWithNetwork();
+			int step=0;
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Visit web url");
+			openURL("AppURL");
+			waitTime(3000);
+						
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Connect Wallet' button is showing on landing page top bar.");
+			ErrorCollector.verifyTrue(lp.isDisplayingOnUserDashboard("Connect Wallet"),"Verified 'Connect Wallet' is showing on landing page top bar.");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Connect Wallet' menu");
+			lp.clickOnMenu("Connect Wallet");
+
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Metamask' in popup");
+			lp.clickOnMenu("Metamask");
+			waitTime(3000);
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Proceed Metamask login.");
+			lp.connectWallet();
+			
+			waitTime(1000);
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Wallet address' is displaying.");
+			ErrorCollector.verifyTrue(lp.isDisplayingOnUserDashboard("0x"),"Verified 'Wallet address' is displaying.");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Mint' menu");
+			lp.clickOnMenu("Mint");
+
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Mint' page is displaying.");
+			waitTime(3000);
+			ErrorCollector.verifyTrue(driver.getCurrentUrl().contains("mint"),"Verified 'Mint' page is displaying.");
+		
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify initial stake amount is enabled.");
+			ErrorCollector.verifyTrue(lp.isStakeAmountFieldEnabled(),"Verified  initial stake amount is enabled.");
+			
+			String amount = "0.00000125";
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Enter initial Stake amount : "+amount);
+			lp.enterInitialStakeForMint(amount);
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Next Step' button.");
+			lp.clickOnTextContains("Next Step");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Add Position' button.");
+			lp.clickOnTextContains("Add position");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Get current Stake Positions Size.");
+			int currentSize = lp.getCurrentStakePositionsSize();
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on Delete button for last stake position.");
+			lp.clickOnDeletePositionButton();
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify stake positions are decreased.");
+			waitTime(1000);
+			ErrorCollector.verifyNotEquals(lp.getCurrentStakePositionsSize(), currentSize, amount);
+	}
+	
+	@Test 
+	public void TC_46_VerifyUserisAbleToLockAllocationPosition(){
+
+		    initConfiguration();
+			lp = new Dashboard();
+			lp.initMetamaskWithNetwork();
+			int step=0;
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Visit web url");
+			openURL("AppURL");
+			waitTime(3000);
+						
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Connect Wallet' button is showing on landing page top bar.");
+			ErrorCollector.verifyTrue(lp.isDisplayingOnUserDashboard("Connect Wallet"),"Verified 'Connect Wallet' is showing on landing page top bar.");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Connect Wallet' menu");
+			lp.clickOnMenu("Connect Wallet");
+
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Metamask' in popup");
+			lp.clickOnMenu("Metamask");
+			waitTime(3000);
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Proceed Metamask login.");
+			lp.connectWallet();
+			
+			waitTime(1000);
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Wallet address' is displaying.");
+			ErrorCollector.verifyTrue(lp.isDisplayingOnUserDashboard("0x"),"Verified 'Wallet address' is displaying.");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Mint' menu");
+			lp.clickOnMenu("Mint");
+
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Mint' page is displaying.");
+			waitTime(3000);
+			ErrorCollector.verifyTrue(driver.getCurrentUrl().contains("mint"),"Verified 'Mint' page is displaying.");
+		
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify initial stake amount is enabled.");
+			ErrorCollector.verifyTrue(lp.isStakeAmountFieldEnabled(),"Verified  initial stake amount is enabled.");
+			
+			String amount = "0.00000125";
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Enter initial Stake amount : "+amount);
+			lp.enterInitialStakeForMint(amount);
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Next Step' button.");
+			lp.clickOnTextContains("Next Step");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Enter composition weigt: 50");
+			lp.enterCompositionWeight("50");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Lock' button.");
+			lp.clickOnAllocationLockButton();
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify allocation position is locked.");
+			ErrorCollector.verifyFalse(lp.verifyAllocationPercentageInputIsDisplaying(),"Verified allocation position is locked.");
+	}
+	
+
+	@Test 
+	public void TC_47_VerifyUserisAbleToMaxTheAllocationPercentage(){
+
+		    initConfiguration();
+			lp = new Dashboard();
+			lp.initMetamaskWithNetwork();
+			int step=0;
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Visit web url");
+			openURL("AppURL");
+			waitTime(3000);
+						
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Connect Wallet' button is showing on landing page top bar.");
+			ErrorCollector.verifyTrue(lp.isDisplayingOnUserDashboard("Connect Wallet"),"Verified 'Connect Wallet' is showing on landing page top bar.");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Connect Wallet' menu");
+			lp.clickOnMenu("Connect Wallet");
+
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Metamask' in popup");
+			lp.clickOnMenu("Metamask");
+			waitTime(3000);
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Proceed Metamask login.");
+			lp.connectWallet();
+			
+			waitTime(1000);
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Wallet address' is displaying.");
+			ErrorCollector.verifyTrue(lp.isDisplayingOnUserDashboard("0x"),"Verified 'Wallet address' is displaying.");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Mint' menu");
+			lp.clickOnMenu("Mint");
+
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify 'Mint' page is displaying.");
+			waitTime(3000);
+			ErrorCollector.verifyTrue(driver.getCurrentUrl().contains("mint"),"Verified 'Mint' page is displaying.");
+		
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify initial stake amount is enabled.");
+			ErrorCollector.verifyTrue(lp.isStakeAmountFieldEnabled(),"Verified  initial stake amount is enabled.");
+			
+			String amount = "0.00000125";
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Enter initial Stake amount : "+amount);
+			lp.enterInitialStakeForMint(amount);
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Next Step' button.");
+			lp.clickOnTextContains("Next Step");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Click on 'Max' button.");
+			lp.clickOnTextContains("MAX");
+			
+			ErrorCollector.extentLogInfo("Step "+(++step)+" : Verify allocation percentage is max.");
+			waitTime(1000);
+			ErrorCollector.verifyEquals(lp.getCompositionWeightValue(),"100","Verified allocation percentage is max.");
+	}
+	
 
 	
 

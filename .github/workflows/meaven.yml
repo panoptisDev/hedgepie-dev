@@ -3,8 +3,10 @@ name: Hedge Pie Automation Tests CI
 on:
   workflow_dispatch:
   pull_request:
+    types:
+      - opened
     branches:
-      - 'dev/**'
+      - ['dev/**', 'main/**']
 jobs:
   build:
 
