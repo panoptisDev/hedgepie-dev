@@ -1,31 +1,103 @@
+import { useInvestor } from 'hooks/useInvestor'
+import { useYBNFTMint } from 'hooks/useYBNFTMint'
 import React, { useState, useEffect } from 'react'
 import { Box, Text } from 'theme-ui'
+import { getBalanceInEther } from 'utils/formatBalance'
+import { getPrice } from 'utils/getTokenPrice'
 import YieldStakeDoughnut from './YieldStakeDoughnut'
 
 type Tab = 'yield' | 'stake'
 function DashboardYieldStakeInfo() {
   const [activeTab, setActiveTab] = useState<Tab>('yield')
   const [instruments, setInstruments] = useState<any>([])
+  const [yields, setYields] = useState<{ title: string; value: number; color: string }[]>([])
+  const [stakes, setStakes] = useState<{ title: string; value: number; color: string }[]>([])
+  const [totalYield, setTotalYield] = useState<number>()
+  const [totalStake, setTotalStake] = useState<number>()
+  const [invested, setInvested] = useState<number[]>([])
+  const { getYield, getBalance } = useInvestor()
+  const { getMaxTokenId, getTokenUri } = useYBNFTMint()
+  const [chartData, setChartData] = useState<any>({})
+  const [bnbPrice, setBNBPrice] = useState<number>(0)
+
   useEffect(() => {
-    let obj = [
-      {
-        color: '#F94144',
-        title: 'Instrument 1',
-        value: '$2,072.81',
-      },
-      {
-        color: '#F3722C',
-        title: 'Instrument 2',
-        value: '$2,100.34',
-      },
-      {
-        color: '#2D9CDB',
-        title: 'Instrument 3',
-        value: '$4,172.81',
-      },
-    ]
-    setInstruments(obj)
+    const fetchAndSetBNBPrice = async () => {
+      const price = await getPrice('BNB')
+      price && setBNBPrice(price)
+    }
+    fetchAndSetBNBPrice()
   }, [])
+
+  // START - Fetch and Store Yields
+
+  // START - Get indices of invested tokens
+  useEffect(() => {
+    const getInvestedFunds = async () => {
+      let investedData: number[] = []
+      const maxTokenId = await getMaxTokenId()
+      for (let i = 1; i <= maxTokenId; i++) {
+        const investedInToken = await getBalance(i)
+        if (getBalanceInEther(investedInToken) !== getBalanceInEther(0)) {
+          investedData.push(i)
+        }
+      }
+      setInvested(investedData)
+    }
+    getInvestedFunds()
+  }, [])
+  // END - Get indices of invested tokens
+
+  useEffect(() => {
+    const fetchAndStoreYields = async () => {
+      let stakesArr: any[] = []
+      let yieldsArr: any[] = []
+      let rewardTot = 0
+      let stakeTot = 0
+      for (let index = 0; index < invested.length; index++) {
+        const i = invested[index]
+        const bnbPrice = await getPrice('BNB')
+        const stake = await getBalance(i)
+        const reward = await getYield(i)
+        const tokenUri = await getTokenUri(i)
+        if (!tokenUri.includes('.ipfs.')) {
+          return
+        }
+        let metadataFile: any = undefined
+        try {
+          metadataFile = await fetch(tokenUri)
+        } catch (err) {
+          return
+        }
+        const metadata = await metadataFile.json()
+        let stakeObj = {
+          color: 'blue',
+          title: metadata.name,
+          value: `$${bnbPrice ? getBalanceInEther(bnbPrice * stake).toFixed(5) : 0.0} USD`,
+        }
+        stakeTot = stakeTot + Number(stake)
+        stakesArr.push(stakeObj)
+        let yieldObj = {
+          color: 'blue',
+          title: metadata.name,
+          value: `$${bnbPrice ? getBalanceInEther(bnbPrice * reward).toFixed(5) : 0.0} USD`,
+        }
+        rewardTot = rewardTot + Number(reward)
+        console.log('reward ' + reward)
+        console.log('rewardTot ' + rewardTot)
+
+        yieldsArr.push(yieldObj)
+      }
+      await setStakes(stakesArr)
+      await setYields(yieldsArr)
+      console.log('ajshd' + JSON.stringify(yieldsArr))
+      await setTotalStake(stakeTot)
+      await setTotalYield(getBalanceInEther(rewardTot))
+
+      console.log('TOTAL REWARD:' + JSON.stringify(totalStake && bnbPrice ? totalStake * bnbPrice : ''))
+    }
+    fetchAndStoreYields()
+  }, [])
+  // END - Fetch and Store Yields
 
   return (
     <Box
@@ -88,14 +160,15 @@ function DashboardYieldStakeInfo() {
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                   <Text sx={{ fontFamily: 'Inter', fontSize: '24px', fontWeight: '700', color: '#000000' }}>
-                    $8,345.62
+                    {totalYield && bnbPrice * totalYield}
+                    {`$${bnbPrice && totalYield ? (bnbPrice * totalYield).toFixed(4) : '0.0'} USD`}
                   </Text>
-                  <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '700', color: '#4F4F4F' }}>
+                  {/* <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '700', color: '#4F4F4F' }}>
                     10th Aug - 19th Sept, 2022
-                  </Text>
+                  </Text> */}
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {instruments.map((i) => (
+                  {yields.map((i) => (
                     <Box sx={{ display: 'flex', flexDirection: 'row', gap: '10px', alignItems: 'center' }}>
                       <Box sx={{ width: '10px', height: '10px', backgroundColor: i.color, borderRadius: '60px' }}></Box>
                       <Text sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: '600' }}>{i.title}</Text>
@@ -111,12 +184,12 @@ function DashboardYieldStakeInfo() {
                   <Text sx={{ fontFamily: 'Inter', fontSize: '24px', fontWeight: '700', color: '#000000' }}>
                     $24,245.13
                   </Text>
-                  <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '700', color: '#4F4F4F' }}>
+                  {/* <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '700', color: '#4F4F4F' }}>
                     10th Aug - 19th Sept, 2022
-                  </Text>
+                  </Text> */}
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                  {instruments.map((i) => (
+                  {stakes.map((i) => (
                     <Box sx={{ display: 'flex', flexDirection: 'row', gap: '10px', alignItems: 'center' }}>
                       <Box sx={{ width: '10px', height: '10px', backgroundColor: i.color, borderRadius: '60px' }}></Box>
                       <Text sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: '600' }}>{i.title}</Text>
@@ -138,7 +211,7 @@ function DashboardYieldStakeInfo() {
             height: '100%',
           }}
         >
-          <YieldStakeDoughnut />
+          <YieldStakeDoughnut data={chartData} />
         </Box>
       </Box>
     </Box>

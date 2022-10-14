@@ -27,7 +27,7 @@ export const data = {
   labels: ['Red', 'Blue', 'Yellow', 'Green', 'Purple', 'Orange'],
   datasets: [
     {
-      label: '# of Votes',
+      label: 'YBNFT',
       data: [4, 4, 8],
       backgroundColor: ['red', 'orange', '#2e8bc0'],
       borderColor: ['red', 'orange', '#2e8bc0'],
@@ -36,7 +36,7 @@ export const data = {
   ],
 }
 
-const YieldStakeDoughnut = () => {
+const YieldStakeDoughnut = (props: { data: any }) => {
   return <Doughnut data={data} options={options} />
 }
 
