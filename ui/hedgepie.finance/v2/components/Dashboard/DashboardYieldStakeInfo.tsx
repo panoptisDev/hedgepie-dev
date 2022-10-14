@@ -48,11 +48,12 @@ function DashboardYieldStakeInfo() {
   // END - Get indices of invested tokens
 
   useEffect(() => {
+    if (!invested.length) return
     const fetchAndStoreYields = async () => {
       let stakesArr: any[] = []
       let yieldsArr: any[] = []
-      let rewardTot = 0
-      let stakeTot = 0
+      let rewardTot = Number(0)
+      let stakeTot = Number(0)
       for (let index = 0; index < invested.length; index++) {
         const i = invested[index]
         const bnbPrice = await getPrice('BNB')
@@ -87,16 +88,13 @@ function DashboardYieldStakeInfo() {
 
         yieldsArr.push(yieldObj)
       }
-      await setStakes(stakesArr)
-      await setYields(yieldsArr)
-      console.log('ajshd' + JSON.stringify(yieldsArr))
-      await setTotalStake(stakeTot)
-      await setTotalYield(getBalanceInEther(rewardTot))
-
-      console.log('TOTAL REWARD:' + JSON.stringify(totalStake && bnbPrice ? totalStake * bnbPrice : ''))
+      setStakes(stakesArr)
+      setYields(yieldsArr)
+      setTotalStake(getBalanceInEther(stakeTot))
+      setTotalYield(getBalanceInEther(rewardTot))
     }
     fetchAndStoreYields()
-  }, [])
+  }, [invested])
   // END - Fetch and Store Yields
 
   return (
@@ -160,7 +158,6 @@ function DashboardYieldStakeInfo() {
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                   <Text sx={{ fontFamily: 'Inter', fontSize: '24px', fontWeight: '700', color: '#000000' }}>
-                    {totalYield && bnbPrice * totalYield}
                     {`$${bnbPrice && totalYield ? (bnbPrice * totalYield).toFixed(4) : '0.0'} USD`}
                   </Text>
                   {/* <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '700', color: '#4F4F4F' }}>
@@ -182,7 +179,7 @@ function DashboardYieldStakeInfo() {
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
                   <Text sx={{ fontFamily: 'Inter', fontSize: '24px', fontWeight: '700', color: '#000000' }}>
-                    $24,245.13
+                    {`$${bnbPrice && totalStake ? (bnbPrice * totalStake).toFixed(4) : '0.0'} USD`}
                   </Text>
                   {/* <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '700', color: '#4F4F4F' }}>
                     10th Aug - 19th Sept, 2022

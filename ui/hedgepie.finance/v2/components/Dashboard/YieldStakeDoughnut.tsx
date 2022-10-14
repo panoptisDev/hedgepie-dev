@@ -37,7 +37,12 @@ export const data = {
 }
 
 const YieldStakeDoughnut = (props: { data: any }) => {
-  return <Doughnut data={data} options={options} />
+  return (
+    <>
+      Mock Doughnut data
+      <Doughnut data={data} options={options} />
+    </>
+  )
 }
 
 export default YieldStakeDoughnut
