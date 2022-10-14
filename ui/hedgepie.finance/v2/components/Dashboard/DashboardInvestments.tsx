@@ -1,40 +1,116 @@
+import { useInvestor } from 'hooks/useInvestor'
+import { useYBNFTMint } from 'hooks/useYBNFTMint'
 import React, { useEffect, useState } from 'react'
 import { Box, Button, Text } from 'theme-ui'
+import { getBalanceInEther } from 'utils/formatBalance'
+import { getPrice } from 'utils/getTokenPrice'
 
 function DashboardInvestments() {
-  const [investments, setInvestments] = useState<any>([])
+  const [investments, setInvestments] = useState<any[]>([])
+  const [invested, setInvested] = useState<number[]>([])
+  const [totalYield, setTotalYield] = useState<string>()
+  const { getBalance, getNFTInfo, getYield } = useInvestor()
+  const { getMaxTokenId, getTokenUri } = useYBNFTMint()
+
+  // START - Integrated Contracts to get Invested Funds
+
+  // START - Get indices of invested tokens
   useEffect(() => {
-    let obj = [
-      {
-        instrument: 'Item 1',
-        tvl: '$12,000',
-        apr: '25%',
-        totalParticipants: '67',
-        stake: { bnbValue: '5 BNB', usdValue: '$1526.27' },
-        yield: { bnbValue: '3 BNB', usdValue: '$2,060.75' },
-        action: '',
-      },
-      {
-        instrument: 'Item 2',
-        tvl: '$12,000',
-        apr: '25%',
-        totalParticipants: '67',
-        stake: { bnbValue: '5 BNB', usdValue: '$1526.27' },
-        yield: { bnbValue: '3 BNB', usdValue: '$2,060.75' },
-        action: '',
-      },
-      {
-        instrument: 'Item 3',
-        tvl: '$12,000',
-        apr: '25%',
-        totalParticipants: '67',
-        stake: { bnbValue: '5 BNB', usdValue: '$1526.27' },
-        yield: { bnbValue: '3 BNB', usdValue: '$2,060.75' },
-        action: '',
-      },
-    ]
-    setInvestments(obj)
+    const getInvestedFunds = async () => {
+      let investedData: number[] = []
+      const maxTokenId = await getMaxTokenId()
+      for (let i = 1; i <= maxTokenId; i++) {
+        const investedInToken = await getBalance(i)
+        if (getBalanceInEther(investedInToken) !== getBalanceInEther(0)) {
+          investedData.push(i)
+        }
+      }
+      setInvested(investedData)
+    }
+    getInvestedFunds()
   }, [])
+  // END - Get indices of invested tokens
+
+  // START - Get investment data for invested tokens
+  useEffect(() => {
+    if (!invested.length) return
+    const getInvestmentData = async () => {
+      let investmentData: any[] = []
+      for (let index = 0; index < invested.length; index++) {
+        const i = invested[index]
+        const nftInfo = await getNFTInfo(i)
+        const bnbPrice = await getPrice('BNB')
+        const tvl = bnbPrice ? `$${Number(getBalanceInEther(nftInfo.tvl) * bnbPrice).toFixed(3)} USD` : 'N/A'
+        const totalStaked = `${getBalanceInEther(nftInfo.tvl)} BNB`
+        let stake = await getBalance(i)
+        let reward = stake === 0.0 ? 0.0 : await getYield(i)
+        console.log('invested:' + invested)
+        const tokenUri = await getTokenUri(i)
+        if (!tokenUri.includes('.ipfs.')) {
+          return
+        }
+        let metadataFile: any = undefined
+        try {
+          metadataFile = await fetch(tokenUri)
+        } catch (err) {
+          return
+        }
+        const metadata = await metadataFile.json()
+        let fundObj = {
+          instrument: metadata.name,
+          totalParticipants: nftInfo.totalParticipant,
+          tvl: tvl,
+          stake: {
+            bnbValue: getBalanceInEther(stake).toFixed(3).toString() + ' BNB',
+            usdValue: bnbPrice
+              ? `$${
+                  getBalanceInEther(stake * bnbPrice)
+                    .toFixed(3)
+                    .toString() + ' USD'
+                }`
+              : '',
+          },
+          apr: '25%',
+          yield: {
+            bnbValue: getBalanceInEther(reward).toFixed(5).toString() + ' BNB',
+            usdValue: bnbPrice
+              ? `$${
+                  getBalanceInEther(reward * bnbPrice)
+                    .toFixed(3)
+                    .toString() + ' USD'
+                }`
+              : '',
+          },
+        }
+        investmentData.push(fundObj)
+      }
+      setInvestments(investmentData)
+    }
+    getInvestmentData()
+  }, [invested])
+  // END - Get investment data for invested tokens
+
+  // START - get total yield
+
+  useEffect(() => {
+    if (!invested.length) return
+    const calculateTotalYield = async () => {
+      let reward = 0
+      const bnbPrice = await getPrice('BNB')
+      for (let index = 0; index < invested.length; index++) {
+        const i = invested[index]
+        const rewardForToken = await getYield(i)
+        reward = reward + getBalanceInEther(rewardForToken)
+      }
+      setTotalYield(`$${bnbPrice ? (reward * bnbPrice).toFixed(4) : 0.0} USD`)
+    }
+    calculateTotalYield()
+  }, [invested])
+
+  // END - get total yield
+
+  // END - Integrated Contracts to get Invested Funds
+
   return (
     <Box
       sx={{
@@ -65,7 +141,7 @@ function DashboardInvestments() {
         >
           <Box sx={{ display: 'flex', flexDirection: 'row', gap: '10px', alignItems: 'center', marginRight: '40px' }}>
             <Text sx={{ color: '#94A3B8', fontSize: '14px' }}>Total Yield:</Text>
-            <Text sx={{ color: '#FFFFFF', fontSize: '16px', fontWeight: '600' }}>$8,345.62</Text>
+            <Text sx={{ color: '#FFFFFF', fontSize: '16px', fontWeight: '600' }}>{totalYield}</Text>
           </Box>
           <Box
             sx={{
@@ -93,7 +169,7 @@ function DashboardInvestments() {
         </Box>
       </Box>
       <Box sx={{ border: ' 1px solid #D9D9D9', width: '100%', borderRadius: '8px' }}>
-        <table style={{ width: '100%', padding: '1rem', borderSpacing: '35px 25px' }}>
+        <table style={{ width: '100%', padding: '1rem', borderSpacing: '20px 15px' }}>
           <thead>
             <tr
               style={{
@@ -116,13 +192,15 @@ function DashboardInvestments() {
           <tbody>
             {investments.map((investment) => (
               <tr style={{ textAlign: 'center', color: '#1A1A1A', fontSize: '14px', fontFamily: 'Inter' }}>
-                <td>{investment.instrument}</td>
+                <td>
+                  <Text sx={{ fontFamily: 'Inter', fontWeight: '600', color: '#14114B' }}>{investment.instrument}</Text>
+                </td>
                 <td>{investment.tvl}</td>
                 <td>{investment.apr}</td>
                 <td>{investment.totalParticipants}</td>
                 <td>
                   <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-                    <Text>{investment.stake.bnbValue}</Text>
+                    <Text sx={{ fontFamily: 'Inter', fontWeight: '600' }}>{investment.stake.bnbValue}</Text>
                     <Text sx={{ color: '#8988A5', fontSize: '10px' }}>{investment.stake.usdValue}</Text>
                   </Box>
                 </td>
