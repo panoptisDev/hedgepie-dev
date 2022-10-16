@@ -1,11 +1,12 @@
 import { useInvestor } from 'hooks/useInvestor'
 import { useYBNFTMint } from 'hooks/useYBNFTMint'
 import React, { useEffect, useState } from 'react'
-import { Box, Button, Text } from 'theme-ui'
+import { Box, Button, Spinner, Text } from 'theme-ui'
 import { getBalanceInEther } from 'utils/formatBalance'
 import { getPrice } from 'utils/getTokenPrice'
 
 function DashboardInvestments() {
+  const [investmentsLoading, setInvestmentsLoading] = useState<boolean>(false)
   const [investments, setInvestments] = useState<any[]>([])
   const [invested, setInvested] = useState<number[]>([])
   const [totalYield, setTotalYield] = useState<string>()
@@ -17,6 +18,7 @@ function DashboardInvestments() {
   // START - Get indices of invested tokens
   useEffect(() => {
     const getInvestedFunds = async () => {
+      setInvestmentsLoading(true)
       let investedData: number[] = []
       const maxTokenId = await getMaxTokenId()
       for (let i = 1; i <= maxTokenId; i++) {
@@ -85,6 +87,7 @@ function DashboardInvestments() {
         investmentData.push(fundObj)
       }
       setInvestments(investmentData)
+      setInvestmentsLoading(false)
     }
     getInvestmentData()
   }, [invested])
@@ -168,97 +171,114 @@ function DashboardInvestments() {
           </Box>
         </Box>
       </Box>
-      <Box sx={{ border: ' 1px solid #D9D9D9', width: '100%', borderRadius: '8px' }}>
-        <table style={{ width: '100%', padding: '1rem', borderSpacing: '20px 15px' }}>
-          <thead>
-            <tr
-              style={{
-                fontWeight: '600',
-                fontFamily: 'Inter',
-                color: '#1A1A1A',
-                fontSize: '16px',
-                textAlign: 'center',
-              }}
-            >
-              <td>Instrument</td>
-              <td>TVL</td>
-              <td>APR</td>
-              <td># Participants</td>
-              <td>Stake</td>
-              <td>Yield</td>
-              <td>Action</td>
-            </tr>
-          </thead>
-          <tbody>
-            {investments.map((investment) => (
-              <tr style={{ textAlign: 'center', color: '#1A1A1A', fontSize: '14px', fontFamily: 'Inter' }}>
-                <td>
-                  <Text sx={{ fontFamily: 'Inter', fontWeight: '600', color: '#14114B' }}>{investment.instrument}</Text>
-                </td>
-                <td>{investment.tvl}</td>
-                <td>{investment.apr}</td>
-                <td>{investment.totalParticipants}</td>
-                <td>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-                    <Text sx={{ fontFamily: 'Inter', fontWeight: '600' }}>{investment.stake.bnbValue}</Text>
-                    <Text sx={{ color: '#8988A5', fontSize: '10px' }}>{investment.stake.usdValue}</Text>
-                  </Box>
-                </td>
-                <td>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-                    <Text>{investment.yield.bnbValue}</Text>
-                    <Text sx={{ color: '#8988A5', fontSize: '10px' }}>{investment.yield.usdValue}</Text>
-                  </Box>
-                </td>
-                <td>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'row',
-                      alignItems: 'center',
-                      gap: '10px',
-                      justifyContent: 'center',
-                      width: '100%',
-                    }}
-                  >
-                    <Button
-                      sx={{
-                        borderRadius: '4px',
-                        boxShadow: '0px 2px 3px rgba(133, 175, 197, 0.3)',
-                        border: '1px solid #8BCCEE',
-                        backgroundColor: '#F2F9FD',
-                        color: '#1A1A1A',
-                        fontFamily: 'Inter',
-                        fontWeight: '600',
-                        fontSize: '14px',
-                        cursor: 'pointer',
-                        marginLeft: '20px',
-                      }}
-                    >
-                      CLAIM
-                    </Button>
-                    <Button
-                      sx={{
-                        borderRadius: '4px',
-                        boxShadow: '0px 2px 3px rgba(133, 175, 197, 0.3)',
-                        border: '1px solid #8BCCEE',
-                        backgroundColor: '#F2F9FD',
-                        color: '#1A1A1A',
-                        fontFamily: 'Inter',
-                        fontWeight: '600',
-                        fontSize: '14px',
-                        cursor: 'pointer',
-                      }}
-                    >
-                      COMPOUND
-                    </Button>
-                  </Box>
-                </td>
+      {investmentsLoading ? (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            width: '100%',
+            height: '100%',
+            justifyContent: 'center',
+          }}
+        >
+          <Spinner />
+        </Box>
+      ) : (
+        <Box sx={{ border: ' 1px solid #D9D9D9', width: '100%', borderRadius: '8px' }}>
+          <table style={{ width: '100%', padding: '1rem', borderSpacing: '20px 15px' }}>
+            <thead>
+              <tr
+                style={{
+                  fontWeight: '600',
+                  fontFamily: 'Inter',
+                  color: '#1A1A1A',
+                  fontSize: '16px',
+                  textAlign: 'center',
+                }}
+              >
+                <td>Instrument</td>
+                <td>TVL</td>
+                <td>APR</td>
+                <td># Participants</td>
+                <td>Stake</td>
+                <td>Yield</td>
+                <td>Action</td>
               </tr>
-            ))}
-          </tbody>
-        </table>
-      </Box>
+            </thead>
+            <tbody>
+              {investments.map((investment) => (
+                <tr style={{ textAlign: 'center', color: '#1A1A1A', fontSize: '14px', fontFamily: 'Inter' }}>
+                  <td>
+                    <Text sx={{ fontFamily: 'Inter', fontWeight: '600', color: '#14114B' }}>
+                      {investment.instrument}
+                    </Text>
+                  </td>
+                  <td>{investment.tvl}</td>
+                  <td>{investment.apr}</td>
+                  <td>{investment.totalParticipants}</td>
+                  <td>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                      <Text sx={{ fontFamily: 'Inter', fontWeight: '600' }}>{investment.stake.bnbValue}</Text>
+                      <Text sx={{ color: '#8988A5', fontSize: '10px' }}>{investment.stake.usdValue}</Text>
+                    </Box>
+                  </td>
+                  <td>
+                    <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
+                      <Text>{investment.yield.bnbValue}</Text>
+                      <Text sx={{ color: '#8988A5', fontSize: '10px' }}>{investment.yield.usdValue}</Text>
+                    </Box>
+                  </td>
+                  <td>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'row',
+                        alignItems: 'center',
+                        gap: '10px',
+                        justifyContent: 'center',
+                        width: '100%',
+                      }}
+                    >
+                      <Button
+                        sx={{
+                          borderRadius: '4px',
+                          boxShadow: '0px 2px 3px rgba(133, 175, 197, 0.3)',
+                          border: '1px solid #8BCCEE',
+                          backgroundColor: '#F2F9FD',
+                          color: '#1A1A1A',
+                          fontFamily: 'Inter',
+                          fontWeight: '600',
+                          fontSize: '14px',
+                          cursor: 'pointer',
+                          marginLeft: '20px',
+                        }}
+                      >
+                        CLAIM
+                      </Button>
+                      <Button
+                        sx={{
+                          borderRadius: '4px',
+                          boxShadow: '0px 2px 3px rgba(133, 175, 197, 0.3)',
+                          border: '1px solid #8BCCEE',
+                          backgroundColor: '#F2F9FD',
+                          color: '#1A1A1A',
+                          fontFamily: 'Inter',
+                          fontWeight: '600',
+                          fontSize: '14px',
+                          cursor: 'pointer',
+                        }}
+                      >
+                        COMPOUND
+                      </Button>
+                    </Box>
+                  </td>
+                </tr>
+              ))}
+            </tbody>
+          </table>
+        </Box>
+      )}
     </Box>
   )
 }

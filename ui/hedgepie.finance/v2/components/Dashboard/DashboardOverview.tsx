@@ -4,7 +4,7 @@ import moment from 'moment'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import { ArrowRight } from 'react-feather'
-import { Box, Text } from 'theme-ui'
+import { Box, Spinner, Text } from 'theme-ui'
 import { getBalanceInEther } from 'utils/formatBalance'
 import { getPrice } from 'utils/getTokenPrice'
 import DashboardInvestmentChart from './DashboardInvestmentChart'
@@ -13,9 +13,13 @@ function DashboardOverview() {
   const router = useRouter()
   const date = moment().format('DD/MM/yyyy')
 
+  const [totalInvestedLoading, setTotalInvestedLoading] = useState<boolean>(false)
   const [totalInvested, setTotalInvested] = useState<string>()
   const [totalInvestedUSD, setTotalInvestedUSD] = useState<string>()
+
+  const [totalYieldLoading, setTotalYieldLoading] = useState<boolean>(false)
   const [totalYield, setTotalYield] = useState<string>()
+  const [totalYieldUSD, setTotalYieldUSD] = useState<string>()
   const [unclaimedYield, setUnclaimedYield] = useState('$0')
 
   const { getBalance, getYield } = useInvestor()
@@ -26,6 +30,7 @@ function DashboardOverview() {
   // START = Total Invested
   useEffect(() => {
     const calculateTotalInvested = async () => {
+      setTotalInvestedLoading(true)
       const maxTokenId = await getMaxTokenId()
       let invested = 0
       const bnbPrice = await getPrice('BNB')
@@ -35,6 +40,7 @@ function DashboardOverview() {
       }
       setTotalInvested(invested.toFixed(3).toString() + ' BNB')
       bnbPrice && setTotalInvestedUSD(`$${(invested * bnbPrice).toFixed(3).toString()} USD`)
+      setTotalInvestedLoading(false)
     }
     calculateTotalInvested()
   }, [])
@@ -43,6 +49,7 @@ function DashboardOverview() {
   // START = Total Yield
   useEffect(() => {
     const calculateTotalYield = async () => {
+      setTotalYieldLoading(true)
       const maxTokenId = await getMaxTokenId()
       let reward = 0
       const bnbPrice = await getPrice('BNB')
@@ -54,7 +61,9 @@ function DashboardOverview() {
         let rewardInToken = await getYield(i)
         reward = reward + getBalanceInEther(rewardInToken)
       }
-      setTotalYield(reward.toFixed(3).toString() + ' BNB')
+      setTotalYield(reward.toFixed(5).toString() + ' BNB')
+      bnbPrice && setTotalYieldUSD(`$${(reward * bnbPrice).toFixed(4).toString()} USD`)
+      setTotalYieldLoading(false)
     }
     calculateTotalYield()
   }, [])
@@ -92,12 +101,18 @@ function DashboardOverview() {
               Total Invested
             </Text>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'center' }}>
-              <Text sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: '600', color: '#FFFFFF' }}>
-                {totalInvested}
-              </Text>
-              <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '400', color: '#8BCCEE' }}>
-                {totalInvestedUSD}
-              </Text>
+              {totalInvestedLoading ? (
+                <Spinner />
+              ) : (
+                <>
+                  <Text sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: '600', color: '#FFFFFF' }}>
+                    {totalInvested}
+                  </Text>
+                  <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '400', color: '#8BCCEE' }}>
+                    {totalInvestedUSD}
+                  </Text>
+                </>
+              )}
             </Box>
           </Box>
           <Box
@@ -116,9 +131,18 @@ function DashboardOverview() {
           >
             <Text sx={{ fontFamily: 'Inter', fontSize: '12px', fontWeight: '600', color: '#4F4F4F' }}>Total Yield</Text>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'center' }}>
-              <Text sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: '600', color: '#000000' }}>
-                {totalYield}
-              </Text>
+              {totalYieldLoading ? (
+                <Spinner />
+              ) : (
+                <>
+                  <Text sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: '600', color: '#000000' }}>
+                    {totalYield}
+                  </Text>
+                  <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '400', color: '#000000' }}>
+                    {totalYieldUSD}
+                  </Text>
+                </>
+              )}
             </Box>
           </Box>
           <Box
