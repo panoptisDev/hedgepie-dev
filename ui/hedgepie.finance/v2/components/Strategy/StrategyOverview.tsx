@@ -1,9 +1,16 @@
+import { useWeb3React } from '@web3-react/core'
+import { useInvestor } from 'hooks/useInvestor'
+import { useYBNFTMint } from 'hooks/useYBNFTMint'
 import Image from 'next/image'
-import React, { useState } from 'react'
-import { Box, Text } from 'theme-ui'
+import React, { useState, useEffect } from 'react'
+import { Box, Spinner, Text } from 'theme-ui'
+import { getBalanceInEther } from 'utils/formatBalance'
+import { getPrice } from 'utils/getTokenPrice'
 
-function StrategyOverview() {
-  const [fundName, setFundName] = useState('Fund XYZ')
+function StrategyOverview(props: { tokenId: number }) {
+  const { tokenId } = props
+  const [loading, setLoading] = useState(false)
+  const [fundName, setFundName] = useState('')
   const [createdDate, setCreatedDate] = useState('14/09/2022')
   const [description, setDescription] = useState(
     'Descriptive text for the Fund goes here. Any relevant information will be displayed.',
@@ -14,6 +21,49 @@ function StrategyOverview() {
   const [tvl, setTVL] = useState('$245,301')
   const [apy, setAPY] = useState('12%')
   const [investors, setInvestors] = useState('400')
+
+  const { getNFTInfo, getYield, getBalance } = useInvestor()
+  const { getTokenUri, getPerfFee } = useYBNFTMint()
+  const { account } = useWeb3React()
+
+  useEffect(() => {
+    setLoading(true)
+    if (!tokenId) return
+    const fetchOverview = async () => {
+      const nftInfo = await getNFTInfo(tokenId)
+      const bnbPrice = await getPrice('BNB')
+      const tvl = bnbPrice ? `$ ${Number(getBalanceInEther(nftInfo.tvl) * bnbPrice).toFixed(3)} USD` : 'N/A'
+      const totalStaked = `${getBalanceInEther(nftInfo.tvl)} BNB`
+      const totalParticipants = nftInfo.totalParticipant
+      let invested = await getBalance(tokenId)
+      let reward = await getYield(tokenId)
+
+      let perfFee = await getPerfFee(tokenId)
+      console.log('invested:' + invested)
+      const tokenUri = await getTokenUri(tokenId)
+      if (!tokenUri.includes('.ipfs.')) {
+        return
+      }
+      let metadataFile: any = undefined
+      try {
+        metadataFile = await fetch(tokenUri)
+      } catch (err) {
+        return
+      }
+      const metadata = await metadataFile.json()
+
+      // Setting the State Variables
+      setFundName(metadata.name)
+      setDescription(metadata.description)
+      setTVL(tvl)
+      setStake(`${getBalanceInEther(Number(invested))} BNB`)
+      setReward(`${getBalanceInEther(Number(reward)).toFixed(5)} BNB`)
+      setInvestors(totalParticipants)
+      setPerformanceFee(`${perfFee / 100} %`)
+      setLoading(false)
+    }
+    account && fetchOverview()
+  }, [tokenId, account])
 
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
@@ -37,132 +87,142 @@ function StrategyOverview() {
           padding: '0.5rem',
         }}
       >
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '15px',
-            border: '1px solid #D9D9D9',
-            borderRadius: '16px',
-            padding: '0.5rem',
-            flex: 1,
-          }}
-        >
-          <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '1rem' }}>
-            <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '20px', color: '#000000' }}>{fundName}</Text>
-            <Text
-              sx={{ fontFamily: 'Inter', fontWeight: '500', fontSize: '16px', color: '#4F4F4F', marginLeft: 'auto' }}
-            >
-              Created: {createdDate}
-            </Text>
+        {loading ? (
+          <Box
+            sx={{ height: '10rem', width: '10rem', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+          >
+            <Spinner />
           </Box>
+        ) : (
           <Box
             sx={{
               display: 'flex',
-              flexDirection: 'row',
-              alignItems: 'center',
-              height: '3px',
-              backgroundColor: '#D9D9D9',
+              flexDirection: 'column',
+              gap: '15px',
+              border: '1px solid #D9D9D9',
+              borderRadius: '16px',
+              padding: '0.5rem',
+              flex: 1,
             }}
-          ></Box>
-          <Box sx={{ maxWidth: '28rem' }}>
-            <Text sx={{ fontFamily: 'Inter', fontWeight: '500', fontSize: '16px', color: '#4F4F4F' }}>
-              {description}
-            </Text>
-          </Box>
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px',
-                  flex: 1,
-                  backgroundColor: '#F3F3F3',
-                  borderRadius: '4px',
-                  padding: '0.5rem',
-                }}
+          >
+            <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '1rem' }}>
+              <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '20px', color: '#000000' }}>
+                {fundName}
+              </Text>
+              <Text
+                sx={{ fontFamily: 'Inter', fontWeight: '500', fontSize: '16px', color: '#4F4F4F', marginLeft: 'auto' }}
               >
-                <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}>Pref. Fee</Text>
-                <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{performanceFee}</Text>
-              </Box>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px',
-                  flex: 1,
-                  backgroundColor: '#F3F3F3',
-                  borderRadius: '4px',
-                  padding: '0.5rem',
-                }}
-              >
-                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                  <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}>APY</Text>
-                  <Box sx={{ marginLeft: 'auto', cursor: 'pointer' }}>
-                    <Image src="/icons/info.svg" width={20} height={20} />
-                  </Box>
-                </Box>
-                <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{apy}</Text>
-              </Box>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px',
-                  flex: 1,
-                  backgroundColor: '#F3F3F3',
-                  borderRadius: '4px',
-                  padding: '0.5rem',
-                }}
-              >
-                <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}># Investors</Text>
-                <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{investors}</Text>
-              </Box>
+                Created: {createdDate}
+              </Text>
             </Box>
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: 'row',
+                alignItems: 'center',
+                height: '3px',
+                backgroundColor: '#D9D9D9',
+              }}
+            ></Box>
+            <Box sx={{ maxWidth: '28rem' }}>
+              <Text sx={{ fontFamily: 'Inter', fontWeight: '500', fontSize: '16px', color: '#4F4F4F' }}>
+                {description}
+              </Text>
+            </Box>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <Box sx={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                    flex: 1,
+                    backgroundColor: '#F3F3F3',
+                    borderRadius: '4px',
+                    padding: '0.5rem',
+                  }}
+                >
+                  <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}>Pref. Fee</Text>
+                  <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{performanceFee}</Text>
+                </Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                    flex: 1,
+                    backgroundColor: '#F3F3F3',
+                    borderRadius: '4px',
+                    padding: '0.5rem',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                    <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}>APY</Text>
+                    <Box sx={{ marginLeft: 'auto', cursor: 'pointer' }}>
+                      <Image src="/icons/info.svg" width={20} height={20} />
+                    </Box>
+                  </Box>
+                  <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{apy}</Text>
+                </Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                    flex: 1,
+                    backgroundColor: '#F3F3F3',
+                    borderRadius: '4px',
+                    padding: '0.5rem',
+                  }}
+                >
+                  <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}># Investors</Text>
+                  <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{investors}</Text>
+                </Box>
+              </Box>
 
-            <Box sx={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px',
-                  flex: 1,
-                  backgroundColor: '#F3F3F3',
-                  borderRadius: '4px',
-                  padding: '0.5rem',
-                }}
-              >
-                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                  <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}>TVL</Text>
-                  <Box sx={{ marginLeft: 'auto', cursor: 'pointer' }}>
-                    <Image src="/icons/info.svg" width={20} height={20} />
+              <Box sx={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                    flex: 1,
+                    backgroundColor: '#F3F3F3',
+                    borderRadius: '4px',
+                    padding: '0.5rem',
+                  }}
+                >
+                  <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                    <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}>TVL</Text>
+                    <Box sx={{ marginLeft: 'auto', cursor: 'pointer' }}>
+                      <Image src="/icons/info.svg" width={20} height={20} />
+                    </Box>
                   </Box>
+                  <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{tvl}</Text>
                 </Box>
-                <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{tvl}</Text>
-              </Box>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'column',
-                  gap: '10px',
-                  flex: 1,
-                  backgroundColor: '#F3F3F3',
-                  borderRadius: '4px',
-                  padding: '0.5rem',
-                }}
-              >
-                <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}>Your Stake</Text>
-                <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                  <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{stake}</Text>
-                  <Text sx={{ color: '#DF4886', fontWeight: '500', fontSize: '14px', marginLeft: '3px' }}>
-                    $10,580.42
-                  </Text>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'column',
+                    gap: '10px',
+                    flex: 1,
+                    backgroundColor: '#F3F3F3',
+                    borderRadius: '4px',
+                    padding: '0.5rem',
+                  }}
+                >
+                  <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}>Your Stake</Text>
+                  <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                    <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{stake}</Text>
+                    <Text sx={{ color: '#DF4886', fontWeight: '500', fontSize: '14px', marginLeft: '3px' }}>
+                      $10,580.42
+                    </Text>
+                  </Box>
                 </Box>
               </Box>
             </Box>
           </Box>
-        </Box>
+        )}
         <Box
           sx={{
             display: 'flex',

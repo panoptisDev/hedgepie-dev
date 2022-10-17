@@ -36,7 +36,7 @@ export const CHART_DATA = {
   ],
 }
 
-const YieldStakeDoughnut = (props: { data: any; labels: string[] }) => {
+const YieldStakeDoughnut = (props: { data?: any; labels?: string[] }) => {
   const { data, labels } = props
   const [chartData, setChartData] = useState<any>(CHART_DATA)
   useEffect(() => {
