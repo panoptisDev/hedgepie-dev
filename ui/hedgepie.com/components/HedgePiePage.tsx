@@ -1,7 +1,11 @@
-import type { NextPage } from "next";
 import Head from "next/head";
+import React from "react";
 
-const Home: NextPage = () => {
+interface HedgePiePageProps {
+  children?: React.ReactNode;
+}
+
+function HedgePiePage(props: HedgePiePageProps) {
   return (
     <div>
       <Head>
@@ -14,6 +18,6 @@ const Home: NextPage = () => {
       </Head>
     </div>
   );
-};
+}
 
-export default Home;
+export default HedgePiePage;
