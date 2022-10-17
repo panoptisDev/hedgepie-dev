@@ -44,24 +44,13 @@ import freemarker.template.SimpleDate;
 import io.github.bonigarcia.wdm.WebDriverManager;
 
 public class BaseClass {
-	/*
-	 * WebDriver
-	 *
-	 * ExcelReader Logs WebDriverWait ExtentReports
-	 *
-	 *
-	 *
-	 */
 	public static WebDriver driver;
 	public static WebDriverWait wait;
 	public static String browser;
 	public static String env;
 	public static FileInputStream fis;
-//	public static Logger log = Logger.getLogger("devpinoyLogger");
 	public static ExtentTest extentReport;
 	public static SoftAssert softAssert;
-	// public static ExtentReports rep = ExtentManager.getInstance();
-	//This is to set default wait for every method
 	public static Integer waitInSeconds = 5;
 
 	//This is the default path to data package
@@ -70,26 +59,17 @@ public class BaseClass {
 	//This is the default path to imageUpload
 	public static final String imagePath = System.getProperty("user.dir") + "\\src\\test\\resources\\images\\";
 	
-	//This is excel file name
-	public static final String potentialClientExcel = "potentialClientTestData";
 	//This is column name from which we need to get row
 	public static final String colName = "env";
 	//This is row index of environment column from which we need to get data	
 	public static int rowIndex = 0;
 	
 	static String metamaskExtension = System.getProperty("user.dir")+ File.separator +"src"+ File.separator +"test"+ File.separator+ "resources" + File.separator+ "extension" + File.separator +"metamask.crx";
-	
+	public static String extensionHomePage = "chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html";
 
 	public WebDriver initConfiguration() {
 		WebDriver localD = null;
 		String osName = System.getProperty("os.name");
-//		if (osName.contains("Windows")) {
-//			excelFilePath = System.getProperty("user.dir") + "\\src\\test\\resources\\data\\";
-//			imagePath = System.getProperty("user.dir") + "\\src\\test\\resources\\images\\";
-//		} else {
-//			excelFilePath = System.getProperty("user.dir") + "/src/test/resources/data/";
-//			imagePath = System.getProperty("user.dir") + "/src/test/resources/images/";
-//		}
 		System.out.println("OS : " + osName);
 		System.out.println("User Dir : " + System.getProperty("user.dir"));
 		System.out.println("excelFilePath  : " + excelFilePath);
@@ -112,9 +92,8 @@ public class BaseClass {
 			env = PropertiesReader.getPropertyValue("env");
 		}
 		if (browser.equals("firefox")) {
-			System.setProperty("webdriver.gecko.driver", "gecko.exe");
+			WebDriverManager.firefoxdriver().setup();
 			localD = new FirefoxDriver();
-//			log.debug("Firefox Driver initialized");
 		} else if (browser.equals("chrome")) {
 
 			WebDriverManager.chromedriver().setup();
@@ -130,20 +109,15 @@ public class BaseClass {
 			options.addArguments("window-size=1920,1080");
 			options.addArguments("--disable-gpu");
 			//options.addArguments("--headless");
-			
-
-//			options.addArguments("--disable-gpu");
 			try {
 				localD = new ChromeDriver(options);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
 
-//			driver.manage().window().maximize();
-//			log.debug("Chrome driver intialized");
+			driver.manage().window().maximize();
 		} else if (browser.equals("ie")) {
-			System.setProperty("webdriver.ie.driver",
-					System.getProperty("user.dir") + "\\src\\test\\resources\\executables\\IEDriverServer.exe");
+			WebDriverManager.edgedriver().setup();
 			localD = new InternetExplorerDriver();
 		}
 		localD.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
@@ -175,9 +149,7 @@ public class BaseClass {
 	
 	public void initMetamask() {
 		waitTime(3000);
-//		ArrayList<String> tabs2 = new ArrayList<String> (driver.getWindowHandles());
-//	    driver.switchTo().window(tabs2.get(1));
-		driver.get("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#initialize/welcome");
+		driver.get(extensionHomePage+"#initialize/welcome");
 		waitTime(1000);
 	    clickOnTextContains("Get started");
 	    clickOnTextContains("I agree");
@@ -195,8 +167,6 @@ public class BaseClass {
 	    waitTime(3000);
 	    clickOnTextContains("All done");
 	    waitTime(3000);
-	    //driver.close();
-	    //driver.switchTo().window(tabs2.get(0));
 	}
 	
 	public void waitForTextContains(String text,int timeoutInSeconds) {
@@ -216,8 +186,6 @@ public class BaseClass {
 
 
 	public static void openURL(String key) {
-//		env = PropertiesReader.getPropertyValue("env");
-//		log.debug("Environment value:" + env);
 		driver.get(PropertiesReader.getPropertyValue(env + "_" + key));
 		driver.manage().window().maximize();
 		driver.manage().timeouts().implicitlyWait(Integer.parseInt(PropertiesReader.getPropertyValue("implicit.wait")),
@@ -233,7 +201,6 @@ public class BaseClass {
 	}
 
 	public static String loginDetails(String key) {
-//		env = PropertiesReader.getPropertyValue("env");
 		return PropertiesReader.getPropertyValue(env + "_" + key);
 	}
 
@@ -243,12 +210,6 @@ public class BaseClass {
 			waitForElementClickable(element, "20");
 			element.click();
 		}catch(Exception e) {}
-		
-
-//		log.debug("Clicking on an Element : " + element);
-//ExtentListeners.testReport.get().log(Status.INFO, "Clicking on : " + element);
-//extentReport.log(Status.INFO,"Clicking on : " + element);
-//		ErrorCollector.extentLogInfo("Clicking on : " + element);
 	}
 	
 	public void scrollIntoViewSmoothly(WebElement Element) {
@@ -260,27 +221,17 @@ public class BaseClass {
 		waitForElementVisibility(element, timeInSeconds);
 		waitForElementClickable(element, timeInSeconds);
 		element.click();
-//		log.debug("Clicking on : " + element);
-//		ErrorCollector.extentLogInfo("Clicking on : " + element);
 	}
 
 	public static void waitForElementVisibility(WebElement element, String timeoutInSeconds) {
 
 		WebDriverWait wait = new WebDriverWait(driver, Long.parseLong(timeoutInSeconds));
 		wait.until(ExpectedConditions.visibilityOf(element));
-		// ExtentListeners.testReport.get().log(Status.INFO, "Waiting for on : " +
-		// element);
-//	ExtentListeners.testReport.get().log(Status.INFO,"Waiting for on : " + element);
-//	extentReport.log(Status.INFO,"Opening browser");
-//		ErrorCollector.extentLogInfo("Waiting for element: " + element);
-//		log.info("Waiting for element visible: " + element);
 	}
 
 	public static void waitForElementClickable(WebElement element, String timeoutInSeconds) {
 		WebDriverWait waitClickable = new WebDriverWait(driver, Long.parseLong(timeoutInSeconds));
 		waitClickable.until(ExpectedConditions.elementToBeClickable(element));
-//		log.info("Waiting for element " + element);
-//		ErrorCollector.extentLogInfo("Waiting for element clickable: " + element);
 	}
 	
 	public void waitUntilSearchLoadingShowing() {
@@ -316,16 +267,10 @@ public class BaseClass {
 		element.clear();
 		System.out.println("Entered :" + value);
 		element.sendKeys(value);
-//		log.debug("Typing in an Element : " + element + " entered value as : " + value);
-//		ErrorCollector.extentLogInfo("Typing in an Element : " + element + " entered value as : " + value);
 	}
 
 	public static void type_old(WebElement element, String value) {
 		element.sendKeys(value);
-//		log.debug("Typing in an Element : " + element + " entered value as : " + value);
-//ExtentListeners.testReport.get().log(Status.INFO, "Typing in : " + element+" entered vaue as: "+value);
-//test.log(LogStatus.INFO, "Typing in : " + element + " entered value as " + value);
-//		ErrorCollector.extentLogInfo("Typing in an Element : " + element + " entered value as : " + value);
 	}
 
 	public static void selectValueFromDropdown(List<WebElement> dropdownValues, String value) {
@@ -337,8 +282,6 @@ public class BaseClass {
 				break;
 			}
 		}
-//		log.info("Selecting values : " + value);
-//		ErrorCollector.extentLogInfo("Selecting values : " + value);
 	}
 
 	public void multipleSelectFromDropDown(WebElement searchBox, List<WebElement> elementList, String... inputValues) {
@@ -352,8 +295,6 @@ public class BaseClass {
 				}
 			}
 		}
-//		log.info("Selecting values : " + inputValues);
-//		ErrorCollector.extentLogInfo("Selecting values : " + inputValues);
 	}
 
 	public void scrollUp() {
@@ -380,15 +321,11 @@ public class BaseClass {
 		Actions actions = new Actions(driver);
 		actions.moveToElement(button);
 		actions.click().build().perform();
-//		log.info("Clicking : " + button);
-//		ErrorCollector.extentLogInfo("Clicking : " + button);
 	}
 
 	public void mouseHover(WebElement button) {
 		Actions actions = new Actions(driver);
 		actions.moveToElement(button);
-//		log.info("Clicking : " + button);
-//		ErrorCollector.extentLogInfo("Clicking : " + button);
 	}
 	
 	public boolean isTextPresent(String text) {
@@ -504,8 +441,6 @@ public class BaseClass {
 	}
 
 	public static void teardown() {
-//		log.info("Closing the test script in teardown");
-//		ErrorCollector.extentLogInfo("Closing the test script in teardown");
 		closeBrowser();
 	}
 	
@@ -536,8 +471,6 @@ public class BaseClass {
 		 	It'll accept element as parameter before scrolling. 
 	Parameters : 
 			 WebElement element (Element to be scrolled)
-	Created By : Muhammad Abu Bakar
-	Created On : 02/18/2021 (Date-format : MM/dd/yyyy)
 	*/
 	
 	public static void scrollToElement(WebElement element) {
@@ -556,8 +489,6 @@ public class BaseClass {
 			 WebElement element (Element to be clicked)
 			 int timeInSecond (Time to wait before click in second )
 			 String elementMessage (Message to logged into report)
-	Created By : Muhammad Abu Bakar
-	Created On : 02/18/2021 (Date-format : MM/dd/yyyy)
 	*/
 	
 	public void click(WebElement element, int timeInSecond, String message) {
@@ -586,8 +517,6 @@ public class BaseClass {
 	Purpose : BaseClass is accessable to every TestClass. Hence shorter way to print message.
 	Parameters : 
 			 String message (Message to be print on console)
-	Created By : Muhammad Abu Bakar
-	Created On : 02/22/2021 (Date-format : MM/dd/yyyy)
 	*/
 	
 	public static void printString(String message) {
@@ -603,8 +532,6 @@ public class BaseClass {
 	Parameters : 
 			 WebElement element (Element to get)
 			 String attribute (attribute name)
-	Created By : Muhammad Abu Bakar
-	Created On : 02/27/2021 (Date-format : MM/dd/yyyy)
 	*/
 
 	public String getElementAttributeValue(WebElement element, String attribute) {	
@@ -614,24 +541,6 @@ public class BaseClass {
 		return element.getAttribute(attribute);
 	}
 
-	/*
-	Method Name : getDate
-	Description : This method will return date for given format, 
-	Parameters : 
-			int Day (Day for which dates to be generate from current date)
-			String formate (format in which date is required)
-	Created By : Muhammad Abu Bakar
-	Created On : 02/24/2021 (Date-format : MM/dd/yyyy)
-	*/
-/*
-	public String getDate(int Day, String formateStr) {
-		SimpleDateFormat format = new SimpleDateFormat(formateStr);
-		final Date date = new Date();
-		final Calendar calendar = Calendar.getInstance();
-		calendar.setTime(date);
-		calendar.add(Calendar.DAY_OF_YEAR, Day);
-		return format.format(calendar.getTime());
-	} */
 
 	/*
 	Method Name : clear
@@ -639,8 +548,6 @@ public class BaseClass {
 	Parameters : 
 			 WebElement element (Element from which text need to be removed)
 			 String message (Message to logged into report)
-	Created By : Muhammad Abu Bakar
-	Created On : 02/26/2021 (Date-format : MM/dd/yyyy)
 	*/
 
 	public void clear(WebElement element, int timeInSecond, String message) {
@@ -678,8 +585,6 @@ public class BaseClass {
 			String filename (FileName from which we need index of value.)
 		 	String sheetName (Sheetname from which we need index of value.)
 			 String cellValue (Cell value from which data needs to be read.)
-	Created By : Muhammad Abu Bakar
-	Created On : 03/01/2021 (Date-format : MM/dd/yyyy)
 	*/
 
 	public int getCellRowNum(String fileName, String sheetName,String cellValue){
@@ -700,8 +605,6 @@ public class BaseClass {
 	Parameters : 
 			 String sheetName (Sheetname from which we need index of value.)
 			 Strign env(Environment)
-	Created By : Muhammad Abu Bakar
-	Created On : 03/03/2021 (Date-format : MM/dd/yyyy)
 	*/
 	
     public Object[][] loadExcel(String fileName, String sheetName, String env) {
@@ -717,9 +620,6 @@ public class BaseClass {
 	Description : This method will generate random number to attach wiht string.
 	This helps when there are lot of entries and you need verify your entry.
 	Parameters : 
-			int number : (enter number to which you want to generate random number i.e : 2 will generate random number with two values : 34)
-	Created By : Muhammad Abu Bakar
-	Created On : 03/04/2021 (Date-format : MM/dd/yyyy)
 	*/
 	
     public static String generateRandomNumberWithGivenNumberOfDigits(int number) {
@@ -740,8 +640,6 @@ public class BaseClass {
 			 WebElement element (Element to be clicked)
 			 int timeInSecond (Time to wait before click in second )
 			 String elementMessage (Message to logged into report)
-	Created By : Muhammad Abu Bakar
-	Created On : 02/18/2021 (Date-format : MM/dd/yyyy)
 	*/
 	
 	public void click(WebElement element, int timeInSecond) {
@@ -768,8 +666,6 @@ public class BaseClass {
 			 int timeInSecond (Time to wait before entering value in second )
 			 String message (Message to logged into report)
 			 String value (value to be entered in element)
-	Created By : Muhammad Abu Bakar
-	Created On : 02/18/2021 (Date-format : MM/dd/yyyy)
 	*/
 	
 	public void type(WebElement element, int timeInSecond, String value) {
@@ -786,8 +682,6 @@ public class BaseClass {
 	Parameters : 
 			int Day (Day for which dates to be generate from current date)
 			String formate (format in which date is required)
-	Created By : Muhammad Abu Bakar
-	Created On : 02/24/2021 (Date-format : MM/dd/yyyy)
 	*/
 
 	public String getDate(int Day, String formateStr) {
@@ -806,8 +700,6 @@ public class BaseClass {
 	Parameters : 
 			 WebElement element (Element from which text need to be removed)
 			 String message (Message to logged into report)
-	Created By : Muhammad Abu Bakar
-	Created On : 02/26/2021 (Date-format : MM/dd/yyyy)
 	*/
 
 	public void clear(WebElement element, int timeInSecond) {
@@ -822,8 +714,6 @@ public class BaseClass {
 	Description : This method will getText of an input field, 
 	Parameters : 
 			 WebElement element (input Element to get text)
-	Created By : Muhammad Abu Bakar
-	Created On : 02/24/2021 (Date-format : MM/dd/yyyy)
 	*/
 
 	public String getInputText(WebElement element) {	
@@ -839,8 +729,6 @@ public class BaseClass {
 	Parameters : 
 			 WebElement element (Element from which text need to be removed)
 			 String message (Message to logged into report)
-	Created By : Muhammad Abu Bakar
-	Created On : 02/26/2021 (Date-format : MM/dd/yyyy)
 	*/
 		
 	public void clearThroughRobot(WebElement element, String message) {
@@ -866,8 +754,6 @@ public class BaseClass {
 			 int timeInSecond (Time to wait before entering value in second )
 			 String message (Message to logged into report)
 			 String value (value to be entered in element)
-	Created By : Muhammad Abu Bakar
-	Created On : 02/18/2021 (Date-format : MM/dd/yyyy)
 	*/
 	
 	public void typeKeys(WebElement element, Keys Key) {

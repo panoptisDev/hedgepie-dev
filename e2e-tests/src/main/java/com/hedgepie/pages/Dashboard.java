@@ -138,7 +138,7 @@ public class Dashboard extends BaseClass {
 	}
 
 	public void connectWallet() {
-		driver.get("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html");
+		driver.get(extensionHomePage);
 	    waitTime(1000);
 	    clickOnTextContains("Next");
 		clickOnTextContains("Connect");
@@ -149,7 +149,7 @@ public class Dashboard extends BaseClass {
 	}
 	
 	public String connectWalletAndGetBalance() {
-		driver.get("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html");
+		driver.get(extensionHomePage);
 	    waitTime(1000);
 	    clickOnTextContains("Next");
 		clickOnTextContains("Connect");
@@ -163,7 +163,7 @@ public class Dashboard extends BaseClass {
 	}
 	
 	public void goToMetaMaskPage() {
-		driver.get("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html");
+		driver.get(extensionHomePage);
 	}
 	
 	public List<WebElement> getMintedNFTs(){
@@ -223,7 +223,7 @@ public class Dashboard extends BaseClass {
 	}
 	
 	public void initMetamaskWithNetwork() {
-		driver.get("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#initialize/welcome");
+		driver.get(extensionHomePage+"#initialize/welcome");
 		waitTime(1000);
 	    clickOnTextContains("Get started");
 	    clickOnTextContains("I agree");
@@ -259,7 +259,7 @@ public class Dashboard extends BaseClass {
 		openNewTab();
 		ArrayList<String> tabs2 = new ArrayList<String> (driver.getWindowHandles());
 		driver.switchTo().window(tabs2.get(tabs2.size()-1));
-		driver.get("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html");
+		driver.get(extensionHomePage);
 		clickOnTextContains("Cancel");
 		waitTime(1000);
 		driver.close();
@@ -271,7 +271,7 @@ public class Dashboard extends BaseClass {
 		openNewTab();
 		ArrayList<String> tabs2 = new ArrayList<String> (driver.getWindowHandles());
 		driver.switchTo().window(tabs2.get(tabs2.size()-1));
-		driver.get("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html");
+		driver.get(extensionHomePage);
 		clickOnTextContains("Confirm");
 		waitTime(1000);
 		driver.close();
@@ -390,8 +390,4 @@ public class Dashboard extends BaseClass {
 		return isElementDisplayed(compositionWeightInput);
 	}
 
-
-	
-	
-	
 }
