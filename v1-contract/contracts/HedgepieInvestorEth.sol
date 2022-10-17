@@ -1,9 +1,12 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.4;
 
+import "@openzeppelin/contracts/access/Ownable.sol";
 import "@openzeppelin/contracts/security/ReentrancyGuard.sol";
 
-import "./libraries/HedgepieLibrary.sol";
+import "./libraries/SafeBEP20.sol";
+import "./interfaces/IYBNFT.sol";
+import "./interfaces/IAdapterEth.sol";
 
 contract HedgepieInvestorEth is Ownable, ReentrancyGuard {
     using SafeBEP20 for IBEP20;
@@ -41,21 +44,11 @@ contract HedgepieInvestorEth is Ownable, ReentrancyGuard {
     /**
      * @notice Construct
      * @param _ybnft  address of YBNFT
-     * @param _swapRouter  address of pancakeswap router
-     * @param _wbnb  address of Wrapped BNB address
      */
-    constructor(
-        address _ybnft,
-        address _swapRouter,
-        address _wbnb
-    ) {
+    constructor(address _ybnft) {
         require(_ybnft != address(0), "Error: YBNFT address missing");
-        require(_swapRouter != address(0), "Error: swap router missing");
-        require(_wbnb != address(0), "Error: WBNB missing");
 
         ybnft = _ybnft;
-        swapRouter = _swapRouter;
-        wbnb = _wbnb;
     }
 
     /**
@@ -82,13 +75,14 @@ contract HedgepieInvestorEth is Ownable, ReentrancyGuard {
             IYBNFT.Adapter memory adapter = adapterInfo[i];
 
             uint256 amountIn = (_amount * adapter.allocation) / 1e4;
-            IAdapter(adapter.addr).deposit{value: amountIn}(
+            IAdapterEth(adapter.addr).deposit{value: amountIn}(
+                _tokenId,
                 msg.sender,
                 amountIn
             );
         }
 
-        emit DepositBNB(msg.sender, ybnft, _tokenId, _amount);
+        emit DepositETH(msg.sender, ybnft, _tokenId, _amount);
     }
 
     /**
@@ -106,13 +100,14 @@ contract HedgepieInvestorEth is Ownable, ReentrancyGuard {
 
         uint256 amountOut;
         for (uint8 i = 0; i < adapterInfo.length; i++) {
-            amountOut += IAdapter(adapterInfo[i].addr).withdraw(
+            amountOut += IAdapterEth(adapterInfo[i].addr).withdraw(
+                _tokenId,
                 msg.sender,
                 _tokenId
             );
         }
 
-        emit WithdrawBNB(msg.sender, ybnft, _tokenId, amountOut);
+        emit WithdrawETH(msg.sender, ybnft, _tokenId, amountOut);
     }
 
     /**
@@ -130,9 +125,9 @@ contract HedgepieInvestorEth is Ownable, ReentrancyGuard {
 
         uint256 amountOut;
         for (uint8 i = 0; i < adapterInfo.length; i++) {
-            amountOut += IAdapter(adapterInfo[i].addr).claim(
-                msg.sender,
-                _tokenId
+            amountOut += IAdapterEth(adapterInfo[i].addr).claim(
+                _tokenId,
+                msg.sender
             );
         }
 
@@ -156,9 +151,9 @@ contract HedgepieInvestorEth is Ownable, ReentrancyGuard {
         );
 
         for (uint8 i = 0; i < adapterInfo.length; i++) {
-            amountOut += IAdapter(adapterInfo[i].addr).pendingReward(
-                msg.sender,
-                _tokenId
+            amountOut += IAdapterEth(adapterInfo[i].addr).pendingReward(
+                _tokenId,
+                msg.sender
             );
         }
     }
