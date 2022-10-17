@@ -17,6 +17,12 @@ contract HedgepieInvestorEth is Ownable, ReentrancyGuard {
     // strategy manager
     address public adapterManager;
 
+    // treasury address
+    address public treasury;
+
+    // adapter info
+    address public adapterInfo;
+
     event DepositETH(
         address indexed user,
         address nft,
@@ -32,6 +38,7 @@ contract HedgepieInvestorEth is Ownable, ReentrancyGuard {
     event Claimed(address indexed user, uint256 amount);
     event YieldWithdrawn(uint256 indexed nftId, uint256 amount);
     event AdapterManagerChanged(address indexed user, address adapterManager);
+    event TreasuryChanged(address treasury);
 
     modifier onlyValidNFT(uint256 _tokenId) {
         require(
@@ -45,10 +52,21 @@ contract HedgepieInvestorEth is Ownable, ReentrancyGuard {
      * @notice Construct
      * @param _ybnft  address of YBNFT
      */
-    constructor(address _ybnft) {
+    constructor(
+        address _ybnft,
+        address _treasury,
+        address _adapterInfo
+    ) {
         require(_ybnft != address(0), "Error: YBNFT address missing");
+        require(_treasury != address(0), "Error: treasury address missing");
+        require(
+            _adapterInfo != address(0),
+            "Error: adapterInfo address missing"
+        );
 
         ybnft = _ybnft;
+        treasury = _treasury;
+        adapterInfo = _adapterInfo;
     }
 
     /**
@@ -138,8 +156,9 @@ contract HedgepieInvestorEth is Ownable, ReentrancyGuard {
     /**
      * @notice pendingReward
      * @param _tokenId  YBNft token id
+     * @param _account  user address
      */
-    function pendingReward(uint256 _tokenId)
+    function pendingReward(uint256 _tokenId, address _account)
         public
         view
         returns (uint256 amountOut)
@@ -153,7 +172,7 @@ contract HedgepieInvestorEth is Ownable, ReentrancyGuard {
         for (uint8 i = 0; i < adapterInfo.length; i++) {
             amountOut += IAdapterEth(adapterInfo[i].addr).pendingReward(
                 _tokenId,
-                msg.sender
+                _account
             );
         }
     }
@@ -167,6 +186,17 @@ contract HedgepieInvestorEth is Ownable, ReentrancyGuard {
 
         adapterManager = _adapterManager;
         emit AdapterManagerChanged(msg.sender, _adapterManager);
+    }
+
+    /**
+     * @notice Set treasury address
+     * @param _treasury new treasury address
+     */
+    function setTreasury(address _treasury) external onlyOwner {
+        require(_treasury != address(0), "Error: Invalid NFT address");
+
+        treasury = _treasury;
+        emit TreasuryChanged(treasury);
     }
 
     receive() external payable {}

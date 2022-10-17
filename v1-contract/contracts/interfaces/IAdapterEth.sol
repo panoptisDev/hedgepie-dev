@@ -2,6 +2,7 @@
 pragma solidity ^0.8.4;
 
 import "./IWrap.sol";
+import "../adapters/BaseAdapterEth.sol";
 
 interface IAdapterEth {
     function getPaths(address _inToken, address _outToken)
@@ -41,9 +42,13 @@ interface IAdapterEth {
 
     function rewardToken() external view returns (address);
 
+    function rewardToken1() external view returns (address);
+
     function wrapToken() external view returns (address);
 
     function router() external view returns (address);
+
+    function swapRouter() external view returns (address);
 
     function getAdapterStrategy(uint256 _adapter)
         external
@@ -129,15 +134,31 @@ interface IAdapterEth {
         uint256 _tokenId,
         address _account,
         uint256 _amount
-    ) external payable;
+    ) external payable returns (uint256 amountOut);
 
     function withdraw(
         uint256 _tokenId,
         address _account,
         uint256 _amount
-    ) external payable;
+    ) external payable returns (uint256 amountOut);
 
-    function claim(uint256 _tokenId, address _account) external;
+    function claim(uint256 _tokenId, address _account)
+        external
+        payable
+        returns (uint256 amountOut);
 
-    function pendingReward(uint256 _tokenId, address _account) external view;
+    function pendingReward(uint256 _tokenId, address _account)
+        external
+        view
+        returns (uint256 amountOut);
+
+    function adapterInfos(uint256 _tokenId)
+        external
+        view
+        returns (BaseAdapterEth.AdapterInfo memory);
+
+    function userAdapterInfos(address _account, uint256 _tokenId)
+        external
+        view
+        returns (BaseAdapterEth.UserAdapterInfo memory);
 }

@@ -6,13 +6,13 @@ import "../../BaseAdapterEth.sol";
 import "../../../libraries/HedgepieLibraryEth.sol";
 
 import "../../../interfaces/IYBNFT.sol";
-
 import "../../../interfaces/IHedgepieInvestorEth.sol";
+import "../../../interfaces/IHedgepieAdapterInfoEth.sol";
 
 interface IStrategy {
-    function deposit(uint256 _pid, uing256 _amount) external;
+    function deposit(uint256 _pid, uint256 _amount) external;
 
-    function withdraw(uint256 _pid, uing256 _amount) external;
+    function withdraw(uint256 _pid, uint256 _amount) external;
 
     function pendingSushi(uint256 _pid, address _user)
         external
@@ -23,12 +23,14 @@ interface IStrategy {
 contract SushiFarmAdapterEth is BaseAdapterEth {
     /**
      * @notice Construct
+     * @param _pid  strategy pool id
      * @param _strategy  address of strategy
      * @param _stakingToken  address of staking token
      * @param _rewardToken  address of reward token
-     * @param _rewardToken1  address of reward token
      * @param _router lp provider router address
+     * @param _swapRouter swapRouter for swapping tokens
      * @param _name  adatper name
+     * @param _weth  weth address
      */
     constructor(
         uint256 _pid,
@@ -56,14 +58,14 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         uint256 _tokenId,
         address _account,
         uint256 _amountIn
-    ) external payable override {
+    ) external payable override returns (uint256 amountOut) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
         uint256 amountOut;
         if (router == address(0)) {
-            amountOut = HedgepieInvestorEth.swapOnRouter(
+            amountOut = HedgepieLibraryEth.swapOnRouter(
                 address(this),
                 _amountIn,
                 stakingToken,
@@ -71,11 +73,10 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
                 weth
             );
         } else {
-            amountOut = HedgepieInvestorEth.getLP(
-                address(this),
+            amountOut = HedgepieLibraryEth.getLP(
+                IYBNFT.Adapter(0, stakingToken, address(this)),
                 weth,
-                address(this),
-                amountIn,
+                _amountIn,
                 0
             );
         }
@@ -83,13 +84,17 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         uint256 rewardAmt1;
 
         rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this));
-        rewardAmt1 = IBEP20(rewardToken1).balanceOf(address(this));
+        rewardAmt1 = rewardToken1 != address(0)
+            ? IBEP20(rewardToken1).balanceOf(address(this))
+            : 0;
 
         IBEP20(stakingToken).approve(strategy, amountOut);
         IStrategy(strategy).deposit(pid, amountOut);
 
         rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
-        rewardAmt1 = IBEP20(rewardToken1).balanceOf(address(this)) - rewardAmt1;
+        rewardAmt1 = rewardToken1 != address(0)
+            ? IBEP20(rewardToken1).balanceOf(address(this)) - rewardAmt1
+            : 0;
 
         adapterInfo.totalStaked += amountOut;
         if (rewardAmt0 != 0 && rewardToken != address(0)) {
@@ -107,15 +112,25 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
             userInfo.userShares = adapterInfo.accTokenPerShare;
             userInfo.userShares1 = adapterInfo.accTokenPerShare1;
         }
+        userInfo.amount += amountOut;
+        userInfo.invested += _amountIn;
 
-        //TODO: Update adapterInfo contract
+        // Update adapterInfo contract
+        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
+            .updateTVLInfo(_tokenId, _amountIn, true);
+        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
+            .updateTradedInfo(_tokenId, _amountIn, true);
+        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
+            .updateParticipantInfo(_tokenId, _account, true);
+
+        return _amountIn;
     }
 
     function withdraw(
         uint256 _tokenId,
         address _account,
         uint256 _amountIn
-    ) external override {
+    ) external payable override returns (uint256 amountOut) {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
@@ -124,13 +139,17 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         uint256 amountOut = IBEP20(stakingToken).balanceOf(address(this));
 
         rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this));
-        rewardAmt1 = IBEP20(rewardToken1).balanceOf(address(this));
+        rewardAmt1 = rewardToken1 != address(0)
+            ? IBEP20(rewardToken1).balanceOf(address(this))
+            : 0;
 
         IBEP20(stakingToken).approve(strategy, amountOut);
         IStrategy(strategy).withdraw(pid, userInfo.amount);
 
         rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
-        rewardAmt1 = IBEP20(rewardToken1).balanceOf(address(this)) - rewardAmt1;
+        rewardAmt1 = rewardToken1 != address(0)
+            ? IBEP20(rewardToken1).balanceOf(address(this)) - rewardAmt1
+            : 0;
         amountOut = IBEP20(stakingToken).balanceOf(address(this)) - amountOut;
 
         if (rewardAmt0 != 0 && rewardToken != address(0)) {
@@ -145,7 +164,7 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         }
 
         if (router == address(0)) {
-            amountOut = HedgepieInvestorEth.swapforEth(
+            amountOut = HedgepieLibraryEth.swapforEth(
                 address(this),
                 amountOut,
                 stakingToken,
@@ -154,22 +173,22 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
             );
         } else {
             amountOut = HedgepieLibraryEth.withdrawLP(
-                address(this),
+                IYBNFT.Adapter(0, stakingToken, address(this)),
                 weth,
-                address(this),
                 amountOut,
                 0
             );
         }
 
-        (uint256 reward, uint256 reward1) = HedgepieInvestorEth.getRewards(
+        (uint256 reward, uint256 reward1) = HedgepieLibraryEth.getRewards(
             address(this),
             _tokenId,
             _account
         );
 
+        uint256 rewardETH;
         if (reward != 0) {
-            amountOut += HedgepieInvestorEth.swapforEth(
+            rewardETH = HedgepieLibraryEth.swapforEth(
                 address(this),
                 reward,
                 rewardToken,
@@ -179,7 +198,7 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         }
 
         if (reward1 != 0) {
-            amountOut += HedgepieInvestorEth.swapforEth(
+            rewardETH += HedgepieLibraryEth.swapforEth(
                 address(this),
                 reward1,
                 rewardToken1,
@@ -187,8 +206,23 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
                 weth
             );
         }
+        amountOut += rewardETH;
+        if (rewardETH != 0) {
+            IHedgepieAdapterInfoEth(
+                IHedgepieInvestorEth(investor).adapterInfo()
+            ).updateProfitInfo(_tokenId, rewardETH, true);
+        }
+
+        // Update adapterInfo contract
+        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
+            .updateTVLInfo(_tokenId, userInfo.invested, false);
+        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
+            .updateTradedInfo(_tokenId, userInfo.invested, true);
+        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
+            .updateParticipantInfo(_tokenId, _account, false);
 
         userInfo.amount = 0;
+        userInfo.invested = 0;
         userInfo.userShares = 0;
         userInfo.userShares1 = 0;
         adapterInfo.totalStaked -= userInfo.amount;
@@ -198,7 +232,9 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
                 IYBNFT(IHedgepieInvestorEth(investor).ybnft()).performanceFee(
                     _tokenId
                 )) / 1e4;
-            (bool success, ) = payable(treasuryAddr).call{value: taxAmount}("");
+            (bool success, ) = payable(
+                IHedgepieInvestorEth(investor).treasury()
+            ).call{value: taxAmount}("");
             require(success, "Failed to send ether to Treasury");
 
             (success, ) = payable(_account).call{value: amountOut - taxAmount}(
@@ -207,38 +243,44 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
             require(success, "Failed to send ether");
         }
 
-        //TODO: Update adapterInfo contract
+        return amountOut;
     }
 
-    function claim(uint256 _tokenId, address _account) external override {
+    function claim(uint256 _tokenId, address _account)
+        external
+        payable
+        override
+        returns (uint256 amountOut)
+    {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
-        (uint256 reward, uint256 reward1) = HedgepieInvestorEth.getRewards(
+        (uint256 reward, uint256 reward1) = HedgepieLibraryEth.getRewards(
             address(this),
             _tokenId,
             _account
         );
 
-        userAdapter.userShares = adapterInfos[_tokenId].accTokenPerShare;
-        userAdapter.userShares1 = adapterInfos[_tokenId].accTokenPerShare1;
+        userInfo.userShares = adapterInfos[_tokenId].accTokenPerShare;
+        userInfo.userShares1 = adapterInfos[_tokenId].accTokenPerShare1;
 
+        uint256 amountOut;
         if (reward != 0 && rewardToken != address(0)) {
-            amountOut += HedgepieInvestorEth.swapforEth(
+            amountOut += HedgepieLibraryEth.swapforEth(
                 address(this),
                 reward,
                 rewardToken,
                 swapRouter,
-                wmatic
+                weth
             );
         }
 
         if (reward1 != 0 && rewardToken1 != address(0)) {
-            amountOut += HedgepieLibraryMatic.swapforEth(
+            amountOut += HedgepieLibraryEth.swapforEth(
                 address(this),
                 reward1,
                 rewardToken1,
                 swapRouter,
-                wmatic
+                weth
             );
         }
 
@@ -247,7 +289,9 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
                 IYBNFT(IHedgepieInvestorEth(investor).ybnft()).performanceFee(
                     _tokenId
                 )) / 1e4;
-            (bool success, ) = payable(treasuryAddr).call{value: taxAmount}("");
+            (bool success, ) = payable(
+                IHedgepieInvestorEth(investor).treasury()
+            ).call{value: taxAmount}("");
             require(success, "Failed to send ether to Treasury");
 
             (success, ) = payable(_account).call{value: amountOut - taxAmount}(
@@ -255,10 +299,16 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
             );
             require(success, "Failed to send ether");
         }
+
+        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
+            .updateProfitInfo(_tokenId, amountOut, true);
+
+        return amountOut;
     }
 
     function pendingReward(uint256 _tokenId, address _account)
         external
+        view
         override
         returns (uint256 reward)
     {

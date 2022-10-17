@@ -6,6 +6,7 @@ import "@openzeppelin/contracts/access/Ownable.sol";
 abstract contract BaseAdapterEth is Ownable {
     struct UserAdapterInfo {
         uint256 amount; // Current staking token amount
+        uint256 invested; // Current staked ether amount
         uint256 userShares; // First reward token share
         uint256 userShares1; // Second reward token share
     }
@@ -55,20 +56,14 @@ abstract contract BaseAdapterEth is Ownable {
     // nft id => AdapterInfo
     mapping(uint256 => AdapterInfo) public adapterInfos;
 
-    modifier onlyInvestor() {
-        require(msg.sender == investor, "Error: Caller is not investor");
-        _;
-    }
-
     /**
      * @notice Get path
      * @param _inToken token address of inToken
      * @param _outToken token address of outToken
      */
     function getPaths(address _inToken, address _outToken)
-        external
+        public
         view
-        onlyInvestor
         returns (address[] memory)
     {
         require(
@@ -134,56 +129,52 @@ abstract contract BaseAdapterEth is Ownable {
     }
 
     /**
-     * @notice Get pending reward
-     */
-    function getReward(address) external view virtual returns (uint256) {
-        return 0;
-    }
-
-    /**
-     * @notice Get pending shares
-     */
-    function pendingShares() external view virtual returns (uint256 shares) {
-        return 0;
-    }
-
-    /**
      * @notice deposit to strategy
+     * @param _tokenId YBNFT token id
      * @param _account address of user
      * @param _amountIn payable eth from Investor
      */
-    function deposit(address _account, uint256 _amountIn)
-        external
-        payable
-        virtual
-    {}
+    function deposit(
+        uint256 _tokenId,
+        address _account,
+        uint256 _amountIn
+    ) external payable virtual returns (uint256 amountOut) {}
 
     /**
      * @notice withdraw from strategy
+     * @param _tokenId YBNFT token id
      * @param _account address of user
      * @param _amountIn payable eth from Investor
      */
-    function withdraw(address _account, uint256 _amountIn)
-        external
-        payable
-        virtual
-    {}
+    function withdraw(
+        uint256 _tokenId,
+        address _account,
+        uint256 _amountIn
+    ) external payable virtual returns (uint256 amountOut) {}
 
     /**
      * @notice claim reward from strategy
-     * @param _account address of user
      * @param _tokenId YBNFT token id
+     * @param _account address of user
      */
-    function claim(address _account, uint256 _tokenId)
+    function claim(uint256 _tokenId, address _account)
         external
         payable
         virtual
+        returns (uint256 amountOut)
     {}
 
     /**
      * @notice Get pending token reward
+     * @param _tokenId YBNFT token id
+     * @param _account address of user
      */
-    function pendingReward() external view virtual returns (uint256 reward) {
+    function pendingReward(uint256 _tokenId, address _account)
+        external
+        view
+        virtual
+        returns (uint256 reward)
+    {
         reward = 0;
     }
 }

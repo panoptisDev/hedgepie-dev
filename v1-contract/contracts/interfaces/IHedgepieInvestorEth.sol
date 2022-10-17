@@ -4,5 +4,9 @@ pragma solidity ^0.8.4;
 interface IHedgepieInvestorEth {
     function ybnft() external view returns (address);
 
+    function treasury() external view returns (address);
+
     function adapterManager() external view returns (address);
+
+    function adapterInfo() external view returns (address);
 }
