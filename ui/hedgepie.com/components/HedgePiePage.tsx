@@ -1,13 +1,16 @@
 import Head from "next/head";
 import React from "react";
+import { Box } from "theme-ui";
+import Header from "components/Header";
 
 interface HedgePiePageProps {
   children?: React.ReactNode;
 }
 
 function HedgePiePage(props: HedgePiePageProps) {
+  const { children } = props;
   return (
-    <div>
+    <>
       <Head>
         <title>HedgePie</title>
         <meta
@@ -16,7 +19,18 @@ function HedgePiePage(props: HedgePiePageProps) {
         />
         <link rel="icon" href="/favicon.ico" />
       </Head>
-    </div>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          width: "100%",
+          height: "100%",
+        }}
+      >
+        <Header />
+        <Box sx={{ width: "100%", height: "100%" }}>{children}</Box>
+      </Box>
+    </>
   );
 }
 
