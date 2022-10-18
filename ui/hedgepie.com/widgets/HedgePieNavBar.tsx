@@ -58,7 +58,7 @@ function HedgePieNavBar(props: NavBarProps) {
             flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: "20px",
+            fontSize: "18px",
             fontFamily: "Open Sans",
             backgroundColor: selected === p ? "#1799DE" : "transparent",
             color: "#FFFFFF",
@@ -74,6 +74,7 @@ function HedgePieNavBar(props: NavBarProps) {
           onClick={() => {
             // send to page link
           }}
+          key={`navbar-link-${p}`}
         >
           {getPageTitle(p)}
         </Box>
