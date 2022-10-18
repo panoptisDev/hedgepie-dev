@@ -1,6 +1,6 @@
 import Image from "next/image";
 import React from "react";
-import { Box, Text } from "theme-ui";
+import { Box, Button, Text } from "theme-ui";
 import HedgePieButton from "widgets/HedgePieButton";
 
 interface HedgePieHeroProps {
@@ -31,7 +31,12 @@ function HedgePieHero(props: HedgePieHeroProps) {
         <Image src="/images/hero-bg.png" height="1700" width="4000" />
       </Box>
       <Box
-        sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+        sx={{
+          display: "flex",
+          flexDirection: "column",
+          alignItems: "center",
+          zIndex: "1",
+        }}
       >
         <Text
           sx={{
@@ -68,13 +73,18 @@ function HedgePieHero(props: HedgePieHeroProps) {
             lineHeight: "125%",
             display: "inline-block",
             textAlign: "center",
+            zIndex: "1",
           }}
         >
-          <span style={{ color: "#FFFFFF" }}>{subTitleParts[0]}</span>
-          <span style={{ color: "#EFA906", fontWeight: "400" }}>
+          <span style={{ color: "#FFFFFF", zIndex: "1" }}>
+            {subTitleParts[0]}
+          </span>
+          <span style={{ color: "#EFA906", zIndex: "1", fontWeight: "400" }}>
             {subTitleParts[1]}
           </span>
-          <span style={{ color: "#FFFFFF" }}>{subTitleParts[2]}</span>
+          <span style={{ color: "#FFFFFF", zIndex: "1" }}>
+            {subTitleParts[2]}
+          </span>
         </Text>
       </Box>
       <Box
@@ -83,6 +93,7 @@ function HedgePieHero(props: HedgePieHeroProps) {
           alignItems: "center",
           justifyContent: "center",
           margin: "20px",
+          zIndex: "1",
         }}
       >
         <HedgePieButton label="Start Investing" size="medium" />

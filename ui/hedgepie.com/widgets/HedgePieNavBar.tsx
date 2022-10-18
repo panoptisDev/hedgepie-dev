@@ -49,6 +49,7 @@ function HedgePieNavBar(props: NavBarProps) {
         flexDirection: "row",
         alignItems: "center",
         height: "100%",
+        zIndex: 1,
       }}
     >
       {pages.map((p) => (
@@ -69,6 +70,7 @@ function HedgePieNavBar(props: NavBarProps) {
             ":hover": {
               textDecoration: "underline",
               textUnderlineOffset: "10px",
+              cursor: "pointer",
             },
           }}
           onClick={() => {

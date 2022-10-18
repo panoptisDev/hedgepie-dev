@@ -58,6 +58,7 @@ function HedgePieButton(props: HedgePieButtonProps) {
         fontWeight: getFontWeight(),
         fontFamily: "Open Sans",
         cursor: "pointer",
+        zIndex: 1,
       }}
     >
       {label}

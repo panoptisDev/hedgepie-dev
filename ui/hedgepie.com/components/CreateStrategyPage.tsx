@@ -1,6 +1,8 @@
 import React from "react";
 import { Box } from "theme-ui";
-import HedgePieHero from "./HedgePieHero";
+import HedgePieHero from "components/HedgePieHero";
+import StrategyList from "components/StrategyList";
+import Features from "components/Features";
 
 function CreateStrategyPage() {
   return (
@@ -12,6 +14,8 @@ function CreateStrategyPage() {
         buttonText="Start Investing"
         buttonClick={() => {}}
       />
+      <StrategyList textLine1="Enjoy diversified strategies cut across top DeFi protocols." />
+      <Features type="create" />
     </Box>
   );
 }
