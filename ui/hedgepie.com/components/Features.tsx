@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 import { Box, Text } from "theme-ui";
 
@@ -40,6 +41,13 @@ function Features(props: FeaturesProps) {
         padding: "100px",
       }}
     >
+      <Box sx={{ position: "absolute", marginLeft: "-80px", zIndex: 0 }}>
+        <Image
+          src="/images/falling-coins-light.svg"
+          width={3000}
+          height={6000}
+        />
+      </Box>
       {content[type].map((e: any) => (
         <Box
           sx={{
@@ -54,6 +62,7 @@ function Features(props: FeaturesProps) {
             minWidth: "20rem",
             maxWidth: "25rem",
             height: "28rem",
+            zIndex: 1,
           }}
         >
           <Text sx={{ color: "#14114B", fontSize: "24px", fontWeight: "700" }}>

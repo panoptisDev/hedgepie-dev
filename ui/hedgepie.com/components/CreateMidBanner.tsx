@@ -1,3 +1,4 @@
+import Image from "next/image";
 import React from "react";
 import { Box, Text } from "theme-ui";
 import HedgePieButton from "widgets/HedgePieButton";
@@ -15,6 +16,15 @@ function CreateMidBanner() {
         gap: "80px",
       }}
     >
+      <Box
+        sx={{
+          position: "absolute",
+          marginRight: "-1065px",
+          zIndex: 0,
+        }}
+      >
+        <Image src="/images/falling-coins-dark.svg" width={446} height={600} />
+      </Box>
       <Box
         sx={{
           display: "flex",

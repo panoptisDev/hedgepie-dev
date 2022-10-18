@@ -47,7 +47,7 @@ function Footer() {
           justifyContent: "center",
           padding: "50px 100px",
           backgroundColor: "#14114B",
-          gap: "60px",
+          gap: "80px",
         }}
       >
         <Box
@@ -86,11 +86,11 @@ function Footer() {
               fontFamily: "Open Sans",
             }}
           >
-            <Text sx={{ color: "#FFFFFF", fontSize: "18px" }}>
+            <Text sx={{ color: "#FFFFFF", fontSize: "16px" }}>
               HedgePie is a community-driven decentralized network of investors
               and crypto enthusiasts from all over the world.
             </Text>
-            <Text sx={{ color: "#FFFFFF", fontSize: "18px" }}>
+            <Text sx={{ color: "#FFFFFF", fontSize: "16px" }}>
               Stay on top of the action with the latest news and important
               announcements on our social media channels.
             </Text>
