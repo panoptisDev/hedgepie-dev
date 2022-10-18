@@ -31,7 +31,9 @@ function StrategyList(props: StrategyListProps) {
         gap: "50px",
       }}
     >
-      <Box>
+      <Box
+        sx={{ display: "flex", flexDirection: "column", alignItems: "center" }}
+      >
         {textLine1 && (
           <Text
             sx={{
@@ -49,11 +51,11 @@ function StrategyList(props: StrategyListProps) {
             sx={{
               fontFamily: "Open Sans",
               fontSize: "24px",
-              fontWeight: "300",
+              fontWeight: "500",
               color: "#000000",
             }}
           >
-            {textLine1}
+            {textLine2}
           </Text>
         )}
       </Box>

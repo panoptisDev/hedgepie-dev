@@ -6,10 +6,11 @@ import HedgePieNavBar from "widgets/HedgePieNavBar";
 
 export type PageType = "about" | "faq" | "paper" | "create" | "invest";
 interface HeaderProps {
-  selected?: PageType;
+  selected: PageType;
 }
 
 function Header(props: HeaderProps) {
+  const { selected } = props;
   return (
     <Box
       sx={{
@@ -35,7 +36,7 @@ function Header(props: HeaderProps) {
       >
         <Image src="/images/logo.svg" width={60} height={60} />
       </Box>
-      <HedgePieNavBar selected="create" />
+      <HedgePieNavBar selected={selected} />
       <Box
         sx={{
           display: "flex",
@@ -56,7 +57,10 @@ function Header(props: HeaderProps) {
         >
           <Image src="/images/language.svg" width={20} height={20} />
         </Box>
-        <HedgePieButton bordered={true} label="Start Investing" />
+        <HedgePieButton
+          bordered={true}
+          label={`Start ${selected === "create" ? "Creating" : "Investing"}`}
+        />
       </Box>
     </Box>
   );

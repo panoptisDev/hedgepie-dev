@@ -51,6 +51,62 @@ const subContents: any = {
       leftToRight: true,
     },
   ],
+  invest: [
+    {
+      title: "One dashboard for all your needs",
+      text: "Get a customized Hedgepie dashboard to keep track of all your earnings.",
+      action: "Get Started →",
+      bordered: true,
+      textBlack: true,
+      image: "/images/subcontents/invest/4.svg",
+      leftToRight: false,
+    },
+    {
+      title: "Edit your preferences right away!",
+      text: "Easily edit all your investment strategies in real-time with our improved dashboard. With a few clicks, you can modify your preferences and enhance your tactics.",
+      action: "Start Creating →",
+      bordered: true,
+      textBlack: true,
+      image: "/images/subcontents/invest/6.svg",
+      leftToRight: true,
+    },
+    {
+      title: "DeFi at its finest",
+      text: "We created HedgePie to make it easy for new investors to safely enter the DeFi space without needing to spend countless hours doing research and take on a lot of risk. Built on the Binance Smart Chain network and polygon, with more networks coming soon, the DeFi project has a multi-chain feature, all for you. This means you have access to protocols across multiple blockchains with zero added fees, all from a single portal that gives you complete visibility and access to your portfolio.",
+      action: "Get Started →",
+      bordered: true,
+      textBlack: true,
+      image: "/images/subcontents/invest/1.svg",
+      leftToRight: false,
+    },
+    {
+      title: "Make it Bigger !",
+      text: "Earn more and more by using our unique feature to instantly compound all your earnings.",
+      action: "Get Started →",
+      bordered: true,
+      textBlack: true,
+      image: "/images/subcontents/invest/3.svg",
+      leftToRight: true,
+    },
+    {
+      title: "Create the best strategies. Top the leaderboard.",
+      text: "Compiling the best of your investment strategies can earn you more than just profits with HedgePie. Create strategies and investment pools with the best APY and top the HedgePie leaderboard. Get more profits and visibility when you create the best!",
+      action: "Start Creating →",
+      bordered: true,
+      textBlack: true,
+      image: "/images/subcontents/invest/5.svg",
+      leftToRight: true,
+    },
+    {
+      title: "Opt out anytime you want, with no penalty",
+      text: "Investing shouldn't be a do-or-die affair. That's why the liquidity of the investment pool is the way out for you. You can cash out from any investment strategy you try out at any time, and we will not charge any fees.",
+      action: "Learn More →",
+      bordered: true,
+      textBlack: true,
+      image: "/images/subcontents/invest/2.svg",
+      leftToRight: false,
+    },
+  ],
 };
 
 interface SubContentsProps {
@@ -93,7 +149,7 @@ function SubContents(props: SubContentsProps) {
                 height: "100%",
               }}
             >
-              <Image src={sc.image} width={400} height={300} />
+              <Image src={sc.image} width={500} height={400} />
             </Box>
           )}
           <Box
@@ -102,10 +158,11 @@ function SubContents(props: SubContentsProps) {
               flexDirection: "column",
               gap: "30px",
               width: "60rem",
+              fontFamily: "Open Sans",
             }}
           >
             <Text
-              sx={{ color: "#14114B", fontSize: "24px", fontWeight: "600" }}
+              sx={{ color: "#14114B", fontSize: "32px", fontWeight: "700" }}
             >
               {sc.title}
             </Text>
@@ -134,7 +191,7 @@ function SubContents(props: SubContentsProps) {
                 height: "100%",
               }}
             >
-              <Image src={sc.image} width={400} height={400} />
+              <Image src={sc.image} width={500} height={400} />
             </Box>
           )}
         </Box>

@@ -1,5 +1,6 @@
 import { PageType } from "components/Header";
 import Image from "next/image";
+import { useRouter } from "next/router";
 import React from "react";
 import { Box } from "theme-ui";
 
@@ -11,6 +12,7 @@ const pages: PageType[] = ["about", "faq", "paper", "create", "invest"];
 
 function HedgePieNavBar(props: NavBarProps) {
   const { selected } = props;
+  const router = useRouter();
 
   const getPageTitle = (type: PageType) => {
     switch (type) {
@@ -74,7 +76,7 @@ function HedgePieNavBar(props: NavBarProps) {
             },
           }}
           onClick={() => {
-            // send to page link
+            router.push(`/${p}`);
           }}
           key={`navbar-link-${p}`}
         >

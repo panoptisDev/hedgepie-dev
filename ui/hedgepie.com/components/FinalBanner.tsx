@@ -12,7 +12,11 @@ const finalBanner: any = {
     line2: "Don't wait any longer!",
     action: "Get Started →",
   },
-  invest: { line1: "", line2: "", action: "" },
+  invest: {
+    line1: "Create top performing DeFi investment Strategies with HedgePie.",
+    line2: "Don't wait any longer!",
+    action: "Get Started →",
+  },
 };
 
 function FinalBanner(props: FinalBannerProps) {

@@ -1,14 +1,15 @@
 import Head from "next/head";
 import React from "react";
 import { Box } from "theme-ui";
-import Header from "components/Header";
+import Header, { PageType } from "components/Header";
 
 interface HedgePiePageProps {
   children?: React.ReactNode;
+  type: PageType;
 }
 
 function HedgePiePage(props: HedgePiePageProps) {
-  const { children } = props;
+  const { children, type } = props;
   return (
     <>
       <Head>
@@ -27,7 +28,7 @@ function HedgePiePage(props: HedgePiePageProps) {
           height: "100%",
         }}
       >
-        <Header />
+        <Header selected={type} />
         <Box sx={{ width: "100%", height: "100%" }}>{children}</Box>
       </Box>
     </>
