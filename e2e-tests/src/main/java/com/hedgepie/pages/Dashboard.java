@@ -84,6 +84,23 @@ public class Dashboard extends BaseClass {
 	@FindBy(xpath = "//textArea")
 	WebElement stakeAmountDescription;
 
+	@FindBy(xpath = "(//*[contains(@class,'css-1k96gca')])[1]")
+	private WebElement selectedProtocolValue;
+
+	@FindBy(xpath = "(//*[contains(@class,'css-1k96gca')])[2]")
+	private WebElement selectedPoolValue;
+
+	@FindBy(xpath = "(//input[contains(@class,'weight-input')])[1]")
+	private WebElement compositionWeightInput;
+
+	@FindBy(xpath = "//input[contains(@class,'weight-input')]")
+	List<WebElement> stakePositionsList;
+
+	@FindBy(xpath = "(//button[contains(@class,'position-delete')])[last()]")
+	private WebElement btnDeleteStakePosition;
+
+	@FindBy(xpath = "(//button[contains(@class,'position-lock')])[1]")
+	private WebElement allocationLockButton;
 	
 	public Dashboard() {
 		PageFactory.initElements(driver, this);
@@ -121,7 +138,7 @@ public class Dashboard extends BaseClass {
 	}
 
 	public void connectWallet() {
-		driver.get("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html");
+		driver.get(extensionHomePage);
 	    waitTime(1000);
 	    clickOnTextContains("Next");
 		clickOnTextContains("Connect");
@@ -132,7 +149,7 @@ public class Dashboard extends BaseClass {
 	}
 	
 	public String connectWalletAndGetBalance() {
-		driver.get("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html");
+		driver.get(extensionHomePage);
 	    waitTime(1000);
 	    clickOnTextContains("Next");
 		clickOnTextContains("Connect");
@@ -146,7 +163,7 @@ public class Dashboard extends BaseClass {
 	}
 	
 	public void goToMetaMaskPage() {
-		driver.get("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html");
+		driver.get(extensionHomePage);
 	}
 	
 	public List<WebElement> getMintedNFTs(){
@@ -206,7 +223,7 @@ public class Dashboard extends BaseClass {
 	}
 	
 	public void initMetamaskWithNetwork() {
-		driver.get("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html#initialize/welcome");
+		driver.get(extensionHomePage+"#initialize/welcome");
 		waitTime(1000);
 	    clickOnTextContains("Get started");
 	    clickOnTextContains("I agree");
@@ -242,7 +259,7 @@ public class Dashboard extends BaseClass {
 		openNewTab();
 		ArrayList<String> tabs2 = new ArrayList<String> (driver.getWindowHandles());
 		driver.switchTo().window(tabs2.get(tabs2.size()-1));
-		driver.get("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html");
+		driver.get(extensionHomePage);
 		clickOnTextContains("Cancel");
 		waitTime(1000);
 		driver.close();
@@ -254,7 +271,7 @@ public class Dashboard extends BaseClass {
 		openNewTab();
 		ArrayList<String> tabs2 = new ArrayList<String> (driver.getWindowHandles());
 		driver.switchTo().window(tabs2.get(tabs2.size()-1));
-		driver.get("chrome-extension://nkbihfbeogaeaoehlefnkodbefgpgknn/home.html");
+		driver.get(extensionHomePage);
 		clickOnTextContains("Confirm");
 		waitTime(1000);
 		driver.close();
@@ -328,7 +345,49 @@ public class Dashboard extends BaseClass {
 	public String getMintDescriptionFieldText() {
 		return getElementAttributeValue(stakeAmountDescription,"value");
 	}
+
+	public boolean verifyProtocolDropdownIsEnabled() {
+		return isElementEnabled(protocolSelector);
+	}
 	
+	public boolean verifyPoolDropdownIsEnabled() {
+		return isElementEnabled(poolSelector);
+	}
+
+	public String getSelectedProtocolValue() {
+		return getElementText(selectedProtocolValue);
+	}
+
+	public String getSelectedProolValue() {
+		return getElementText(selectedPoolValue);
+	}
+
+	public boolean verifyCompositionWeightInputIsEnabled() {
+		return isElementDisplayed(compositionWeightInput);
+	}
 	
+	public void enterCompositionWeight(String weight) {
+		type(compositionWeightInput,weight);
+	}
 	
+	public String getCompositionWeightValue() {
+		return getElementAttributeValue(compositionWeightInput, "value");
+	}
+
+	public int getCurrentStakePositionsSize() {
+		return stakePositionsList.size();
+	}
+
+	public void clickOnDeletePositionButton() {
+		click(btnDeleteStakePosition);
+	}
+
+	public void clickOnAllocationLockButton() {
+		click(allocationLockButton);
+	}
+	
+	public boolean verifyAllocationPercentageInputIsDisplaying() {
+		return isElementDisplayed(compositionWeightInput);
+	}
+
 }
