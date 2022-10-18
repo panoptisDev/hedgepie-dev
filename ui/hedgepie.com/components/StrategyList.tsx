@@ -8,13 +8,13 @@ interface StrategyListProps {
 }
 
 const strategies = [
-  { title: "Compound Finance", image: "/images/strategies/compound.png" },
-  { title: "PanCake Swap", image: "/images/strategies/pancakeswap.png" },
-  { title: "Aave Finance", image: "/images/strategies/aave.png" },
-  { title: "Near Protocol", image: "/images/strategies/near.png" },
-  { title: "UniSwap", image: "/images/strategies/uniswap.png" },
-  { title: "Balancer", image: "/images/strategies/balancer.png" },
-  { title: "Polygon", image: "/images/strategies/polygon.png" },
+  { title: "Compound Finance", image: "/images/strategies/compound.svg" },
+  { title: "PanCake Swap", image: "/images/strategies/pancakeswap.svg" },
+  { title: "Aave Finance", image: "/images/strategies/aave.svg" },
+  { title: "Near Protocol", image: "/images/strategies/near.svg" },
+  { title: "UniSwap", image: "/images/strategies/uniswap.svg" },
+  { title: "Balancer", image: "/images/strategies/balancer.svg" },
+  { title: "Polygon", image: "/images/strategies/polygon.svg" },
 ];
 
 function StrategyList(props: StrategyListProps) {

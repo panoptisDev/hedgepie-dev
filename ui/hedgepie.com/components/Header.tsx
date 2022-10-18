@@ -33,7 +33,7 @@ function Header(props: HeaderProps) {
           marginRight: "auto",
         }}
       >
-        <Image src="/images/logo.png" width={60} height={60} />
+        <Image src="/images/logo.svg" width={60} height={60} />
       </Box>
       <HedgePieNavBar selected="create" />
       <Box
@@ -54,7 +54,7 @@ function Header(props: HeaderProps) {
             justifyContent: "center",
           }}
         >
-          <Image src="/images/language.png" width={20} height={20} />
+          <Image src="/images/language.svg" width={20} height={20} />
         </Box>
         <HedgePieButton bordered={true} label="Start Investing" />
       </Box>

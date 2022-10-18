@@ -6,19 +6,20 @@ interface HedgePieButtonProps {
   bordered?: boolean;
   size?: "small" | "medium" | "large";
   textBlack?: boolean;
+  whiteBg?: boolean;
 }
 
 function HedgePieButton(props: HedgePieButtonProps) {
-  const { label, bordered, size, textBlack } = props;
+  const { label, bordered, size, textBlack, whiteBg } = props;
 
   const getPadding = () => {
     switch (size) {
       case "small":
         return "12px 16px";
       case "medium":
-        return "16px 32px";
+        return "12px 24px";
       case "large":
-        return "32px 24px";
+        return "24px 32px";
     }
   };
 
@@ -48,7 +49,9 @@ function HedgePieButton(props: HedgePieButtonProps) {
     <Button
       sx={{
         padding: getPadding(),
-        background: bordered
+        background: whiteBg
+          ? "#FFFFFF"
+          : bordered
           ? "transparent"
           : "linear-gradient(333.11deg, #1799DE -34.19%, #E98EB3 87.94%)",
         border: bordered ? "3px solid #E98EB3" : "none",

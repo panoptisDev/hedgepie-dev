@@ -3,6 +3,12 @@ import { Box } from "theme-ui";
 import HedgePieHero from "components/HedgePieHero";
 import StrategyList from "components/StrategyList";
 import Features from "components/Features";
+import CreateMidBanner from "components/CreateMidBanner";
+import SubContents from "components/SubContents";
+import SellingPoints from "components/SellingPoints";
+import AuditedBy from "components/AuditedBy";
+import FinalBanner from "components/FinalBanner";
+import Footer from "components/Footer";
 
 function CreateStrategyPage() {
   return (
@@ -16,6 +22,12 @@ function CreateStrategyPage() {
       />
       <StrategyList textLine1="Enjoy diversified strategies cut across top DeFi protocols." />
       <Features type="create" />
+      <CreateMidBanner />
+      <SubContents type="create" />
+      <SellingPoints type="create" />
+      <AuditedBy />
+      <FinalBanner type="create" />
+      <Footer />
     </Box>
   );
 }
