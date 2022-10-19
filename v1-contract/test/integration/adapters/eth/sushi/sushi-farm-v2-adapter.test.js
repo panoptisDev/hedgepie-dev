@@ -14,9 +14,7 @@ const forkNetwork = async () => {
     params: [
       {
         forking: {
-          // jsonRpcUrl: "https://rpc.ankr.com/eth",
-          // jsonRpcUrl: "https://1rpc.io/eth",
-          jsonRpcUrl: "https://rpc.flashbots.net",
+          jsonRpcUrl: "https://mainnet.infura.io/v3/ab732fbc54a3468fb073281a5ea6fc77",
         },
       },
     ],
@@ -237,10 +235,10 @@ describe("SushiFarmV2AdapterEth Integration Test", function () {
       const protocolFee = (await ethers.provider.getBalance(this.owner.address)).sub(beforeETHOwner);
       const actualPending = afterETH.sub(beforeETH).add(gas.mul(gasPrice));
 
-      expect(pending).to.be.within(actualPending, actualPending.add(BigNumber.from(2e14))) &&
+      expect(pending).to.be.within(actualPending, actualPending.add(BigNumber.from(4e14))) &&
         expect(protocolFee).to.be.within(
           actualPending.mul(this.performanceFee).div(1e4),
-          actualPending.add(BigNumber.from(2e14)).mul(this.performanceFee).div(1e4)
+          actualPending.add(BigNumber.from(4e14)).mul(this.performanceFee).div(1e4)
         );
     });
 
