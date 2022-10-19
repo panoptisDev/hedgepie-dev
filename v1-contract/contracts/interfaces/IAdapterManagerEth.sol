@@ -6,49 +6,4 @@ interface IAdapterManagerEth {
         external
         view
         returns (address adapterStrat);
-
-    function getDepositCallData(address _adapter, uint256 _amount)
-        external
-        view
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        );
-
-    function getWithdrawCallData(address _adapter, uint256 _amount)
-        external
-        view
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        );
-
-    function getLoanCallData(address _adapter, uint256 _amount)
-        external
-        view
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        );
-
-    function getDeLoanCallData(address _adapter, uint256 _amount)
-        external
-        view
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        );
-
-    function getEnterMarketCallData(address _adapter)
-        external
-        view
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        );
 }
