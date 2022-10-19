@@ -136,17 +136,18 @@ contract SushiFarmV2AdapterEth is BaseAdapterEth {
         return _amountIn;
     }
 
-    function withdraw(
-        uint256 _tokenId,
-        address _account,
-        uint256 _amountIn
-    ) external payable override returns (uint256 amountOut) {
+    function withdraw(uint256 _tokenId, address _account)
+        external
+        payable
+        override
+        returns (uint256 amountOut)
+    {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
         uint256 rewardAmt0;
         uint256 rewardAmt1;
-        uint256 amountOut = IBEP20(stakingToken).balanceOf(address(this));
+        amountOut = IBEP20(stakingToken).balanceOf(address(this));
 
         rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this));
         rewardAmt1 = rewardToken1 != address(0)
@@ -242,14 +243,18 @@ contract SushiFarmV2AdapterEth is BaseAdapterEth {
         adapterInfo.totalStaked -= userInfo.amount;
 
         if (amountOut != 0) {
-            uint256 taxAmount = (amountOut *
-                IYBNFT(IHedgepieInvestorEth(investor).ybnft()).performanceFee(
-                    _tokenId
-                )) / 1e4;
-            (bool success, ) = payable(
-                IHedgepieInvestorEth(investor).treasury()
-            ).call{value: taxAmount}("");
-            require(success, "Failed to send ether to Treasury");
+            bool success;
+            uint256 taxAmount;
+            if (rewardETH != 0) {
+                taxAmount =
+                    (rewardETH *
+                        IYBNFT(IHedgepieInvestorEth(investor).ybnft())
+                            .performanceFee(_tokenId)) /
+                    1e4;
+                (success, ) = payable(IHedgepieInvestorEth(investor).treasury())
+                    .call{value: taxAmount}("");
+                require(success, "Failed to send ether to Treasury");
+            }
 
             (success, ) = payable(_account).call{value: amountOut - taxAmount}(
                 ""
