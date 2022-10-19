@@ -15,11 +15,11 @@ function HedgePieButton(props: HedgePieButtonProps) {
   const getPadding = () => {
     switch (size) {
       case "small":
-        return "12px 16px";
+        return ["10px 12px", "10px 12px", "12px 16px", "12px 16px"];
       case "medium":
-        return "12px 24px";
+        return ["12px 16px", "12px 16px", "12px 24px", "12px 24px"];
       case "large":
-        return "24px 32px";
+        return ["12px 24px", "12px 24px", "24px 32px", "24px 32px"];
     }
   };
 
@@ -62,6 +62,9 @@ function HedgePieButton(props: HedgePieButtonProps) {
         fontFamily: "Open Sans",
         cursor: "pointer",
         zIndex: 1,
+      }}
+      onClick={() => {
+        window.open("https://hedgepie.finance", "_blank");
       }}
     >
       {label}

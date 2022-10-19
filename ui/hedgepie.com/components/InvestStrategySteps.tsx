@@ -23,21 +23,41 @@ function InvestStrategySteps() {
       sx={{
         width: "100%",
         display: "flex",
-        padding: "50px 100px",
+        padding: ["20px 30px", "20px 30px", "20px 30px", "50px 100px"],
         flexDirection: "column",
-        gap: "40px",
+        gap: ["20px", "30px", "30px", "40px"],
         fontFamily: "Open Sans",
         justifyContent: "center",
         alignItems: "center",
       }}
     >
-      <Text sx={{ color: "#14114B", fontWeight: "700", fontSize: "40px" }}>
+      <Text
+        sx={{
+          color: "#14114B",
+          fontWeight: "700",
+          textAlign: ["center", "center", "center", "left"],
+          fontSize: ["26px", "32px", "32px", "40px"],
+        }}
+      >
         How do you earn with your Strategy?
       </Text>
-      <Text sx={{ color: "#1A1A1A", fontWeight: "600", fontSize: "30px" }}>
+      <Text
+        sx={{
+          color: "#1A1A1A",
+          fontWeight: "600",
+          textAlign: ["center", "center", "center", "left"],
+          fontSize: ["22px", "24px", "24px", "30px"],
+        }}
+      >
         It's a simple 3-Step process.
       </Text>
-      <Box sx={{ display: "flex", flexDirection: "row", gap: "20px" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: ["column", "column", "column", "row"],
+          gap: "20px",
+        }}
+      >
         {steps.map((s, i) => (
           <Box
             sx={{
@@ -83,8 +103,22 @@ function InvestStrategySteps() {
           </Box>
         ))}
       </Box>
-      <Box sx={{ display: "flex", flexDirection: "row", alignItems: "center" }}>
-        <Text sx={{ color: "#DF4886", fontSize: "28px", fontWeight: "600" }}>
+      <Box
+        sx={{
+          display: "flex",
+          flexDirection: ["column", "column", "column", "row"],
+          alignItems: "center",
+          justifyContent: "center",
+        }}
+      >
+        <Text
+          sx={{
+            color: "#DF4886",
+            fontSize: "28px",
+            fontWeight: "600",
+            textAlign: ["center", "center", "center", "left"],
+          }}
+        >
           Your HedgePie strategy is live!
         </Text>
         <Image src="/images/rocket.svg" width={80} height={80} />

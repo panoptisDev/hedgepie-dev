@@ -1,6 +1,7 @@
 import Image from "next/image";
 import React from "react";
 import { Box, Text } from "theme-ui";
+import Marquee from "react-fast-marquee";
 
 interface StrategyListProps {
   textLine1?: string;
@@ -15,6 +16,8 @@ const strategies = [
   { title: "UniSwap", image: "/images/strategies/uniswap.svg" },
   { title: "Balancer", image: "/images/strategies/balancer.svg" },
   { title: "Polygon", image: "/images/strategies/polygon.svg" },
+  { title: "Alpaca Finance", image: "/images/strategies/alpaca.svg" },
+  { title: "ApeSwap", image: "/images/strategies/apeswap.svg" },
 ];
 
 function StrategyList(props: StrategyListProps) {
@@ -38,9 +41,10 @@ function StrategyList(props: StrategyListProps) {
           <Text
             sx={{
               fontFamily: "Open Sans",
-              fontSize: "24px",
+              fontSize: ["20px", "20px", "24px"],
               fontWeight: "500",
               color: "#000000",
+              textAlign: "center",
             }}
           >
             {textLine1}
@@ -50,29 +54,33 @@ function StrategyList(props: StrategyListProps) {
           <Text
             sx={{
               fontFamily: "Open Sans",
-              fontSize: "24px",
+              fontSize: ["20px", "20px", "24px"],
               fontWeight: "500",
               color: "#000000",
+              textAlign: "center",
             }}
           >
             {textLine2}
           </Text>
         )}
       </Box>
-      <Box
-        sx={{
-          display: "flex",
-          flexDirection: "row",
-          alignItems: "center",
-          width: "100%",
-          justifyContent: "center",
-          gap: "70px",
-        }}
-      >
-        {strategies.map((s) => (
-          <Image src={s.image} width={80} height={80} />
-        ))}
-      </Box>
+      <Marquee pauseOnHover>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: "row",
+            alignItems: "center",
+            width: "100%",
+            justifyContent: "center",
+            gap: ["40px", "40px", "70px"],
+          }}
+        >
+          {strategies.map((s) => (
+            <Image src={s.image} width={90} height={90} />
+          ))}
+          <div style={{ width: "30px" }}></div>
+        </Box>
+      </Marquee>
     </Box>
   );
 }

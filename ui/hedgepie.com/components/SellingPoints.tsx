@@ -1,6 +1,5 @@
-import Image from "next/image";
 import React from "react";
-import { Box, Text } from "theme-ui";
+import { Box, Text, Image } from "theme-ui";
 
 interface SellingPointsProps {
   type: "create" | "invest";
@@ -56,10 +55,13 @@ const sellingPoints: any = {
 function SellingPoints(props: SellingPointsProps) {
   const { type } = props;
   return (
-    <Box sx={{ width: "100%", padding: "60px 100px" }}>
-      <Box sx={{ position: "absolute", zIndex: 0 }}>
-        <Image src="/images/sellingpoints/bg.svg" width={4000} height={1300} />
-      </Box>
+    <Box
+      sx={{
+        width: "100%",
+        padding: ["40px 20px", "40px 20px", "40px 20px", "60px 100px"],
+        background: "url(/images/sellingpoints/bg.svg)",
+      }}
+    >
       <Box
         sx={{
           display: "flex",
@@ -70,7 +72,15 @@ function SellingPoints(props: SellingPointsProps) {
           zIndex: 1,
         }}
       >
-        <Box sx={{ display: "flex", flexDirection: "row", gap: "60px" }}>
+        <Box
+          sx={{
+            display: "flex",
+            justifyContent: "center",
+            alignItems: "center",
+            flexDirection: ["column", "column", "row", "row"],
+            gap: ["20px", "30px", "30px", "60px"],
+          }}
+        >
           {[sellingPoints[type][0], sellingPoints[type][1]].map((sp: any) => (
             <Box
               sx={{
@@ -78,10 +88,13 @@ function SellingPoints(props: SellingPointsProps) {
                 flexDirection: "row",
                 alignItems: "flex-start",
                 gap: "20px",
-                width: "30rem",
+                width: ["90%", "90%", "22rem", "30rem"],
               }}
             >
-              <Image src={sp.image} width={500} height={500} />
+              <Image
+                src={sp.image}
+                sx={{ width: ["200px", "200px", "200px", "300px"] }}
+              />
               <Box
                 sx={{
                   display: "flex",
@@ -91,12 +104,20 @@ function SellingPoints(props: SellingPointsProps) {
                 }}
               >
                 <Text
-                  sx={{ color: "#14114B", fontSize: "22px", fontWeight: "600" }}
+                  sx={{
+                    color: "#14114B",
+                    fontSize: ["18px", "20px", "20px", "22px"],
+                    fontWeight: "600",
+                  }}
                 >
                   {sp.title}
                 </Text>
                 <Text
-                  sx={{ color: "#475569", fontSize: "16px", fontWeight: "400" }}
+                  sx={{
+                    color: "#475569",
+                    fontSize: ["14px", "14px", "14px", "16px"],
+                    fontWeight: "400",
+                  }}
                 >
                   {sp.text}
                 </Text>
@@ -104,7 +125,13 @@ function SellingPoints(props: SellingPointsProps) {
             </Box>
           ))}
         </Box>
-        <Box sx={{ display: "flex", flexDirection: "row", gap: "40px" }}>
+        <Box
+          sx={{
+            display: "flex",
+            flexDirection: ["column", "column", "row", "row"],
+            gap: "40px",
+          }}
+        >
           {[sellingPoints[type][2], sellingPoints[type][3]].map((sp: any) => (
             <Box
               sx={{
@@ -112,10 +139,13 @@ function SellingPoints(props: SellingPointsProps) {
                 flexDirection: "row",
                 alignItems: "flex-start",
                 gap: "20px",
-                width: "30rem",
+                width: ["100%", "100%", "22rem", "30rem"],
               }}
             >
-              <Image src={sp.image} width={300} height={300} />
+              <Image
+                src={sp.image}
+                sx={{ width: ["200px", "200px", "200px", "300px"] }}
+              />
               <Box
                 sx={{
                   display: "flex",

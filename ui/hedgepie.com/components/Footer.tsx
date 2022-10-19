@@ -1,6 +1,5 @@
-import Image from "next/image";
 import React from "react";
-import { Box, Text } from "theme-ui";
+import { Box, Text, Image } from "theme-ui";
 
 const social = [
   { label: "", image: "/images/social/1.svg" },
@@ -43,16 +42,16 @@ function Footer() {
         sx={{
           width: "100%",
           display: "flex",
-          flexDirection: "row",
+          flexDirection: ["column", "column", "column", "row"],
           justifyContent: "center",
-          padding: "50px 100px",
+          padding: ["30px 30px", "30px 30px", "30px 30px", "50px 100px"],
           backgroundColor: "#14114B",
-          gap: "80px",
+          gap: ["40px", "40px", "40px", "80px"],
         }}
       >
         <Box
           sx={{
-            flex: 2,
+            flex: [1, 1, 2, 2],
             display: "flex",
             flexDirection: "column",
             gap: "40px",
@@ -66,13 +65,16 @@ function Footer() {
               alignItems: "center",
             }}
           >
-            <Image src="/images/logo.svg" width={100} height={100} />
+            <Image
+              src="/images/logo.svg"
+              sx={{ width: ["60px", "60px", "60px", "100px"] }}
+            />
             <Text
               sx={{
                 color: "#FFFFFF",
                 fontFamily: "Open Sans",
                 fontWeight: "600",
-                fontSize: "54px",
+                fontSize: ["40px", "40px", "40px", "50px"],
               }}
             >
               HedgePie
@@ -110,10 +112,10 @@ function Footer() {
         </Box>
         <Box
           sx={{
-            flex: 2,
+            flex: [1, 1, 2, 2],
             display: "flex",
-            flexDirection: "row",
-            gap: "30px",
+            flexDirection: ["column", "row", "row", "row"],
+            gap: ["10px", "20px", "30px", "30px"],
             fontFamily: "Open Sans",
           }}
         >
@@ -126,11 +128,21 @@ function Footer() {
                 color: "#FFFFFF",
               }}
             >
-              <Text sx={{ fontSize: "24px", fontWeight: "600" }}>
+              <Text
+                sx={{
+                  fontSize: ["20px", "20px", "20px", "24px"],
+                  fontWeight: "600",
+                }}
+              >
                 {s.title}
               </Text>
               {s.links.map((l) => (
-                <Text sx={{ fontSize: "18px", fontWeight: "400" }}>
+                <Text
+                  sx={{
+                    fontSize: ["14px", "14px", "14px", "18px"],
+                    fontWeight: "400",
+                  }}
+                >
                   {l.label}
                 </Text>
               ))}
@@ -139,11 +151,15 @@ function Footer() {
         </Box>
         <Box
           sx={{
-            flex: 1,
             display: "flex",
             alignItems: "center",
             justifyContent: "center",
             cursor: "pointer",
+          }}
+          onClick={() => {
+            document?.getElementById("header")?.scrollIntoView({
+              behavior: "smooth",
+            });
           }}
         >
           <Image src="/images/totop.svg" width={100} height={200} />
@@ -155,7 +171,7 @@ function Footer() {
           backgroundColor: "#3B3969",
           padding: "20px 100px",
           display: "flex",
-          flexDirection: "row",
+          flexDirection: ["column", "row", "row", "row"],
           gap: "20px",
           fontFamily: "Open Sans",
           fontWeight: "400",

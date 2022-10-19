@@ -1,10 +1,9 @@
-import Image from "next/image";
 import React from "react";
-import { Box, Text } from "theme-ui";
+import { Box, Text, Image } from "theme-ui";
 import HedgePieButton from "widgets/HedgePieButton";
 
 const subContents: any = {
-  create: [
+  invest: [
     {
       title: "See for yourself!",
       text: "See how individual strategies have performed over time with respect to various metrics such as APY, TVL and the number of investors participating.",
@@ -51,7 +50,7 @@ const subContents: any = {
       leftToRight: true,
     },
   ],
-  invest: [
+  create: [
     {
       title: "One dashboard for all your needs",
       text: "Get a customized Hedgepie dashboard to keep track of all your earnings.",
@@ -126,15 +125,15 @@ function SubContents(props: SubContentsProps) {
         alignItems: "center",
         justifyContent: "center",
         gap: "70px",
-        padding: "70px 300px",
+        padding: ["30px 20px", "30px 20px", "30px 20px", "70px 300px"],
       }}
     >
       {subContents[type].map((sc: any) => (
         <Box
           sx={{
             display: "flex",
-            flexDirection: "row",
-            gap: "100px",
+            flexDirection: ["column", "column", "row", "row"],
+            gap: ["20px", "20px", "20px", "100px"],
             alignItems: "center",
             fontFamily: "Open Sans",
           }}
@@ -149,25 +148,38 @@ function SubContents(props: SubContentsProps) {
                 height: "100%",
               }}
             >
-              <Image src={sc.image} width={500} height={400} />
+              <Image
+                src={sc.image}
+                sx={{
+                  width: ["200px", "300px", "300px", "600px"],
+                }}
+              />
             </Box>
           )}
           <Box
             sx={{
               display: "flex",
               flexDirection: "column",
-              gap: "30px",
-              width: "60rem",
+              gap: ["20px", "20px", "20px", "30px"],
+              width: ["90%", "60%", "60%", "60rem"],
               fontFamily: "Open Sans",
             }}
           >
             <Text
-              sx={{ color: "#14114B", fontSize: "32px", fontWeight: "700" }}
+              sx={{
+                color: "#14114B",
+                fontSize: ["24px", "24px", "28px", "32px"],
+                fontWeight: "700",
+              }}
             >
               {sc.title}
             </Text>
             <Text
-              sx={{ color: "#1A1A1A", fontSize: "18px", fontWeight: "500" }}
+              sx={{
+                color: "#1A1A1A",
+                fontSize: ["16px", "16px", "16px", "18px"],
+                fontWeight: "500",
+              }}
             >
               {sc.text}
             </Text>
@@ -191,7 +203,12 @@ function SubContents(props: SubContentsProps) {
                 height: "100%",
               }}
             >
-              <Image src={sc.image} width={500} height={400} />
+              <Image
+                src={sc.image}
+                sx={{
+                  width: ["200px", "300px", "300px", "600px"],
+                }}
+              />
             </Box>
           )}
         </Box>

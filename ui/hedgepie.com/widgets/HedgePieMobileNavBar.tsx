@@ -1,19 +1,17 @@
-import { PageType } from "components/Header";
-import Image from "next/image";
-import { useRouter } from "next/router";
+import { Menu, MenuButton, MenuItem } from "@szhsin/react-menu";
 import React from "react";
 import { Box } from "theme-ui";
+import { Menu as MenuIcon } from "react-feather";
+import { PageType } from "components/Header";
+import { useRouter } from "next/router";
 
+const pages: PageType[] = ["about", "faq", "paper", "create", "invest"];
 interface NavBarProps {
   selected: PageType;
 }
-
-const pages: PageType[] = ["about", "faq", "paper", "create", "invest"];
-
-function HedgePieNavBar(props: NavBarProps) {
+function HedgePieMobileNavBar(props: NavBarProps) {
   const { selected } = props;
   const router = useRouter();
-
   const getPageTitle = (type: PageType) => {
     switch (type) {
       case "about":
@@ -43,48 +41,44 @@ function HedgePieNavBar(props: NavBarProps) {
         return "Invest";
     }
   };
-
   return (
-    <Box
-      sx={{
-        display: ["none", "none", "none", "flex"],
-        flexDirection: "row",
-        alignItems: "center",
-        height: "100%",
-        zIndex: 1,
-      }}
-    >
-      {pages.map((p) => (
-        <Box
-          sx={{
+    <Menu
+      menuButton={
+        <MenuButton
+          style={{
+            background: "transparent",
+            border: "2px solid #17DE",
+            borderRadius: "8px",
+            width: "2.5rem",
+            height: "2.5rem",
             display: "flex",
-            flexDirection: "row",
             alignItems: "center",
             justifyContent: "center",
-            fontSize: "18px",
+          }}
+        >
+          <Box sx={{ background: "transparent" }}>
+            <MenuIcon transform="no" style={{ color: "#1799DE" }} />
+          </Box>
+        </MenuButton>
+      }
+      menuStyle={{ zIndex: 6 }}
+    >
+      {pages.map((p) => (
+        <MenuItem
+          key={p}
+          style={{
             fontFamily: "Open Sans",
-            backgroundColor: selected === p ? "#1799DE" : "transparent",
-            color: "#FFFFFF",
-            height: "100%",
-            padding: "16px 32px",
-            fontWeight: selected === p ? "600" : "500",
-            cursor: "pointer",
-            ":hover": {
-              textDecoration: "underline",
-              textUnderlineOffset: "10px",
-              cursor: "pointer",
-            },
+            backgroundColor: p === selected ? "#17DE" : "#FFFFFF",
           }}
           onClick={() => {
             router.push(`/${p}`);
           }}
-          key={`navbar-link-${p}`}
         >
           {getPageTitle(p)}
-        </Box>
+        </MenuItem>
       ))}
-    </Box>
+    </Menu>
   );
 }
 
-export default HedgePieNavBar;
+export default HedgePieMobileNavBar;

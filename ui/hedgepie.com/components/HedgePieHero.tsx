@@ -2,6 +2,7 @@ import Image from "next/image";
 import React from "react";
 import { Box, Button, Text } from "theme-ui";
 import HedgePieButton from "widgets/HedgePieButton";
+import { isMobile } from "react-device-detect";
 
 interface HedgePieHeroProps {
   titleLine1: string;
@@ -28,14 +29,18 @@ function HedgePieHero(props: HedgePieHeroProps) {
       }}
     >
       <Box sx={{ position: "absolute", opacity: "0.05" }}>
-        <Image src="/images/hero-bg.png" height="1700" width="4000" />
+        {!isMobile && (
+          <Image src="/images/hero-bg.png" height="1700" width="4000" />
+        )}
       </Box>
       <Box
         sx={{
           display: "flex",
           flexDirection: "column",
           alignItems: "center",
+          justifyContent: "center",
           zIndex: "1",
+          width: ["80%", "100%", "100%"],
         }}
       >
         <Text
@@ -43,9 +48,10 @@ function HedgePieHero(props: HedgePieHeroProps) {
             fontFamily: "Open Sans",
             fontStyle: "normal",
             fontWeight: "600",
-            fontSize: "72px",
+            fontSize: ["50px", "64px", "72px"],
             lineHeight: "125%",
             color: "#FFFFFF",
+            textAlign: "center",
           }}
         >
           {titleLine1}
@@ -55,21 +61,22 @@ function HedgePieHero(props: HedgePieHeroProps) {
             fontFamily: "Open Sans",
             fontStyle: "normal",
             fontWeight: "600",
-            fontSize: "72px",
+            fontSize: ["50px", "64px", "72px"],
             lineHeight: "125%",
             color: "#FFFFFF",
+            textAlign: "center",
           }}
         >
           {titleLine2}
         </Text>
       </Box>
-      <Box sx={{ width: "60rem" }}>
+      <Box sx={{ width: ["90%", "90%", "90%", "60rem"] }}>
         <Text
           sx={{
             fontFamily: "Open Sans",
             fontStyle: "normal",
             fontWeight: "300",
-            fontSize: "32px",
+            fontSize: ["20px", "24px", "32px"],
             lineHeight: "125%",
             display: "inline-block",
             textAlign: "center",
@@ -96,7 +103,7 @@ function HedgePieHero(props: HedgePieHeroProps) {
           zIndex: "1",
         }}
       >
-        <HedgePieButton label="Start Investing" size="medium" />
+        <HedgePieButton label={buttonText} size="medium" />
       </Box>
     </Box>
   );

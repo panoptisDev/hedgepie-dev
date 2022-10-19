@@ -1,11 +1,11 @@
 import type { NextPage } from "next";
 import HedgePiePage from "components/HedgePiePage";
-import InvestPage from "components/InvestPage";
+import CreateStrategyPage from "components/CreateStrategyPage";
 
 const Home: NextPage = () => {
   return (
     <HedgePiePage type="create">
-      <InvestPage />
+      <CreateStrategyPage />
     </HedgePiePage>
   );
 };

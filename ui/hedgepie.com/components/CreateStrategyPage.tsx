@@ -9,20 +9,24 @@ import SellingPoints from "components/SellingPoints";
 import AuditedBy from "components/AuditedBy";
 import FinalBanner from "components/FinalBanner";
 import Footer from "components/Footer";
+import InvestStrategySteps from "components/InvestStrategySteps";
 
 function CreateStrategyPage() {
   return (
     <Box sx={{ display: "flex", flexDirection: "column", width: "100%" }}>
       <HedgePieHero
-        titleLine1="Get a piece of the Defi pie,"
-        titleLine2="without the hassle."
-        subTitle="Hedgepie is a DeFi strategy marketplace that makes it :EASY for new investors to have their investments safely managed: by expert crypto investors."
-        buttonText="Start Investing"
+        titleLine1="Monetize your valuable"
+        titleLine2="investment knowledge."
+        subTitle="HedgePie is a DeFi strategy marketplace that :makes it EASY for experienced investors to monetize their hard-earned investment knowledge: by creating reliable and profitable investment strategies."
+        buttonText="Start Creating"
         buttonClick={() => {}}
       />
-      <StrategyList textLine1="Enjoy diversified strategies cut across top DeFi protocols." />
+      <StrategyList
+        textLine1="We’ve partnered with Top DeFi protocols so you can design a basket strategy,"
+        textLine2="enjoying a wide range of options to choose from."
+      />
       <Features type="create" />
-      <CreateMidBanner />
+      <InvestStrategySteps />
       <SubContents type="create" />
       <SellingPoints type="create" />
       <AuditedBy />

@@ -13,7 +13,7 @@ function HedgePiePage(props: HedgePiePageProps) {
   return (
     <>
       <Head>
-        <title>HedgePie</title>
+        <title>HedgePie | DeFi Made Easy</title>
         <meta
           name="description"
           content="Access to the best strategies in DeFi"
