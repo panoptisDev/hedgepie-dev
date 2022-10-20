@@ -121,12 +121,23 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         userInfo.invested += _amountIn;
 
         // Update adapterInfo contract
-        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
-            .updateTVLInfo(_tokenId, _amountIn, true);
-        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
-            .updateTradedInfo(_tokenId, _amountIn, true);
-        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
-            .updateParticipantInfo(_tokenId, _account, true);
+        address adapterInfoEthAddr = IHedgepieInvestorEth(investor)
+            .adapterInfo();
+        IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateTVLInfo(
+            _tokenId,
+            _amountIn,
+            true
+        );
+        IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateTradedInfo(
+            _tokenId,
+            _amountIn,
+            true
+        );
+        IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateParticipantInfo(
+            _tokenId,
+            _account,
+            true
+        );
 
         return _amountIn;
     }
@@ -217,20 +228,33 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
                 weth
             );
         }
+        address adapterInfoEthAddr = IHedgepieInvestorEth(investor)
+            .adapterInfo();
         amountOut += rewardETH;
         if (rewardETH != 0) {
-            IHedgepieAdapterInfoEth(
-                IHedgepieInvestorEth(investor).adapterInfo()
-            ).updateProfitInfo(_tokenId, rewardETH, true);
+            IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateProfitInfo(
+                _tokenId,
+                rewardETH,
+                true
+            );
         }
 
         // Update adapterInfo contract
-        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
-            .updateTVLInfo(_tokenId, userInfo.invested, false);
-        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
-            .updateTradedInfo(_tokenId, userInfo.invested, true);
-        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
-            .updateParticipantInfo(_tokenId, _account, false);
+        IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateTVLInfo(
+            _tokenId,
+            userInfo.invested,
+            false
+        );
+        IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateTradedInfo(
+            _tokenId,
+            userInfo.invested,
+            true
+        );
+        IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateParticipantInfo(
+            _tokenId,
+            _account,
+            false
+        );
 
         userInfo.amount = 0;
         userInfo.invested = 0;
