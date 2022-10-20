@@ -17,6 +17,7 @@
     "react-dom": "18.2.0",
     "react-fast-marquee": "^1.3.5",
     "react-feather": "^2.0.10",
+    "react-hotjar": "^5.2.0",
     "theme-ui": "^0.15.3"
   },
   "devDependencies": {

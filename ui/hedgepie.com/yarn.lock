@@ -1887,6 +1887,11 @@ react-feather@^2.0.10:
   dependencies:
     prop-types "^15.7.2"
 
+react-hotjar@^5.2.0:
+  version "5.2.0"
+  resolved "https://registry.yarnpkg.com/react-hotjar/-/react-hotjar-5.2.0.tgz#ffcfda7eeea6e2816fde6c18a050901674b25f8e"
+  integrity sha512-HLP87fOvEMjstFoJ63M9SAUJQPXcOoT3vT6jZfv4QmKQI5PWIH/ao+eiTkWfvXqnv3WlOi9t7y9EmvLAgqs8hQ==
+
 react-is@^16.13.1, react-is@^16.7.0:
   version "16.13.1"
   resolved "https://registry.yarnpkg.com/react-is/-/react-is-16.13.1.tgz#789729a4dc36de2999dc156dd6c1d9c18cea56a4"
