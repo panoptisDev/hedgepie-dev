@@ -136,11 +136,10 @@ interface IAdapterEth {
         uint256 _amount
     ) external payable returns (uint256 amountOut);
 
-    function withdraw(
-        uint256 _tokenId,
-        address _account,
-        uint256 _amount
-    ) external payable returns (uint256 amountOut);
+    function withdraw(uint256 _tokenId, address _account)
+        external
+        payable
+        returns (uint256 amountOut);
 
     function claim(uint256 _tokenId, address _account)
         external

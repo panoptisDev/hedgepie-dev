@@ -126,11 +126,12 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         return _amountIn;
     }
 
-    function withdraw(
-        uint256 _tokenId,
-        address _account,
-        uint256 _amountIn
-    ) external payable override returns (uint256 amountOut) {
+    function withdraw(uint256 _tokenId, address _account)
+        external
+        payable
+        override
+        returns (uint256 amountOut)
+    {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 

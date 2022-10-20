@@ -2,6 +2,7 @@
 pragma solidity ^0.8.4;
 
 import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
+import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
 
 import "../../BaseAdapterEth.sol";
 
@@ -11,13 +12,15 @@ import "../../../interfaces/IYBNFT.sol";
 import "../../../interfaces/IHedgepieInvestorEth.sol";
 import "../../../interfaces/IHedgepieAdapterInfoEth.sol";
 
-contract UniswapV3LPAdapter is BaseAdapterEth {
+contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
     // user => nft id => tokenID
     mapping(address => mapping(uint256 => uint256)) public liquidityNFT;
 
     int24 public tickLower;
 
     int24 public tickUpper;
+
+    receive() external payable {}
 
     /**
      * @notice Construct
@@ -105,41 +108,64 @@ contract UniswapV3LPAdapter is BaseAdapterEth {
         // update adapter info
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         adapterInfo.totalStaked += amountIn;
-        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
-            .updateTVLInfo(_tokenId, _amountIn, true);
-        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
-            .updateTradedInfo(_tokenId, _amountIn, true);
-        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
-            .updateParticipantInfo(_tokenId, _account, true);
+        address adapterInfoEthAddr = IHedgepieInvestorEth(investor)
+            .adapterInfo();
+        IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateTVLInfo(
+            _tokenId,
+            _amountIn,
+            true
+        );
+        IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateTradedInfo(
+            _tokenId,
+            _amountIn,
+            true
+        );
+        IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateParticipantInfo(
+            _tokenId,
+            _account,
+            true
+        );
     }
 
     /**
      * @notice Withdraw to uniswapV3 adapter
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
-     * @param _amountIn  amount of eth
      */
-    function withdraw(
-        uint256 _tokenId,
-        address _account,
-        uint256 _amountIn
-    ) external payable override returns (uint256 amountOut) {
-        amountOut = _withdraw(_tokenId, _account, _amountIn);
+    function withdraw(uint256 _tokenId, address _account)
+        external
+        payable
+        override
+        returns (uint256 amountOut)
+    {
+        UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
+
+        amountOut = _withdraw(_tokenId, _account, userInfo.amount);
 
         // update user info
-        UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
         userInfo.amount = 0;
         userInfo.invested = 0;
 
         // update adapter info
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         adapterInfo.totalStaked -= userInfo.amount;
-        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
-            .updateTVLInfo(_tokenId, userInfo.invested, false);
-        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
-            .updateTradedInfo(_tokenId, userInfo.invested, true);
-        IHedgepieAdapterInfoEth(IHedgepieInvestorEth(investor).adapterInfo())
-            .updateParticipantInfo(_tokenId, _account, false);
+        address adapterInfoEthAddr = IHedgepieInvestorEth(investor)
+            .adapterInfo();
+        IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateTVLInfo(
+            _tokenId,
+            userInfo.invested,
+            false
+        );
+        IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateTradedInfo(
+            _tokenId,
+            userInfo.invested,
+            true
+        );
+        IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateParticipantInfo(
+            _tokenId,
+            _account,
+            false
+        );
 
         // tax distribution
         if (amountOut != 0) {
@@ -226,7 +252,7 @@ contract UniswapV3LPAdapter is BaseAdapterEth {
                     amount1Desired: tokenAmount[1],
                     amount0Min: 0,
                     amount1Min: 0,
-                    deadline: block.timestamp + 2 hours
+                    deadline: block.timestamp
                 })
             );
         } else {
@@ -244,7 +270,7 @@ contract UniswapV3LPAdapter is BaseAdapterEth {
                     amount0Min: 0,
                     amount1Min: 0,
                     recipient: address(this),
-                    deadline: block.timestamp + 2 hours
+                    deadline: block.timestamp
                 });
 
             (
@@ -253,6 +279,7 @@ contract UniswapV3LPAdapter is BaseAdapterEth {
                 tokenAmount[2],
                 tokenAmount[3]
             ) = INonfungiblePositionManager(strategy).mint(params);
+
             setLiquidityNFT(_account, _tokenId, v3TokenId);
         }
 
@@ -295,15 +322,15 @@ contract UniswapV3LPAdapter is BaseAdapterEth {
         tokens[0] = IPancakePair(stakingToken).token0();
         tokens[1] = IPancakePair(stakingToken).token1();
 
-        uint256 tokenId = getLiquidityNFT(_account, _tokenId);
-        require(tokenId != 0, "Invalid request");
+        uint256 v3TokenId = getLiquidityNFT(_account, _tokenId);
+        require(v3TokenId != 0, "Invalid request");
 
         // withdraw staking token to uniswapV3 strategy (collect or decreaseLiquidity)
         uint256[2] memory amounts;
         (amounts[0], amounts[1]) = INonfungiblePositionManager(strategy)
             .decreaseLiquidity(
                 INonfungiblePositionManager.DecreaseLiquidityParams({
-                    tokenId: tokenId,
+                    tokenId: v3TokenId,
                     liquidity: uint128(_amountIn),
                     amount0Min: 0,
                     amount1Min: 0,
@@ -313,7 +340,7 @@ contract UniswapV3LPAdapter is BaseAdapterEth {
 
         INonfungiblePositionManager(strategy).collect(
             INonfungiblePositionManager.CollectParams({
-                tokenId: tokenId,
+                tokenId: v3TokenId,
                 recipient: address(this),
                 amount0Max: uint128(amounts[0]),
                 amount1Max: uint128(amounts[1])
@@ -338,5 +365,14 @@ contract UniswapV3LPAdapter is BaseAdapterEth {
                 router,
                 weth
             );
+    }
+
+    function onERC721Received(
+        address,
+        address,
+        uint256,
+        bytes calldata
+    ) external pure override returns (bytes4) {
+        return this.onERC721Received.selector;
     }
 }
