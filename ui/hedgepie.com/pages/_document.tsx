@@ -20,8 +20,9 @@ export default function Document() {
         <Script
           strategy="lazyOnload"
           src={`https://www.googletagmanager.com/gtag/js?id=G-G6LN726K38`}
+          id="ga-script-three"
         />
-        <Script strategy="lazyOnload">
+        <Script strategy="lazyOnload" id="ga-script-four">
           {`
         window.dataLayer = window.dataLayer || [];
         function gtag(){dataLayer.push(arguments);}

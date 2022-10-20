@@ -49,7 +49,7 @@ function InvestStrategySteps() {
           fontSize: ["22px", "24px", "24px", "30px"],
         }}
       >
-        It's a simple 3-Step process.
+        It&apos;s a simple 3-Step process.
       </Text>
       <Box
         sx={{
@@ -74,6 +74,7 @@ function InvestStrategySteps() {
               width: "22rem",
               textAlign: "center",
             }}
+            key={i}
           >
             <Box
               sx={{

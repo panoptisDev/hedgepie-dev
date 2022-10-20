@@ -29,10 +29,12 @@ function AuditedBy() {
       <Image
         src="/images/auditors/consensys.svg"
         sx={{ width: ["200px", "200px", "200px", "300px"] }}
+        alt="Consensys Logo"
       />
       <Image
         src="/images/auditors/shellboxes.svg"
         sx={{ width: ["200px", "200px", "200px", "300px"] }}
+        alt="Shellboxes Logo"
       />
     </Box>
   );

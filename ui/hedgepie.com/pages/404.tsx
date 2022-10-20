@@ -15,7 +15,7 @@ export default function Custom404() {
         gap: "30px",
       }}
     >
-      <Image src="/images/logo.svg" />
+      <Image src="/images/logo.svg" alt="Hedge Pie Logo" />
       <Text
         sx={{ fontFamily: "Open Sans", fontSize: "24px", fontWeight: "600" }}
       >

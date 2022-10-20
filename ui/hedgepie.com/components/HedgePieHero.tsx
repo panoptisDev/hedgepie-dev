@@ -30,7 +30,12 @@ function HedgePieHero(props: HedgePieHeroProps) {
     >
       <Box sx={{ position: "absolute", opacity: "0.05" }}>
         {!isMobile && (
-          <Image src="/images/hero-bg.png" height="1700" width="4000" />
+          <Image
+            src="/images/hero-bg.png"
+            height="1700"
+            width="4000"
+            alt="bg"
+          />
         )}
       </Box>
       <Box

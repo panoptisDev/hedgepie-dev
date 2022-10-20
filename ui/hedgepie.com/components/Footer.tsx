@@ -106,7 +106,13 @@ function Footer() {
             }}
           >
             {social.map((s) => (
-              <Image src={s.image} width={40} height={40} />
+              <Image
+                src={s.image}
+                width={40}
+                height={40}
+                key={s.label}
+                alt="social"
+              />
             ))}
           </Box>
         </Box>
@@ -119,7 +125,7 @@ function Footer() {
             fontFamily: "Open Sans",
           }}
         >
-          {sections.map((s) => (
+          {sections.map((s, i) => (
             <Box
               sx={{
                 display: "flex",
@@ -127,6 +133,7 @@ function Footer() {
                 gap: "10px",
                 color: "#FFFFFF",
               }}
+              key={`${s.title}-${i}`}
             >
               <Text
                 sx={{
@@ -142,6 +149,7 @@ function Footer() {
                     fontSize: ["14px", "14px", "14px", "18px"],
                     fontWeight: "400",
                   }}
+                  key={l.label}
                 >
                   {l.label}
                 </Text>
@@ -162,7 +170,12 @@ function Footer() {
             });
           }}
         >
-          <Image src="/images/totop.svg" width={100} height={200} />
+          <Image
+            src="/images/totop.svg"
+            width={100}
+            height={200}
+            alt="top arrow"
+          />
         </Box>
       </Box>
       <Box

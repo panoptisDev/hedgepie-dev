@@ -63,9 +63,10 @@ function Features(props: FeaturesProps) {
           src="/images/falling-coins-light.svg"
           width={3000}
           height={6000}
+          alt="falling coins light"
         />
       </Box>
-      {content[type].map((e: any) => (
+      {content[type].map((e: any, i: number) => (
         <Box
           sx={{
             backgroundColor: "#FFFFFF",
@@ -81,6 +82,7 @@ function Features(props: FeaturesProps) {
             height: ["max-content", "max-content", "max-content", "28rem"],
             zIndex: 1,
           }}
+          key={`${type}-${i}`}
         >
           <Text sx={{ color: "#14114B", fontSize: "24px", fontWeight: "700" }}>
             {e.title}

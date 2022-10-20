@@ -90,10 +90,12 @@ function SellingPoints(props: SellingPointsProps) {
                 gap: "20px",
                 width: ["90%", "90%", "22rem", "30rem"],
               }}
+              key={sp.title}
             >
               <Image
                 src={sp.image}
                 sx={{ width: ["200px", "200px", "200px", "300px"] }}
+                alt="bg"
               />
               <Box
                 sx={{
@@ -141,10 +143,12 @@ function SellingPoints(props: SellingPointsProps) {
                 gap: "20px",
                 width: ["100%", "100%", "22rem", "30rem"],
               }}
+              key={sp.title}
             >
               <Image
                 src={sp.image}
                 sx={{ width: ["200px", "200px", "200px", "300px"] }}
+                alt="bg"
               />
               <Box
                 sx={{

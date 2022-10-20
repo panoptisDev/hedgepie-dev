@@ -137,6 +137,7 @@ function SubContents(props: SubContentsProps) {
             alignItems: "center",
             fontFamily: "Open Sans",
           }}
+          key={sc.title}
         >
           {sc.leftToRight && (
             <Box
@@ -153,6 +154,7 @@ function SubContents(props: SubContentsProps) {
                 sx={{
                   width: ["200px", "300px", "300px", "600px"],
                 }}
+                alt="bg"
               />
             </Box>
           )}
@@ -208,6 +210,7 @@ function SubContents(props: SubContentsProps) {
                 sx={{
                   width: ["200px", "300px", "300px", "600px"],
                 }}
+                alt="bg"
               />
             </Box>
           )}

@@ -24,7 +24,12 @@ function CreateMidBanner() {
           display: ["none", "none", "none", "block"],
         }}
       >
-        <Image src="/images/falling-coins-dark.svg" width={400} height={600} />
+        <Image
+          src="/images/falling-coins-dark.svg"
+          width={400}
+          height={600}
+          alt="falling coins"
+        />
       </Box>
       <Box
         sx={{

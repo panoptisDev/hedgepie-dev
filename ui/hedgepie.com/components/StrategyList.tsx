@@ -76,7 +76,13 @@ function StrategyList(props: StrategyListProps) {
           }}
         >
           {strategies.map((s) => (
-            <Image src={s.image} width={90} height={90} />
+            <Image
+              src={s.image}
+              width={90}
+              height={90}
+              alt="bg"
+              key={s.title}
+            />
           ))}
           <div style={{ width: "30px" }}></div>
         </Box>

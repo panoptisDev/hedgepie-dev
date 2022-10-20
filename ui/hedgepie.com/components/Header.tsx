@@ -30,7 +30,7 @@ function Header(props: HeaderProps) {
       id="header"
     >
       <Box sx={{ position: "absolute", opacity: "0.05", zIndex: 0 }}>
-        <Image src="/images/hero-bg.png" height="1700" width="4000" />
+        <Image src="/images/hero-bg.png" height="1700" width="4000" alt="bg" />
       </Box>
       <Box
         sx={{
@@ -40,7 +40,7 @@ function Header(props: HeaderProps) {
           marginRight: "auto",
         }}
       >
-        <Image src="/images/logo.svg" width={60} height={60} />
+        <Image src="/images/logo.svg" width={60} height={60} alt="bg" />
       </Box>
       <HedgePieNavBar selected={selected} />
       <Box
@@ -61,7 +61,7 @@ function Header(props: HeaderProps) {
             justifyContent: "center",
           }}
         >
-          <Image src="/images/language.svg" width={20} height={20} />
+          <Image src="/images/language.svg" width={20} height={20} alt="bg" />
         </Box>
         <HedgePieButton
           bordered={true}
