@@ -1,8 +1,7 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-import "./libraries/Ownable.sol";
-import "./interfaces/IAdapterMatic.sol";
+import "./interfaces/IAdapterEth.sol";
 
 contract HedgepieAdapterManagerEth is Ownable {
     struct AdapterInfo {
@@ -63,95 +62,7 @@ contract HedgepieAdapterManagerEth is Ownable {
         onlyActiveAdapter(_adapter)
         returns (address adapterStrat)
     {
-        adapterStrat = IAdapter(_adapter).strategy();
-    }
-
-    /**
-     * @notice Get Deposit call data of adapter contract
-     * @param _adapter  adapter address
-     * @param _amount  deposit amount
-     */
-    function getDepositCallData(address _adapter, uint256 _amount)
-        external
-        view
-        onlyActiveAdapter(_adapter)
-        onlyInvestor
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        )
-    {
-        require(_amount > 0, "Amount can not be 0");
-        return IAdapter(_adapter).getInvestCallData(_amount);
-    }
-
-    /**
-     * @notice Get Withdraw call data of adapter contract
-     * @param _adapter  adapter address
-     * @param _amount  deposit amount
-     */
-    function getWithdrawCallData(address _adapter, uint256 _amount)
-        external
-        view
-        onlyActiveAdapter(_adapter)
-        onlyInvestor
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        )
-    {
-        require(_amount > 0, "Amount can not be 0");
-        return IAdapter(_adapter).getDevestCallData(_amount);
-    }
-
-    /**
-     * @notice Get reward call data of adapter contract
-     * @param _adapter  adapter address
-     */
-    function getRewardCallData(address _adapter)
-        external
-        view
-        onlyActiveAdapter(_adapter)
-        onlyInvestor
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        )
-    {
-        return IAdapter(_adapter).getRewardCallData();
-    }
-
-    function getAddLiqCallData(address _adapter, uint256 _amount)
-        external
-        view
-        onlyActiveAdapter(_adapter)
-        onlyInvestor
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        )
-    {
-        require(_amount > 0, "Amount can not be 0");
-        return IAdapter(_adapter).getAddLiqCallData(_amount);
-    }
-
-    function getRemoveLiqCallData(address _adapter, uint256 _amount)
-        external
-        view
-        onlyActiveAdapter(_adapter)
-        onlyInvestor
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        )
-    {
-        require(_amount > 0, "Amount can not be 0");
-        return IAdapter(_adapter).getRemoveLiqCallData(_amount);
+        adapterStrat = IAdapterEth(_adapter).strategy();
     }
 
     // ===== Owner functions =====
@@ -166,8 +77,8 @@ contract HedgepieAdapterManagerEth is Ownable {
         adapterInfo.push(
             AdapterInfo({
                 addr: _adapter,
-                name: IAdapter(_adapter).name(),
-                stakingToken: IAdapter(_adapter).stakingToken(),
+                name: IAdapterEth(_adapter).name(),
+                stakingToken: IAdapterEth(_adapter).stakingToken(),
                 status: true
             })
         );

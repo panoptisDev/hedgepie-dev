@@ -120,8 +120,7 @@ contract HedgepieInvestorEth is Ownable, ReentrancyGuard {
         for (uint8 i = 0; i < adapterInfo.length; i++) {
             amountOut += IAdapterEth(adapterInfo[i].addr).withdraw(
                 _tokenId,
-                msg.sender,
-                _tokenId
+                msg.sender
             );
         }
 
