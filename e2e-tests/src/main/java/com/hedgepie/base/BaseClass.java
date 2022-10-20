@@ -95,7 +95,7 @@ public class BaseClass {
 			WebDriverManager.firefoxdriver().setup();
 			localD = new FirefoxDriver();
 		} else if (browser.equals("chrome")) {
-
+			//System.setProperty("webdriver.chrome.driver", System.getProperty("user.dir")+ File.separator +"src"+ File.separator +"test"+ File.separator+ "resources" + File.separator+ "executables" + File.separator+"chromedriver.exe");
 			WebDriverManager.chromedriver().setup();
 			Map<String, Object> prefs = new HashMap<String, Object>();
 			prefs.put("profile.default_content_setting_values.notifications", 2);
@@ -107,21 +107,21 @@ public class BaseClass {
 			String agentString = "Mozilla/5.0 (X11; Linux x86_64) AppleWebKit/537.36 (KHTML, like Gecko) Chrome/96.0.4664.45 Safari/537.36";
 			options.addArguments("--user-agent=" + agentString);
 			options.addArguments("window-size=1920,1080");
-			options.addArguments("--disable-gpu");
+			//options.addArguments("--disable-gpu");
 			//options.addArguments("--headless");
 			try {
 				localD = new ChromeDriver(options);
 			} catch (Exception e) {
 				e.printStackTrace();
 			}
-
-			driver.manage().window().maximize();
+			
 		} else if (browser.equals("ie")) {
 			WebDriverManager.edgedriver().setup();
 			localD = new InternetExplorerDriver();
 		}
 		localD.manage().timeouts().pageLoadTimeout(10, TimeUnit.SECONDS);
 		driver=localD;
+		driver.manage().window().maximize();
 		driver.manage().deleteAllCookies(); //delete all cookies
 		waitTime(3000);
 		clearData();
