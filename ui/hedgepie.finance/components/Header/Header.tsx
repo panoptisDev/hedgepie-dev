@@ -1,4 +1,4 @@
-import React from 'react'
+import React, { useEffect } from 'react'
 import Link from 'next/link'
 import { Box, Image, Link as ThemeLink, Button, ThemeUICSSObject } from 'theme-ui'
 import { ArrowRight, Menu as MenuIcon } from 'react-feather'
@@ -11,6 +11,7 @@ import { styles } from './styles'
 import { useWeb3React } from '@web3-react/core'
 import useWalletModal from 'widgets/WalletModal/useWalletModal'
 import useAuth from 'hooks/useAuth'
+import { connectorLocalStorageKey, ConnectorNames } from 'widgets/WalletModal'
 
 type Props = {
   overlay?: boolean
@@ -27,6 +28,14 @@ const Header = ({ overlay = false, dark = true }: Props) => {
   const { login, logout } = useAuth()
   const { account, chainId } = useWeb3React()
   const { onPresentConnectModal } = useWalletModal(login, logout)
+
+  useEffect(() => {
+    let key = window.localStorage.getItem(connectorLocalStorageKey) as ConnectorNames
+    if (key) {
+      login(key)
+    }
+  }, [])
+
   return (
     <Box
       className="header"

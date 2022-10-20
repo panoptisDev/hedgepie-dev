@@ -15,6 +15,7 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
 
   useEffect(() => {
     var protos = [] as any[]
+    if (!strategies) return
     for (let key in strategies) {
       let pools = [] as any[]
       let icon = ''
@@ -25,7 +26,11 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
       protos.push({ name: key, pools: pools, icon: icon })
     }
     setAvailableProtocols(protos)
-  }, [strategies])
+  }, [])
+
+  useEffect(() => {
+    console.log('DATA:' + JSON.stringify(value))
+  }, [])
 
   const handleProtocolSelect = (option) => {
     if (option !== protocol) {
@@ -42,6 +47,12 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
     console.log('formData' + JSON.stringify(formData))
     onPoolSelect(option)
   }
+
+  useEffect(() => {
+    if (value.pool) {
+      setPool({ name: value.pool?.name })
+    }
+  }, [value])
 
   return (
     <Box
