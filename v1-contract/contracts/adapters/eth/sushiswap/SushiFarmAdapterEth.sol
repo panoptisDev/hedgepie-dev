@@ -54,6 +54,12 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         isReward = true;
     }
 
+    /**
+     * @notice Deposit with ETH
+     * @param _tokenId YBNFT token id
+     * @param _account user wallet address
+     * @param _amountIn ETH amount
+     */
     function deposit(
         uint256 _tokenId,
         address _account,
@@ -125,6 +131,11 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         return _amountIn;
     }
 
+    /**
+     * @notice Withdraw the deposited ETH
+     * @param _tokenId YBNFT token id
+     * @param _account user wallet address
+     */
     function withdraw(uint256 _tokenId, address _account)
         external
         payable
@@ -250,6 +261,11 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         return amountOut;
     }
 
+    /**
+     * @notice Claim the pending reward
+     * @param _tokenId YBNFT token id
+     * @param _account user wallet address
+     */
     function claim(uint256 _tokenId, address _account)
         external
         payable
@@ -310,6 +326,11 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         return amountOut;
     }
 
+    /**
+     * @notice Return the pending reward by ETH
+     * @param _tokenId YBNFT token id
+     * @param _account user wallet address
+     */
     function pendingReward(uint256 _tokenId, address _account)
         external
         view
