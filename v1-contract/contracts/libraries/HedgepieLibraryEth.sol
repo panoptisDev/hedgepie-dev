@@ -44,16 +44,16 @@ library HedgepieLibraryEth {
         uint256 _amountIn,
         address _inToken,
         address _router,
-        address weth
+        address _weth
     ) public returns (uint256 amountOut) {
-        if (_inToken == weth) {
-            IWrap(weth).withdraw(_amountIn);
+        if (_inToken == _weth) {
+            IWrap(_weth).withdraw(_amountIn);
             amountOut = _amountIn;
         } else {
-            address[] memory path = getPaths(_adapter, _inToken, weth);
+            address[] memory path = getPaths(_adapter, _inToken, _weth);
             uint256 beforeBalance = address(this).balance;
 
-            IBEP20(_inToken).approve(address(_router), _amountIn);
+            IBEP20(_inToken).approve(_router, _amountIn);
 
             IPancakeRouter(_router)
                 .swapExactTokensForETHSupportingFeeOnTransferTokens(
