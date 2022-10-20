@@ -10,9 +10,17 @@ import "../../../interfaces/IHedgepieInvestorEth.sol";
 import "../../../interfaces/IHedgepieAdapterInfoEth.sol";
 
 interface IStrategy {
-    function deposit(uint256 _pid, uint256 _amount) external;
+    function deposit(
+        uint256 _pid,
+        uint256 _amount,
+        address _to
+    ) external;
 
-    function withdraw(uint256 _pid, uint256 _amount) external;
+    function withdrawAndHarvest(
+        uint256 _pid,
+        uint256 _amount,
+        address _to
+    ) external;
 
     function pendingSushi(uint256 _pid, address _user)
         external
@@ -20,7 +28,7 @@ interface IStrategy {
         returns (uint256);
 }
 
-contract SushiFarmAdapterEth is BaseAdapterEth {
+contract SushiFarmV2AdapterEth is BaseAdapterEth {
     /**
      * @notice Construct
      * @param _pid  strategy pool id
@@ -37,6 +45,7 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         address _strategy,
         address _stakingToken,
         address _rewardToken,
+        address _rewardToken1,
         address _router,
         address _swapRouter,
         string memory _name,
@@ -45,6 +54,7 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         pid = _pid;
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
+        rewardToken1 = _rewardToken1;
         strategy = _strategy;
         router = _router;
         swapRouter = _swapRouter;
@@ -69,6 +79,7 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
+        uint256 amountOut;
         if (router == address(0)) {
             amountOut = HedgepieLibraryEth.swapOnRouter(
                 address(this),
@@ -94,7 +105,7 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
             : 0;
 
         IBEP20(stakingToken).approve(strategy, amountOut);
-        IStrategy(strategy).deposit(pid, amountOut);
+        IStrategy(strategy).deposit(pid, amountOut, address(this));
 
         rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
         rewardAmt1 = rewardToken1 != address(0)
@@ -166,7 +177,11 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
             : 0;
 
         IBEP20(stakingToken).approve(strategy, amountOut);
-        IStrategy(strategy).withdraw(pid, userInfo.amount);
+        IStrategy(strategy).withdrawAndHarvest(
+            pid,
+            userInfo.amount,
+            address(this)
+        );
 
         rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
         rewardAmt1 = rewardToken1 != address(0)
@@ -230,6 +245,7 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         }
         address adapterInfoEthAddr = IHedgepieInvestorEth(investor)
             .adapterInfo();
+
         amountOut += rewardETH;
         if (rewardETH != 0) {
             IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateProfitInfo(
@@ -294,7 +310,7 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         external
         payable
         override
-        returns (uint256)
+        returns (uint256 amountOut)
     {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
