@@ -128,7 +128,9 @@ const Label = ({ index, label, active }: Props) => {
             justifyContent: 'center',
             width: 0,
             whiteSpace: 'nowrap',
-            color: active ? '#000' : '#ccc',
+            color: active ? '#14114B' : '#ccc',
+            fontSize: '16px',
+            fontWeight: '600',
           }}
         >
           {label}

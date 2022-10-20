@@ -85,6 +85,8 @@ const InitialStake = () => {
       sx={{
         padding: 3,
         backgroundColor: '#E5F6FF',
+        border: '2px solid #BAB9C5',
+        background: '#FFFFFF',
         borderRadius: 8,
         [`@media screen and (min-width: 500px)`]: {
           padding: 24,
@@ -119,9 +121,10 @@ const InitialStake = () => {
         sx={{
           fontSize: 12,
           mt: 22,
-          color: '#8E8DA0',
+          color: '#1A1A1A',
           [`@media screen and (min-width: 500px)`]: {
             fontSize: 16,
+            fontWeight: 600,
           },
         }}
       >
@@ -147,6 +150,8 @@ const InitialStake = () => {
             fontSize: 30,
             alignItems: 'center',
             justifyContent: 'center',
+            border: '1px solid #E3E3E3',
+            background: '#F3F3F3',
           }}
         >
           <Input

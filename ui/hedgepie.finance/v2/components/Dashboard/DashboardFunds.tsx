@@ -2,7 +2,38 @@ import React, { useState } from 'react'
 import { Box, Text } from 'theme-ui'
 
 function DashboardFunds() {
-  const [funds, setFunds] = useState(['', '', ''])
+  const [funds, setFunds] = useState([
+    {
+      name: 'Fund XYZ',
+      createdDate: '04/09/2022',
+      lastUpdated: '2d ago',
+      investors: '20',
+      tvl: '$256,302',
+      stake: '15 BNB',
+      apy: '15%',
+      yield: '$5,150',
+    },
+    {
+      name: 'Fund XYZ',
+      createdDate: '04/09/2022',
+      lastUpdated: '2d ago',
+      investors: '20',
+      tvl: '$256,302',
+      stake: '15 BNB',
+      apy: '15%',
+      yield: '$5,150',
+    },
+    {
+      name: 'Fund XYZ',
+      createdDate: '04/09/2022',
+      lastUpdated: '2d ago',
+      investors: '20',
+      tvl: '$256,302',
+      stake: '15 BNB',
+      apy: '15%',
+      yield: '$5,150',
+    },
+  ])
   return (
     <Box
       sx={{
@@ -31,7 +62,7 @@ function DashboardFunds() {
         {funds.map((f) => (
           <Box sx={{ borderRadius: '8px', border: '1px solid #D9D9D9' }}>
             <Box sx={{ display: 'flex', flexDirection: 'row', gap: '30px', padding: '1rem', alignItems: 'center' }}>
-              <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#000000' }}>Fund XYZ</Text>
+              <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#000000' }}>{f.name}</Text>
               <Box
                 sx={{
                   borderRadius: '4px',
@@ -43,7 +74,7 @@ function DashboardFunds() {
               >
                 <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '8px', color: '#4D4D4D' }}>Created:</Text>
                 <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '10px', color: '#4D4D4D' }}>
-                  04/09/2022
+                  {f.createdDate}
                 </Text>
               </Box>
               <Box
@@ -58,7 +89,9 @@ function DashboardFunds() {
                 <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '8px', color: '#4D4D4D' }}>
                   Last Updated:
                 </Text>
-                <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '10px', color: '#4D4D4D' }}>2d ago</Text>
+                <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '10px', color: '#4D4D4D' }}>
+                  {f.lastUpdated}
+                </Text>
               </Box>
             </Box>
             <Box sx={{ height: '2px', backgroundColor: '#D9D9D9', width: '100%' }}></Box>
@@ -68,12 +101,14 @@ function DashboardFunds() {
                   <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}>
                     Investors:
                   </Text>
-                  <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}>20</Text>
+                  <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}>
+                    {f.investors}
+                  </Text>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                   <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}>TVL:</Text>
                   <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}>
-                    $258,203
+                    {f.tvl}
                   </Text>
                 </Box>
               </Box>
@@ -82,12 +117,14 @@ function DashboardFunds() {
                   <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}>
                     Stake:
                   </Text>
-                  <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}>20</Text>
+                  <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}>
+                    {f.stake}
+                  </Text>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
                   <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}>APY:</Text>
                   <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}>
-                    $258,203
+                    {f.apy}
                   </Text>
                 </Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
@@ -95,7 +132,7 @@ function DashboardFunds() {
                     Yield:
                   </Text>
                   <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}>
-                    $258,203
+                    {f.yield}
                   </Text>
                 </Box>
               </Box>

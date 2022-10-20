@@ -55,44 +55,38 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
   }, [value])
 
   return (
-    <Box
-      sx={{
-        display: 'flex',
-        flexDirection: ['column', 'row', 'row'],
-        gap: '0.3rem',
-        marginRight: '3rem',
-        width: '100%',
-      }}
-    >
-      <Select
-        instanceId={`composition-${1}`}
-        classNamePrefix="select"
-        name="color"
-        isSearchable={false}
-        options={availableProtocols}
-        placeholder=""
-        value={value.composition ? value.composition : 'Select Protocol'}
-        onChange={handleProtocolSelect}
-        components={{
-          Option: CustomOption,
-          ValueContainer: CustomValue,
-        }}
-        styles={{
-          control: () => ({
-            height: 60,
-            width: isTabletOrMobile ? '100%' : 176,
-            borderRadius: 8,
-            backgroundColor: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            paddingRight: 16,
-          }),
-          indicatorSeparator: () => ({
-            display: 'none',
-          }),
-        }}
-      />
-      {/* <Box
+    <>
+      <td>
+        <Select
+          instanceId={`composition-${1}`}
+          classNamePrefix="select"
+          name="color"
+          isSearchable={false}
+          options={availableProtocols}
+          placeholder=""
+          value={value.composition ? value.composition : 'Select Protocol'}
+          onChange={handleProtocolSelect}
+          components={{
+            Option: CustomOption,
+            ValueContainer: CustomValue,
+          }}
+          styles={{
+            control: () => ({
+              height: 60,
+              width: isTabletOrMobile ? '100%' : 180,
+              borderRadius: 4,
+              border: '1px solid #8BCCEE',
+              backgroundColor: '#F2F9FD',
+              display: 'flex',
+              alignItems: 'center',
+              paddingRight: 16,
+            }),
+            indicatorSeparator: () => ({
+              display: 'none',
+            }),
+          }}
+        />
+        {/* <Box
         sx={{
           display: 'none',
           position: 'absolute',
@@ -106,35 +100,39 @@ const CompositionSelect = ({ value, onProtocolSelect, onPoolSelect }) => {
           },
         }}
       /> */}
-      <Select
-        instanceId={`composition-${1}`}
-        classNamePrefix="select"
-        name="color"
-        isSearchable={false}
-        options={protocol ? protocol.pools : []}
-        placeholder=""
-        value={pool}
-        onChange={handlePoolSelect}
-        components={{
-          Option: CustomOption,
-          ValueContainer: CustomValue,
-        }}
-        styles={{
-          control: () => ({
-            height: 60,
-            width: isTabletOrMobile ? '100%' : 200,
-            borderRadius: 8,
-            backgroundColor: '#fff',
-            display: 'flex',
-            alignItems: 'center',
-            paddingRight: 16,
-          }),
-          indicatorSeparator: () => ({
-            display: 'none',
-          }),
-        }}
-      />
-    </Box>
+      </td>
+      <td>
+        <Select
+          instanceId={`composition-${1}`}
+          classNamePrefix="select"
+          name="color"
+          isSearchable={false}
+          options={protocol ? protocol.pools : []}
+          placeholder=""
+          value={pool}
+          onChange={handlePoolSelect}
+          components={{
+            Option: CustomOption,
+            ValueContainer: CustomValue,
+          }}
+          styles={{
+            control: () => ({
+              height: 60,
+              width: isTabletOrMobile ? '100%' : 200,
+              borderRadius: 4,
+              border: '1px solid #8BCCEE',
+              backgroundColor: '#F2F9FD',
+              display: 'flex',
+              alignItems: 'center',
+              paddingRight: 16,
+            }),
+            indicatorSeparator: () => ({
+              display: 'none',
+            }),
+          }}
+        />
+      </td>
+    </>
   )
 }
 

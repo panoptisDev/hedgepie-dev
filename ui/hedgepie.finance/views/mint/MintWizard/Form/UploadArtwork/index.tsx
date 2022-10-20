@@ -29,24 +29,37 @@ const UploadArtwork = () => {
     <Box
       sx={{
         padding: 3,
-        backgroundColor: '#E5F6FF',
         borderRadius: 8,
         [`@media screen and (min-width: 500px)`]: {
           padding: 24,
         },
       }}
     >
-      <Box
-        sx={{
-          fontSize: 16,
-          fontWeight: 700,
-          color: '#1380B9',
-          [`@media screen and (min-width: 500px)`]: {
-            fontSize: 24,
-          },
-        }}
-      >
-        Upload Artwork
+      <Box sx={{ display: 'flex', flexDirection: 'row', gap: '5px', alignItems: 'center' }}>
+        <Box
+          sx={{
+            fontSize: 16,
+            fontWeight: 700,
+            color: '#14114B',
+            [`@media screen and (min-width: 500px)`]: {
+              fontSize: 24,
+            },
+          }}
+        >
+          Upload Artwork
+        </Box>
+        <Box
+          sx={{
+            fontSize: 12,
+            fontWeight: 700,
+            color: '#14114B',
+            [`@media screen and (min-width: 500px)`]: {
+              fontSize: 18,
+            },
+          }}
+        >
+          (Optional)
+        </Box>
       </Box>
       <Box
         sx={{
@@ -60,20 +73,7 @@ const UploadArtwork = () => {
       >
         Associate an illustration or file?
       </Box>
-      <Box
-        sx={{
-          fontSize: 12,
-          mt: 22,
-          color: '#8E8DA0',
-          [`@media screen and (min-width: 500px)`]: {
-            fontSize: 16,
-          },
-        }}
-      >
-        It is a long established fact that a reader will be distracted by the readable content of a page when looking at
-        its layout. The point of using Lorem Ipsum is that it has a more-or-less normal distribution of letters, as
-        opposed to using 'Content here, content here', making it look like readable English.
-      </Box>
+
       <Box mt={24}>
         <Box as="label">
           <Input
@@ -96,17 +96,11 @@ const UploadArtwork = () => {
               display: 'flex',
               alignItems: 'center',
               justifyContent: 'center',
-              backgroundColor: '#1799DE',
+              background: 'linear-gradient(333.11deg, #1799DE -34.19%, #E98EB3 87.94%)',
               color: '#fff',
               borderRadius: 8,
               transition: 'all .2s',
               cursor: 'pointer',
-              '&:hover': {
-                backgroundColor: '#16103AEE',
-              },
-              '&:active': {
-                backgroundColor: '#16103A',
-              },
             }}
           >
             UPLOAD

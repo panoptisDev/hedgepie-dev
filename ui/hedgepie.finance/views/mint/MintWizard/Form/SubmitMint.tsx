@@ -8,9 +8,10 @@ import { useYBNFTMint } from 'hooks/useYBNFTMint'
 import { useModal } from 'widgets/Modal'
 import MintTransactionModal from './MintTransactionModal'
 import { useAdapterManager } from 'hooks/useAdapterManager'
+import { ArrowLeft } from 'react-feather'
 
 const SubmitMint = () => {
-  const { formData, strategies } = React.useContext(MintWizardContext)
+  const { formData, strategies, wizard, setWizard } = React.useContext(MintWizardContext)
   const { account } = useWeb3React()
   const { onYBNFTMint } = useYBNFTMint()
   const [disabled, setDisabled] = useState(false)
@@ -120,21 +121,53 @@ const SubmitMint = () => {
     setDisabled(false)
   }
 
+  const handleBack = () => {
+    setWizard({
+      ...wizard,
+      order: 2,
+    })
+  }
+
   return (
-    <Box
-      sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}
-    >
+    <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center', gap: '0.5rem' }}>
       <Button
         variant="primary"
         sx={{
           height: 64,
-          width: '100%',
-          border: '1px solid #1799DE',
+          border: '1px solid #BAB9C5',
           borderRadius: 6,
           padding: 0,
           cursor: 'pointer',
           transition: 'all .2s',
           fontSize: '20px',
+          display: 'flex',
+          flexDirection: 'row',
+          gap: '10px',
+          alignItems: 'center',
+          justifyContent: 'center',
+          width: '100%',
+          backgroundColor: '#FFFFFF',
+          color: '#1A1A1A',
+          fontWeight: '600',
+        }}
+        onClick={handleBack}
+      >
+        <ArrowLeft />
+        Back
+      </Button>
+
+      <Button
+        variant="primary"
+        sx={{
+          height: 64,
+          width: '100%',
+          background: 'linear-gradient(333.11deg, #1799DE -34.19%, #E98EB3 87.94%)',
+          borderRadius: 6,
+          padding: 0,
+          cursor: 'pointer',
+          transition: 'all .2s',
+          fontSize: '20px',
+          fontWeight: '600',
         }}
         onClick={handleMint}
         disabled={disabled}

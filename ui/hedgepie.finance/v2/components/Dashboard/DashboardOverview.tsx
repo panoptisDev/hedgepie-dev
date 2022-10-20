@@ -1,11 +1,19 @@
 import moment from 'moment'
-import React from 'react'
+import { useRouter } from 'next/router'
+import React, { useState } from 'react'
 import { ArrowRight } from 'react-feather'
 import { Box, Text } from 'theme-ui'
 import DashboardInvestmentChart from './DashboardInvestmentChart'
 
 function DashboardOverview() {
+  const router = useRouter()
   const date = moment().format('DD/MM/yyyy')
+
+  const [totalInvested, setTotalInvested] = useState('$5,987.20')
+  const [totalInvestedUSD, setTotalInvestedUSD] = useState('$5,987.20')
+  const [totalYield, setTotalYield] = useState('$0')
+  const [unclaimedYield, setUnclaimedYield] = useState('$0')
+
   return (
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Title Section */}
@@ -36,8 +44,12 @@ function DashboardOverview() {
               Total Invested
             </Text>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'center' }}>
-              <Text sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: '600', color: '#FFFFFF' }}>$5,987.20</Text>
-              <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '400', color: '#8BCCEE' }}>$5,987.20</Text>
+              <Text sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: '600', color: '#FFFFFF' }}>
+                {totalInvested}
+              </Text>
+              <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '400', color: '#8BCCEE' }}>
+                {totalInvestedUSD}
+              </Text>
             </Box>
           </Box>
           <Box
@@ -56,7 +68,9 @@ function DashboardOverview() {
           >
             <Text sx={{ fontFamily: 'Inter', fontSize: '12px', fontWeight: '600', color: '#4F4F4F' }}>Total Yield</Text>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'center' }}>
-              <Text sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: '600', color: '#000000' }}>$0</Text>
+              <Text sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: '600', color: '#000000' }}>
+                {totalYield}
+              </Text>
             </Box>
           </Box>
           <Box
@@ -91,6 +105,9 @@ function DashboardOverview() {
               border: '2px solid #EFA3C2',
               alignItems: 'center',
               cursor: 'pointer',
+            }}
+            onClick={() => {
+              router.push('/nft-leaderboard')
             }}
           >
             <Text sx={{ fontFamily: 'Inter', fontSize: '13px', fontWeight: '600', color: '#1A1A1A' }}>Explore</Text>

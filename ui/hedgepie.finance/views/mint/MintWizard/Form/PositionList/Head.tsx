@@ -1,64 +1,17 @@
 import React from 'react'
-import { Box } from 'theme-ui'
+import { Box, Text } from 'theme-ui'
 
 const Head = () => {
   return (
     <Box
       sx={{
         display: 'flex',
-        flexDirection: ['column', 'column', 'row'],
+        flexDirection: 'row',
+        padding: '1rem',
         gap: 1,
       }}
     >
-      <Box sx={{ flex: '1 1 0' }}>
-        <Box
-          sx={{
-            fontSize: 24,
-            fontWeight: 700,
-            color: '#1380B9',
-          }}
-        >
-          Composition
-        </Box>
-        <Box
-          sx={{
-            fontSize: 12,
-            fontWeight: 500,
-            color: '#8988A5',
-            [`@media screen and (min-width: 500px)`]: {
-              fontSize: 24,
-            },
-          }}
-        >
-          Stake positions
-        </Box>
-      </Box>
-      <Box sx={{ flex: '1 1 0', marginLeft: [0, 0, '20px'] }}>
-        <Box
-          sx={{
-            fontSize: 24,
-            fontWeight: 700,
-            color: '#1380B9',
-            [`@media screen and (min-width: 500px)`]: {
-              fontSize: 24,
-            },
-          }}
-        >
-          Weight
-        </Box>
-        <Box
-          sx={{
-            fontSize: 12,
-            fontWeight: 500,
-            color: '#8988A5',
-            [`@media screen and (min-width: 500px)`]: {
-              fontSize: 24,
-            },
-          }}
-        >
-          Percentage allocation
-        </Box>
-      </Box>
+      <Text sx={{ color: '#14114B', fontSize: '24px', fontWeight: '600' }}>Strategy Composition</Text>
     </Box>
   )
 }

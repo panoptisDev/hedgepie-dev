@@ -56,32 +56,42 @@ const PositionList = () => {
     <Box
       sx={{
         padding: 3,
-        backgroundColor: '#E5F6FF',
+        backgroundColor: '#FFFFFF',
+        border: '2px solid #BAB9C5',
         borderRadius: 8,
+        marginRight: '-10px',
         [`@media screen and (min-width: 500px)`]: {
           padding: 20,
         },
       }}
     >
       <Head />
-      <Box
-        sx={{
-          mt: 4,
-          minHeight: 300,
-        }}
+      <table
+        style={{ width: '100%', marginTop: '20px', marginLeft: '10px', borderSpacing: '20px', marginRight: '10px' }}
       >
-        {formData.positions.map((d, i) => (
-          <Box key={i} mt={3}>
-            <Position
-              data={d}
-              onUpdate={(composition) => handleUpdate(i, composition)}
-              onLock={() => handleLock(i)}
-              onDelete={() => handleDelete(i)}
-              allocated={formData.allocated}
-            />
-          </Box>
-        ))}
-      </Box>
+        <thead>
+          <tr style={{ color: '#1A1A1A', fontWeight: '600', fontSize: '20px' }}>
+            <td>Protocol</td>
+            <td>Pool</td>
+            <td>Weight</td>
+            <td></td>
+          </tr>
+        </thead>
+        <tbody>
+          {formData.positions.map((d, i) => {
+            return (
+              <Position
+                data={d}
+                onUpdate={(composition) => handleUpdate(i, composition)}
+                onLock={() => handleLock(i)}
+                onDelete={() => handleDelete(i)}
+                allocated={formData.allocated}
+              />
+            )
+          })}
+        </tbody>
+      </table>
+
       <Box mt={4}>
         <Button
           variant="info"
@@ -93,27 +103,32 @@ const PositionList = () => {
           <div style={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
             <div
               style={{
-                fontWeight: 600,
-                fontSize: '16px',
-                lineHeight: '14px',
-                textAlign: 'center',
-                textTransform: 'uppercase',
-                letterSpacing: '1px',
-                color: '#1380B9',
-              }}
-            >
-              ADD POSITION
-            </div>
-            <div
-              style={{
                 fontSize: '32px',
                 backgroundColor: '#D1EBF8',
                 paddingRight: '5px',
                 paddingLeft: '5px',
-                borderRadius: 4,
+                borderRadius: 60,
+                display: 'flex',
+                justifyContent: 'center',
+                alignItems: 'center',
+                width: '30px',
+                height: '30px',
               }}
             >
               +
+            </div>
+            <div
+              style={{
+                fontWeight: 600,
+                fontSize: '16px',
+                lineHeight: '14px',
+                textAlign: 'center',
+                letterSpacing: '1px',
+                color: '#000',
+                fontFamily: 'Inter',
+              }}
+            >
+              Add position
             </div>
           </div>
         </Button>
