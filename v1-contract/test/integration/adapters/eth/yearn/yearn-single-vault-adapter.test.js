@@ -147,9 +147,8 @@ describe("YearnSingleAdapterEth Integration Test", function () {
         const adapterInfos = await this.aAdapter.adapterInfos(1);
         expect(BigNumber.from(adapterInfos.totalStaked)).to.eq(BigNumber.from(aliceAdapterInfos.amount));
   
-        const aliceWithdrable = await this.aAdapter.withdrawalAmount(this.aliceAddr, 1);
         const afterRepay = await this.repayToken.balanceOf(this.aAdapter.address);
-        expect(BigNumber.from(aliceWithdrable)).to.eq(BigNumber.from(afterRepay).sub(BigNumber.from(beforeRepay)));
+        expect(BigNumber.from(aliceAdapterInfos.userShares)).to.eq(BigNumber.from(afterRepay).sub(BigNumber.from(beforeRepay)));
     });
   
     it("(4)deposit should success for Bob", async function () {
@@ -190,9 +189,8 @@ describe("YearnSingleAdapterEth Integration Test", function () {
           BigNumber.from(bobAdapterInfos.amount)
         );
 
-        const bobWithdrable = await this.aAdapter.withdrawalAmount(this.bobAddr, 1);
         const afterRepay = await this.repayToken.balanceOf(this.aAdapter.address);
-        expect(BigNumber.from(bobWithdrable)).to.eq(BigNumber.from(afterRepay).sub(BigNumber.from(beforeRepay)));
+        expect(BigNumber.from(bobAdapterInfos.userShares)).to.eq(BigNumber.from(afterRepay).sub(BigNumber.from(beforeRepay)));
     }).timeout(50000000);
     
     it("(5) test TVL & participants", async function () {
