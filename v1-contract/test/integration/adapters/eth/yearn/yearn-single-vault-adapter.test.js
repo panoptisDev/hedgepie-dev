@@ -38,8 +38,6 @@ describe("YearnSingleAdapterEth Integration Test", function () {
     this.bobAddr = bob.address;
     this.aliceAddr = alice.address;
     this.treasuryAddr = treasury.address;
-    this.accTokenPerShare = BigNumber.from(0);
-    this.accTokenPerShare1 = BigNumber.from(0);
 
     // Deploy Pancakeswap LP Adapter contract
     const Lib = await ethers.getContractFactory("HedgepieLibraryEth");
@@ -232,7 +230,6 @@ describe("YearnSingleAdapterEth Integration Test", function () {
       );
 
       const afterETH = await ethers.provider.getBalance(this.aliceAddr);
-
       expect(BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))).to.eq(true);
 
       const aliceInfo = (await this.aAdapter.userAdapterInfos(this.aliceAddr, 1)).invested;
@@ -262,7 +259,6 @@ describe("YearnSingleAdapterEth Integration Test", function () {
       );
 
       const afterETH = await ethers.provider.getBalance(this.bobAddr);
-
       expect(BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))).to.eq(true);
 
       const bobInfo = (await this.aAdapter.userAdapterInfos(this.bobAddr, 1)).invested;

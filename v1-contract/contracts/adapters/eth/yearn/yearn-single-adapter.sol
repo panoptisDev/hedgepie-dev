@@ -72,25 +72,14 @@ contract YearnSingleAdapter is BaseAdapterEth {
         repayAmt = IBEP20(repayToken).balanceOf(address(this)) - repayAmt;
 
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
-        AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         unchecked {
-            // update withdrawalAmount
-            withdrawalAmount[_account][_tokenId] += repayAmt;
-
             // update adapter info
-            adapterInfo.totalStaked += amountOut;
-            if (repayAmt != 0) {
-                adapterInfo.accTokenPerShare +=
-                    (repayAmt * 1e12) /
-                    adapterInfo.totalStaked;
-            }
+            adapterInfos[_tokenId].totalStaked += amountOut;
 
             // update user info
             userInfo.amount += amountOut;
             userInfo.invested += _amountIn;
-            if (userInfo.amount == 0) {
-                userInfo.userShares = adapterInfo.accTokenPerShare;
-            }
+            userInfo.userShares += repayAmt;
         }
 
         address adapterInfoEthAddr = IHedgepieInvestorEth(investor)
@@ -125,7 +114,7 @@ contract YearnSingleAdapter is BaseAdapterEth {
 
         amountOut = IBEP20(stakingToken).balanceOf(address(this));
 
-        IStrategy(strategy).withdraw(withdrawalAmount[_account][_tokenId]);
+        IStrategy(strategy).withdraw(userInfo.userShares);
         
         amountOut = IBEP20(stakingToken).balanceOf(address(this)) - amountOut;
         amountOut = HedgepieLibraryEth.swapforEth(
@@ -135,6 +124,27 @@ contract YearnSingleAdapter is BaseAdapterEth {
             swapRouter,
             weth
         );
+
+        if (amountOut != 0) {
+            uint256 taxAmount;
+            bool success;
+
+            if(userInfo.invested <= amountOut) {
+                taxAmount = ((amountOut - userInfo.invested) *
+                    IYBNFT(IHedgepieInvestorEth(investor).ybnft()).performanceFee(
+                        _tokenId
+                    )) / 1e4;
+                (success, ) = payable(
+                    IHedgepieInvestorEth(investor).treasury()
+                ).call{value: taxAmount}("");
+                require(success, "Failed to send ether to Treasury");
+            }
+
+            (success, ) = payable(_account).call{value: amountOut - taxAmount}(
+                ""
+            );
+            require(success, "Failed to send ether");
+        }
 
         address adapterInfoEthAddr = IHedgepieInvestorEth(investor)
             .adapterInfo();
@@ -154,39 +164,14 @@ contract YearnSingleAdapter is BaseAdapterEth {
             false
         );
 
-        uint256 userInvest = userInfo.invested;
         unchecked {
-            // update withdrawalAmount
-            withdrawalAmount[_account][_tokenId] = 0;
-
+            // update adapter info
+            adapterInfos[_tokenId].totalStaked -= userInfo.amount;
+            
             // update user info
             userInfo.amount = 0;
             userInfo.invested = 0;
             userInfo.userShares = 0;
-
-            // update adapter info
-            adapterInfos[_tokenId].totalStaked -= userInfo.amount;
-        }
-
-        if (amountOut != 0) {
-            uint256 taxAmount;
-            bool success;
-
-            if(userInvest <= amountOut) {
-                taxAmount = ((amountOut - userInvest) *
-                    IYBNFT(IHedgepieInvestorEth(investor).ybnft()).performanceFee(
-                        _tokenId
-                    )) / 1e4;
-                (success, ) = payable(
-                    IHedgepieInvestorEth(investor).treasury()
-                ).call{value: taxAmount}("");
-                require(success, "Failed to send ether to Treasury");
-            }
-
-            (success, ) = payable(_account).call{value: amountOut - taxAmount}(
-                ""
-            );
-            require(success, "Failed to send ether");
         }
     }
 
