@@ -63,7 +63,7 @@ contract HedgepieAdapterManagerMatic is Ownable {
         onlyActiveAdapter(_adapter)
         returns (address adapterStrat)
     {
-        adapterStrat = IAdapter(_adapter).strategy();
+        adapterStrat = IAdapterMatic(_adapter).strategy();
     }
 
     /**
@@ -83,7 +83,7 @@ contract HedgepieAdapterManagerMatic is Ownable {
         )
     {
         require(_amount > 0, "Amount can not be 0");
-        return IAdapter(_adapter).getInvestCallData(_amount);
+        return IAdapterMatic(_adapter).getInvestCallData(_amount);
     }
 
     /**
@@ -103,7 +103,7 @@ contract HedgepieAdapterManagerMatic is Ownable {
         )
     {
         require(_amount > 0, "Amount can not be 0");
-        return IAdapter(_adapter).getDevestCallData(_amount);
+        return IAdapterMatic(_adapter).getDevestCallData(_amount);
     }
 
     /**
@@ -121,7 +121,7 @@ contract HedgepieAdapterManagerMatic is Ownable {
             bytes memory data
         )
     {
-        return IAdapter(_adapter).getRewardCallData();
+        return IAdapterMatic(_adapter).getRewardCallData();
     }
 
     function getAddLiqCallData(address _adapter, uint256 _amount)
@@ -136,7 +136,7 @@ contract HedgepieAdapterManagerMatic is Ownable {
         )
     {
         require(_amount > 0, "Amount can not be 0");
-        return IAdapter(_adapter).getAddLiqCallData(_amount);
+        return IAdapterMatic(_adapter).getAddLiqCallData(_amount);
     }
 
     function getRemoveLiqCallData(address _adapter, uint256 _amount)
@@ -151,7 +151,7 @@ contract HedgepieAdapterManagerMatic is Ownable {
         )
     {
         require(_amount > 0, "Amount can not be 0");
-        return IAdapter(_adapter).getRemoveLiqCallData(_amount);
+        return IAdapterMatic(_adapter).getRemoveLiqCallData(_amount);
     }
 
     // ===== Owner functions =====
@@ -166,8 +166,8 @@ contract HedgepieAdapterManagerMatic is Ownable {
         adapterInfo.push(
             AdapterInfo({
                 addr: _adapter,
-                name: IAdapter(_adapter).name(),
-                stakingToken: IAdapter(_adapter).stakingToken(),
+                name: IAdapterMatic(_adapter).name(),
+                stakingToken: IAdapterMatic(_adapter).stakingToken(),
                 status: true
             })
         );

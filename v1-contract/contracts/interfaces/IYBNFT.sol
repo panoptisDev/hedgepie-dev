@@ -17,7 +17,7 @@ interface IYBNFT {
         view
         returns (Adapter[] memory);
 
-    function exists(uint256) external returns (bool);
+    function exists(uint256) external view returns (bool);
 
     function mint(
         uint256[] calldata adapterAllocations,

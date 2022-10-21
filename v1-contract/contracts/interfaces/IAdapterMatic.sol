@@ -3,7 +3,7 @@ pragma solidity ^0.8.4;
 
 import "./IWrap.sol";
 
-interface IAdapter {
+interface IAdapterMatic {
     function isVault() external view returns (bool);
 
     function noDeposit() external view returns (bool);

@@ -156,7 +156,7 @@ describe("UniswapLPAdapter Integration Test", function () {
       const aliceAdapterInfos = await this.investor.userAdapterInfos(this.aliceAddr, 1, this.aAdapter.address);
       const beforeAdapterInfos = await this.investor.adapterInfos(1, this.aAdapter.address);
 
-      const depositAmount = ethers.utils.parseEther("200");
+      const depositAmount = ethers.utils.parseEther("100");
       await expect(
         this.investor.connect(this.bob).depositMATIC(this.bobAddr, 1, depositAmount, {
           value: depositAmount,
@@ -164,6 +164,14 @@ describe("UniswapLPAdapter Integration Test", function () {
       )
         .to.emit(this.investor, "DepositMATIC")
         .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
+
+        await expect(
+          this.investor.connect(this.bob).depositMATIC(this.bobAddr, 1, depositAmount, {
+            value: depositAmount,
+          })
+        )
+          .to.emit(this.investor, "DepositMATIC")
+          .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
 
       const bobInfo = await this.investor.userInfo(this.bobAddr, this.ybNft.address, 1);
       const bobDeposit = Number(bobInfo) / Math.pow(10, 18);
@@ -210,6 +218,17 @@ describe("UniswapLPAdapter Integration Test", function () {
       const tomWithdrable = await this.aAdapter.getWithdrawalAmount(this.tomAddr, 1);
       expect(BigNumber.from(tomWithdrable)).to.eq(BigNumber.from(tomAdapterInfos.amount));
     }).timeout(50000000);
+
+    it("(6) test TVL & participants", async function () {
+      const nftInfo = await this.investor.nftInfo(this.ybNft.address, 1);
+
+      expect(
+        Number(ethers.utils.formatEther(BigNumber.from(nftInfo.tvl).toString()))
+      ).to.be.eq(330) &&
+        expect(BigNumber.from(nftInfo.totalParticipant).toString()).to.be.eq(
+          "3"
+        );
+    });
   });
 
   describe("withdrawMATIC() function test", function () {
@@ -228,8 +247,7 @@ describe("UniswapLPAdapter Integration Test", function () {
       );
 
       const afterMATIC = await ethers.provider.getBalance(this.aliceAddr);
-
-      expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(false);
+      expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(true);
 
       const aliceInfo = await this.investor.userInfo(this.aliceAddr, this.ybNft.address, 1);
       expect(aliceInfo).to.eq(BigNumber.from(0));
@@ -255,8 +273,7 @@ describe("UniswapLPAdapter Integration Test", function () {
       );
 
       const afterMATIC = await ethers.provider.getBalance(this.bobAddr);
-
-      expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(false);
+      expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(true);
 
       const bobInfo = await this.investor.userInfo(this.bobAddr, this.ybNft.address, 1);
       expect(bobInfo).to.eq(BigNumber.from(0));
@@ -282,8 +299,7 @@ describe("UniswapLPAdapter Integration Test", function () {
       );
 
       const afterMATIC = await ethers.provider.getBalance(this.tomAddr);
-
-      expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(false);
+      expect(BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))).to.eq(true);
 
       const tomInfo = await this.investor.userInfo(this.tomAddr, this.ybNft.address, 1);
       expect(tomInfo).to.eq(BigNumber.from(0));
