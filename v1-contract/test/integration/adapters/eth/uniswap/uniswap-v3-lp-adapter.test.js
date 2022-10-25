@@ -7,7 +7,7 @@ const forkNetwork = async () => {
     params: [
       {
         forking: {
-          jsonRpcUrl: "https://1rpc.io/eth",
+          jsonRpcUrl: "https://rpc.ankr.com/eth",
         },
       },
     ],
