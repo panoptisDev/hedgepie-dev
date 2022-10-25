@@ -257,8 +257,8 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
         tokens[1] = IPancakePair(stakingToken).token1();
 
         // swap eth to underlying tokens and approve strategy
-        uint256[5] memory tokenAmount;
-        tokenAmount[4] = address(this).balance - _amountIn;
+        uint256[4] memory tokenAmount;
+        uint256 ethBalance = address(this).balance - _amountIn;
 
         tokenAmount[0] = _swapAndApprove(tokens[0], _amountIn / 2);
         tokenAmount[1] = _swapAndApprove(tokens[1], _amountIn / 2);
@@ -311,10 +311,10 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
         _removeRemain(tokens[0], tokenAmount[0] - tokenAmount[2]);
         _removeRemain(tokens[1], tokenAmount[1] - tokenAmount[3]);
 
-        ethAmount = _amountIn + tokenAmount[4] - address(this).balance;
-        if(address(this).balance > tokenAmount[4]) {
+        ethAmount = _amountIn + ethBalance - address(this).balance;
+        if(address(this).balance > ethBalance) {
             (bool success, ) = payable(_account).call{
-                value: address(this).balance - tokenAmount[4]
+                value: address(this).balance - ethBalance
             }("");
             require(success, "Failed to send remained ETH");
         }
