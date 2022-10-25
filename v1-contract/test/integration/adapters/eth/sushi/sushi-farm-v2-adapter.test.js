@@ -14,7 +14,7 @@ const forkNetwork = async () => {
     params: [
       {
         forking: {
-          jsonRpcUrl: "https://mainnet.infura.io/v3/ab732fbc54a3468fb073281a5ea6fc77",
+          jsonRpcUrl: "https://rpc.ankr.com/eth",
         },
       },
     ],
