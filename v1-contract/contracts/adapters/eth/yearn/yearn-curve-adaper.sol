@@ -341,7 +341,7 @@ contract YearnCurveAdapter is BaseAdapterEth {
             IStrategy(strategy).totalAssets() /
             IStrategy(strategy).totalSupply());
 
-        if (_vAmount < userInfo.amount) return 0;
+        if (_vAmount <= userInfo.amount) return 0;
 
         reward = IPancakeRouter(swapRouter).getAmountsOut(
             _vAmount - userInfo.amount,
