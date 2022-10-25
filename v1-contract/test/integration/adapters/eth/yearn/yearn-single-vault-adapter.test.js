@@ -198,6 +198,9 @@ describe("YearnSingleAdapterEth Integration Test", function () {
 
       expect(Number(ethers.utils.formatEther(BigNumber.from(nftInfo.tvl).toString()))).to.be.eq(30) &&
         expect(BigNumber.from(nftInfo.participant).toString()).to.be.eq("2");
+
+      const pendingInfo = await this.aAdapter.pendingReward(1, this.alice.address);
+      expect(pendingInfo).to.gte(0);
     });
   });
 

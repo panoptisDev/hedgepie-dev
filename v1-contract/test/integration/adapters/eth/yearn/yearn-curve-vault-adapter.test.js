@@ -195,6 +195,9 @@ describe("YearnCurveAdapterEth Integration Test", function () {
 
       expect(Number(ethers.utils.formatEther(BigNumber.from(nftInfo.tvl).toString()))).to.be.eq(30) &&
         expect(BigNumber.from(nftInfo.participant).toString()).to.be.eq("2");
+
+      const pendingInfo = await this.aAdapter.pendingReward(1, this.alice.address);
+      expect(pendingInfo).to.gte(0);
     });
   });
 
@@ -219,14 +222,10 @@ describe("YearnCurveAdapterEth Integration Test", function () {
       // withdraw from nftId: 1
       const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
 
-      console.log(await ethers.provider.getBalance(this.aAdapter.address));
-
       await expect(this.investor.connect(this.alice).withdrawETH(1, { gasPrice: 21e9 })).to.emit(
         this.investor,
         "WithdrawETH"
       );
-
-      console.log(await ethers.provider.getBalance(this.aAdapter.address));
 
       const afterETH = await ethers.provider.getBalance(this.aliceAddr);
       expect(BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))).to.eq(true);
