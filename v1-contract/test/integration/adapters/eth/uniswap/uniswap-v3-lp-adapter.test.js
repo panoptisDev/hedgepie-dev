@@ -157,6 +157,7 @@ describe("UniswapV3LPAdapter Integration Test", function () {
 
     it("(3)deposit should success for Alice", async function () {
       const depositAmount = ethers.utils.parseEther("10");
+      const beforeETH = await ethers.provider.getBalance(this.adapter.address)
       await expect(
         this.investor.connect(this.alice).depositETH(1, depositAmount, {
           value: depositAmount,
@@ -167,16 +168,21 @@ describe("UniswapV3LPAdapter Integration Test", function () {
 
       // compare user info
       const aliceInfo = await this.adapter.userAdapterInfos(this.aliceAddr, 1);
-      expect(aliceInfo.invested).to.eq(depositAmount);
+      expect(aliceInfo.invested).to.lte(depositAmount);
       expect(aliceInfo.amount).to.be.gt(0);
 
       // compare adapter info
       const adapterInfos = await this.adapter.adapterInfos(1);
       expect(adapterInfos.totalStaked).to.eq(aliceInfo.amount);
+
+      // compare ETH in adapter contract
+      const afterETH = await ethers.provider.getBalance(this.adapter.address);
+      expect(afterETH).to.eq(beforeETH);
     });
 
     it("(4)deposit should success for Bob", async function () {
       const adapterInfoBefore = await this.adapter.adapterInfos(1);
+      const beforeETH = await ethers.provider.getBalance(this.adapter.address);
       const depositAmount = ethers.utils.parseEther("10");
       await this.investor.connect(this.bob).depositETH(1, depositAmount, {
         value: depositAmount,
@@ -187,7 +193,7 @@ describe("UniswapV3LPAdapter Integration Test", function () {
 
       // compare user info
       const bobInfo = await this.adapter.userAdapterInfos(this.bobAddr, 1);
-      expect(bobInfo.invested).to.eq(ethers.utils.parseEther("20"));
+      expect(bobInfo.invested).to.lte(ethers.utils.parseEther("20"));
       expect(bobInfo.amount).to.be.gt(0);
 
       // compare adapter info
@@ -195,10 +201,15 @@ describe("UniswapV3LPAdapter Integration Test", function () {
       expect(adapterInfoAfter.totalStaked).to.be.gt(
         adapterInfoBefore.totalStaked
       );
+      
+      // compare ETH in adapter contract
+      const afterETH = await ethers.provider.getBalance(this.adapter.address);
+      expect(afterETH).to.eq(beforeETH);
     }).timeout(50000000);
 
     it("(5)deposit should success for Tom", async function () {
       const adapterInfoBefore = await this.adapter.adapterInfos(1);
+      const beforeETH = await ethers.provider.getBalance(this.adapter.address);
       const depositAmount = ethers.utils.parseEther("30");
       await this.investor.connect(this.tom).depositETH(1, depositAmount, {
         value: depositAmount,
@@ -206,7 +217,7 @@ describe("UniswapV3LPAdapter Integration Test", function () {
 
       // compare user info
       const tomInfo = await this.adapter.userAdapterInfos(this.tomAddr, 1);
-      expect(tomInfo.invested).to.eq(ethers.utils.parseEther("30"));
+      expect(tomInfo.invested).to.lte(depositAmount);
       expect(tomInfo.amount).to.be.gt(0);
 
       // compare adapter info
@@ -214,11 +225,15 @@ describe("UniswapV3LPAdapter Integration Test", function () {
       expect(adapterInfoAfter.totalStaked).to.be.gt(
         adapterInfoBefore.totalStaked
       );
+
+      // compare ETH in adapter contract
+      const afterETH = await ethers.provider.getBalance(this.adapter.address);
+      expect(afterETH).to.eq(beforeETH);
     }).timeout(50000000);
 
     it("(6)test TVL & participants", async function () {
       const nftInfo = await this.adapterInfo.adapterInfo(1);
-      expect(nftInfo.tvl).to.be.eq(ethers.utils.parseEther("60"));
+      expect(nftInfo.tvl).to.be.lte(ethers.utils.parseEther("60"));
       expect(nftInfo.participant).to.be.eq("3");
     });
   });
@@ -233,6 +248,7 @@ describe("UniswapV3LPAdapter Integration Test", function () {
 
     it("(2)should receive ETH successfully after withdraw function for Alice", async function () {
       const ethBalBefore = await ethers.provider.getBalance(this.aliceAddr);
+      const beforeETH = await ethers.provider.getBalance(this.adapter.address);
       await expect(
         this.investor.connect(this.alice).withdrawETH(1, { gasPrice: 21e9 })
       ).to.emit(this.investor, "WithdrawETH");
@@ -247,10 +263,15 @@ describe("UniswapV3LPAdapter Integration Test", function () {
         1
       );
       expect(aliceAdapterInfo.invested).to.eq("0");
+
+      // compare ETH in adapter contract
+      const afterETH = await ethers.provider.getBalance(this.adapter.address);
+      expect(afterETH).to.eq(beforeETH);
     }).timeout(50000000);
 
     it("(3)should receive ETH successfully after withdraw function for Bob", async function () {
       const ethBalBefore = await ethers.provider.getBalance(this.bobAddr);
+      const beforeETH = await ethers.provider.getBalance(this.adapter.address);
       await expect(this.investor.connect(this.bob).withdrawETH(1)).to.emit(
         this.investor,
         "WithdrawETH"
@@ -266,10 +287,15 @@ describe("UniswapV3LPAdapter Integration Test", function () {
         1
       );
       expect(bobAdapterInfo.invested).to.eq("0");
+
+      // compare ETH in adapter contract
+      const afterETH = await ethers.provider.getBalance(this.adapter.address);
+      expect(afterETH).to.eq(beforeETH);
     }).timeout(50000000);
 
     it("(4)should receive ETH successfully after withdraw function for Tom", async function () {
       const ethBalBefore = await ethers.provider.getBalance(this.tomAddr);
+      const beforeETH = await ethers.provider.getBalance(this.adapter.address);
       await expect(this.investor.connect(this.tom).withdrawETH(1)).to.emit(
         this.investor,
         "WithdrawETH"
@@ -285,6 +311,10 @@ describe("UniswapV3LPAdapter Integration Test", function () {
         1
       );
       expect(tomAdapterInfo.invested).to.eq("0");
+
+      // compare ETH in adapter contract
+      const afterETH = await ethers.provider.getBalance(this.adapter.address);
+      expect(afterETH).to.eq(beforeETH);
     }).timeout(50000000);
   });
 });
