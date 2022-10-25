@@ -210,7 +210,6 @@ contract YearnCurveAdapter is BaseAdapterEth {
 
         repayAmt = IBEP20(repayToken).balanceOf(address(this)) - repayAmt;
 
-        // update user info
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
         unchecked {
             // update adapter info
