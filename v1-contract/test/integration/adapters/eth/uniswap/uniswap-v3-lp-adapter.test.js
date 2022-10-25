@@ -14,7 +14,7 @@ const forkNetwork = async () => {
   });
 };
 
-describe.only("UniswapV3LPAdapter Integration Test", function () {
+describe("UniswapV3LPAdapter Integration Test", function () {
   before("Deploy contract", async function () {
     await forkNetwork();
 
