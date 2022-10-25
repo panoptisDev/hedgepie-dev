@@ -87,6 +87,54 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
     }
 
     /**
+     * @notice Swap ETH to tokens and approve
+     * @param _token  address of token
+     * @param _inAmount  amount of ETH
+     */
+    function _swapAndApprove(
+        address _token,
+        uint256 _inAmount
+    ) internal returns (uint256 amountOut) {
+        if (_token == weth) {
+            amountOut = _inAmount;
+            IWrap(weth).deposit {
+                value: amountOut
+            }();
+        } else {
+            amountOut = HedgepieLibraryEth.swapOnRouter(
+                address(this),
+                _inAmount,
+                _token,
+                router,
+                weth
+            );
+        }
+
+        IBEP20(_token).approve(strategy, amountOut);
+    }
+
+    /**
+     * @notice Swap remaining tokens to ETH
+     * @param _token  address of token
+     * @param _amount  amount of token
+     */
+    function _removeRemain(
+        address _token,
+        uint256 _amount
+    ) internal {
+        if(_amount > 0) {
+            HedgepieLibraryEth.swapforEth(
+                address(this), 
+                _amount, 
+                _token, 
+                router, 
+                weth
+            );
+            IBEP20(_token).approve(strategy, 0);
+        }
+    }
+
+    /**
      * @notice Deposit to uniswapV3 adapter
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
@@ -98,7 +146,7 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
         uint256 _amountIn
     ) external payable override returns (uint256 amountIn) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
-        amountIn = _deposit(_tokenId, _account, _amountIn);
+        (amountIn, _amountIn) = _deposit(_tokenId, _account, _amountIn);
 
         // update user info
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
@@ -142,13 +190,28 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
 
         amountOut = _withdraw(_tokenId, _account, userInfo.amount);
 
-        // update user info
-        userInfo.amount = 0;
-        userInfo.invested = 0;
+        // tax distribution
+        if (amountOut != 0) {
+            uint256 taxAmount;
+            bool success;
 
-        // update adapter info
-        AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
-        adapterInfo.totalStaked -= userInfo.amount;
+            if(userInfo.invested <= amountOut) {
+                taxAmount = ((amountOut - userInfo.invested) *
+                    IYBNFT(IHedgepieInvestorEth(investor).ybnft()).performanceFee(
+                        _tokenId
+                    )) / 1e4;
+                (success, ) = payable(
+                    IHedgepieInvestorEth(investor).treasury()
+                ).call{value: taxAmount}("");
+                require(success, "Failed to send ether to Treasury");
+            }
+
+            (success, ) = payable(_account).call{value: amountOut - taxAmount}(
+                ""
+            );
+            require(success, "Failed to send ether");
+        }
+
         address adapterInfoEthAddr = IHedgepieInvestorEth(investor)
             .adapterInfo();
         IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateTVLInfo(
@@ -167,21 +230,13 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
             false
         );
 
-        // tax distribution
-        if (amountOut != 0) {
-            uint256 taxAmount = (amountOut *
-                IYBNFT(IHedgepieInvestorEth(investor).ybnft()).performanceFee(
-                    _tokenId
-                )) / 1e4;
-            (bool success, ) = payable(
-                IHedgepieInvestorEth(investor).treasury()
-            ).call{value: taxAmount}("");
-            require(success, "Failed to send ether to Treasury");
-
-            (success, ) = payable(_account).call{value: amountOut - taxAmount}(
-                ""
-            );
-            require(success, "Failed to send ether");
+        unchecked {
+            // update adapter info
+            adapterInfos[_tokenId].totalStaked -= userInfo.amount;
+            
+            // update user info
+            userInfo.amount = 0;
+            userInfo.invested = 0;
         }
     }
 
@@ -195,48 +250,18 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
         uint256 _tokenId,
         address _account,
         uint256 _amountIn
-    ) internal returns (uint256 amountOut) {
+    ) internal returns (uint256 amountOut, uint256 ethAmount) {
         // get underlying tokens of staking token
         address[2] memory tokens;
         tokens[0] = IPancakePair(stakingToken).token0();
         tokens[1] = IPancakePair(stakingToken).token1();
 
         // swap eth to underlying tokens and approve strategy
-        uint256[4] memory tokenAmount;
-        tokenAmount[0] = _amountIn / 2;
-        tokenAmount[1] = _amountIn - tokenAmount[0];
+        uint256[5] memory tokenAmount;
+        tokenAmount[4] = address(this).balance - _amountIn;
 
-        if (tokens[0] != weth) {
-            tokenAmount[0] = HedgepieLibraryEth.swapOnRouter(
-                address(this),
-                tokenAmount[0],
-                tokens[0],
-                router,
-                weth
-            );
-            IBEP20(tokens[0]).approve(strategy, tokenAmount[0]);
-        }
-        if (tokens[1] != weth) {
-            tokenAmount[1] = HedgepieLibraryEth.swapOnRouter(
-                address(this),
-                tokenAmount[1],
-                tokens[1],
-                router,
-                weth
-            );
-            IBEP20(tokens[1]).approve(strategy, tokenAmount[1]);
-        }
-
-        // wrap eth to weth when underlying token is wrapped token
-        if (tokens[0] == weth || tokens[1] == weth) {
-            IWrap(weth).deposit{
-                value: tokens[0] == weth ? tokenAmount[0] : tokenAmount[1]
-            }();
-            IBEP20(weth).approve(
-                strategy,
-                tokens[0] == weth ? tokenAmount[0] : tokenAmount[1]
-            );
-        }
+        tokenAmount[0] = _swapAndApprove(tokens[0], _amountIn / 2);
+        tokenAmount[1] = _swapAndApprove(tokens[1], _amountIn / 2);
 
         // deposit staking token to uniswapV3 strategy (mint or increaseLiquidity)
         uint256 v3TokenId = getLiquidityNFT(_account, _tokenId);
@@ -283,26 +308,15 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
             setLiquidityNFT(_account, _tokenId, v3TokenId);
         }
 
-        if (tokenAmount[2] < tokenAmount[0]) {
-            HedgepieLibraryEth.swapforEth(
-                address(this),
-                tokenAmount[0] - tokenAmount[2],
-                tokens[0],
-                router,
-                weth
-            );
-            IBEP20(tokens[0]).approve(strategy, 0);
-        }
+        _removeRemain(tokens[0], tokenAmount[0] - tokenAmount[2]);
+        _removeRemain(tokens[1], tokenAmount[1] - tokenAmount[3]);
 
-        if (tokenAmount[3] < tokenAmount[1]) {
-            HedgepieLibraryEth.swapforEth(
-                address(this),
-                tokenAmount[1] - tokenAmount[3],
-                tokens[1],
-                router,
-                weth
-            );
-            IBEP20(tokens[1]).approve(strategy, 0);
+        ethAmount = _amountIn + tokenAmount[4] - address(this).balance;
+        if(address(this).balance > tokenAmount[4]) {
+            (bool success, ) = payable(_account).call{
+                value: address(this).balance - tokenAmount[4]
+            }("");
+            require(success, "Failed to send remained ETH");
         }
     }
 
@@ -316,7 +330,7 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
         uint256 _tokenId,
         address _account,
         uint256 _amountIn
-    ) public returns (uint256 amountOut) {
+    ) internal returns (uint256 amountOut) {
         // get underlying tokens of staking token
         address[2] memory tokens;
         tokens[0] = IPancakePair(stakingToken).token0();
@@ -327,42 +341,50 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
 
         // withdraw staking token to uniswapV3 strategy (collect or decreaseLiquidity)
         uint256[2] memory amounts;
-        (amounts[0], amounts[1]) = INonfungiblePositionManager(strategy)
-            .decreaseLiquidity(
-                INonfungiblePositionManager.DecreaseLiquidityParams({
-                    tokenId: v3TokenId,
-                    liquidity: uint128(_amountIn),
-                    amount0Min: 0,
-                    amount1Min: 0,
-                    deadline: block.timestamp + 2 hours
-                })
-            );
+        amounts[0] = IBEP20(tokens[0]).balanceOf(address(this));
+        amounts[1] = IBEP20(tokens[1]).balanceOf(address(this));
+        INonfungiblePositionManager(
+            strategy
+        ).decreaseLiquidity(
+            INonfungiblePositionManager.DecreaseLiquidityParams({
+                tokenId: v3TokenId,
+                liquidity: uint128(_amountIn),
+                amount0Min: 0,
+                amount1Min: 0,
+                deadline: block.timestamp + 2 hours
+            })
+        );
 
         INonfungiblePositionManager(strategy).collect(
             INonfungiblePositionManager.CollectParams({
                 tokenId: v3TokenId,
                 recipient: address(this),
-                amount0Max: uint128(amounts[0]),
-                amount1Max: uint128(amounts[1])
+                amount0Max: type(uint128).max,
+                amount1Max: type(uint128).max
             })
         );
+
+        unchecked {
+            amounts[0] = IBEP20(tokens[0]).balanceOf(address(this)) - amounts[0];
+            amounts[1] = IBEP20(tokens[1]).balanceOf(address(this)) - amounts[1];
+        }
 
         // swap underlying tokens to weth
         if (amounts[0] != 0)
             amountOut += HedgepieLibraryEth.swapforEth(
-                address(this),
-                amounts[0],
-                tokens[0],
-                router,
+                address(this), 
+                amounts[0], 
+                tokens[0], 
+                router, 
                 weth
             );
 
         if (amounts[1] != 0)
             amountOut += HedgepieLibraryEth.swapforEth(
-                address(this),
-                amounts[1],
-                tokens[1],
-                router,
+                address(this), 
+                amounts[1], 
+                tokens[1], 
+                router, 
                 weth
             );
     }
