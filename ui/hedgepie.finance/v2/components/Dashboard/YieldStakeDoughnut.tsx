@@ -40,7 +40,11 @@ const YieldStakeDoughnut = (props: { data?: any; labels?: string[] }) => {
   const { data, labels } = props
   const [chartData, setChartData] = useState<any>(CHART_DATA)
   useEffect(() => {
-    data && labels && setChartData({ labels: labels, datasets: [data] })
+    console.log('data,labels' + JSON.stringify(data) + ' ' + JSON.stringify(labels))
+    if (data && labels) {
+      console.log('djdjj')
+      setChartData({ labels: labels, datasets: [data] })
+    }
   }, [data, labels])
 
   return chartData ? <Doughnut data={chartData} options={options} /> : <></>

@@ -1,6 +1,7 @@
 import { useWeb3React } from '@web3-react/core'
 import { useAdapterManager } from 'hooks/useAdapterManager'
 import { useYBNFTMint } from 'hooks/useYBNFTMint'
+import { is } from 'immer/dist/internal'
 import Image from 'next/image'
 import { useRouter } from 'next/router'
 import React, { useState, useEffect } from 'react'
@@ -8,6 +9,7 @@ import { Box, Text } from 'theme-ui'
 import MintWizard from 'views/mint/MintWizard'
 import { Modal, useModal } from 'widgets/Modal'
 import YieldStakeDoughnut from '../Dashboard/YieldStakeDoughnut'
+import chroma from 'chroma-js'
 
 type Strategy = {
   image: string
@@ -27,6 +29,7 @@ function StrategyComposition(props: { tokenId: number }) {
   const { getAdapters } = useAdapterManager()
   const [strategies, setStrategies] = useState<any>([])
   const [metadataURL, setMetadataURL] = useState<string>('')
+  const [chartData, setChartData] = useState<any>({})
   const router = useRouter()
   const [onMintModal] = useModal(
     <Modal title="">
@@ -97,7 +100,26 @@ function StrategyComposition(props: { tokenId: number }) {
   }, [tokenId])
 
   useEffect(() => {
-    console.log('Strategies' + JSON.stringify(strategies))
+    if (!strategies.length) return
+    let tempData: any = {
+      label: 'YBNFT',
+      data: [],
+      backgroundColor: [],
+      borderColor: [],
+      borderWidth: 1,
+      hoverBackgroundColor: '#E98EB3',
+      hoverBorderColor: '#E98EB3',
+    }
+    const f = chroma.scale(['red', 'green', 'yellow', 'blue'])
+    const n = strategies.length
+    const serial: any[] = []
+    for (let i = 0; i < n; i++) {
+      serial.push(i / n)
+    }
+    let colorData = serial.map((s) => f(s))
+    tempData.backgroundColor = colorData
+    tempData.borderColor = colorData
+    setChartData({ ...tempData, data: strategies.map((s) => s.per) })
   }, [strategies])
 
   useEffect(() => {
@@ -180,7 +202,7 @@ function StrategyComposition(props: { tokenId: number }) {
           <Box
             sx={{ height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '10px' }}
           >
-            <YieldStakeDoughnut />
+            <YieldStakeDoughnut data={chartData} labels={strategies.map((s) => `${s.protocol} (${s.pool})`)} />
           </Box>
         </Box>
       </Box>

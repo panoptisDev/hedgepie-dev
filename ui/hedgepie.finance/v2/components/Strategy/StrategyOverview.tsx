@@ -36,8 +36,9 @@ function StrategyOverview(props: { tokenId: number }) {
       const totalStaked = `${getBalanceInEther(nftInfo.tvl)} BNB`
       const totalParticipants = nftInfo.totalParticipant
       let invested = await getBalance(tokenId)
-      let reward = await getYield(tokenId)
-
+      console.log('Invested 123 : ' + invested)
+      let reward = Number(invested) !== 0 ? await getYield(tokenId) : 0.0
+      console.log('Reward')
       let perfFee = await getPerfFee(tokenId)
       console.log('invested:' + invested)
       const tokenUri = await getTokenUri(tokenId)

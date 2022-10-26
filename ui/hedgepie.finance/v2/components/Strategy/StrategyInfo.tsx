@@ -26,7 +26,7 @@ function StrategyInfo() {
   useEffect(() => {
     let key = window.localStorage.getItem(connectorLocalStorageKey) as ConnectorNames
     if (key) {
-      onPresentConnectModal()
+      login(key)
     }
   }, [])
 
