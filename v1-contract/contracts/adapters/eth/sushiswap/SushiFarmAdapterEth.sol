@@ -256,11 +256,11 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
             false
         );
 
+        adapterInfo.totalStaked -= userInfo.amount;
         userInfo.amount = 0;
         userInfo.invested = 0;
         userInfo.userShares = 0;
         userInfo.userShares1 = 0;
-        adapterInfo.totalStaked -= userInfo.amount;
 
         if (amountOut != 0) {
             bool success;
