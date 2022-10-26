@@ -9,8 +9,6 @@ import "../../../interfaces/IYBNFT.sol";
 import "../../../interfaces/IHedgepieInvestorEth.sol";
 import "../../../interfaces/IHedgepieAdapterInfoEth.sol";
 
-import "hardhat/console.sol";
-
 interface IStrategy {
     function deposit(
         address,
@@ -329,10 +327,11 @@ contract AaveLendAdapterEth is BaseAdapterEth {
         UserAdapterInfo memory userInfo = userAdapterInfos[_account][_tokenId];
         AdapterInfo memory adapterInfo = adapterInfos[_tokenId];
 
+        uint256 updatedAccTokenPerShare = adapterInfo.accTokenPerShare;
         if (IBEP20(rewardToken).balanceOf(address(this)) > lastStakedAmt)
-            uint256 updatedAccTokenPerShare = adapterInfo.accTokenPerShare +
-                (((IBEP20(rewardToken).balanceOf(address(this)) -
-                    lastStakedAmt) * 1e12) / adapterInfo.totalStaked);
+            updatedAccTokenPerShare += (((IBEP20(rewardToken).balanceOf(
+                address(this)
+            ) - lastStakedAmt) * 1e12) / adapterInfo.totalStaked);
 
         uint256 tokenRewards = ((updatedAccTokenPerShare -
             userInfo.userShares) * userInfo.amount) / 1e12;

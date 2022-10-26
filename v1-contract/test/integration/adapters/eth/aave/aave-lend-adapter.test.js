@@ -136,14 +136,10 @@ describe("AaveLendAdapterEth Integration Test", function () {
 
     it("(3) deposit should success for Alice", async function () {
       const depositAmount = ethers.utils.parseEther("10");
-      await expect(
-        this.investor.connect(this.alice).depositETH(1, depositAmount, {
-          gasPrice: 21e9,
-          value: depositAmount,
-        })
-      )
-        .to.emit(this.investor, "DepositETH")
-        .withArgs(this.aliceAddr, this.ybNft.address, 1, depositAmount);
+      await this.investor.connect(this.alice).depositETH(1, depositAmount, {
+        gasPrice: 21e9,
+        value: depositAmount,
+      });
 
       const aliceInfo = (await this.adapter.userAdapterInfos(this.aliceAddr, 1)).invested;
       expect(Number(aliceInfo) / Math.pow(10, 18)).to.eq(10);
@@ -168,23 +164,15 @@ describe("AaveLendAdapterEth Integration Test", function () {
       const beforeAdapterInfos = await this.adapter.adapterInfos(1);
       const depositAmount = ethers.utils.parseEther("10");
 
-      await expect(
-        this.investor.connect(this.bob).depositETH(1, depositAmount, {
-          gasPrice: 21e9,
-          value: depositAmount,
-        })
-      )
-        .to.emit(this.investor, "DepositETH")
-        .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
+      await this.investor.connect(this.bob).depositETH(1, depositAmount, {
+        gasPrice: 21e9,
+        value: depositAmount,
+      });
 
-      await expect(
-        this.investor.connect(this.bob).depositETH(1, depositAmount, {
-          gasPrice: 21e9,
-          value: depositAmount,
-        })
-      )
-        .to.emit(this.investor, "DepositETH")
-        .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
+      await this.investor.connect(this.bob).depositETH(1, depositAmount, {
+        gasPrice: 21e9,
+        value: depositAmount,
+      });
 
       const bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1)).invested;
       expect(Number(bobInfo) / Math.pow(10, 18)).to.eq(20);
@@ -210,17 +198,18 @@ describe("AaveLendAdapterEth Integration Test", function () {
 
       const pending = await this.investor.pendingReward(1, this.aliceAddr);
 
+      const gasPrice = await ethers.provider.getGasPrice();
+      const gas = await this.investor.connect(this.alice).estimateGas.claim(1);
       await this.investor.connect(this.alice).claim(1);
 
       const afterETH = await ethers.provider.getBalance(this.aliceAddr);
       const protocolFee = (await ethers.provider.getBalance(this.owner.address)).sub(beforeETHOwner);
-      const actualPending = afterETH.sub(beforeETH);
+      const actualPending = afterETH.sub(beforeETH).add(gas.mul(gasPrice));
 
-      console.log(pending.toString(), actualPending.toString());
-      expect(pending).to.be.within(actualPending, actualPending.add(BigNumber.from(2e14))) &&
+      expect(pending).to.be.within(actualPending.sub(BigNumber.from(8e13)), actualPending) &&
         expect(protocolFee).to.be.within(
-          actualPending.mul(this.performanceFee).div(1e4),
-          actualPending.add(BigNumber.from(2e14)).mul(this.performanceFee).div(1e4)
+          actualPending.sub(BigNumber.from(8e13)).mul(this.performanceFee).div(1e4),
+          actualPending.mul(this.performanceFee).div(1e4)
         );
     });
 
@@ -253,10 +242,7 @@ describe("AaveLendAdapterEth Integration Test", function () {
       // withdraw from nftId: 1
       const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
 
-      await expect(this.investor.connect(this.alice).withdrawETH(1, { gasPrice: 21e9 })).to.emit(
-        this.investor,
-        "WithdrawETH"
-      );
+      await this.investor.connect(this.alice).withdrawETH(1, { gasPrice: 21e9 });
 
       const afterETH = await ethers.provider.getBalance(this.aliceAddr);
 
@@ -289,10 +275,7 @@ describe("AaveLendAdapterEth Integration Test", function () {
       // withdraw from nftId: 1
       const beforeETH = await ethers.provider.getBalance(this.bobAddr);
 
-      await expect(this.investor.connect(this.bob).withdrawETH(1, { gasPrice: 21e9 })).to.emit(
-        this.investor,
-        "WithdrawETH"
-      );
+      await this.investor.connect(this.bob).withdrawETH(1, { gasPrice: 21e9 });
 
       const afterETH = await ethers.provider.getBalance(this.bobAddr);
 
