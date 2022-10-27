@@ -18,6 +18,7 @@ function StrategyOverview(props: { tokenId: number }) {
   const [performanceFee, setPerformanceFee] = useState('5.15%')
   const [reward, setReward] = useState('$5,150')
   const [stake, setStake] = useState('15 BNB')
+  const [stakeUSD, setStakeUSD] = useState('$10,580 USD')
   const [tvl, setTVL] = useState('$245,301')
   const [apy, setAPY] = useState('12%')
   const [investors, setInvestors] = useState('400')
@@ -58,6 +59,8 @@ function StrategyOverview(props: { tokenId: number }) {
       setDescription(metadata.description)
       setTVL(tvl)
       setStake(`${getBalanceInEther(Number(invested))} BNB`)
+      setStakeUSD(`$${(getBalanceInEther(Number(invested)) * (bnbPrice ? bnbPrice : 0)).toFixed(3)} USD`)
+
       setReward(`${getBalanceInEther(Number(reward)).toFixed(5)} BNB`)
       setInvestors(totalParticipants)
       setPerformanceFee(`${perfFee / 100} %`)
@@ -216,7 +219,7 @@ function StrategyOverview(props: { tokenId: number }) {
                   <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                     <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{stake}</Text>
                     <Text sx={{ color: '#DF4886', fontWeight: '500', fontSize: '14px', marginLeft: '3px' }}>
-                      $10,580.42
+                      {stakeUSD}
                     </Text>
                   </Box>
                 </Box>

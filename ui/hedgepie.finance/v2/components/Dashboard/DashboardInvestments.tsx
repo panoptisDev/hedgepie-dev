@@ -1,5 +1,6 @@
 import { useInvestor } from 'hooks/useInvestor'
 import { useYBNFTMint } from 'hooks/useYBNFTMint'
+import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import { Box, Button, Spinner, Text } from 'theme-ui'
 import { getBalanceInEther } from 'utils/formatBalance'
@@ -12,6 +13,7 @@ function DashboardInvestments() {
   const [totalYield, setTotalYield] = useState<string>()
   const { getBalance, getNFTInfo, getYield } = useInvestor()
   const { getMaxTokenId, getTokenUri } = useYBNFTMint()
+  const router = useRouter()
 
   // START - Integrated Contracts to get Invested Funds
 
@@ -59,6 +61,7 @@ function DashboardInvestments() {
         }
         const metadata = await metadataFile.json()
         let fundObj = {
+          index: i,
           instrument: metadata.name,
           totalParticipants: nftInfo.totalParticipant,
           tvl: tvl,
@@ -210,7 +213,23 @@ function DashboardInvestments() {
               {investments.map((investment) => (
                 <tr style={{ textAlign: 'center', color: '#1A1A1A', fontSize: '14px', fontFamily: 'Inter' }}>
                   <td>
-                    <Text sx={{ fontFamily: 'Inter', fontWeight: '600', color: '#14114B' }}>
+                    <Text
+                      sx={{
+                        fontFamily: 'Inter',
+                        fontWeight: '600',
+                        color: '#14114B',
+                        cursor: 'pointer',
+                        ':hover': {
+                          textDecoration: 'underline',
+                          textUnderlineOffset: '3px',
+                          textDecorationThickness: '1px',
+                          color: '#17DD',
+                        },
+                      }}
+                      onClick={() => {
+                        router.push(`/v2/strategy/?tokenId=${investment.index}`)
+                      }}
+                    >
                       {investment.instrument}
                     </Text>
                   </td>

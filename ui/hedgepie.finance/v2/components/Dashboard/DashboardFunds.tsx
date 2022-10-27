@@ -1,6 +1,7 @@
 import { useWeb3React } from '@web3-react/core'
 import { useInvestor } from 'hooks/useInvestor'
 import { useYBNFTMint } from 'hooks/useYBNFTMint'
+import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import { Box, Spinner, Text } from 'theme-ui'
 import { getBalanceInEther } from 'utils/formatBalance'
@@ -15,6 +16,7 @@ function DashboardFunds() {
 
   const { getMaxTokenId, getTokenUri } = useYBNFTMint()
   const { getNFTInfo, getBalance, getYield } = useInvestor()
+  const router = useRouter()
 
   // START - Interaction with Contracts
 
@@ -61,12 +63,13 @@ function DashboardFunds() {
         }
         const metadata = await metadataFile.json()
         let fundObj = {
+          index: i,
           name: metadata.name,
           investors: nftInfo.totalParticipant,
           tvl: tvl,
           stake: getBalanceInEther(invested).toFixed(3).toString() + ' BNB',
           apy: '15%',
-          yield: getBalanceInEther(reward).toFixed(3).toString() + ' BNB',
+          yield: getBalanceInEther(reward).toFixed(5).toString() + ' BNB',
         }
         fundData.push(fundObj)
       }
@@ -111,7 +114,12 @@ function DashboardFunds() {
         >
           <>
             {funds.map((f) => (
-              <Box sx={{ borderRadius: '8px', border: '1px solid #D9D9D9' }}>
+              <Box
+                sx={{ borderRadius: '8px', border: '1px solid #D9D9D9', cursor: 'pointer' }}
+                onClick={() => {
+                  router.push(`/v2/strategy/?tokenId=${f.index}`)
+                }}
+              >
                 <Box sx={{ display: 'flex', flexDirection: 'row', gap: '30px', padding: '1rem', alignItems: 'center' }}>
                   <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#000000' }}>
                     {f.name}
