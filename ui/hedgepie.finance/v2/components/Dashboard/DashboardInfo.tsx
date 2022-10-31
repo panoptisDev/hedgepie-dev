@@ -17,7 +17,15 @@ function DashboardInfo() {
   return (
     <>
       {account ? (
-        <Box sx={{ margin: '2rem 3rem', width: '100%', display: 'flex', flexDirection: 'column', gap: '20px' }}>
+        <Box
+          sx={{
+            margin: ['0.5rem 1rem', '2rem 3rem', '2rem 3rem', '2rem 3rem'],
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '20px',
+          }}
+        >
           <DashboardOverview />
           <DashboardFunds />
           <DashboardInvestments />

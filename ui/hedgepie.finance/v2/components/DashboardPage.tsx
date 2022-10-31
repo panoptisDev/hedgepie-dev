@@ -30,7 +30,7 @@ function DashboardPage(props: DashboardPageProps) {
           display: 'flex',
           flexDirection: 'row',
           gap: '10px',
-          margin: '2rem 4rem 8rem 4rem',
+          margin: ['0.5rem', '2rem 4rem 8rem 4rem', '2rem 4rem 8rem 4rem', '2rem 4rem 8rem 4rem'],
           borderRadius: '16px',
           background: 'linear-gradient(137.62deg, rgba(252, 143, 143, 0.1) 0.17%, rgba(143, 143, 252, 0.3) 110.51%)',
         }}

@@ -155,7 +155,7 @@ function DashboardYieldStakeInfo() {
         <Box
           sx={{
             display: 'flex',
-            flexDirection: 'row',
+            flexDirection: ['column', 'row', 'row', 'row'],
             alignItems: 'center',
             width: '100%',
             gap: '20px',

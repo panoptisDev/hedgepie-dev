@@ -33,7 +33,7 @@ function Sidebar(props: SidebarProps) {
         borderTopLeftRadius: '14px',
         borderBottomLeftRadius: '14px',
         padding: '2rem 2rem',
-        display: 'flex',
+        display: ['none', 'none', 'flex', 'flex'],
         flexDirection: 'column',
         minHeight: '100vh',
       }}

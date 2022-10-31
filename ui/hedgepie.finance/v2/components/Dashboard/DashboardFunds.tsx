@@ -105,7 +105,7 @@ function DashboardFunds() {
         <Box
           sx={{
             display: 'flex',
-            flexDirection: 'row',
+            flexDirection: ['column', 'column', 'column', 'row'],
             flexWrap: 'wrap',
             alignItems: 'center',
             gap: '15px',
