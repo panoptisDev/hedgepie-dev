@@ -29,14 +29,14 @@ describe("CompoundLendAdapterEth Integration Test", function () {
 
     const performanceFee = 100;
     const weth = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
-    const aUSDC = "0xBcca60bB61934080951369a648Fb03DF4F96263C";
-    const usdc = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
-    const strategy = "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9"; // LendingPool
-    const stakingToken = usdc;
+    const aave = "0x7Fc66500c84A76Ad7e9c93437bFc5Ac33E2DDaE9";
+    const strategy = "0xe65cdB6479BaC1e22340E4E755fAE7E509EcD06c"; // cAAVE Token
+    const comptroller = "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B"; // Compound comptroller
+    const stakingToken = aave;
 
     this.performanceFee = performanceFee;
     this.weth = weth;
-    this.usdc = usdc;
+    this.aave = aave;
 
     this.owner = owner;
     this.alice = alice;
@@ -48,8 +48,6 @@ describe("CompoundLendAdapterEth Integration Test", function () {
     this.aliceAddr = alice.address;
     this.tomAddr = tom.address;
     this.treasuryAddr = treasury.address;
-    this.accTokenPerShare = BigNumber.from(0);
-    this.accTokenPerShare1 = BigNumber.from(0);
 
     // Deploy Pancakeswap LP Adapter contract
     const Lib = await ethers.getContractFactory("HedgepieLibraryEth");
@@ -60,7 +58,14 @@ describe("CompoundLendAdapterEth Integration Test", function () {
       },
     });
 
-    this.adapter = await AaveFarmAdapter.deploy(strategy, usdc, aUSDC, this.sushiRouter, "COMPOUND::Lend::USDC", weth);
+    this.adapter = await AaveFarmAdapter.deploy(
+      strategy,
+      comptroller,
+      aave,
+      this.sushiRouter,
+      "COMPOUND::Lend::AAVE",
+      weth
+    );
     await this.adapter.deployed();
 
     // Deploy YBNFT contract
@@ -102,8 +107,8 @@ describe("CompoundLendAdapterEth Integration Test", function () {
 
     // Set investor in pancake adapter
     await this.adapter.setInvestor(this.investor.address);
-    await this.adapter.setPath(this.weth, this.usdc, [this.weth, this.usdc]);
-    await this.adapter.setPath(this.usdc, this.weth, [this.usdc, this.weth]);
+    await this.adapter.setPath(this.weth, this.aave, [this.weth, this.aave]);
+    await this.adapter.setPath(this.aave, this.weth, [this.aave, this.weth]);
 
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
@@ -147,10 +152,6 @@ describe("CompoundLendAdapterEth Integration Test", function () {
       const aliceAdapterInfos = await this.adapter.userAdapterInfos(this.aliceAddr, 1);
       const adapterInfos = await this.adapter.adapterInfos(1);
       expect(BigNumber.from(adapterInfos.totalStaked)).to.eq(BigNumber.from(aliceAdapterInfos.amount));
-
-      // Check accTokenPerShare Info
-      this.accTokenPerShare = (await this.adapter.adapterInfos(1)).accTokenPerShare;
-      expect(BigNumber.from(this.accTokenPerShare)).to.eq(BigNumber.from(0));
     });
 
     it("(4) deposit should success for Bob", async function () {
@@ -183,34 +184,11 @@ describe("CompoundLendAdapterEth Integration Test", function () {
       const afterAdapterInfos = await this.adapter.adapterInfos(1);
 
       expect(BigNumber.from(afterAdapterInfos.totalStaked).gt(beforeAdapterInfos.totalStaked)).to.eq(true);
-
-      // Check accTokenPerShare Info
-      expect(
-        BigNumber.from((await this.adapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
-      ).to.eq(true);
-
-      this.accTokenPerShare = (await this.adapter.adapterInfos(1)).accTokenPerShare;
     });
 
-    it("(5) test claim, pendingReward function and protocol-fee", async function () {
-      const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
-      const beforeETHOwner = await ethers.provider.getBalance(this.owner.address);
-
+    it("(5) test pendingReward function and protocol-fee", async function () {
       const pending = await this.investor.pendingReward(1, this.aliceAddr);
-
-      const gasPrice = await ethers.provider.getGasPrice();
-      const gas = await this.investor.connect(this.alice).estimateGas.claim(1);
-      await this.investor.connect(this.alice).claim(1);
-
-      const afterETH = await ethers.provider.getBalance(this.aliceAddr);
-      const protocolFee = (await ethers.provider.getBalance(this.owner.address)).sub(beforeETHOwner);
-      const actualPending = afterETH.sub(beforeETH).add(gas.mul(gasPrice));
-
-      expect(pending).to.be.within(actualPending.sub(BigNumber.from(8e13)), actualPending) &&
-        expect(protocolFee).to.be.within(
-          actualPending.sub(BigNumber.from(8e13)).mul(this.performanceFee).div(1e4),
-          actualPending.mul(this.performanceFee).div(1e4)
-        );
+      expect(BigNumber.from(pending).gt(0)).to.be.eq(true);
     });
 
     it("(6) test TVL & participants", async function () {
@@ -254,12 +232,6 @@ describe("CompoundLendAdapterEth Integration Test", function () {
       const bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1)).invested;
       const bobDeposit = Number(bobInfo) / Math.pow(10, 18);
       expect(bobDeposit).to.eq(20);
-
-      expect(
-        BigNumber.from((await this.adapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
-      ).to.eq(true);
-
-      this.accTokenPerShare = (await this.adapter.adapterInfos(1)).accTokenPerShare;
     });
 
     it("(3) test TVL & participants after Alice withdraw", async function () {
@@ -283,13 +255,6 @@ describe("CompoundLendAdapterEth Integration Test", function () {
 
       const bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1)).invested;
       expect(bobInfo).to.eq(BigNumber.from(0));
-
-      // Check accTokenPerShare Info
-      expect(
-        BigNumber.from((await this.adapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
-      ).to.eq(true);
-
-      this.accTokenPerShare = (await this.adapter.adapterInfos(1)).accTokenPerShare;
     });
 
     it("(5) test TVL & participants after Alice & Bob withdraw", async function () {
