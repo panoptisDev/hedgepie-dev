@@ -49,7 +49,7 @@ describe("CompoundLendAdapterEth Integration Test", function () {
     this.tomAddr = tom.address;
     this.treasuryAddr = treasury.address;
 
-    // Deploy Pancakeswap LP Adapter contract
+    // Deploy CompoundLendAdapterEth contract
     const Lib = await ethers.getContractFactory("HedgepieLibraryEth");
     const lib = await Lib.deploy();
     const AaveFarmAdapter = await ethers.getContractFactory("CompoundLendAdapterEth", {
