@@ -155,13 +155,6 @@ describe("CompoundLendAdapterEth Integration Test", function () {
     });
 
     it("(4) deposit should success for Bob", async function () {
-      // wait 40 mins
-      for (let i = 0; i < 7200; i++) {
-        await ethers.provider.send("evm_mine", []);
-      }
-      await ethers.provider.send("evm_increaseTime", [3600 * 24]);
-      await ethers.provider.send("evm_mine", []);
-
       const beforeAdapterInfos = await this.adapter.adapterInfos(1);
       const depositAmount = ethers.utils.parseEther("10");
 
@@ -187,6 +180,10 @@ describe("CompoundLendAdapterEth Integration Test", function () {
     });
 
     it("(5) test pendingReward function and protocol-fee", async function () {
+      // wait 1 day
+      await ethers.provider.send("evm_increaseTime", [3600 * 24]);
+      await ethers.provider.send("evm_mine", []);
+
       const pending = await this.investor.pendingReward(1, this.aliceAddr);
       expect(BigNumber.from(pending).gt(0)).to.be.eq(true);
     });
@@ -201,12 +198,6 @@ describe("CompoundLendAdapterEth Integration Test", function () {
 
   describe("withdrawETH() function test", function () {
     it("(1) revert when nft tokenId is invalid", async function () {
-      for (let i = 0; i < 10; i++) {
-        await ethers.provider.send("evm_mine", []);
-      }
-      await ethers.provider.send("evm_increaseTime", [3600 * 24]);
-      await ethers.provider.send("evm_mine", []);
-
       // withdraw to nftID: 3
       await expect(this.investor.connect(this.owner).withdrawETH(3, { gasPrice: 21e9 })).to.be.revertedWith(
         "Error: nft tokenId is invalid"
@@ -214,9 +205,6 @@ describe("CompoundLendAdapterEth Integration Test", function () {
     });
 
     it("(2) should receive the ETH successfully after withdraw function for Alice", async function () {
-      await ethers.provider.send("evm_increaseTime", [3600 * 24 * 30]);
-      await ethers.provider.send("evm_mine", []);
-
       // withdraw from nftId: 1
       const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
 
@@ -242,8 +230,6 @@ describe("CompoundLendAdapterEth Integration Test", function () {
     });
 
     it("(4) should receive the ETH successfully after withdraw function for Bob", async function () {
-      await ethers.provider.send("evm_increaseTime", [3600 * 24 * 30]);
-      await ethers.provider.send("evm_mine", []);
       // withdraw from nftId: 1
       const beforeETH = await ethers.provider.getBalance(this.bobAddr);
 
