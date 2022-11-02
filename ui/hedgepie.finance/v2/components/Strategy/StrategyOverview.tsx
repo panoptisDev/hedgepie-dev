@@ -85,7 +85,7 @@ function StrategyOverview(props: { tokenId: number }) {
           border: '1px solid #D9D9D9',
           width: '100%',
           display: 'flex',
-          flexDirection: 'row',
+          flexDirection: ['column', 'row', 'row', 'row'],
           gap: '5px',
           background: '#FFFFFF',
           padding: '0.5rem',

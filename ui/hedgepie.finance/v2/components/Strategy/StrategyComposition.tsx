@@ -161,8 +161,8 @@ function StrategyComposition(props: { tokenId: number }) {
           <Image src="/icons/edit_square.svg" width={20} height={20} />
         </Box>
       </Box>
-      <Box sx={{ display: 'flex', flexDirection: 'row', gap: '10px', width: '100%' }}>
-        <Box sx={{ border: '1px solid #E3E3E3', borderRadius: '4px', flex: 2 }}>
+      <Box sx={{ display: 'flex', flexDirection: ['column', 'row', 'row', 'row'], gap: '10px', width: '100%' }}>
+        <Box sx={{ border: '1px solid #E3E3E3', borderRadius: '4px', flex: 2, width: '100%', overflow: 'auto' }}>
           <table style={{ width: '100%', borderSpacing: '1rem 2rem' }}>
             <thead>
               <tr style={{ fontFamily: 'Inter', fontWeight: '600', textAlign: 'center' }}>

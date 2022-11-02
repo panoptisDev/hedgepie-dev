@@ -1,7 +1,8 @@
 import React, { useEffect, useState } from 'react'
 import { Box } from 'theme-ui'
 import DashboardContext from 'v2/contexts/DashboardContext'
-import Sidebar, { SidebarItemType } from './Sidebar'
+import Sidebar, { SidebarItemType } from 'v2/components/Sidebar'
+import SidebarMobile from 'v2/components/SidebarMobile'
 
 interface DashboardPageProps {
   children: React.ReactNode
@@ -25,19 +26,22 @@ function DashboardPage(props: DashboardPageProps) {
 
   return (
     <DashboardContext.Provider value={value}>
-      <Box
-        sx={{
-          display: 'flex',
-          flexDirection: 'row',
-          gap: '10px',
-          margin: ['0.5rem', '2rem 4rem 8rem 4rem', '2rem 4rem 8rem 4rem', '2rem 4rem 8rem 4rem'],
-          borderRadius: '16px',
-          background: 'linear-gradient(137.62deg, rgba(252, 143, 143, 0.1) 0.17%, rgba(143, 143, 252, 0.3) 110.51%)',
-        }}
-      >
-        <Sidebar active={activeTab} />
-        {children}
-      </Box>
+      <>
+        <SidebarMobile active={activeTab} />
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            gap: '10px',
+            margin: ['0.5rem', '2rem 4rem 8rem 4rem', '2rem 4rem 8rem 4rem', '2rem 4rem 8rem 4rem'],
+            borderRadius: '16px',
+            background: 'linear-gradient(137.62deg, rgba(252, 143, 143, 0.1) 0.17%, rgba(143, 143, 252, 0.3) 110.51%)',
+          }}
+        >
+          <Sidebar active={activeTab} />
+          {children}
+        </Box>
+      </>
     </DashboardContext.Provider>
   )
 }

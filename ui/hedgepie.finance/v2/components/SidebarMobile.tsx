@@ -10,7 +10,7 @@ interface SidebarProps {
 
 export type SidebarItemType = 'home' | 'stats' | 'history' | 'help'
 
-function Sidebar(props: SidebarProps) {
+function SidebarMobile(props: SidebarProps) {
   const sidebarItems: SidebarItemType[] = ['home', 'stats', 'history']
   const dashboardValue = useContext(DashboardContext)
   const router = useRouter()
@@ -28,17 +28,23 @@ function Sidebar(props: SidebarProps) {
   return (
     <Box
       sx={{
-        minWidth: ['0rem', '0rem', '0rem', '18rem'],
+        minWidth: ['0rem', '0rem', '0rem', '100%'],
         backgroundColor: '#14114B',
-        borderTopLeftRadius: '14px',
-        borderBottomLeftRadius: '14px',
-        padding: ['0rem', '0rem', '2rem 2rem', '2rem 2rem'],
-        display: ['none', 'none', 'flex', 'flex'],
+        borderRadius: '14px',
+        margin: '10px 0px',
+        display: ['flex', 'flex', 'none', 'none'],
         flexDirection: 'column',
-        minHeight: '100vh',
+        width: '100%',
       }}
     >
-      <Box style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+      <Box
+        sx={{
+          display: 'flex',
+          flexDirection: ['row', 'row', 'row', 'column'],
+          justifyContent: 'space-between',
+          gap: '5px',
+        }}
+      >
         {sidebarItems.map((s) => (
           <Box
             onClick={() => {
@@ -50,14 +56,8 @@ function Sidebar(props: SidebarProps) {
           </Box>
         ))}
       </Box>
-      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4rem', marginTop: 'auto' }}>
-        <Box sx={{ border: '1px solid #667080', width: '100%' }}></Box>
-        <Box onClick={() => dashboardValue.setActiveTab('help')}>
-          <SidebarItem type="help" active={dashboardValue.activeTab} />
-        </Box>
-      </Box>
     </Box>
   )
 }
 
-export default Sidebar
+export default SidebarMobile
