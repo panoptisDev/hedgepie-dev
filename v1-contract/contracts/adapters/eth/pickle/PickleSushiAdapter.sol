@@ -37,7 +37,7 @@ contract PickleSushiAdapter is BaseAdapterEth {
      * @param _stakingToken  address of staking token
      * @param _rewardToken  address of reward token
      * @param _rewardToken1  address of reward token1
-     * @param _swapRouter swapRouter for swapping tokens
+     * @param _router address of router
      * @param _weth  weth address
      * @param _name  adatper name
      */
@@ -48,7 +48,7 @@ contract PickleSushiAdapter is BaseAdapterEth {
         address _stakingToken,
         address _rewardToken,
         address _rewardToken1,
-        address _swapRouter,
+        address _router,
         address _weth,
         string memory _name
     ) {
@@ -56,7 +56,7 @@ contract PickleSushiAdapter is BaseAdapterEth {
         jar = _jar;
         weth = _weth;
         strategy = _strategy;
-        swapRouter = _swapRouter;
+        router = _router;
         rewardToken = _rewardToken;
         rewardToken1 = _rewardToken1;
         stakingToken = _stakingToken;
