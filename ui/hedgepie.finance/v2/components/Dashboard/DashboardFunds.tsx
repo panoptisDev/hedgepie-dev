@@ -102,7 +102,7 @@ function DashboardFunds() {
           <Spinner />
         </Box>
       ) : null}
-      {funds.length ? (
+      {!fundsLoading && funds.length > 0 ? (
         <Box
           sx={{
             display: 'flex',

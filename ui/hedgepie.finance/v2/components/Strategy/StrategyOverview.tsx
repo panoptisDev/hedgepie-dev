@@ -20,6 +20,8 @@ function StrategyOverview(props: { tokenId: number }) {
   )
   const [performanceFee, setPerformanceFee] = useState('5.15%')
   const [reward, setReward] = useState('$5,150')
+  const [rewardBNB, setRewardBNB] = useState(0)
+  const [stakeAmt, setStakeAmt] = useState(0)
   const [stake, setStake] = useState('15 BNB')
   const [stakeUSD, setStakeUSD] = useState('$10,580 USD')
   const [tvl, setTVL] = useState('$245,301')
@@ -35,49 +37,53 @@ function StrategyOverview(props: { tokenId: number }) {
 
   const [invalidAmount, setInvalidAmount] = useState(false)
 
-  const { getNFTInfo, getYield, getBalance, onYBNFTDeposit, onYBNFTWithdraw } = useInvestor()
+  const { getNFTInfo, getYield, getBalance, onYBNFTDeposit, onYBNFTWithdraw, onYBNFTClaim } = useInvestor()
   const { getTokenUri, getPerfFee } = useYBNFTMint()
   const { account } = useWeb3React()
 
-  useEffect(() => {
+  const fetchOverview = async () => {
     setLoading(true)
-    if (!tokenId) return
-    const fetchOverview = async () => {
-      const nftInfo = await getNFTInfo(tokenId)
-      const bnbPrice = await getPrice('BNB')
-      const tvl = bnbPrice ? `$ ${Number(getBalanceInEther(nftInfo.tvl) * bnbPrice).toFixed(3)} USD` : 'N/A'
-      const totalStaked = `${getBalanceInEther(nftInfo.tvl)} BNB`
-      const totalParticipants = nftInfo.totalParticipant
-      let invested = await getBalance(tokenId)
-      console.log('Invested 123 : ' + invested)
-      let reward = Number(invested) !== 0 ? await getYield(tokenId) : 0.0
-      console.log('Reward')
-      let perfFee = await getPerfFee(tokenId)
-      console.log('invested:' + invested)
-      const tokenUri = await getTokenUri(tokenId)
-      if (!tokenUri.includes('.ipfs.')) {
-        return
-      }
-      let metadataFile: any = undefined
-      try {
-        metadataFile = await fetch(tokenUri)
-      } catch (err) {
-        return
-      }
-      const metadata = await metadataFile.json()
-
-      // Setting the State Variables
-      setFundName(metadata.name)
-      setDescription(metadata.description)
-      setTVL(tvl)
-      setStake(`${getBalanceInEther(Number(invested))} BNB`)
-      setStakeUSD(`$${(getBalanceInEther(Number(invested)) * (bnbPrice ? bnbPrice : 0)).toFixed(3)} USD`)
-
-      setReward(`${getBalanceInEther(Number(reward)).toFixed(5)} BNB`)
-      setInvestors(totalParticipants)
-      setPerformanceFee(`${perfFee / 100} %`)
-      setLoading(false)
+    const nftInfo = await getNFTInfo(tokenId)
+    const bnbPrice = await getPrice('BNB')
+    const tvl = bnbPrice ? `$ ${Number(getBalanceInEther(nftInfo.tvl) * bnbPrice).toFixed(3)} USD` : 'N/A'
+    const totalStaked = `${getBalanceInEther(nftInfo.tvl)} BNB`
+    const totalParticipants = nftInfo.totalParticipant
+    let invested = await getBalance(tokenId)
+    console.log('Invested 123 : ' + invested)
+    let reward = Number(invested) !== 0 ? await getYield(tokenId) : 0.0
+    console.log('Reward')
+    let perfFee = await getPerfFee(tokenId)
+    console.log('invested:' + invested)
+    const tokenUri = await getTokenUri(tokenId)
+    if (!tokenUri.includes('.ipfs.')) {
+      return
     }
+    let metadataFile: any = undefined
+    try {
+      metadataFile = await fetch(tokenUri)
+    } catch (err) {
+      return
+    }
+    const metadata = await metadataFile.json()
+
+    // Setting the State Variables
+    setFundName(metadata.name)
+    setDescription(metadata.description)
+    setTVL(tvl)
+    setStakeAmt(getBalanceInEther(Number(invested)))
+    setStake(`${getBalanceInEther(Number(invested))} BNB`)
+    setStakeUSD(`$${(getBalanceInEther(Number(invested)) * (bnbPrice ? bnbPrice : 0)).toFixed(3)} USD`)
+
+    setReward(`${getBalanceInEther(Number(reward)).toFixed(5)} BNB`)
+    setRewardBNB(getBalanceInEther(Number(reward)))
+    setInvestors(totalParticipants)
+    setPerformanceFee(`${perfFee / 100} %`)
+    setLoading(false)
+  }
+
+  useEffect(() => {
+    if (!tokenId) return
+
     account && fetchOverview()
   }, [tokenId, account])
 
@@ -123,6 +129,7 @@ function StrategyOverview(props: { tokenId: number }) {
       toast(`${amountString} BNB successfully staked on YBNFT #${tokenId} !!`)
       setAmountString('0.0')
       setAmount(0.0)
+      fetchOverview()
     } catch (err) {
       toast('Staking Transaction Rejected 😅', 'warning')
       console.log(err)
@@ -142,8 +149,31 @@ function StrategyOverview(props: { tokenId: number }) {
     let txHash
     try {
       txHash = await onYBNFTWithdraw(tokenId)
+      fetchOverview()
       toast(`${currentStaked} BNB successfully withdrawn on YBNFT #${tokenId} !!`)
     } catch (err) {
+      toast('Withdrawal Transaction Rejected 😅', 'warning')
+      console.log(err)
+    }
+    console.log(txHash)
+  }
+
+  const handleClaim = async () => {
+    if (!account) {
+      toast('Please connect your wallet to view the Staked amount and Withdraw !!', 'warning')
+      return
+    }
+    if (rewardBNB === 0) {
+      toast('No staked BNB currently to claim !!', 'warning')
+      return
+    }
+    let txHash
+    try {
+      txHash = await onYBNFTClaim(tokenId)
+      fetchOverview()
+      toast(`${reward} BNB successfully claimed on YBNFT #${tokenId} !!`)
+    } catch (err) {
+      toast('Claim Transaction Rejected 😅', 'warning')
       console.log(err)
     }
     console.log(txHash)
@@ -171,7 +201,7 @@ function StrategyOverview(props: { tokenId: number }) {
           border: '1px solid #D9D9D9',
           width: '100%',
           display: 'flex',
-          flexDirection: ['column', 'row', 'row', 'row'],
+          flexDirection: ['column', 'column', 'column', 'row'],
           gap: '5px',
           background: '#FFFFFF',
           padding: '0.5rem',
@@ -200,7 +230,7 @@ function StrategyOverview(props: { tokenId: number }) {
                 <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '20px', color: '#000000' }}>
                   {fundName}
                 </Text>
-                <Text
+                {/* <Text
                   sx={{
                     fontFamily: 'Inter',
                     fontWeight: '500',
@@ -210,7 +240,7 @@ function StrategyOverview(props: { tokenId: number }) {
                   }}
                 >
                   Created: {createdDate}
-                </Text>
+                </Text> */}
               </Box>
               <Box
                 sx={{
@@ -314,18 +344,21 @@ function StrategyOverview(props: { tokenId: number }) {
                       <Text sx={{ color: '#DF4886', fontWeight: '500', fontSize: '14px', marginLeft: '3px' }}>
                         {stakeUSD}
                       </Text>
-                      <Text
-                        sx={{
-                          color: '#1799DE',
-                          fontWeight: '500',
-                          fontSize: '14px',
-                          marginLeft: 'auto',
-                          textDecoration: 'underline',
-                          cursor: 'pointer',
-                        }}
-                      >
-                        Withdraw
-                      </Text>
+                      {stakeAmt > 0 && (
+                        <Text
+                          sx={{
+                            color: '#1799DE',
+                            fontWeight: '500',
+                            fontSize: '14px',
+                            marginLeft: 'auto',
+                            textDecoration: 'underline',
+                            cursor: 'pointer',
+                          }}
+                          onClick={handleUnstake}
+                        >
+                          Withdraw
+                        </Text>
+                      )}
                     </Box>
                   </Box>
                 </Box>
@@ -497,21 +530,24 @@ function StrategyOverview(props: { tokenId: number }) {
               <Text sx={{ color: '#EFA906', fontWeight: '600', fontFamily: 'Inter', fontSize: '24px' }}>{reward}</Text>
             </Box>
             <Box sx={{ display: 'flex', gap: '10px', flexDirection: 'row', alignItems: 'center' }}>
-              <Box
-                sx={{
-                  cursor: 'pointer',
-                  backgroundColor: '#14114B',
-                  color: '#FFFFFF',
-                  padding: '0.4rem 1rem',
-                  borderRadius: '8px',
-                  border: '2px solid #EFA3C2',
-                  flex: 1,
-                  textAlign: 'center',
-                  fontFamily: 'Inter',
-                }}
-              >
-                CLAIM
-              </Box>
+              {rewardBNB > 0 && (
+                <Box
+                  sx={{
+                    cursor: 'pointer',
+                    backgroundColor: '#14114B',
+                    color: '#FFFFFF',
+                    padding: '0.4rem 1rem',
+                    borderRadius: '8px',
+                    border: '2px solid #EFA3C2',
+                    flex: 1,
+                    textAlign: 'center',
+                    fontFamily: 'Inter',
+                  }}
+                  onClick={handleClaim}
+                >
+                  CLAIM
+                </Box>
+              )}
               {/* <Box
                 sx={{
                   cursor: 'pointer',

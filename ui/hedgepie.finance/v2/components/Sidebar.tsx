@@ -13,7 +13,7 @@ export type SidebarItemType = 'home' | 'stats' | 'history' | 'help'
 function Sidebar(props: SidebarProps) {
   // const sidebarItems: SidebarItemType[] = ['home', 'stats', 'history']
 
-  const sidebarItems: SidebarItemType[] = ['home', 'stats']
+  const sidebarItems: SidebarItemType[] = ['home']
   const dashboardValue = useContext(DashboardContext)
   const router = useRouter()
 
@@ -35,7 +35,7 @@ function Sidebar(props: SidebarProps) {
         borderTopLeftRadius: '14px',
         borderBottomLeftRadius: '14px',
         padding: ['0rem', '0rem', '2rem 2rem', '2rem 2rem'],
-        display: ['none', 'none', 'flex', 'flex'],
+        display: ['none', 'none', 'none', 'flex'],
         flexDirection: 'column',
         minHeight: '100vh',
       }}

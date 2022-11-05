@@ -146,7 +146,8 @@ function StrategyComposition(props: { tokenId: number }) {
         <Text sx={{ color: '#14114B', fontSize: '20px', fontWeight: '600', fontFamily: 'Inter' }}>
           Strategy Composition
         </Text>
-        <Box
+        {/* Mint Edit Modal */}
+        {/* <Box
           sx={{
             backgroundColor: '#F3F3F3',
             borderRadius: '4px',
@@ -159,9 +160,9 @@ function StrategyComposition(props: { tokenId: number }) {
           // }}
         >
           <Image src="/icons/edit_square.svg" width={20} height={20} />
-        </Box>
+        </Box>*/}
       </Box>
-      <Box sx={{ display: 'flex', flexDirection: ['column', 'row', 'row', 'row'], gap: '10px', width: '100%' }}>
+      <Box sx={{ display: 'flex', flexDirection: ['column', 'column', 'column', 'row'], gap: '10px', width: '100%' }}>
         <Box sx={{ border: '1px solid #E3E3E3', borderRadius: '4px', flex: 2, width: '100%', overflow: 'auto' }}>
           <table style={{ width: '100%', borderSpacing: '1rem 2rem' }}>
             <thead>

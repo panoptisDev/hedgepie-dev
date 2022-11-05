@@ -24,6 +24,7 @@ function StrategyInfo() {
 
   useEffect(() => {
     let key = window.localStorage.getItem(connectorLocalStorageKey) as ConnectorNames
+    console.log('keyy+' + key)
     if (key) {
       login(key)
     }
