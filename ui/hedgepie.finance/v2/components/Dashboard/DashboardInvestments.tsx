@@ -1,5 +1,6 @@
 import { useInvestor } from 'hooks/useInvestor'
 import { useYBNFTMint } from 'hooks/useYBNFTMint'
+import Link from 'next/link'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import { Box, Button, Spinner, Text } from 'theme-ui'
@@ -10,7 +11,7 @@ function DashboardInvestments() {
   const [investmentsLoading, setInvestmentsLoading] = useState<boolean>(false)
   const [investments, setInvestments] = useState<any[]>([])
   const [invested, setInvested] = useState<number[]>([])
-  const [totalYield, setTotalYield] = useState<string>()
+  const [totalYield, setTotalYield] = useState<string>('0.0 BNB')
   const { getBalance, getNFTInfo, getYield } = useInvestor()
   const { getMaxTokenId, getTokenUri } = useYBNFTMint()
   const router = useRouter()
@@ -30,6 +31,7 @@ function DashboardInvestments() {
         }
       }
       setInvested(investedData)
+      if (!invested.length) setInvestmentsLoading(false)
     }
     getInvestedFunds()
   }, [])
@@ -178,7 +180,7 @@ function DashboardInvestments() {
           </Box> */}
         </Box>
       </Box>
-      {investmentsLoading ? (
+      {investmentsLoading && (
         <Box
           sx={{
             display: 'flex',
@@ -191,7 +193,8 @@ function DashboardInvestments() {
         >
           <Spinner />
         </Box>
-      ) : (
+      )}
+      {!investmentsLoading && invested.length > 0 && (
         <Box sx={{ border: '1px solid #D9D9D9', width: '100%', borderRadius: '8px', overflow: 'auto' }}>
           <table style={{ width: '100%', padding: '1rem', borderSpacing: '20px 15px' }}>
             <thead>
@@ -300,6 +303,28 @@ function DashboardInvestments() {
               ))}
             </tbody>
           </table>
+        </Box>
+      )}
+      {!investmentsLoading && invested.length === 0 && (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '25px',
+            margin: '1rem 1rem',
+            height: '18rem',
+            padding: '0rem 0.75rem',
+          }}
+        >
+          <Text sx={{ fontFamily: 'Inter', fontSize: '20px', color: '#14114B', fontWeight: '600' }}>
+            You currently have no investments. Explore our{' '}
+            <Link href="/nft-leaderboard">
+              <Text sx={{ color: '#1799DE', textDecoration: 'underline', cursor: 'pointer' }}>Leaderboard</Text>
+            </Link>{' '}
+            to invest in a strategy 🎉
+          </Text>
         </Box>
       )}
     </Box>
