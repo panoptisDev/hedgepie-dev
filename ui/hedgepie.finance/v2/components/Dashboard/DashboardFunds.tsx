@@ -3,7 +3,7 @@ import { useInvestor } from 'hooks/useInvestor'
 import { useYBNFTMint } from 'hooks/useYBNFTMint'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
-import { Box, Spinner, Text } from 'theme-ui'
+import { Box, Button, Spinner, Text } from 'theme-ui'
 import { getBalanceInEther } from 'utils/formatBalance'
 import { getPrice } from 'utils/getTokenPrice'
 
@@ -101,7 +101,8 @@ function DashboardFunds() {
         <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
           <Spinner />
         </Box>
-      ) : (
+      ) : null}
+      {funds.length ? (
         <Box
           sx={{
             display: 'flex',
@@ -124,7 +125,7 @@ function DashboardFunds() {
                   <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#000000' }}>
                     {f.name}
                   </Text>
-                  <Box
+                  {/* <Box
                     sx={{
                       borderRadius: '4px',
                       backgroundColor: '#F3F3F3',
@@ -155,7 +156,7 @@ function DashboardFunds() {
                     <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '10px', color: '#4D4D4D' }}>
                       {f.lastUpdated}
                     </Text>
-                  </Box>
+                  </Box> */}
                 </Box>
                 <Box sx={{ height: '2px', backgroundColor: '#D9D9D9', width: '100%' }}></Box>
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '0.5rem 1rem 1rem 1rem' }}>
@@ -208,7 +209,43 @@ function DashboardFunds() {
             ))}
           </>
         </Box>
+      ) : (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            alignItems: 'center',
+            justifyContent: 'center',
+            gap: '25px',
+            margin: '1rem 1rem',
+            height: '18rem',
+            padding: '0rem 0.75rem',
+          }}
+        >
+          <Text sx={{ fontFamily: 'Inter', fontSize: '20px', color: '#14114B', fontWeight: '600' }}>
+            You currently do not have any Minted Strategies. Please Create a strategy to view it here.
+          </Text>
+        </Box>
       )}
+      <Button
+        sx={{
+          color: '#FFFFFF',
+          backgroundColor: '#1799DE',
+          display: 'flex',
+          flexDirection: 'row',
+          alignItems: 'center',
+          justifyContent: 'center',
+          fontSize: '16px',
+          gap: '15px',
+          width: ['100%', '10rem', '10rem', '15rem'],
+          height: '3rem',
+          marginTop: '1rem',
+        }}
+        onClick={() => router.push('/mint')}
+      >
+        <Text sx={{ fontSize: '26px' }}>+</Text>
+        <Text sx={{ fontSize: '16px' }}>ADD STRATEGY</Text>
+      </Button>
     </Box>
   )
 }

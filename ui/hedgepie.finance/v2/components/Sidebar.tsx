@@ -11,7 +11,9 @@ interface SidebarProps {
 export type SidebarItemType = 'home' | 'stats' | 'history' | 'help'
 
 function Sidebar(props: SidebarProps) {
-  const sidebarItems: SidebarItemType[] = ['home', 'stats', 'history']
+  // const sidebarItems: SidebarItemType[] = ['home', 'stats', 'history']
+
+  const sidebarItems: SidebarItemType[] = ['home', 'stats']
   const dashboardValue = useContext(DashboardContext)
   const router = useRouter()
 

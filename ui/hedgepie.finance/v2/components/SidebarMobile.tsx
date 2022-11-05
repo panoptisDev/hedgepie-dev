@@ -11,7 +11,8 @@ interface SidebarProps {
 export type SidebarItemType = 'home' | 'stats' | 'history' | 'help'
 
 function SidebarMobile(props: SidebarProps) {
-  const sidebarItems: SidebarItemType[] = ['home', 'stats', 'history']
+  // const sidebarItems: SidebarItemType[] = ['home', 'stats', 'history']
+  const sidebarItems: SidebarItemType[] = ['home', 'stats']
   const dashboardValue = useContext(DashboardContext)
   const router = useRouter()
 
@@ -32,7 +33,7 @@ function SidebarMobile(props: SidebarProps) {
         backgroundColor: '#14114B',
         borderRadius: '14px',
         margin: '10px 0px',
-        display: ['flex', 'flex', 'none', 'none'],
+        display: ['none', 'none', 'none', 'none'],
         flexDirection: 'column',
         width: '100%',
       }}

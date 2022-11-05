@@ -147,113 +147,136 @@ function DashboardYieldStakeInfo() {
         gap: '15px',
       }}
     >
-      {loading ? (
-        <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
-          <Spinner />
-        </Box>
+      {invested.length ? (
+        <>
+          {loading ? (
+            <Box
+              sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}
+            >
+              <Spinner />
+            </Box>
+          ) : (
+            <Box
+              sx={{
+                display: 'flex',
+                flexDirection: ['column', 'row', 'row', 'row'],
+                alignItems: 'center',
+                width: '100%',
+                gap: '20px',
+                height: '20rem',
+              }}
+            >
+              {/* Tabs View */}
+              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: 1, height: '100%' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', gap: '0px', alignItems: 'center' }}>
+                  <Box
+                    sx={{
+                      color: activeTab === 'yield' ? '#1799DE' : '#000000',
+                      borderBottom: activeTab === 'yield' ? '2px solid #1799DE' : '2px solid #D9D9D9',
+                      cursor: 'pointer',
+                      fontFamily: 'Inter',
+                      padding: '1rem',
+                    }}
+                    onClick={() => {
+                      setActiveTab('yield')
+                    }}
+                  >
+                    <Text sx={{ fontSize: '16px', fontFamily: 'Inter', fontWeight: '600' }}>Total Yield</Text>
+                  </Box>
+                  <Box
+                    sx={{
+                      color: activeTab === 'stake' ? '#1799DE' : '#000000',
+                      borderBottom: activeTab === 'stake' ? '2px solid #1799DE' : '2px solid #D9D9D9',
+                      cursor: 'pointer',
+                      fontFamily: 'Inter',
+                      padding: '1rem',
+                    }}
+                    onClick={() => {
+                      setActiveTab('stake')
+                    }}
+                  >
+                    <Text sx={{ fontSize: '16px', fontFamily: 'Inter', fontWeight: '600' }}>Total Staked</Text>
+                  </Box>
+                </Box>
+                <Box sx={{ width: '100%', height: '100%', padding: '0.5rem' }}>
+                  {activeTab === 'yield' && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                        <Text sx={{ fontFamily: 'Inter', fontSize: '24px', fontWeight: '700', color: '#000000' }}>
+                          {`$${bnbPrice && totalYield ? (bnbPrice * totalYield).toFixed(4) : '0.0'} USD`}
+                        </Text>
+                        {/* <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '700', color: '#4F4F4F' }}>
+                    10th Aug - 19th Sept, 2022
+                  </Text> */}
+                      </Box>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {yields.map((i) => (
+                          <Box sx={{ display: 'flex', flexDirection: 'row', gap: '10px', alignItems: 'center' }}>
+                            <Box
+                              sx={{ width: '10px', height: '10px', backgroundColor: i.color, borderRadius: '60px' }}
+                            ></Box>
+                            <Text sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: '600' }}>{i.title}</Text>
+                            <Text sx={{ fontFamily: 'Inter', fontSize: '14px', fontWeight: '400' }}>{i.value}</Text>
+                          </Box>
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
+                  {activeTab === 'stake' && (
+                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
+                        <Text sx={{ fontFamily: 'Inter', fontSize: '24px', fontWeight: '700', color: '#000000' }}>
+                          {`$${bnbPrice && totalStake ? (bnbPrice * totalStake).toFixed(4) : '0.0'} USD`}
+                        </Text>
+                        {/* <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '700', color: '#4F4F4F' }}>
+                    10th Aug - 19th Sept, 2022
+                  </Text> */}
+                      </Box>
+                      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                        {stakes.map((i) => (
+                          <Box sx={{ display: 'flex', flexDirection: 'row', gap: '10px', alignItems: 'center' }}>
+                            <Box
+                              sx={{ width: '10px', height: '10px', backgroundColor: i.color, borderRadius: '60px' }}
+                            ></Box>
+                            <Text sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: '600' }}>{i.title}</Text>
+                            <Text sx={{ fontFamily: 'Inter', fontSize: '14px', fontWeight: '400' }}>{i.value}</Text>
+                          </Box>
+                        ))}
+                      </Box>
+                    </Box>
+                  )}
+                </Box>
+              </Box>
+              <Box
+                sx={{
+                  display: 'flex',
+                  flex: 1,
+                  alignItems: 'center',
+                  justifyContent: 'center',
+                  height: '100%',
+                }}
+              >
+                <YieldStakeDoughnut data={activeTab === 'yield' ? yieldChartData : stakeChartData} labels={nftNames} />
+              </Box>
+            </Box>
+          )}
+        </>
       ) : (
         <Box
           sx={{
             display: 'flex',
-            flexDirection: ['column', 'row', 'row', 'row'],
+            flexDirection: 'column',
             alignItems: 'center',
-            width: '100%',
-            gap: '20px',
-            height: '20rem',
+            justifyContent: 'center',
+            gap: '25px',
+            margin: '1rem 1rem',
+            height: '18rem',
+            padding: '0rem 0.75rem',
           }}
         >
-          {/* Tabs View */}
-          <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px', flex: 1, height: '100%' }}>
-            <Box sx={{ display: 'flex', flexDirection: 'row', gap: '0px', alignItems: 'center' }}>
-              <Box
-                sx={{
-                  color: activeTab === 'yield' ? '#1799DE' : '#000000',
-                  borderBottom: activeTab === 'yield' ? '2px solid #1799DE' : '2px solid #D9D9D9',
-                  cursor: 'pointer',
-                  fontFamily: 'Inter',
-                  padding: '1rem',
-                }}
-                onClick={() => {
-                  setActiveTab('yield')
-                }}
-              >
-                <Text sx={{ fontSize: '16px', fontFamily: 'Inter', fontWeight: '600' }}>Total Yield</Text>
-              </Box>
-              <Box
-                sx={{
-                  color: activeTab === 'stake' ? '#1799DE' : '#000000',
-                  borderBottom: activeTab === 'stake' ? '2px solid #1799DE' : '2px solid #D9D9D9',
-                  cursor: 'pointer',
-                  fontFamily: 'Inter',
-                  padding: '1rem',
-                }}
-                onClick={() => {
-                  setActiveTab('stake')
-                }}
-              >
-                <Text sx={{ fontSize: '16px', fontFamily: 'Inter', fontWeight: '600' }}>Total Staked</Text>
-              </Box>
-            </Box>
-            <Box sx={{ width: '100%', height: '100%', padding: '0.5rem' }}>
-              {activeTab === 'yield' && (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                    <Text sx={{ fontFamily: 'Inter', fontSize: '24px', fontWeight: '700', color: '#000000' }}>
-                      {`$${bnbPrice && totalYield ? (bnbPrice * totalYield).toFixed(4) : '0.0'} USD`}
-                    </Text>
-                    {/* <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '700', color: '#4F4F4F' }}>
-                    10th Aug - 19th Sept, 2022
-                  </Text> */}
-                  </Box>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {yields.map((i) => (
-                      <Box sx={{ display: 'flex', flexDirection: 'row', gap: '10px', alignItems: 'center' }}>
-                        <Box
-                          sx={{ width: '10px', height: '10px', backgroundColor: i.color, borderRadius: '60px' }}
-                        ></Box>
-                        <Text sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: '600' }}>{i.title}</Text>
-                        <Text sx={{ fontFamily: 'Inter', fontSize: '14px', fontWeight: '400' }}>{i.value}</Text>
-                      </Box>
-                    ))}
-                  </Box>
-                </Box>
-              )}
-              {activeTab === 'stake' && (
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                    <Text sx={{ fontFamily: 'Inter', fontSize: '24px', fontWeight: '700', color: '#000000' }}>
-                      {`$${bnbPrice && totalStake ? (bnbPrice * totalStake).toFixed(4) : '0.0'} USD`}
-                    </Text>
-                    {/* <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '700', color: '#4F4F4F' }}>
-                    10th Aug - 19th Sept, 2022
-                  </Text> */}
-                  </Box>
-                  <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                    {stakes.map((i) => (
-                      <Box sx={{ display: 'flex', flexDirection: 'row', gap: '10px', alignItems: 'center' }}>
-                        <Box
-                          sx={{ width: '10px', height: '10px', backgroundColor: i.color, borderRadius: '60px' }}
-                        ></Box>
-                        <Text sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: '600' }}>{i.title}</Text>
-                        <Text sx={{ fontFamily: 'Inter', fontSize: '14px', fontWeight: '400' }}>{i.value}</Text>
-                      </Box>
-                    ))}
-                  </Box>
-                </Box>
-              )}
-            </Box>
-          </Box>
-          <Box
-            sx={{
-              display: 'flex',
-              flex: 1,
-              alignItems: 'center',
-              justifyContent: 'center',
-              height: '100%',
-            }}
-          >
-            <YieldStakeDoughnut data={activeTab === 'yield' ? yieldChartData : stakeChartData} labels={nftNames} />
-          </Box>
+          <Text sx={{ fontFamily: 'Inter', fontSize: '20px', color: '#14114B', fontWeight: '600' }}>
+            Please Stake into some Strategies to view its data here 🎉
+          </Text>
         </Box>
       )}
     </Box>

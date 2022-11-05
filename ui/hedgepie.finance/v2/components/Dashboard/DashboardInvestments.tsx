@@ -149,7 +149,7 @@ function DashboardInvestments() {
             <Text sx={{ color: '#94A3B8', fontSize: '14px' }}>Total Yield:</Text>
             <Text sx={{ color: '#FFFFFF', fontSize: '16px', fontWeight: '600' }}>{totalYield}</Text>
           </Box>
-          <Box sx={{ display: 'flex', flexDirection: ['row'], gap: '10px' }}>
+          {/* <Box sx={{ display: 'flex', flexDirection: ['row'], gap: '10px' }}>
             <Box
               sx={{
                 cursor: 'pointer',
@@ -175,7 +175,7 @@ function DashboardInvestments() {
             >
               COMPOUND ALL
             </Box>
-          </Box>
+          </Box> */}
         </Box>
       </Box>
       {investmentsLoading ? (
@@ -210,7 +210,7 @@ function DashboardInvestments() {
                 <td># Participants</td>
                 <td>Stake</td>
                 <td>Yield</td>
-                <td>Action</td>
+                {/* <td>Action</td> */}
               </tr>
             </thead>
             <tbody>
@@ -252,7 +252,7 @@ function DashboardInvestments() {
                       <Text sx={{ color: '#8988A5', fontSize: '10px' }}>{investment.yield.usdValue}</Text>
                     </Box>
                   </td>
-                  <td>
+                  {/* <td>
                     <Box
                       sx={{
                         display: 'flex',
@@ -295,7 +295,7 @@ function DashboardInvestments() {
                         COMPOUND
                       </Button>
                     </Box>
-                  </td>
+                  </td> */}
                 </tr>
               ))}
             </tbody>
