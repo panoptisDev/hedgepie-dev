@@ -10,43 +10,43 @@ import "../../../interfaces/IHedgepieInvestorEth.sol";
 import "../../../interfaces/IHedgepieAdapterInfoEth.sol";
 
 interface IStrategy {
-    function deposit(uint256 _pid, uint256 _amount) external;
+    function deposit(
+        address,
+        uint256,
+        address,
+        uint16
+    ) external;
 
-    function withdraw(uint256 _pid, uint256 _amount) external;
-
-    function pendingSushi(uint256 _pid, address _user)
-        external
-        view
-        returns (uint256);
+    function withdraw(
+        address,
+        uint256,
+        address
+    ) external;
 }
 
-contract SushiFarmAdapterEth is BaseAdapterEth {
+contract AaveLendAdapterEth is BaseAdapterEth {
+    uint256 public lastStakedAmt;
+
     /**
      * @notice Construct
-     * @param _pid  strategy pool id
      * @param _strategy  address of strategy
      * @param _stakingToken  address of staking token
      * @param _rewardToken  address of reward token
-     * @param _router lp provider router address
      * @param _swapRouter swapRouter for swapping tokens
      * @param _name  adatper name
      * @param _weth  weth address
      */
     constructor(
-        uint256 _pid,
         address _strategy,
         address _stakingToken,
         address _rewardToken,
-        address _router,
         address _swapRouter,
         string memory _name,
         address _weth
     ) {
-        pid = _pid;
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
         strategy = _strategy;
-        router = _router;
         swapRouter = _swapRouter;
         name = _name;
         weth = _weth;
@@ -69,56 +69,37 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
-        if (router == address(0)) {
-            amountOut = HedgepieLibraryEth.swapOnRouter(
-                address(this),
-                _amountIn,
-                stakingToken,
-                swapRouter,
-                weth
-            );
-        } else {
-            amountOut = HedgepieLibraryEth.getLP(
-                IYBNFT.Adapter(0, stakingToken, address(this)),
-                weth,
-                _amountIn,
-                0
-            );
-        }
-        uint256 rewardAmt0;
-        uint256 rewardAmt1;
+        amountOut = HedgepieLibraryEth.swapOnRouter(
+            address(this),
+            _amountIn,
+            stakingToken,
+            swapRouter,
+            weth
+        );
 
-        rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this));
-        rewardAmt1 = rewardToken1 != address(0)
-            ? IBEP20(rewardToken1).balanceOf(address(this))
-            : 0;
+        uint256 rewardAmt;
+
+        rewardAmt =
+            IBEP20(rewardToken).balanceOf(address(this)) -
+            lastStakedAmt;
+        lastStakedAmt = IBEP20(rewardToken).balanceOf(address(this));
 
         IBEP20(stakingToken).approve(strategy, amountOut);
-        IStrategy(strategy).deposit(pid, amountOut);
-
-        rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
-        rewardAmt1 = rewardToken1 != address(0)
-            ? IBEP20(rewardToken1).balanceOf(address(this)) - rewardAmt1
-            : 0;
+        IStrategy(strategy).deposit(stakingToken, amountOut, address(this), 0);
 
         adapterInfo.totalStaked += amountOut;
-        if (rewardAmt0 != 0 && rewardToken != address(0)) {
+        if (rewardAmt != 0 && rewardToken != address(0)) {
             adapterInfo.accTokenPerShare +=
-                (rewardAmt0 * 1e12) /
-                adapterInfo.totalStaked;
-        }
-        if (rewardAmt1 != 0 && rewardToken1 != address(0)) {
-            adapterInfo.accTokenPerShare1 +=
-                (rewardAmt1 * 1e12) /
+                (rewardAmt * 1e12) /
                 adapterInfo.totalStaked;
         }
 
-        if (userInfo.amount == 0) {
+        if (userInfo.amount == 0)
             userInfo.userShares = adapterInfo.accTokenPerShare;
-            userInfo.userShares1 = adapterInfo.accTokenPerShare1;
-        }
+
         userInfo.amount += amountOut;
         userInfo.invested += _amountIn;
+        lastStakedAmt += amountOut;
 
         // Update adapterInfo contract
         address adapterInfoEthAddr = IHedgepieInvestorEth(investor)
@@ -156,53 +137,38 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
-        uint256 rewardAmt0;
-        uint256 rewardAmt1;
+        uint256 rewardAmt;
         amountOut = IBEP20(stakingToken).balanceOf(address(this));
 
-        rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this));
-        rewardAmt1 = rewardToken1 != address(0)
-            ? IBEP20(rewardToken1).balanceOf(address(this))
-            : 0;
+        rewardAmt =
+            IBEP20(rewardToken).balanceOf(address(this)) -
+            lastStakedAmt;
+        lastStakedAmt = IBEP20(rewardToken).balanceOf(address(this));
 
-        IBEP20(stakingToken).approve(strategy, amountOut);
-        IStrategy(strategy).withdraw(pid, userInfo.amount);
+        IBEP20(rewardToken).approve(strategy, amountOut);
+        IStrategy(strategy).withdraw(
+            stakingToken,
+            userInfo.amount,
+            address(this)
+        );
 
-        rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
-        rewardAmt1 = rewardToken1 != address(0)
-            ? IBEP20(rewardToken1).balanceOf(address(this)) - rewardAmt1
-            : 0;
         amountOut = IBEP20(stakingToken).balanceOf(address(this)) - amountOut;
 
-        if (rewardAmt0 != 0 && rewardToken != address(0)) {
+        if (rewardAmt != 0 && rewardToken != address(0)) {
             adapterInfo.accTokenPerShare +=
-                (rewardAmt0 * 1e12) /
-                adapterInfo.totalStaked;
-        }
-        if (rewardAmt1 != 0 && rewardToken1 != address(0)) {
-            adapterInfo.accTokenPerShare1 +=
-                (rewardAmt1 * 1e12) /
+                (rewardAmt * 1e12) /
                 adapterInfo.totalStaked;
         }
 
-        if (router == address(0)) {
-            amountOut = HedgepieLibraryEth.swapforEth(
-                address(this),
-                amountOut,
-                stakingToken,
-                swapRouter,
-                weth
-            );
-        } else {
-            amountOut = HedgepieLibraryEth.withdrawLP(
-                IYBNFT.Adapter(0, stakingToken, address(this)),
-                weth,
-                amountOut,
-                0
-            );
-        }
+        amountOut = HedgepieLibraryEth.swapforEth(
+            address(this),
+            amountOut,
+            stakingToken,
+            swapRouter,
+            weth
+        );
 
-        (uint256 reward, uint256 reward1) = HedgepieLibraryEth.getRewards(
+        (uint256 reward, ) = HedgepieLibraryEth.getRewards(
             address(this),
             _tokenId,
             _account
@@ -210,24 +176,23 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
 
         uint256 rewardETH;
         if (reward != 0) {
+            uint256 withdrawAmt = IBEP20(stakingToken).balanceOf(address(this));
+            IBEP20(rewardToken).approve(strategy, reward);
+            IStrategy(strategy).withdraw(stakingToken, reward, address(this));
+            withdrawAmt =
+                IBEP20(stakingToken).balanceOf(address(this)) -
+                withdrawAmt;
+            require(withdrawAmt == reward, "Error: Getting rewards failed");
+
             rewardETH = HedgepieLibraryEth.swapforEth(
                 address(this),
                 reward,
-                rewardToken,
+                stakingToken,
                 swapRouter,
                 weth
             );
         }
 
-        if (reward1 != 0) {
-            rewardETH += HedgepieLibraryEth.swapforEth(
-                address(this),
-                reward1,
-                rewardToken1,
-                swapRouter,
-                weth
-            );
-        }
         address adapterInfoEthAddr = IHedgepieInvestorEth(investor)
             .adapterInfo();
         amountOut += rewardETH;
@@ -257,10 +222,10 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         );
 
         adapterInfo.totalStaked -= userInfo.amount;
+        lastStakedAmt -= userInfo.amount;
         userInfo.amount = 0;
         userInfo.invested = 0;
         userInfo.userShares = 0;
-        userInfo.userShares1 = 0;
 
         if (amountOut != 0) {
             bool success;
@@ -298,34 +263,32 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
     {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
-        (uint256 reward, uint256 reward1) = HedgepieLibraryEth.getRewards(
+        (uint256 reward, ) = HedgepieLibraryEth.getRewards(
             address(this),
             _tokenId,
             _account
         );
 
         userInfo.userShares = adapterInfos[_tokenId].accTokenPerShare;
-        userInfo.userShares1 = adapterInfos[_tokenId].accTokenPerShare1;
 
         uint256 amountOut;
         if (reward != 0 && rewardToken != address(0)) {
+            uint256 withdrawAmt = IBEP20(stakingToken).balanceOf(address(this));
+            IBEP20(rewardToken).approve(strategy, reward);
+            IStrategy(strategy).withdraw(stakingToken, reward, address(this));
+            withdrawAmt =
+                IBEP20(stakingToken).balanceOf(address(this)) -
+                withdrawAmt;
+            require(withdrawAmt == reward, "Error: Getting rewards failed");
+
             amountOut += HedgepieLibraryEth.swapforEth(
                 address(this),
                 reward,
-                rewardToken,
+                stakingToken,
                 swapRouter,
                 weth
             );
-        }
-
-        if (reward1 != 0 && rewardToken1 != address(0)) {
-            amountOut += HedgepieLibraryEth.swapforEth(
-                address(this),
-                reward1,
-                rewardToken1,
-                swapRouter,
-                weth
-            );
+            lastStakedAmt -= reward;
         }
 
         if (amountOut != 0) {
@@ -364,20 +327,20 @@ contract SushiFarmAdapterEth is BaseAdapterEth {
         UserAdapterInfo memory userInfo = userAdapterInfos[_account][_tokenId];
         AdapterInfo memory adapterInfo = adapterInfos[_tokenId];
 
-        uint256 updatedAccTokenPerShare = adapterInfo.accTokenPerShare +
-            ((IStrategy(strategy).pendingSushi(pid, _account) * 1e12) /
-                adapterInfo.totalStaked);
+        uint256 updatedAccTokenPerShare = adapterInfo.accTokenPerShare;
+        if (IBEP20(rewardToken).balanceOf(address(this)) > lastStakedAmt)
+            updatedAccTokenPerShare += (((IBEP20(rewardToken).balanceOf(
+                address(this)
+            ) - lastStakedAmt) * 1e12) / adapterInfo.totalStaked);
 
         uint256 tokenRewards = ((updatedAccTokenPerShare -
             userInfo.userShares) * userInfo.amount) / 1e12;
 
         if (tokenRewards != 0)
-            reward = rewardToken == weth
-                ? tokenRewards
-                : IPancakeRouter(swapRouter).getAmountsOut(
-                    tokenRewards,
-                    getPaths(rewardToken, weth)
-                )[1];
+            reward = IPancakeRouter(swapRouter).getAmountsOut(
+                tokenRewards,
+                getPaths(stakingToken, weth)
+            )[1];
     }
 
     receive() external payable {}

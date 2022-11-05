@@ -21,25 +21,22 @@ const forkNetwork = async () => {
   });
 };
 
-describe("SushiFarmAdapterEth Integration Test", function () {
+describe("AaveLendAdapterEth Integration Test", function () {
   before("Deploy contract", async function () {
     await forkNetwork();
 
     const [owner, alice, bob, tom, treasury] = await ethers.getSigners();
 
     const performanceFee = 100;
-    const pid = 1;
     const weth = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
-    const sushi = "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2";
+    const aUSDC = "0xBcca60bB61934080951369a648Fb03DF4F96263C";
     const usdc = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
-    const strategy = "0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd"; // MasterChef V1
-    const swapRouter = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"; // sushi router address
-    const lpToken = "0x397FF1542f962076d0BFE58eA045FfA2d347ACa0"; // USDC-WETH LP
+    const strategy = "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9"; // LendingPool
+    const stakingToken = usdc;
 
     this.performanceFee = performanceFee;
     this.weth = weth;
     this.usdc = usdc;
-    this.sushi = sushi;
 
     this.owner = owner;
     this.alice = alice;
@@ -54,29 +51,17 @@ describe("SushiFarmAdapterEth Integration Test", function () {
     this.accTokenPerShare = BigNumber.from(0);
     this.accTokenPerShare1 = BigNumber.from(0);
 
-    // Get existing contract handle
-    this.sushiToken = await ethers.getContractAt("IBEP20", this.sushi);
-
     // Deploy Pancakeswap LP Adapter contract
     const Lib = await ethers.getContractFactory("HedgepieLibraryEth");
     const lib = await Lib.deploy();
-    const SushiLPAdapter = await ethers.getContractFactory("SushiFarmAdapterEth", {
+    const AaveFarmAdapter = await ethers.getContractFactory("AaveLendAdapterEth", {
       libraries: {
         HedgepieLibraryEth: lib.address,
       },
     });
 
-    this.aAdapter = await SushiLPAdapter.deploy(
-      1,
-      strategy,
-      lpToken,
-      sushi,
-      this.sushiRouter,
-      swapRouter,
-      "SushiSwap::Farm::USDC-ETH",
-      weth
-    );
-    await this.aAdapter.deployed();
+    this.adapter = await AaveFarmAdapter.deploy(strategy, usdc, aUSDC, this.sushiRouter, "AAVE::Lend::USDC", weth);
+    await this.adapter.deployed();
 
     // Deploy YBNFT contract
     const ybNftFactory = await ethers.getContractFactory("YBNFT");
@@ -85,7 +70,7 @@ describe("SushiFarmAdapterEth Integration Test", function () {
     // Deploy Adaptor Info contract
     const adapterInfo = await ethers.getContractFactory("HedgepieAdapterInfoEth");
     this.adapterInfo = await adapterInfo.deploy();
-    await this.adapterInfo.setManager(this.aAdapter.address, true);
+    await this.adapterInfo.setManager(this.adapter.address, true);
 
     // Deploy Investor contract
     const investorFactory = await ethers.getContractFactory("HedgepieInvestorEth");
@@ -96,17 +81,17 @@ describe("SushiFarmAdapterEth Integration Test", function () {
     this.adapterManager = await adapterManager.deploy();
 
     // set investor
-    await this.aAdapter.setInvestor(this.investor.address);
+    await this.adapter.setInvestor(this.investor.address);
 
     // Mint NFTs
     // tokenID: 1
-    await this.ybNft.mint([10000], [lpToken], [this.aAdapter.address], performanceFee, "test tokenURI1");
+    await this.ybNft.mint([10000], [stakingToken], [this.adapter.address], performanceFee, "test tokenURI1");
 
     // tokenID: 2
-    await this.ybNft.mint([10000], [lpToken], [this.aAdapter.address], performanceFee, "test tokenURI2");
+    await this.ybNft.mint([10000], [stakingToken], [this.adapter.address], performanceFee, "test tokenURI2");
 
     // Add Venus Adapter to AdapterManager
-    await this.adapterManager.addAdapter(this.aAdapter.address);
+    await this.adapterManager.addAdapter(this.adapter.address);
 
     // Set investor in adapter manager
     await this.adapterManager.setInvestor(this.investor.address);
@@ -116,19 +101,17 @@ describe("SushiFarmAdapterEth Integration Test", function () {
     await this.investor.setTreasury(this.owner.address);
 
     // Set investor in pancake adapter
-    await this.aAdapter.setInvestor(this.investor.address);
-    await this.aAdapter.setPath(this.weth, this.sushi, [this.weth, this.sushi]);
-    await this.aAdapter.setPath(this.sushi, this.weth, [this.sushi, this.weth]);
-    await this.aAdapter.setPath(this.weth, this.usdc, [this.weth, this.usdc]);
-    await this.aAdapter.setPath(this.usdc, this.weth, [this.usdc, this.weth]);
+    await this.adapter.setInvestor(this.investor.address);
+    await this.adapter.setPath(this.weth, this.usdc, [this.weth, this.usdc]);
+    await this.adapter.setPath(this.usdc, this.weth, [this.usdc, this.weth]);
 
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
     console.log("Strategy: ", strategy);
     console.log("Info: ", this.adapterInfo.address);
-    console.log("SushiSwapFarmLPAdapter: ", this.aAdapter.address);
+    console.log("AaveLendAdapterEth: ", this.adapter.address);
 
-    this.lpContract = await ethers.getContractAt("VBep20Interface", lpToken);
+    this.lpContract = await ethers.getContractAt("VBep20Interface", stakingToken);
   });
 
   describe("depositETH function test", function () {
@@ -153,24 +136,20 @@ describe("SushiFarmAdapterEth Integration Test", function () {
 
     it("(3) deposit should success for Alice", async function () {
       const depositAmount = ethers.utils.parseEther("10");
-      await expect(
-        this.investor.connect(this.alice).depositETH(1, depositAmount, {
-          gasPrice: 21e9,
-          value: depositAmount,
-        })
-      )
-        .to.emit(this.investor, "DepositETH")
-        .withArgs(this.aliceAddr, this.ybNft.address, 1, depositAmount);
+      await this.investor.connect(this.alice).depositETH(1, depositAmount, {
+        gasPrice: 21e9,
+        value: depositAmount,
+      });
 
-      const aliceInfo = (await this.aAdapter.userAdapterInfos(this.aliceAddr, 1)).invested;
+      const aliceInfo = (await this.adapter.userAdapterInfos(this.aliceAddr, 1)).invested;
       expect(Number(aliceInfo) / Math.pow(10, 18)).to.eq(10);
 
-      const aliceAdapterInfos = await this.aAdapter.userAdapterInfos(this.aliceAddr, 1);
-      const adapterInfos = await this.aAdapter.adapterInfos(1);
+      const aliceAdapterInfos = await this.adapter.userAdapterInfos(this.aliceAddr, 1);
+      const adapterInfos = await this.adapter.adapterInfos(1);
       expect(BigNumber.from(adapterInfos.totalStaked)).to.eq(BigNumber.from(aliceAdapterInfos.amount));
 
       // Check accTokenPerShare Info
-      this.accTokenPerShare = (await this.aAdapter.adapterInfos(1)).accTokenPerShare;
+      this.accTokenPerShare = (await this.adapter.adapterInfos(1)).accTokenPerShare;
       expect(BigNumber.from(this.accTokenPerShare)).to.eq(BigNumber.from(0));
     });
 
@@ -182,62 +161,55 @@ describe("SushiFarmAdapterEth Integration Test", function () {
       await ethers.provider.send("evm_increaseTime", [3600 * 24]);
       await ethers.provider.send("evm_mine", []);
 
-      const beforeAdapterInfos = await this.aAdapter.adapterInfos(1);
+      const beforeAdapterInfos = await this.adapter.adapterInfos(1);
       const depositAmount = ethers.utils.parseEther("10");
 
-      await expect(
-        this.investor.connect(this.bob).depositETH(1, depositAmount, {
-          gasPrice: 21e9,
-          value: depositAmount,
-        })
-      )
-        .to.emit(this.investor, "DepositETH")
-        .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
+      await this.investor.connect(this.bob).depositETH(1, depositAmount, {
+        gasPrice: 21e9,
+        value: depositAmount,
+      });
 
-      await expect(
-        this.investor.connect(this.bob).depositETH(1, depositAmount, {
-          gasPrice: 21e9,
-          value: depositAmount,
-        })
-      )
-        .to.emit(this.investor, "DepositETH")
-        .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
+      await this.investor.connect(this.bob).depositETH(1, depositAmount, {
+        gasPrice: 21e9,
+        value: depositAmount,
+      });
 
-      const bobInfo = (await this.aAdapter.userAdapterInfos(this.bobAddr, 1)).invested;
+      const bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1)).invested;
       expect(Number(bobInfo) / Math.pow(10, 18)).to.eq(20);
 
-      const bobAdapterInfos = await this.aAdapter.userAdapterInfos(this.bobAddr, 1);
+      const bobAdapterInfos = await this.adapter.userAdapterInfos(this.bobAddr, 1);
       expect(BigNumber.from(bobAdapterInfos.amount).gt(0)).to.eq(true);
 
-      const afterAdapterInfos = await this.aAdapter.adapterInfos(1);
+      const afterAdapterInfos = await this.adapter.adapterInfos(1);
 
       expect(BigNumber.from(afterAdapterInfos.totalStaked).gt(beforeAdapterInfos.totalStaked)).to.eq(true);
 
       // Check accTokenPerShare Info
       expect(
-        BigNumber.from((await this.aAdapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
+        BigNumber.from((await this.adapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
       ).to.eq(true);
 
-      this.accTokenPerShare = (await this.aAdapter.adapterInfos(1)).accTokenPerShare;
+      this.accTokenPerShare = (await this.adapter.adapterInfos(1)).accTokenPerShare;
     });
 
     it("(5) test claim, pendingReward function and protocol-fee", async function () {
       const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
       const beforeETHOwner = await ethers.provider.getBalance(this.owner.address);
+
       const pending = await this.investor.pendingReward(1, this.aliceAddr);
 
-      await this.investor.connect(this.alice).claim(1);
       const gasPrice = await ethers.provider.getGasPrice();
       const gas = await this.investor.connect(this.alice).estimateGas.claim(1);
+      await this.investor.connect(this.alice).claim(1);
 
       const afterETH = await ethers.provider.getBalance(this.aliceAddr);
       const protocolFee = (await ethers.provider.getBalance(this.owner.address)).sub(beforeETHOwner);
       const actualPending = afterETH.sub(beforeETH).add(gas.mul(gasPrice));
 
-      expect(pending).to.be.within(actualPending, actualPending.add(BigNumber.from(2e14))) &&
+      expect(pending).to.be.within(actualPending.sub(BigNumber.from(8e13)), actualPending) &&
         expect(protocolFee).to.be.within(
-          actualPending.mul(this.performanceFee).div(1e4),
-          actualPending.add(BigNumber.from(2e14)).mul(this.performanceFee).div(1e4)
+          actualPending.sub(BigNumber.from(8e13)).mul(this.performanceFee).div(1e4),
+          actualPending.mul(this.performanceFee).div(1e4)
         );
     });
 
@@ -270,27 +242,24 @@ describe("SushiFarmAdapterEth Integration Test", function () {
       // withdraw from nftId: 1
       const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
 
-      await expect(this.investor.connect(this.alice).withdrawETH(1, { gasPrice: 21e9 })).to.emit(
-        this.investor,
-        "WithdrawETH"
-      );
+      await this.investor.connect(this.alice).withdrawETH(1, { gasPrice: 21e9 });
 
       const afterETH = await ethers.provider.getBalance(this.aliceAddr);
 
       expect(BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))).to.eq(true);
 
-      const aliceInfo = (await this.aAdapter.userAdapterInfos(this.aliceAddr, 1)).invested;
+      const aliceInfo = (await this.adapter.userAdapterInfos(this.aliceAddr, 1)).invested;
       expect(aliceInfo).to.eq(BigNumber.from(0));
 
-      const bobInfo = (await this.aAdapter.userAdapterInfos(this.bobAddr, 1)).invested;
+      const bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1)).invested;
       const bobDeposit = Number(bobInfo) / Math.pow(10, 18);
       expect(bobDeposit).to.eq(20);
 
       expect(
-        BigNumber.from((await this.aAdapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
+        BigNumber.from((await this.adapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
       ).to.eq(true);
 
-      this.accTokenPerShare = (await this.aAdapter.adapterInfos(1)).accTokenPerShare;
+      this.accTokenPerShare = (await this.adapter.adapterInfos(1)).accTokenPerShare;
     });
 
     it("(3) test TVL & participants after Alice withdraw", async function () {
@@ -306,24 +275,21 @@ describe("SushiFarmAdapterEth Integration Test", function () {
       // withdraw from nftId: 1
       const beforeETH = await ethers.provider.getBalance(this.bobAddr);
 
-      await expect(this.investor.connect(this.bob).withdrawETH(1, { gasPrice: 21e9 })).to.emit(
-        this.investor,
-        "WithdrawETH"
-      );
+      await this.investor.connect(this.bob).withdrawETH(1, { gasPrice: 21e9 });
 
       const afterETH = await ethers.provider.getBalance(this.bobAddr);
 
       expect(BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))).to.eq(true);
 
-      const bobInfo = (await this.aAdapter.userAdapterInfos(this.bobAddr, 1)).invested;
+      const bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1)).invested;
       expect(bobInfo).to.eq(BigNumber.from(0));
 
       // Check accTokenPerShare Info
       expect(
-        BigNumber.from((await this.aAdapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
+        BigNumber.from((await this.adapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
       ).to.eq(true);
 
-      this.accTokenPerShare = (await this.aAdapter.adapterInfos(1)).accTokenPerShare;
+      this.accTokenPerShare = (await this.adapter.adapterInfos(1)).accTokenPerShare;
     });
 
     it("(5) test TVL & participants after Alice & Bob withdraw", async function () {
