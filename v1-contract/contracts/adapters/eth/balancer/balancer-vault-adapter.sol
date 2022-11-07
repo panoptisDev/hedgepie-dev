@@ -9,8 +9,6 @@ import "../../../interfaces/IYBNFT.sol";
 import "../../../interfaces/IHedgepieInvestorEth.sol";
 import "../../../interfaces/IHedgepieAdapterInfoEth.sol";
 
-import "hardhat/console.sol";
-
 struct JoinPoolRequest {
     address[] assets;
     uint256[] maxAmountsIn;
@@ -35,14 +33,17 @@ interface IStrategy {
 }
 
 contract BalancerVaultAdapterEth is BaseAdapterEth {
+    // Balancer Vault pool id
     bytes32 public poolId;
+
+    // Reward tokens on Balancer
     address[2] public rewardTokens;
 
     /**
      * @notice Construct
      * @param _pid  strategy pool id
      * @param _strategy  address of strategy
-     * @param _rewardToken  address of reward token
+     * @param _rewardTokens  address of reward token
      * @param _repayToken  address of repay token
      * @param _router lp provider router address
      * @param _swapRouter swapRouter for swapping tokens
@@ -52,7 +53,7 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
     constructor(
         bytes32 _pid,
         address _strategy,
-        address[2] memory _rewardToken,
+        address[2] memory _rewardTokens,
         address _repayToken,
         address _router,
         address _swapRouter,
@@ -61,8 +62,8 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
     ) {
         poolId = _pid;
         repayToken = _repayToken;
-        rewardTokens[0] = _rewardToken[0];
-        rewardTokens[1] = _rewardToken[1];
+        rewardTokens[0] = _rewardTokens[0];
+        rewardTokens[1] = _rewardTokens[1];
         strategy = _strategy;
         router = _router;
         swapRouter = _swapRouter;
@@ -80,7 +81,7 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
         uint256 _tokenId,
         address _account,
         uint256 _amountIn
-    ) external payable override returns (uint256 amountOut) {
+    ) external payable override returns (uint256) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
@@ -103,7 +104,6 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
         );
         repayAmt = IBEP20(repayToken).balanceOf(address(this)) - repayAmt;
 
-        amountOut = msg.value;
         adapterInfo.totalStaked += repayAmt;
         userInfo.amount += repayAmt;
         userInfo.invested += _amountIn;
@@ -143,19 +143,16 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
     {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
-        uint256 rewardAmt0;
-        uint256 rewardAmt1;
-        rewardAmt0 = IBEP20(rewardTokens[0]).balanceOf(address(this));
-        rewardAmt1 = IBEP20(rewardTokens[1]).balanceOf(address(this));
+        uint256[] memory rewardAmt = new uint256[](rewardTokens.length);
+        uint256 i;
+        for (i = 0; i < rewardTokens.length; i++)
+            rewardAmt[i] = IBEP20(rewardTokens[i]).balanceOf(address(this));
+
         IBEP20(repayToken).approve(strategy, userInfo.amount);
 
         address[] memory assets = new address[](2);
         assets[0] = rewardTokens[0];
         assets[1] = rewardTokens[1];
-
-        uint256[] memory amounts = new uint256[](2);
-        amounts[0] = 1;
-        amounts[1] = userInfo.amount;
 
         uint256[] memory minAmountsOut = new uint256[](2);
         minAmountsOut[0] = 0;
@@ -172,56 +169,28 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
                 false
             )
         );
-        rewardAmt0 =
-            IBEP20(rewardTokens[0]).balanceOf(address(this)) -
-            rewardAmt0;
-        rewardAmt1 =
-            IBEP20(rewardTokens[1]).balanceOf(address(this)) -
-            rewardAmt1;
+        for (i = 0; i < rewardTokens.length; i++)
+            rewardAmt[i] =
+                IBEP20(rewardTokens[i]).balanceOf(address(this)) -
+                rewardAmt[i];
 
         if (router == address(0)) {
-            amountOut = HedgepieLibraryEth.swapforEth(
-                address(this),
-                amountOut,
-                stakingToken,
-                swapRouter,
-                weth
-            );
-        } else {
-            amountOut = HedgepieLibraryEth.withdrawLP(
-                IYBNFT.Adapter(0, stakingToken, address(this)),
-                weth,
-                amountOut,
-                0
-            );
+            for (i = 0; i < rewardTokens.length; i++)
+                amountOut += HedgepieLibraryEth.swapforEth(
+                    address(this),
+                    rewardAmt[i],
+                    rewardTokens[i],
+                    swapRouter,
+                    weth
+                );
         }
-        (uint256 reward, uint256 reward1) = HedgepieLibraryEth.getRewards(
-            address(this),
-            _tokenId,
-            _account
-        );
+
         uint256 rewardETH;
-        if (reward != 0) {
-            rewardETH = HedgepieLibraryEth.swapforEth(
-                address(this),
-                reward,
-                rewardToken,
-                swapRouter,
-                weth
-            );
-        }
-        if (reward1 != 0) {
-            rewardETH += HedgepieLibraryEth.swapforEth(
-                address(this),
-                reward1,
-                rewardToken1,
-                swapRouter,
-                weth
-            );
-        }
+        if (amountOut > userInfo.invested)
+            rewardETH = amountOut - userInfo.invested;
+
         address adapterInfoEthAddr = IHedgepieInvestorEth(investor)
             .adapterInfo();
-        amountOut += rewardETH;
         if (rewardETH != 0) {
             IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateProfitInfo(
                 _tokenId,
@@ -248,26 +217,25 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
         adapterInfo.totalStaked -= userInfo.amount;
         userInfo.amount = 0;
         userInfo.invested = 0;
-        userInfo.userShares = 0;
-        userInfo.userShares1 = 0;
-        // if (amountOut != 0) {
-        //     bool success;
-        //     uint256 taxAmount;
-        //     if (rewardETH != 0) {
-        //         taxAmount =
-        //             (rewardETH *
-        //                 IYBNFT(IHedgepieInvestorEth(investor).ybnft())
-        //                     .performanceFee(_tokenId)) /
-        //             1e4;
-        //         (success, ) = payable(IHedgepieInvestorEth(investor).treasury())
-        //             .call{value: taxAmount}("");
-        //         require(success, "Failed to send ether to Treasury");
-        //     }
-        //     (success, ) = payable(_account).call{value: amountOut - taxAmount}(
-        //         ""
-        //     );
-        //     require(success, "Failed to send ether");
-        // }
+
+        if (amountOut != 0) {
+            bool success;
+            uint256 taxAmount;
+            if (rewardETH != 0) {
+                taxAmount =
+                    (rewardETH *
+                        IYBNFT(IHedgepieInvestorEth(investor).ybnft())
+                            .performanceFee(_tokenId)) /
+                    1e4;
+                (success, ) = payable(IHedgepieInvestorEth(investor).treasury())
+                    .call{value: taxAmount}("");
+                require(success, "Failed to send ether to Treasury");
+            }
+            (success, ) = payable(_account).call{value: amountOut - taxAmount}(
+                ""
+            );
+            require(success, "Failed to send ether");
+        }
         return amountOut;
     }
 

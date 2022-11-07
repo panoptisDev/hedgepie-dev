@@ -31,6 +31,7 @@ describe("BalancerVaultAdapterEth Integration Test", function () {
     const pid = "0x32296969ef14eb0c6d29669c550d4a0449130230000200000000000000000080";
     const wstETH = "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0";
     const weth = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
+    const dai = "0x6b175474e89094c44da98b954eedeac495271d0f";
     const strategy = "0xBA12222222228d8Ba445958a75a0704d566BF2C8"; // Balancer Vault
     const repayToken = "0x32296969Ef14EB0c6d29669C550D4a0449130230"; // Balancer stETH
     const swapRouter = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"; // sushi router address
@@ -51,9 +52,6 @@ describe("BalancerVaultAdapterEth Integration Test", function () {
     this.tomAddr = tom.address;
     this.treasuryAddr = treasury.address;
 
-    // Get existing contract handle
-    // this.sushiToken = await ethers.getContractAt("IBEP20", this.sushi);
-
     // Deploy BalancerVaultAdapterEth contract
     const Lib = await ethers.getContractFactory("HedgepieLibraryEth");
     const lib = await Lib.deploy();
@@ -68,7 +66,7 @@ describe("BalancerVaultAdapterEth Integration Test", function () {
       strategy,
       [wstETH, weth],
       repayToken,
-      this.sushiRouter,
+      "0x0000000000000000000000000000000000000000",
       swapRouter,
       "Balancer::Vault::ETH",
       weth
@@ -112,20 +110,18 @@ describe("BalancerVaultAdapterEth Integration Test", function () {
     await this.investor.setAdapterManager(this.adapterManager.address);
     await this.investor.setTreasury(this.owner.address);
 
-    // Set investor in pancake adapter
+    // Set investor in balancer vault adapter
     await this.aAdapter.setInvestor(this.investor.address);
-    // await this.aAdapter.setPath(this.weth, this.sushi, [this.weth, this.sushi]);
-    // await this.aAdapter.setPath(this.sushi, this.weth, [this.sushi, this.weth]);
-    // await this.aAdapter.setPath(this.weth, this.usdc, [this.weth, this.usdc]);
-    // await this.aAdapter.setPath(this.usdc, this.weth, [this.usdc, this.weth]);
+
+    // Set paths for swapping tokens
+    await this.aAdapter.setPath(this.weth, this.wstETH, [this.weth, dai, this.wstETH]);
+    await this.aAdapter.setPath(this.wstETH, this.weth, [this.wstETH, dai, this.weth]);
 
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
     console.log("Strategy: ", strategy);
     console.log("Info: ", this.adapterInfo.address);
     console.log("BalancerVaultAdapterEth: ", this.aAdapter.address);
-
-    // this.lpContract = await ethers.getContractAt("VBep20Interface", lpToken);
   });
 
   describe("depositETH function test", function () {
@@ -245,12 +241,6 @@ describe("BalancerVaultAdapterEth Integration Test", function () {
       const bobInfo = (await this.aAdapter.userAdapterInfos(this.bobAddr, 1)).invested;
       const bobDeposit = Number(bobInfo) / Math.pow(10, 18);
       expect(bobDeposit).to.eq(20);
-
-      expect(
-        BigNumber.from((await this.aAdapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
-      ).to.eq(true);
-
-      this.accTokenPerShare = (await this.aAdapter.adapterInfos(1)).accTokenPerShare;
     });
 
     it("(3) test TVL & participants after Alice withdraw", async function () {
@@ -277,13 +267,6 @@ describe("BalancerVaultAdapterEth Integration Test", function () {
 
       const bobInfo = (await this.aAdapter.userAdapterInfos(this.bobAddr, 1)).invested;
       expect(bobInfo).to.eq(BigNumber.from(0));
-
-      // Check accTokenPerShare Info
-      expect(
-        BigNumber.from((await this.aAdapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
-      ).to.eq(true);
-
-      this.accTokenPerShare = (await this.aAdapter.adapterInfos(1)).accTokenPerShare;
     });
 
     it("(5) test TVL & participants after Alice & Bob withdraw", async function () {
