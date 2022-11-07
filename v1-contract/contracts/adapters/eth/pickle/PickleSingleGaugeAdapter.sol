@@ -63,7 +63,7 @@ contract PickleSingleGaugeAdapter is BaseAdapterEth {
     }
 
     /**
-     * @notice Deposit to yearn adapter
+     * @notice Deposit to PickleSingleGauge adapter
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
      * @param _amountIn  amount of eth
@@ -152,7 +152,7 @@ contract PickleSingleGaugeAdapter is BaseAdapterEth {
     }
 
     /**
-     * @notice Withdraw to yearn adapter
+     * @notice Withdraw to PickleSingleGauge adapter
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
      */

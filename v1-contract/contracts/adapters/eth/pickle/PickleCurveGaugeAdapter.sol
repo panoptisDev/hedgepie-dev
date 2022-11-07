@@ -197,7 +197,7 @@ contract PickleCurveGaugeAdapter is BaseAdapterEth {
     }
 
     /**
-     * @notice Deposit to yearn adapter
+     * @notice Deposit to PickleCurveGauge adapter
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
      * @param _amountIn  amount of eth
@@ -281,7 +281,7 @@ contract PickleCurveGaugeAdapter is BaseAdapterEth {
     }
 
     /**
-     * @notice Withdraw to yearn adapter
+     * @notice Withdraw to PickleCurveGauge adapter
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
      */

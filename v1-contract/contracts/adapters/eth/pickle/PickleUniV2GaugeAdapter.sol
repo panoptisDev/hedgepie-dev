@@ -64,7 +64,7 @@ contract PickleUniV2GaugeAdapter is BaseAdapterEth {
     }
 
     /**
-     * @notice Deposit to yearn adapter
+     * @notice Deposit to PickleUniV2Gauge adapter
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
      * @param _amountIn  amount of eth
@@ -153,7 +153,7 @@ contract PickleUniV2GaugeAdapter is BaseAdapterEth {
     }
 
     /**
-     * @notice Withdraw to yearn adapter
+     * @notice Withdraw to PickleUniV2Gauge adapter
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
      */

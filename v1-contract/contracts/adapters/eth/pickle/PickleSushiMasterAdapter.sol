@@ -65,7 +65,7 @@ contract PickleSushiMasterAdapter is BaseAdapterEth {
     }
 
     /**
-     * @notice Deposit to yearn adapter
+     * @notice Deposit to PickleSushiMaster adapter
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
      * @param _amountIn  amount of eth
@@ -154,7 +154,7 @@ contract PickleSushiMasterAdapter is BaseAdapterEth {
     }
 
     /**
-     * @notice Withdraw to yearn adapter
+     * @notice Withdraw to PickleSushiMaster adapter
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
      */
