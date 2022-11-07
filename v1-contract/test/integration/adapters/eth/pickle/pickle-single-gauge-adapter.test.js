@@ -156,13 +156,6 @@ describe("PickleSingleGaugeAdapterEth Integration Test", function () {
     });
 
     it("(4) deposit should success for Bob", async function () {
-      // wait 40 mins
-      for (let i = 0; i < 7200; i++) {
-        await ethers.provider.send("evm_mine", []);
-      }
-      await ethers.provider.send("evm_increaseTime", [3600 * 24]);
-      await ethers.provider.send("evm_mine", []);
-
       const beforeAdapterInfos = await this.aAdapter.adapterInfos(1);
       const depositAmount = ethers.utils.parseEther("10");
 
@@ -204,6 +197,10 @@ describe("PickleSingleGaugeAdapterEth Integration Test", function () {
     });
 
     it("(5) test claim, pendingReward function and protocol-fee", async function () {
+      // wait 7 day
+      await ethers.provider.send("evm_increaseTime", [3600 * 24 * 7]);
+      await ethers.provider.send("evm_mine", []);
+
       const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
       const beforeETHOwner = await ethers.provider.getBalance(this.owner.address);
       const pending = await this.investor.pendingReward(1, this.aliceAddr);
@@ -248,9 +245,6 @@ describe("PickleSingleGaugeAdapterEth Integration Test", function () {
     });
 
     it("(2) should receive the ETH successfully after withdraw function for Alice", async function () {
-      await ethers.provider.send("evm_increaseTime", [3600 * 24 * 30]);
-      await ethers.provider.send("evm_mine", []);
-
       // withdraw from nftId: 1
       const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
 
@@ -285,8 +279,6 @@ describe("PickleSingleGaugeAdapterEth Integration Test", function () {
     });
 
     it("(4) should receive the ETH successfully after withdraw function for Bob", async function () {
-      await ethers.provider.send("evm_increaseTime", [3600 * 24 * 30]);
-      await ethers.provider.send("evm_mine", []);
       // withdraw from nftId: 1
       const beforeETH = await ethers.provider.getBalance(this.bobAddr);
 
