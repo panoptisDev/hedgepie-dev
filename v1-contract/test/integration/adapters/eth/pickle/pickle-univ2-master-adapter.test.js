@@ -16,7 +16,7 @@ const forkNetwork = async () => {
   });
 };
 
-describe.only("PickleUniV2MasterAdapterEth Integration Test", function () {
+describe("PickleUniV2MasterAdapterEth Integration Test", function () {
   before("Deploy contract", async function () {
     await forkNetwork();
 
