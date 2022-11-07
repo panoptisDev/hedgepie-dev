@@ -64,6 +64,40 @@ contract PickleSushiGaugeAdapter is BaseAdapterEth {
     }
 
     /**
+     * @notice Get reward from gauge
+     * @param _tokenId  tokenId
+     */
+    function _getReward(
+        uint256 _tokenId
+    ) internal {
+        uint256 rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this));
+        uint256 rewardAmt1 = rewardToken1 != address(0)
+            ? IBEP20(rewardToken1).balanceOf(address(this))
+            : 0;
+
+        IStrategy(strategy).getReward();
+
+        unchecked {
+            rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
+            rewardAmt1 = rewardToken1 != address(0)
+                ? IBEP20(rewardToken1).balanceOf(address(this)) - rewardAmt1
+                : 0;
+
+            AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
+            if (rewardAmt0 != 0 && rewardToken != address(0)) {
+                adapterInfo.accTokenPerShare +=
+                    (rewardAmt0 * 1e12) /
+                    adapterInfo.totalStaked;
+            }
+            if (rewardAmt1 != 0 && rewardToken1 != address(0)) {
+                adapterInfo.accTokenPerShare1 +=
+                    (rewardAmt1 * 1e12) /
+                    adapterInfo.totalStaked;
+            }
+        }
+    }
+
+    /**
      * @notice Deposit to PickleSushiGauge adapter
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
@@ -166,31 +200,12 @@ contract PickleSushiGaugeAdapter is BaseAdapterEth {
 
         // withdraw from MasterChef
         amountOut = IBEP20(jar).balanceOf(address(this));
-        uint256 rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this));
-        uint256 rewardAmt1 = rewardToken1 != address(0)
-            ? IBEP20(rewardToken1).balanceOf(address(this))
-            : 0;
 
-        IStrategy(strategy).getReward();
+        _getReward(_tokenId);
         IStrategy(strategy).withdraw(userInfo.amount);
 
         unchecked {
-            rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
-            rewardAmt1 = rewardToken1 != address(0)
-                ? IBEP20(rewardToken1).balanceOf(address(this)) - rewardAmt1
-                : 0;
             amountOut = IBEP20(jar).balanceOf(address(this)) - amountOut;
-
-            if (rewardAmt0 != 0 && rewardToken != address(0)) {
-                adapterInfo.accTokenPerShare +=
-                    (rewardAmt0 * 1e12) /
-                    adapterInfo.totalStaked;
-            }
-            if (rewardAmt1 != 0 && rewardToken1 != address(0)) {
-                adapterInfo.accTokenPerShare1 +=
-                    (rewardAmt1 * 1e12) /
-                    adapterInfo.totalStaked;
-            }
         }
 
         // withdraw from Jar
@@ -300,6 +315,8 @@ contract PickleSushiGaugeAdapter is BaseAdapterEth {
         returns (uint256)
     {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
+
+        _getReward(_tokenId);
 
         (uint256 reward, uint256 reward1) = HedgepieLibraryEth.getRewards(
             address(this),
