@@ -161,6 +161,9 @@ describe("PickleCurveGaugeAdapterEth Integration Test", function () {
     });
 
     it("(4) deposit should success for Bob", async function () {
+      const beforeAdapterInfos = await this.aAdapter.adapterInfos(1);
+      const depositAmount = ethers.utils.parseEther("10");
+      
       await expect(
         this.investor.connect(this.bob).depositETH(1, depositAmount, {
           gasPrice: 21e9,
@@ -186,7 +189,6 @@ describe("PickleCurveGaugeAdapterEth Integration Test", function () {
       expect(BigNumber.from(bobAdapterInfos.amount).gt(0)).to.eq(true);
 
       const afterAdapterInfos = await this.aAdapter.adapterInfos(1);
-
       expect(BigNumber.from(afterAdapterInfos.totalStaked).gt(beforeAdapterInfos.totalStaked)).to.eq(true);
 
       // Check accTokenPerShare Info
