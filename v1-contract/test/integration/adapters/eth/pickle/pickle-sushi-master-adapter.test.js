@@ -281,7 +281,8 @@ describe("PickleSushiFarmAdapterEth Integration Test", function () {
       expect(bobDeposit).to.eq(20);
 
       expect(
-        BigNumber.from((await this.aAdapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
+        BigNumber.from((await this.aAdapter.adapterInfos(1)).accTokenPerShare)
+        .gte(BigNumber.from(this.accTokenPerShare))
       ).to.eq(true);
 
       this.accTokenPerShare = (await this.aAdapter.adapterInfos(1)).accTokenPerShare;
