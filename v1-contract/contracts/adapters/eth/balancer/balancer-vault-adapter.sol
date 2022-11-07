@@ -1,9 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "@uniswap/v3-periphery/contracts/interfaces/INonfungiblePositionManager.sol";
-import "@openzeppelin/contracts/token/ERC721/IERC721Receiver.sol";
-
 import "../../BaseAdapterEth.sol";
 
 import "../../../libraries/HedgepieLibraryEth.sol";
@@ -12,145 +9,106 @@ import "../../../interfaces/IYBNFT.sol";
 import "../../../interfaces/IHedgepieInvestorEth.sol";
 import "../../../interfaces/IHedgepieAdapterInfoEth.sol";
 
-contract BalancerVaultAdapterEth is BaseAdapterEth, IERC721Receiver {
-    // user => nft id => tokenID
-    mapping(address => mapping(uint256 => uint256)) public liquidityNFT;
+import "hardhat/console.sol";
 
-    int24 public tickLower;
+struct JoinPoolRequest {
+    address[] assets;
+    uint256[] maxAmountsIn;
+    bytes userData;
+    bool fromInternalBalance;
+}
 
-    int24 public tickUpper;
+interface IStrategy {
+    function joinPool(
+        bytes32 _pid,
+        address _sender,
+        address _recipient,
+        JoinPoolRequest memory _request
+    ) external payable;
 
-    receive() external payable {}
+    function exitPool(
+        bytes32 _pid,
+        address _sender,
+        address _recipient,
+        JoinPoolRequest memory _request
+    ) external payable;
+}
+
+contract BalancerVaultAdapterEth is BaseAdapterEth {
+    bytes32 public poolId;
+    address[2] public rewardTokens;
 
     /**
      * @notice Construct
+     * @param _pid  strategy pool id
      * @param _strategy  address of strategy
-     * @param _stakingToken  address of staking token
-     * @param _router  address of reward token
-     * @param _lower  tickLower
-     * @param _upper  tickUpper
-     * @param _weth  weth address
+     * @param _rewardToken  address of reward token
+     * @param _repayToken  address of repay token
+     * @param _router lp provider router address
+     * @param _swapRouter swapRouter for swapping tokens
      * @param _name  adatper name
+     * @param _weth  weth address
      */
     constructor(
+        bytes32 _pid,
         address _strategy,
-        address _stakingToken,
+        address[2] memory _rewardToken,
+        address _repayToken,
         address _router,
-        int24 _lower,
-        int24 _upper,
-        address _weth,
-        string memory _name
+        address _swapRouter,
+        string memory _name,
+        address _weth
     ) {
-        router = _router;
+        poolId = _pid;
+        repayToken = _repayToken;
+        rewardTokens[0] = _rewardToken[0];
+        rewardTokens[1] = _rewardToken[1];
         strategy = _strategy;
-        stakingToken = _stakingToken;
+        router = _router;
+        swapRouter = _swapRouter;
         name = _name;
         weth = _weth;
-
-        tickLower = _lower;
-        tickUpper = _upper;
     }
 
     /**
-     * @notice Set liqudityToken
-     * @param _user  user address
-     * @param _nftId  nftId
-     * @param _tokenId  amount of withdrawal
-     */
-    function setLiquidityNFT(
-        address _user,
-        uint256 _nftId,
-        uint256 _tokenId
-    ) public {
-        liquidityNFT[_user][_nftId] = _tokenId;
-    }
-
-    /**
-     * @notice Get liqudity token
-     * @param _user  user address
-     * @param _nftId  nftId
-     */
-    function getLiquidityNFT(address _user, uint256 _nftId)
-        public
-        view
-        returns (uint256 tokenId)
-    {
-        tokenId = liquidityNFT[_user][_nftId];
-    }
-
-    /**
-     * @notice Get tick info
-     */
-    function getTick() public view returns (int24 _lower, int24 _upper) {
-        _lower = tickLower;
-        _upper = tickUpper;
-    }
-
-    /**
-     * @notice Swap ETH to tokens and approve
-     * @param _token  address of token
-     * @param _inAmount  amount of ETH
-     */
-    function _swapAndApprove(address _token, uint256 _inAmount)
-        internal
-        returns (uint256 amountOut)
-    {
-        if (_token == weth) {
-            amountOut = _inAmount;
-            IWrap(weth).deposit{value: amountOut}();
-        } else {
-            amountOut = HedgepieLibraryEth.swapOnRouter(
-                address(this),
-                _inAmount,
-                _token,
-                router,
-                weth
-            );
-        }
-
-        IBEP20(_token).approve(strategy, amountOut);
-    }
-
-    /**
-     * @notice Swap remaining tokens to ETH
-     * @param _token  address of token
-     * @param _amount  amount of token
-     */
-    function _removeRemain(address _token, uint256 _amount) internal {
-        if (_amount > 0) {
-            HedgepieLibraryEth.swapforEth(
-                address(this),
-                _amount,
-                _token,
-                router,
-                weth
-            );
-            IBEP20(_token).approve(strategy, 0);
-        }
-    }
-
-    /**
-     * @notice Deposit to uniswapV3 adapter
-     * @param _tokenId  YBNft token id
-     * @param _account  address of depositor
-     * @param _amountIn  amount of eth
+     * @notice Deposit with ETH
+     * @param _tokenId YBNFT token id
+     * @param _account user wallet address
+     * @param _amountIn ETH amount
      */
     function deposit(
         uint256 _tokenId,
         address _account,
         uint256 _amountIn
-    ) external payable override returns (uint256 amountIn) {
+    ) external payable override returns (uint256 amountOut) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
-        (amountIn, _amountIn) = _deposit(_tokenId, _account, _amountIn);
-
-        // update user info
+        AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
-        userInfo.amount += amountIn;
+
+        uint256 repayAmt = IBEP20(repayToken).balanceOf(address(this));
+
+        address[] memory assets = new address[](2);
+        assets[0] = rewardTokens[0];
+        assets[1] = address(0);
+
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 0;
+        amounts[1] = msg.value;
+
+        IStrategy(strategy).joinPool{value: msg.value}(
+            poolId,
+            address(this),
+            address(this),
+            JoinPoolRequest(assets, amounts, abi.encode(1, amounts), false)
+        );
+        repayAmt = IBEP20(repayToken).balanceOf(address(this)) - repayAmt;
+
+        amountOut = msg.value;
+        adapterInfo.totalStaked += repayAmt;
+        userInfo.amount += repayAmt;
         userInfo.invested += _amountIn;
 
-        // update adapter info
-        AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
-        adapterInfo.totalStaked += amountIn;
+        // Update adapterInfo contract
         address adapterInfoEthAddr = IHedgepieInvestorEth(investor)
             .adapterInfo();
         IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateTVLInfo(
@@ -168,12 +126,14 @@ contract BalancerVaultAdapterEth is BaseAdapterEth, IERC721Receiver {
             _account,
             true
         );
+
+        return _amountIn;
     }
 
     /**
-     * @notice Withdraw to uniswapV3 adapter
-     * @param _tokenId  YBNft token id
-     * @param _account  address of depositor
+     * @notice Withdraw the deposited ETH
+     * @param _tokenId YBNFT token id
+     * @param _account user wallet address
      */
     function withdraw(uint256 _tokenId, address _account)
         external
@@ -181,34 +141,95 @@ contract BalancerVaultAdapterEth is BaseAdapterEth, IERC721Receiver {
         override
         returns (uint256 amountOut)
     {
+        AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
+        uint256 rewardAmt0;
+        uint256 rewardAmt1;
+        rewardAmt0 = IBEP20(rewardTokens[0]).balanceOf(address(this));
+        rewardAmt1 = IBEP20(rewardTokens[1]).balanceOf(address(this));
+        IBEP20(repayToken).approve(strategy, userInfo.amount);
 
-        amountOut = _withdraw(_tokenId, _account, userInfo.amount);
+        address[] memory assets = new address[](2);
+        assets[0] = rewardTokens[0];
+        assets[1] = rewardTokens[1];
 
-        // tax distribution
-        if (amountOut != 0) {
-            uint256 taxAmount;
-            bool success;
+        uint256[] memory amounts = new uint256[](2);
+        amounts[0] = 1;
+        amounts[1] = userInfo.amount;
 
-            if (userInfo.invested <= amountOut) {
-                taxAmount =
-                    ((amountOut - userInfo.invested) *
-                        IYBNFT(IHedgepieInvestorEth(investor).ybnft())
-                            .performanceFee(_tokenId)) /
-                    1e4;
-                (success, ) = payable(IHedgepieInvestorEth(investor).treasury())
-                    .call{value: taxAmount}("");
-                require(success, "Failed to send ether to Treasury");
-            }
+        uint256[] memory minAmountsOut = new uint256[](2);
+        minAmountsOut[0] = 0;
+        minAmountsOut[1] = 0;
 
-            (success, ) = payable(_account).call{value: amountOut - taxAmount}(
-                ""
+        IStrategy(strategy).exitPool(
+            poolId,
+            address(this),
+            address(this),
+            JoinPoolRequest(
+                assets,
+                minAmountsOut,
+                abi.encode(1, userInfo.amount),
+                false
+            )
+        );
+        rewardAmt0 =
+            IBEP20(rewardTokens[0]).balanceOf(address(this)) -
+            rewardAmt0;
+        rewardAmt1 =
+            IBEP20(rewardTokens[1]).balanceOf(address(this)) -
+            rewardAmt1;
+
+        if (router == address(0)) {
+            amountOut = HedgepieLibraryEth.swapforEth(
+                address(this),
+                amountOut,
+                stakingToken,
+                swapRouter,
+                weth
             );
-            require(success, "Failed to send ether");
+        } else {
+            amountOut = HedgepieLibraryEth.withdrawLP(
+                IYBNFT.Adapter(0, stakingToken, address(this)),
+                weth,
+                amountOut,
+                0
+            );
         }
-
+        (uint256 reward, uint256 reward1) = HedgepieLibraryEth.getRewards(
+            address(this),
+            _tokenId,
+            _account
+        );
+        uint256 rewardETH;
+        if (reward != 0) {
+            rewardETH = HedgepieLibraryEth.swapforEth(
+                address(this),
+                reward,
+                rewardToken,
+                swapRouter,
+                weth
+            );
+        }
+        if (reward1 != 0) {
+            rewardETH += HedgepieLibraryEth.swapforEth(
+                address(this),
+                reward1,
+                rewardToken1,
+                swapRouter,
+                weth
+            );
+        }
         address adapterInfoEthAddr = IHedgepieInvestorEth(investor)
             .adapterInfo();
+        amountOut += rewardETH;
+        if (rewardETH != 0) {
+            IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateProfitInfo(
+                _tokenId,
+                rewardETH,
+                true
+            );
+        }
+        // Update adapterInfo contract
         IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateTVLInfo(
             _tokenId,
             userInfo.invested,
@@ -224,175 +245,59 @@ contract BalancerVaultAdapterEth is BaseAdapterEth, IERC721Receiver {
             _account,
             false
         );
-
-        unchecked {
-            // update adapter info
-            adapterInfos[_tokenId].totalStaked -= userInfo.amount;
-
-            // update user info
-            userInfo.amount = 0;
-            userInfo.invested = 0;
-        }
+        adapterInfo.totalStaked -= userInfo.amount;
+        userInfo.amount = 0;
+        userInfo.invested = 0;
+        userInfo.userShares = 0;
+        userInfo.userShares1 = 0;
+        // if (amountOut != 0) {
+        //     bool success;
+        //     uint256 taxAmount;
+        //     if (rewardETH != 0) {
+        //         taxAmount =
+        //             (rewardETH *
+        //                 IYBNFT(IHedgepieInvestorEth(investor).ybnft())
+        //                     .performanceFee(_tokenId)) /
+        //             1e4;
+        //         (success, ) = payable(IHedgepieInvestorEth(investor).treasury())
+        //             .call{value: taxAmount}("");
+        //         require(success, "Failed to send ether to Treasury");
+        //     }
+        //     (success, ) = payable(_account).call{value: amountOut - taxAmount}(
+        //         ""
+        //     );
+        //     require(success, "Failed to send ether");
+        // }
+        return amountOut;
     }
 
     /**
-     * @notice Deposit(internal)
-     * @param _tokenId  YBNft token id
-     * @param _account  address of depositor
-     * @param _amountIn  amount of eth
+     * @notice Claim the pending reward
+     * @param _tokenId YBNFT token id
+     * @param _account user wallet address
      */
-    function _deposit(
-        uint256 _tokenId,
-        address _account,
-        uint256 _amountIn
-    ) internal returns (uint256 amountOut, uint256 ethAmount) {
-        // get underlying tokens of staking token
-        address[2] memory tokens;
-        tokens[0] = IPancakePair(stakingToken).token0();
-        tokens[1] = IPancakePair(stakingToken).token1();
-
-        // swap eth to underlying tokens and approve strategy
-        uint256[4] memory tokenAmount;
-        uint256 ethBalBefore = address(this).balance - _amountIn;
-
-        tokenAmount[0] = _swapAndApprove(tokens[0], _amountIn / 2);
-        tokenAmount[1] = _swapAndApprove(tokens[1], _amountIn / 2);
-
-        // deposit staking token to uniswapV3 strategy (mint or increaseLiquidity)
-        uint256 v3TokenId = getLiquidityNFT(_account, _tokenId);
-        if (v3TokenId != 0) {
-            (
-                amountOut,
-                tokenAmount[2],
-                tokenAmount[3]
-            ) = INonfungiblePositionManager(strategy).increaseLiquidity(
-                INonfungiblePositionManager.IncreaseLiquidityParams({
-                    tokenId: v3TokenId,
-                    amount0Desired: tokenAmount[0],
-                    amount1Desired: tokenAmount[1],
-                    amount0Min: 0,
-                    amount1Min: 0,
-                    deadline: block.timestamp
-                })
-            );
-        } else {
-            int24[2] memory ticks;
-            (ticks[0], ticks[1]) = getTick();
-            INonfungiblePositionManager.MintParams
-                memory params = INonfungiblePositionManager.MintParams({
-                    token0: tokens[0],
-                    token1: tokens[1],
-                    fee: IPancakePair(stakingToken).fee(),
-                    tickLower: ticks[0],
-                    tickUpper: ticks[1],
-                    amount0Desired: tokenAmount[0],
-                    amount1Desired: tokenAmount[1],
-                    amount0Min: 0,
-                    amount1Min: 0,
-                    recipient: address(this),
-                    deadline: block.timestamp
-                });
-
-            (
-                v3TokenId,
-                amountOut,
-                tokenAmount[2],
-                tokenAmount[3]
-            ) = INonfungiblePositionManager(strategy).mint(params);
-
-            setLiquidityNFT(_account, _tokenId, v3TokenId);
-        }
-
-        _removeRemain(tokens[0], tokenAmount[0] - tokenAmount[2]);
-        _removeRemain(tokens[1], tokenAmount[1] - tokenAmount[3]);
-
-        uint256 ethBalAfter = address(this).balance;
-        ethAmount = _amountIn + ethBalBefore - ethBalAfter;
-        if (ethBalAfter > ethBalBefore) {
-            (bool success, ) = payable(_account).call{
-                value: ethBalAfter - ethBalBefore
-            }("");
-            require(success, "Failed to send remained ETH");
-        }
+    function claim(uint256 _tokenId, address _account)
+        external
+        payable
+        override
+        returns (uint256)
+    {
+        return 0;
     }
 
     /**
-     * @notice Withdraw(internal)
-     * @param _tokenId  YBNft token id
-     * @param _account  address of depositor
-     * @param _amountIn  amount of eth
+     * @notice Return the pending reward by ETH
+     * @param _tokenId YBNFT token id
+     * @param _account user wallet address
      */
-    function _withdraw(
-        uint256 _tokenId,
-        address _account,
-        uint256 _amountIn
-    ) internal returns (uint256 amountOut) {
-        // get underlying tokens of staking token
-        address[2] memory tokens;
-        tokens[0] = IPancakePair(stakingToken).token0();
-        tokens[1] = IPancakePair(stakingToken).token1();
-
-        uint256 v3TokenId = getLiquidityNFT(_account, _tokenId);
-        require(v3TokenId != 0, "Invalid request");
-
-        // withdraw staking token to uniswapV3 strategy (collect or decreaseLiquidity)
-        uint256[2] memory amounts;
-        amounts[0] = IBEP20(tokens[0]).balanceOf(address(this));
-        amounts[1] = IBEP20(tokens[1]).balanceOf(address(this));
-        INonfungiblePositionManager(strategy).decreaseLiquidity(
-            INonfungiblePositionManager.DecreaseLiquidityParams({
-                tokenId: v3TokenId,
-                liquidity: uint128(_amountIn),
-                amount0Min: 0,
-                amount1Min: 0,
-                deadline: block.timestamp + 2 hours
-            })
-        );
-
-        INonfungiblePositionManager(strategy).collect(
-            INonfungiblePositionManager.CollectParams({
-                tokenId: v3TokenId,
-                recipient: address(this),
-                amount0Max: type(uint128).max,
-                amount1Max: type(uint128).max
-            })
-        );
-
-        unchecked {
-            amounts[0] =
-                IBEP20(tokens[0]).balanceOf(address(this)) -
-                amounts[0];
-            amounts[1] =
-                IBEP20(tokens[1]).balanceOf(address(this)) -
-                amounts[1];
-        }
-
-        // swap underlying tokens to weth
-        if (amounts[0] != 0)
-            amountOut += HedgepieLibraryEth.swapforEth(
-                address(this),
-                amounts[0],
-                tokens[0],
-                router,
-                weth
-            );
-
-        if (amounts[1] != 0)
-            amountOut += HedgepieLibraryEth.swapforEth(
-                address(this),
-                amounts[1],
-                tokens[1],
-                router,
-                weth
-            );
+    function pendingReward(uint256 _tokenId, address _account)
+        external
+        view
+        override
+        returns (uint256 reward)
+    {
+        return 0;
     }
 
-    function onERC721Received(
-        address,
-        address,
-        uint256,
-        bytes calldata
-    ) external pure override returns (bytes4) {
-        return this.onERC721Received.selector;
-    }
+    receive() external payable {}
 }
