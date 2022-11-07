@@ -74,6 +74,15 @@ const Header = ({ overlay = false, dark = true }: Props) => {
             </a>
           </Box>
 
+          <Link href="/v2/dashboard" passHref>
+            <ThemeLink
+              sx={{ '&:hover': { backgroundColor: '#417e96' }, padding: '5px 8px', borderRadius: '10px' }}
+              mr={4}
+            >
+              Dashboard
+            </ThemeLink>
+          </Link>
+
           <Link href="/nft-leaderboard" passHref>
             <ThemeLink
               sx={{ '&:hover': { backgroundColor: '#417e96' }, padding: '5px 8px', borderRadius: '10px' }}
@@ -120,9 +129,10 @@ const Header = ({ overlay = false, dark = true }: Props) => {
             {/* <MobileMenuLink href="/vault">Vault</MobileMenuLink>
              */}
 
-            <MobileMenuLink href="/HedgePie-Whitepaper-V5.pdf">White Paper</MobileMenuLink>
+            <MobileMenuLink href="/v2/dashboard">Dashboard</MobileMenuLink>
             <MobileMenuLink href="/nft-leaderboard">Leaderboard</MobileMenuLink>
             <MobileMenuLink href="/mint">Mint</MobileMenuLink>
+            <MobileMenuLink href="/HedgePie-Whitepaper-V5.pdf">White Paper</MobileMenuLink>
           </Menu>
           <Box sx={styles.mobile_menu_connect_wallet as ThemeUICSSObject}>
             <Box

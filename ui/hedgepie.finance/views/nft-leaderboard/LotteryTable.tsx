@@ -178,7 +178,7 @@ const LotteryTable = ({ data, onSort, sortKey }: any) => {
             <tr
               key={d.tokenId}
               style={{ backgroundColor: 'white', borderRadius: '30px', cursor: 'pointer' }}
-              onClick={() => router.push('/view-contents?tokenId=' + d.tokenId)}
+              onClick={() => router.push('/v2/strategy/?tokenId=' + d.tokenId)}
             >
               <td style={{ borderBottomLeftRadius: '30px' }}>
                 <Box sx={{ width: '100%', textAlign: 'center' }}>
@@ -248,7 +248,7 @@ const LotteryTable = ({ data, onSort, sortKey }: any) => {
                 <Button
                   variant="info"
                   sx={styles.lottery_table_details_btn as ThemeUICSSObject}
-                  onClick={() => router.push('/view-contents?tokenId=' + d.tokenId)}
+                  onClick={() => router.push('/v2/strategy?tokenId=' + d.tokenId)}
                 >
                   DETAILS
                 </Button>

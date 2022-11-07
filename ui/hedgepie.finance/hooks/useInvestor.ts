@@ -70,6 +70,7 @@ export const useInvestor = () => {
 
   const getYield = useCallback(
     async (ybnftId) => {
+      console.log("token::"+ybnftId)
       const reward = await fetchYield(investorContract, account, ybnftId)
       return reward
     },

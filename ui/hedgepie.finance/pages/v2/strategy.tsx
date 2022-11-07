@@ -9,7 +9,7 @@ import StrategyInfo from 'v2/components/Strategy/StrategyInfo'
 const Strategy: NextPage = () => {
   return (
     <HedgePieFinance isV2={true}>
-      <DashboardPage tab="stats">
+      <DashboardPage tab="home">
         <StrategyInfo />
       </DashboardPage>
     </HedgePieFinance>

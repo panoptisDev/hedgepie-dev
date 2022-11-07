@@ -45,12 +45,13 @@ function SidebarItem(props: SidebarItemProps) {
     <Box
       sx={{
         backgroundColor: isActive ? '#FFFFFF' : '#14114B',
-        borderRadius: '8px',
+        borderRadius: '14px',
         padding: '0.75rem 1rem',
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
-        gap: '30px',
+        margin: '5px 2px',
+        gap: ['10px', '10px', '10px', '30px'],
         cursor: 'pointer',
       }}
     >
