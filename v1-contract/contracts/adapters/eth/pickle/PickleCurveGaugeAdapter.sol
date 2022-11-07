@@ -10,11 +10,13 @@ import "../../../interfaces/IHedgepieInvestorEth.sol";
 import "../../../interfaces/IHedgepieAdapterInfoEth.sol";
 
 interface IStrategy {
-    function deposit(uint, uint) external;
+    function deposit(uint) external;
 
-    function withdraw(uint, uint) external;
+    function withdraw(uint) external;
 
-    function pendingPickle(uint256 _pid, address _user)
+    function getReward() external;
+
+    function earned(address _user)
         external
         view
         returns (uint256);
@@ -33,49 +35,57 @@ interface IPool {
 
     function add_liquidity(uint256[4] memory,uint256) external payable;
 
-    function remove_liquidity_one_coin(uint256,int128,uint256) external;
+    function add_liquidity(uint256[2] memory,uint256,bool) external payable;
+
+    function add_liquidity(uint256[3] memory,uint256,bool) external payable;
+
+    function add_liquidity(uint256[4] memory,uint256,bool) external payable;
+
+    function remove_liquidity_one_coin(uint256,uint256,uint256) external;
+
+    function remove_liquidity_one_coin(uint256,uint256,uint256,bool) external;
 }
 
-contract PickleCurveAdapter is BaseAdapterEth {
+contract PickleCurveGaugeAdapter is BaseAdapterEth {
     address public jar;
     
     Curve curveInfo;
     struct Curve {
-        address rewardMinter;
         address liquidityToken;
-        uint128 lpCnt;
-        uint128 lpOrder;
+        uint256 lpCnt;
+        uint256 lpOrder;
     }
 
     /**
      * @notice Construct
-     * @param _pid  number of poolid
      * @param _strategy  address of strategy
      * @param _jar  address of jar
      * @param _stakingToken  address of staking token
      * @param _rewardToken  address of reward token
      * @param _rewardToken1  address of reward token1
      * @param _swapRouter swapRouter for swapping tokens
+     * @param _router address of curve pool
      * @param _weth  weth address
+     * @param _curve  curve info
      * @param _name  adatper name
      */
     constructor(
-        uint _pid,
         address _strategy,
         address _jar,
         address _stakingToken,
         address _rewardToken,
         address _rewardToken1,
         address _swapRouter,
+        address _router,
         address _weth,
         Curve memory _curve,
         string memory _name
     ) {
-        pid = _pid;
         jar = _jar;
         weth = _weth;
         strategy = _strategy;
         swapRouter = _swapRouter;
+        router = _router;
         rewardToken = _rewardToken;
         rewardToken1 = _rewardToken1;
         stakingToken = _stakingToken;
@@ -107,24 +117,36 @@ contract PickleCurveAdapter is BaseAdapterEth {
         if(curveInfo.lpCnt == 2) {
             uint256[2] memory amounts;
             amounts[curveInfo.lpOrder] = _amountIn;
-            
-            IPool(router).add_liquidity {
-                value: _isETH ? _amountIn : 0
-            } (amounts, 0);
+
+            if(_isETH) {
+                IPool(router).add_liquidity {
+                    value: _amountIn
+                } (amounts, 0, true);
+            } else {
+                IPool(router).add_liquidity (amounts, 0);
+            }
         } else if(curveInfo.lpCnt == 3) {
             uint256[3] memory amounts;
             amounts[curveInfo.lpOrder] = _amountIn;
 
-            IPool(router).add_liquidity {
-                value: _isETH ? _amountIn : 0
-            } (amounts, 0);
+            if(_isETH) {
+                IPool(router).add_liquidity {
+                    value: _amountIn
+                } (amounts, 0, true);    
+            } else {
+                IPool(router).add_liquidity (amounts, 0);
+            }
         } else if(curveInfo.lpCnt == 4) {
             uint256[4] memory amounts;
             amounts[curveInfo.lpOrder] = _amountIn;
 
-            IPool(router).add_liquidity {
-                value: _isETH ? _amountIn : 0
-            } (amounts, 0);
+            if(_isETH) {
+                IPool(router).add_liquidity {
+                    value: _amountIn
+                } (amounts, 0, true);    
+            } else {
+                IPool(router).add_liquidity (amounts, 0);
+            }
         }
 
         unchecked {
@@ -143,12 +165,20 @@ contract PickleCurveAdapter is BaseAdapterEth {
         amountOut = _isETH ? address(this).balance : 
             IBEP20(curveInfo.liquidityToken).balanceOf(address(this));
 
-        IBEP20(stakingToken).approve(router, _amountIn);
-        IPool(router).remove_liquidity_one_coin(
-            _amountIn,
-            int128(curveInfo.lpOrder),
-            0
-        );
+        if(_isETH) {
+            IPool(router).remove_liquidity_one_coin(
+                _amountIn,
+                curveInfo.lpOrder,
+                0,
+                true
+            );
+        } else {
+            IPool(router).remove_liquidity_one_coin(
+                _amountIn,
+                curveInfo.lpOrder,
+                0
+            );
+        }
 
         unchecked {
             amountOut = _isETH ? address(this).balance - amountOut :
@@ -180,7 +210,7 @@ contract PickleCurveAdapter is BaseAdapterEth {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
 
         // get curve LP
-        uint256 lpOut = _getCurveLP(amountOut);
+        uint256 lpOut = _getCurveLP(_amountIn);
 
         // deposit to Jar
         amountOut = IBEP20(jar).balanceOf(address(this));
@@ -196,7 +226,7 @@ contract PickleCurveAdapter is BaseAdapterEth {
             : 0;
 
         IBEP20(jar).approve(strategy, amountOut);
-        IStrategy(strategy).deposit(pid, amountOut);
+        IStrategy(strategy).deposit(amountOut);
 
         unchecked {
             rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
@@ -269,7 +299,8 @@ contract PickleCurveAdapter is BaseAdapterEth {
             ? IBEP20(rewardToken1).balanceOf(address(this))
             : 0;
 
-        IStrategy(strategy).withdraw(pid, userInfo.amount);
+        IStrategy(strategy).getReward();
+        IStrategy(strategy).withdraw(userInfo.amount);
 
         unchecked {
             rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
@@ -296,13 +327,6 @@ contract PickleCurveAdapter is BaseAdapterEth {
         unchecked {
             lpAmount = IBEP20(stakingToken).balanceOf(address(this)) - lpAmount;
         }
-
-        amountOut = HedgepieLibraryEth.withdrawLP(
-            IYBNFT.Adapter(0, stakingToken, address(this)),
-            weth,
-            lpAmount,
-            0
-        );
 
         // withdraw liquiditytoken from curve pool
         amountOut = _removeCurveLP(lpAmount);
@@ -468,7 +492,7 @@ contract PickleCurveAdapter is BaseAdapterEth {
         AdapterInfo memory adapterInfo = adapterInfos[_tokenId];
 
         uint256 updatedAccTokenPerShare = adapterInfo.accTokenPerShare +
-            ((IStrategy(strategy).pendingPickle(pid, _account) * 1e12) /
+            ((IStrategy(strategy).earned(_account) * 1e12) /
                 adapterInfo.totalStaked);
 
         uint256 tokenRewards = ((updatedAccTokenPerShare -

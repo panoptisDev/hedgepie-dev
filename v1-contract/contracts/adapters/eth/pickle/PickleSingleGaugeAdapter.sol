@@ -10,11 +10,13 @@ import "../../../interfaces/IHedgepieInvestorEth.sol";
 import "../../../interfaces/IHedgepieAdapterInfoEth.sol";
 
 interface IStrategy {
-    function deposit(uint, uint) external;
+    function deposit(uint) external;
 
-    function withdraw(uint, uint) external;
+    function withdraw(uint) external;
 
-    function pendingPickle(uint256 _pid, address _user)
+    function getReward() external;
+
+    function earned(address _user)
         external
         view
         returns (uint256);
@@ -26,37 +28,34 @@ interface IJar {
     function withdraw(uint256) external;
 }
 
-contract PickleSushiAdapter is BaseAdapterEth {
+contract PickleSingleGaugeAdapter is BaseAdapterEth {
     address public jar;
 
     /**
      * @notice Construct
-     * @param _pid  number of poolid
      * @param _strategy  address of strategy
      * @param _jar  address of jar
      * @param _stakingToken  address of staking token
      * @param _rewardToken  address of reward token
      * @param _rewardToken1  address of reward token1
-     * @param _router address of router
+     * @param _swapRouter swapRouter for swapping tokens
      * @param _weth  weth address
      * @param _name  adatper name
      */
     constructor(
-        uint _pid,
         address _strategy,
         address _jar,
         address _stakingToken,
         address _rewardToken,
         address _rewardToken1,
-        address _router,
+        address _swapRouter,
         address _weth,
         string memory _name
     ) {
-        pid = _pid;
         jar = _jar;
         weth = _weth;
         strategy = _strategy;
-        router = _router;
+        swapRouter = _swapRouter;
         rewardToken = _rewardToken;
         rewardToken1 = _rewardToken1;
         stakingToken = _stakingToken;
@@ -76,12 +75,12 @@ contract PickleSushiAdapter is BaseAdapterEth {
     ) external payable override returns (uint256 amountOut) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
 
-        // get sushi LP
-        uint256 lpOut = HedgepieLibraryEth.getLP(
-            IYBNFT.Adapter(0, stakingToken, address(this)),
-            weth,
+        uint256 lpOut = HedgepieLibraryEth.swapOnRouter(
+            address(this),
             _amountIn,
-            0
+            stakingToken,
+            swapRouter,
+            weth
         );
 
         // deposit to Jar
@@ -98,7 +97,7 @@ contract PickleSushiAdapter is BaseAdapterEth {
             : 0;
 
         IBEP20(jar).approve(strategy, amountOut);
-        IStrategy(strategy).deposit(pid, amountOut);
+        IStrategy(strategy).deposit(amountOut);
 
         unchecked {
             rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
@@ -170,8 +169,9 @@ contract PickleSushiAdapter is BaseAdapterEth {
         uint256 rewardAmt1 = rewardToken1 != address(0)
             ? IBEP20(rewardToken1).balanceOf(address(this))
             : 0;
-
-        IStrategy(strategy).withdraw(pid, userInfo.amount);
+        
+        IStrategy(strategy).getReward();
+        IStrategy(strategy).withdraw(userInfo.amount);
 
         unchecked {
             rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
@@ -199,11 +199,12 @@ contract PickleSushiAdapter is BaseAdapterEth {
             lpAmount = IBEP20(stakingToken).balanceOf(address(this)) - lpAmount;
         }
 
-        amountOut = HedgepieLibraryEth.withdrawLP(
-            IYBNFT.Adapter(0, stakingToken, address(this)),
-            weth,
+        amountOut = HedgepieLibraryEth.swapforEth(
+            address(this),
             lpAmount,
-            0
+            stakingToken,
+            swapRouter,
+            weth
         );
 
         uint256[3] memory rewards;
@@ -367,7 +368,7 @@ contract PickleSushiAdapter is BaseAdapterEth {
         AdapterInfo memory adapterInfo = adapterInfos[_tokenId];
 
         uint256 updatedAccTokenPerShare = adapterInfo.accTokenPerShare +
-            ((IStrategy(strategy).pendingPickle(pid, _account) * 1e12) /
+            ((IStrategy(strategy).earned(_account) * 1e12) /
                 adapterInfo.totalStaked);
 
         uint256 tokenRewards = ((updatedAccTokenPerShare -
