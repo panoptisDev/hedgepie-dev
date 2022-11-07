@@ -3,11 +3,6 @@ const { ethers } = require("hardhat");
 
 const BigNumber = ethers.BigNumber;
 
-const unlockAccount = async (address) => {
-  await hre.network.provider.send("hardhat_impersonateAccount", [address]);
-  return hre.ethers.provider.getSigner(address);
-};
-
 const forkNetwork = async () => {
   await hre.network.provider.request({
     method: "hardhat_reset",
@@ -21,21 +16,20 @@ const forkNetwork = async () => {
   });
 };
 
-describe("PickleSushiFarmAdapterEth Integration Test", function () {
+describe("PickleUniV2GaugeAdapterEth Integration Test", function () {
   before("Deploy contract", async function () {
     await forkNetwork();
 
     const [owner, alice, bob, treasury] = await ethers.getSigners();
 
     const performanceFee = 100;
-    const pid = 20;
     const weth = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
     const pickle = "0x429881672B9AE42b8EbA0E26cD9C73711b891Ca5";
-    const wbtc = "0x2260FAC5E5542a773Aa44fBCfeDf7C193bc2C599"; // WBTC
-    const strategy = "0xbD17B1ce622d73bD438b9E658acA5996dc394b0d"; // MasterChef V1
-    const swapRouter = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"; // sushi router address
-    const lpToken = "0xCEfF51756c56CeFFCA006cD410B03FFC46dd3a58"; // WBTC-WETH LP
-    const jar = "0xde74b6c547bd574c3527316a2eE30cd8F6041525" // pickling SushiSwap WBTC-ETH(pSLP)
+    const RLY = "0xf1f955016EcbCd7321c7266BccFB96c68ea5E49b"; // RLY token
+    const strategy = "0x1a6e44981B4144261932E460d30C9342e961f5D9"; // pUniV2 RLY/ETH Gauge
+    const swapRouter = "0x7a250d5630B4cF539739dF2C5dAcb4c659F2488D"; // uniswap v2 router address
+    const lpToken = "0x27fD0857F0EF224097001E87e61026E39e1B04d1"; // uniswapv2 RLY-ETH LP
+    const jar = "0x0989a227E7c50311f7De61e5e61F7c28Df8936f0" // pickling Uniswap V2 (pUNI-V2)
 
     this.performanceFee = performanceFee;
 
@@ -49,17 +43,16 @@ describe("PickleSushiFarmAdapterEth Integration Test", function () {
     this.accTokenPerShare = BigNumber.from(0);
     this.accTokenPerShare1 = BigNumber.from(0);
 
-    // Deploy PickleSushiAdapter contract
+    // Deploy PickleUniV2Adapter contract
     const Lib = await ethers.getContractFactory("HedgepieLibraryEth");
     const lib = await Lib.deploy();
-    const PickleSushiAdapter = await ethers.getContractFactory("PickleSushiMasterAdapter", {
+    const PickleUniV2GaugeAdapter = await ethers.getContractFactory("PickleUniV2GaugeAdapter", {
       libraries: {
         HedgepieLibraryEth: lib.address,
       },
     });
 
-    this.aAdapter = await PickleSushiAdapter.deploy(
-      pid,
+    this.aAdapter = await PickleUniV2GaugeAdapter.deploy(
       strategy,
       jar,
       lpToken,
@@ -67,7 +60,7 @@ describe("PickleSushiFarmAdapterEth Integration Test", function () {
       ethers.constants.AddressZero,
       swapRouter,
       weth,
-      "Pickle::Sushi::WBTC-ETH"
+      "Pickle::UniV2::RLY-ETH"
     );
     await this.aAdapter.deployed();
 
@@ -98,7 +91,7 @@ describe("PickleSushiFarmAdapterEth Integration Test", function () {
     // tokenID: 2
     await this.ybNft.mint([10000], [lpToken], [this.aAdapter.address], performanceFee, "test tokenURI2");
 
-    // Add PickleSushiAdapter to AdapterManager
+    // Add PickleUniV2Adapter to AdapterManager
     await this.adapterManager.addAdapter(this.aAdapter.address);
 
     // Set investor in adapter manager
@@ -110,14 +103,14 @@ describe("PickleSushiFarmAdapterEth Integration Test", function () {
 
     await this.aAdapter.setPath(weth, pickle, [weth, pickle]);
     await this.aAdapter.setPath(pickle, weth, [pickle, weth]);
-    await this.aAdapter.setPath(weth, wbtc, [weth, wbtc]);
-    await this.aAdapter.setPath(wbtc, weth, [wbtc, weth]);
+    await this.aAdapter.setPath(weth, RLY, [weth, RLY]);
+    await this.aAdapter.setPath(RLY, weth, [RLY, weth]);
 
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
     console.log("Strategy: ", strategy);
     console.log("Info: ", this.adapterInfo.address);
-    console.log("PickleSushiFarmAdapter: ", this.aAdapter.address);
+    console.log("PickleUniV2GaugeAdapter: ", this.aAdapter.address);
 
     this.pickle = await ethers.getContractAt("IBEP20", pickle);
   });
