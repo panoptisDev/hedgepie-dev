@@ -209,7 +209,8 @@ function DashboardFunds() {
             ))}
           </>
         </Box>
-      ) : (
+      ) : null}
+      {!fundsLoading && !funds.length && (
         <Box
           sx={{
             display: 'flex',
@@ -240,6 +241,7 @@ function DashboardFunds() {
           width: ['100%', '10rem', '10rem', '15rem'],
           height: '3rem',
           marginTop: '1rem',
+          cursor: 'pointer',
         }}
         onClick={() => router.push('/mint')}
       >
