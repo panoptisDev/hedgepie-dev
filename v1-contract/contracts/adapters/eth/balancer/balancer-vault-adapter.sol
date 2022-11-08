@@ -37,7 +37,13 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
     bytes32 public poolId;
 
     // Reward tokens on Balancer
-    address[2] public rewardTokens;
+    address[] public rewardTokens;
+
+    // Token array length
+    uint256 public tokenLength;
+
+    // Reward token includes weth
+    bool public isWETH;
 
     /**
      * @notice Construct
@@ -45,7 +51,6 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
      * @param _strategy  address of strategy
      * @param _rewardTokens  address of reward token
      * @param _repayToken  address of repay token
-     * @param _router lp provider router address
      * @param _swapRouter swapRouter for swapping tokens
      * @param _name  adatper name
      * @param _weth  weth address
@@ -53,22 +58,25 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
     constructor(
         bytes32 _pid,
         address _strategy,
-        address[2] memory _rewardTokens,
+        address[] memory _rewardTokens,
         address _repayToken,
-        address _router,
         address _swapRouter,
         string memory _name,
         address _weth
     ) {
+        require(_rewardTokens.length > 1, "Invalid rewardTokens array length");
         poolId = _pid;
         repayToken = _repayToken;
-        rewardTokens[0] = _rewardTokens[0];
-        rewardTokens[1] = _rewardTokens[1];
+        tokenLength = _rewardTokens.length;
         strategy = _strategy;
-        router = _router;
         swapRouter = _swapRouter;
         name = _name;
         weth = _weth;
+
+        for (uint256 i = 0; i < _rewardTokens.length; i++) {
+            if (_rewardTokens[i] == _weth) isWETH = true;
+            rewardTokens.push(_rewardTokens[i]);
+        }
     }
 
     /**
@@ -86,22 +94,39 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
+        address[] memory assets = new address[](tokenLength);
+        uint256[] memory amounts = new uint256[](tokenLength);
+
+        for (uint256 i = 0; i < rewardTokens.length; i++) {
+            assets[i] = rewardTokens[i] == weth ? address(0) : rewardTokens[i];
+            amounts[i] = rewardTokens[i] == weth ? msg.value : 0;
+        }
+
         uint256 repayAmt = IBEP20(repayToken).balanceOf(address(this));
-
-        address[] memory assets = new address[](2);
-        assets[0] = rewardTokens[0];
-        assets[1] = address(0);
-
-        uint256[] memory amounts = new uint256[](2);
-        amounts[0] = 0;
-        amounts[1] = msg.value;
-
-        IStrategy(strategy).joinPool{value: msg.value}(
-            poolId,
-            address(this),
-            address(this),
-            JoinPoolRequest(assets, amounts, abi.encode(1, amounts), false)
-        );
+        if (isWETH) {
+            IStrategy(strategy).joinPool{value: msg.value}(
+                poolId,
+                address(this),
+                address(this),
+                JoinPoolRequest(assets, amounts, abi.encode(1, amounts), false)
+            );
+        } else {
+            uint256 amountOut = HedgepieLibraryEth.swapOnRouter(
+                address(this),
+                _amountIn,
+                rewardTokens[0],
+                swapRouter,
+                weth
+            );
+            amounts[0] = amountOut;
+            IBEP20(rewardTokens[0]).approve(strategy, amountOut);
+            IStrategy(strategy).joinPool(
+                poolId,
+                address(this),
+                address(this),
+                JoinPoolRequest(assets, amounts, abi.encode(1, amounts), false)
+            );
+        }
         repayAmt = IBEP20(repayToken).balanceOf(address(this)) - repayAmt;
 
         adapterInfo.totalStaked += repayAmt;
@@ -149,21 +174,14 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
             rewardAmt[i] = IBEP20(rewardTokens[i]).balanceOf(address(this));
 
         IBEP20(repayToken).approve(strategy, userInfo.amount);
-
-        address[] memory assets = new address[](2);
-        assets[0] = rewardTokens[0];
-        assets[1] = rewardTokens[1];
-
-        uint256[] memory minAmountsOut = new uint256[](2);
-        minAmountsOut[0] = 0;
-        minAmountsOut[1] = 0;
+        uint256[] memory minAmountsOut = new uint256[](tokenLength);
 
         IStrategy(strategy).exitPool(
             poolId,
             address(this),
             address(this),
             JoinPoolRequest(
-                assets,
+                rewardTokens,
                 minAmountsOut,
                 abi.encode(1, userInfo.amount),
                 false
@@ -174,16 +192,14 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
                 IBEP20(rewardTokens[i]).balanceOf(address(this)) -
                 rewardAmt[i];
 
-        if (router == address(0)) {
-            for (i = 0; i < rewardTokens.length; i++)
-                amountOut += HedgepieLibraryEth.swapforEth(
-                    address(this),
-                    rewardAmt[i],
-                    rewardTokens[i],
-                    swapRouter,
-                    weth
-                );
-        }
+        for (i = 0; i < rewardTokens.length; i++)
+            amountOut += HedgepieLibraryEth.swapforEth(
+                address(this),
+                rewardAmt[i],
+                rewardTokens[i],
+                swapRouter,
+                weth
+            );
 
         uint256 rewardETH;
         if (amountOut > userInfo.invested)

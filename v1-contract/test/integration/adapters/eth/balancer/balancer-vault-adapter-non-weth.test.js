@@ -28,17 +28,19 @@ describe("BalancerVaultAdapterEth Integration Test", function () {
     const [owner, alice, bob, tom, treasury] = await ethers.getSigners();
 
     const performanceFee = 100;
-    const pid = "0x32296969ef14eb0c6d29669c550d4a0449130230000200000000000000000080";
+    const pid = "0x496ff26b76b8d23bbc6cf1df1eee4a48795490f7000200000000000000000377";
     const wstETH = "0x7f39C581F595B53c5cb19bD0b3f8dA6c935E2Ca0";
+    const compound = "0xc00e94Cb662C3520282E6f5717214004A7f26888";
     const weth = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
     const dai = "0x6b175474e89094c44da98b954eedeac495271d0f";
     const strategy = "0xBA12222222228d8Ba445958a75a0704d566BF2C8"; // Balancer Vault
-    const repayToken = "0x32296969Ef14EB0c6d29669C550D4a0449130230"; // Balancer stETH
+    const repayToken = "0x496ff26B76b8d23bbc6cF1Df1eeE4a48795490F7"; // Balancer 50COMP-50wstETH
     const swapRouter = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"; // sushi router address
 
     this.performanceFee = performanceFee;
     this.weth = weth;
     this.wstETH = wstETH;
+    this.compound = compound;
     this.repayToken = repayToken;
 
     this.owner = owner;
@@ -64,11 +66,10 @@ describe("BalancerVaultAdapterEth Integration Test", function () {
     this.aAdapter = await SushiLPAdapter.deploy(
       pid,
       strategy,
-      [wstETH, weth],
+      [wstETH, compound],
       repayToken,
-      "0x0000000000000000000000000000000000000000",
       swapRouter,
-      "Balancer::Vault::ETH",
+      "Balancer::Vault::wsETH-Compound",
       weth
     );
     await this.aAdapter.deployed();
@@ -116,6 +117,8 @@ describe("BalancerVaultAdapterEth Integration Test", function () {
     // Set paths for swapping tokens
     await this.aAdapter.setPath(this.weth, this.wstETH, [this.weth, dai, this.wstETH]);
     await this.aAdapter.setPath(this.wstETH, this.weth, [this.wstETH, dai, this.weth]);
+    await this.aAdapter.setPath(this.weth, this.compound, [this.weth, this.compound]);
+    await this.aAdapter.setPath(this.compound, this.weth, [this.compound, this.weth]);
 
     console.log("Owner: ", this.owner.address);
     console.log("Investor: ", this.investor.address);
