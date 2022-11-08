@@ -50,9 +50,9 @@ function HedgePieHero(props: HedgePieHeroProps) {
       >
         <Text
           sx={{
-            fontFamily: "Open Sans",
+            fontFamily: "Plus Jakarta Sans",
             fontStyle: "normal",
-            fontWeight: "600",
+            fontWeight: "300",
             fontSize: ["50px", "64px", "72px"],
             lineHeight: "125%",
             color: "#FFFFFF",
@@ -63,9 +63,9 @@ function HedgePieHero(props: HedgePieHeroProps) {
         </Text>
         <Text
           sx={{
-            fontFamily: "Open Sans",
+            fontFamily: "Plus Jakarta Sans",
             fontStyle: "normal",
-            fontWeight: "600",
+            fontWeight: "300",
             fontSize: ["50px", "64px", "72px"],
             lineHeight: "125%",
             color: "#FFFFFF",
@@ -78,7 +78,7 @@ function HedgePieHero(props: HedgePieHeroProps) {
       <Box sx={{ width: ["90%", "90%", "90%", "60rem"] }}>
         <Text
           sx={{
-            fontFamily: "Open Sans",
+            fontFamily: "Plus Jakarta Sans",
             fontStyle: "normal",
             fontWeight: "300",
             fontSize: ["20px", "24px", "32px"],

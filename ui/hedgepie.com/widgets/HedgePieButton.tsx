@@ -59,7 +59,7 @@ function HedgePieButton(props: HedgePieButtonProps) {
         color: textBlack ? "#1A1A1A" : "#FFFFFF",
         fontSize: getFontSize(),
         fontWeight: getFontWeight(),
-        fontFamily: "Open Sans",
+        fontFamily: "Plus Jakarta Sans",
         cursor: "pointer",
         zIndex: 1,
       }}

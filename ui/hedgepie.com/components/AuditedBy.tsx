@@ -21,7 +21,7 @@ function AuditedBy() {
           letterSpacing: "8px",
           fontSize: "20px",
           fontWeight: "400",
-          fontFamily: "Open Sans",
+          fontFamily: "Plus Jakarta Sans",
         }}
       >
         AUDITED BY

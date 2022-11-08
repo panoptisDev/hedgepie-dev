@@ -72,7 +72,7 @@ function Footer() {
             <Text
               sx={{
                 color: "#FFFFFF",
-                fontFamily: "Open Sans",
+                fontFamily: "Plus Jakarta Sans",
                 fontWeight: "600",
                 fontSize: ["40px", "40px", "40px", "50px"],
               }}
@@ -85,7 +85,7 @@ function Footer() {
               display: "flex",
               flexDirection: "column",
               gap: "20px",
-              fontFamily: "Open Sans",
+              fontFamily: "Plus Jakarta Sans",
             }}
           >
             <Text sx={{ color: "#FFFFFF", fontSize: "16px" }}>
@@ -122,7 +122,7 @@ function Footer() {
             display: "flex",
             flexDirection: ["column", "row", "row", "row"],
             gap: ["10px", "20px", "30px", "30px"],
-            fontFamily: "Open Sans",
+            fontFamily: "Plus Jakarta Sans",
           }}
         >
           {sections.map((s, i) => (
@@ -186,7 +186,7 @@ function Footer() {
           display: "flex",
           flexDirection: ["column", "row", "row", "row"],
           gap: "20px",
-          fontFamily: "Open Sans",
+          fontFamily: "Plus Jakarta Sans",
           fontWeight: "400",
         }}
       >
