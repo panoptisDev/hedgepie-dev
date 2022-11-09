@@ -99,7 +99,7 @@ describe("BalancerVaultAdapterEth Integration Test", function () {
     // tokenID: 2
     await this.ybNft.mint([10000], [weth], [this.aAdapter.address], performanceFee, "test tokenURI2");
 
-    // Add Venus Adapter to AdapterManager
+    // Add Balancer Adapter to AdapterManager
     await this.adapterManager.addAdapter(this.aAdapter.address);
 
     // Set investor in adapter manager
