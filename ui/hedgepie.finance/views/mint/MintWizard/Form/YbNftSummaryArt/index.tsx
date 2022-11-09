@@ -90,7 +90,7 @@ const YbNftSummaryArt = () => {
           sx={{
             width: '100%',
             height: 100,
-            fontFamily: 'Noto Sans',
+            fontFamily: 'Plus Jakarta Sans',
             border: '1px solid #e9e9e9',
             color: '#0A3F5C',
             ':focus': {

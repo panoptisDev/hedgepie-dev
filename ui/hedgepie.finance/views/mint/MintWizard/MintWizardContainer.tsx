@@ -38,7 +38,7 @@ const MintWizard = () => {
           },
         }}
       >
-        Fund Minting
+        Create a Strategy
       </Box>
       <Box
         sx={{

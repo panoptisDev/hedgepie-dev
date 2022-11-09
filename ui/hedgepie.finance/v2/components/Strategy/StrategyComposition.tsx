@@ -143,7 +143,7 @@ function StrategyComposition(props: { tokenId: number }) {
       }}
     >
       <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-        <Text sx={{ color: '#14114B', fontSize: '20px', fontWeight: '600', fontFamily: 'Inter' }}>
+        <Text sx={{ color: '#14114B', fontSize: '20px', fontWeight: '600', fontFamily: 'Plus Jakarta Sans' }}>
           Strategy Composition
         </Text>
         {/* Mint Edit Modal */}
@@ -166,7 +166,7 @@ function StrategyComposition(props: { tokenId: number }) {
         <Box sx={{ border: '1px solid #E3E3E3', borderRadius: '4px', flex: 2, width: '100%', overflow: 'auto' }}>
           <table style={{ width: '100%', borderSpacing: '1rem 2rem' }}>
             <thead>
-              <tr style={{ fontFamily: 'Inter', fontWeight: '600', textAlign: 'center' }}>
+              <tr style={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', textAlign: 'center' }}>
                 <td></td>
                 <td>Protocol</td>
                 <td>Type</td>
@@ -199,7 +199,9 @@ function StrategyComposition(props: { tokenId: number }) {
             padding: '1rem',
           }}
         >
-          <Text sx={{ color: '#14114B', fontSize: '16px', fontWeight: '600', fontFamily: 'Inter' }}>Weight</Text>
+          <Text sx={{ color: '#14114B', fontSize: '16px', fontWeight: '600', fontFamily: 'Plus Jakarta Sans' }}>
+            Weight
+          </Text>
           <Box
             sx={{ height: '100%', display: 'flex', justifyContent: 'center', alignItems: 'center', marginTop: '10px' }}
           >

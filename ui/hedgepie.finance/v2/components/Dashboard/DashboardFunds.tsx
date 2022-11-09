@@ -96,7 +96,9 @@ function DashboardFunds() {
         gap: '10px',
       }}
     >
-      <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '24px', color: '#000000' }}>My Strategies</Text>
+      <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '24px', color: '#000000' }}>
+        My Strategies
+      </Text>
       {fundsLoading ? (
         <Box sx={{ display: 'flex', height: '100%', width: '100%', alignItems: 'center', justifyContent: 'center' }}>
           <Spinner />
@@ -122,7 +124,7 @@ function DashboardFunds() {
                 }}
               >
                 <Box sx={{ display: 'flex', flexDirection: 'row', gap: '30px', padding: '1rem', alignItems: 'center' }}>
-                  <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#000000' }}>
+                  <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#000000' }}>
                     {f.name}
                   </Text>
                   {/* <Box
@@ -134,10 +136,10 @@ function DashboardFunds() {
                       flexDirection: 'column',
                     }}
                   >
-                    <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '8px', color: '#4D4D4D' }}>
+                    <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '8px', color: '#4D4D4D' }}>
                       Created:
                     </Text>
-                    <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '10px', color: '#4D4D4D' }}>
+                    <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '10px', color: '#4D4D4D' }}>
                       {f.createdDate}
                     </Text>
                   </Box>
@@ -150,10 +152,10 @@ function DashboardFunds() {
                       flexDirection: 'column',
                     }}
                   >
-                    <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '8px', color: '#4D4D4D' }}>
+                    <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '8px', color: '#4D4D4D' }}>
                       Last Updated:
                     </Text>
-                    <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '10px', color: '#4D4D4D' }}>
+                    <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '10px', color: '#4D4D4D' }}>
                       {f.lastUpdated}
                     </Text>
                   </Box> */}
@@ -162,44 +164,64 @@ function DashboardFunds() {
                 <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '0.5rem 1rem 1rem 1rem' }}>
                   <Box sx={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}>
+                      <Text
+                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}
+                      >
                         Investors:
                       </Text>
-                      <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}>
+                      <Text
+                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}
+                      >
                         {f.investors}
                       </Text>
                     </Box>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}>
+                      <Text
+                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}
+                      >
                         TVL:
                       </Text>
-                      <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}>
+                      <Text
+                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}
+                      >
                         {f.tvl}
                       </Text>
                     </Box>
                   </Box>
                   <Box sx={{ display: 'flex', flexDirection: 'row', gap: '15px' }}>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}>
+                      <Text
+                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}
+                      >
                         Stake:
                       </Text>
-                      <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}>
+                      <Text
+                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}
+                      >
                         {f.stake}
                       </Text>
                     </Box>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}>
+                      <Text
+                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}
+                      >
                         APY:
                       </Text>
-                      <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}>
+                      <Text
+                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}
+                      >
                         {f.apy}
                       </Text>
                     </Box>
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}>
+                      <Text
+                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}
+                      >
                         Yield:
                       </Text>
-                      <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}>
+                      <Text
+                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}
+                      >
                         {f.yield}
                       </Text>
                     </Box>
@@ -223,7 +245,7 @@ function DashboardFunds() {
             padding: '0rem 0.75rem',
           }}
         >
-          <Text sx={{ fontFamily: 'Inter', fontSize: '20px', color: '#14114B', fontWeight: '600' }}>
+          <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontSize: '20px', color: '#14114B', fontWeight: '600' }}>
             You currently do not have any Minted Strategies. Please Create a strategy to view it here.
           </Text>
         </Box>

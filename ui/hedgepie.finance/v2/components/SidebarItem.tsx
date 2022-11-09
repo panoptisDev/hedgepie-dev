@@ -22,6 +22,8 @@ function SidebarItem(props: SidebarItemProps) {
         return 'History'
       case 'help':
         return 'Help'
+      case 'leaderboard':
+        return 'Leaderboard'
       default:
         return type
     }
@@ -37,6 +39,8 @@ function SidebarItem(props: SidebarItemProps) {
         return '/icons/list.svg'
       case 'help':
         return '/icons/help.svg'
+      case 'leaderboard':
+        return '/icons/list.svg'
       default:
         return '/icons/home.svg'
     }

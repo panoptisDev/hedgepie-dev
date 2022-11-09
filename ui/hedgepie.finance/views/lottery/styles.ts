@@ -73,7 +73,7 @@ export const styles = {
   flex_strategy_detail_column: { flexDirection: 'column', gap: '5px' },
   strategy_detail_quantity_text: { fontWeight: '700', fontSize: '22px', color: '#0A3F5C' },
   strategy_detail_value_text: { color: '#8E8DA0', fontSize: '14px', fontWeight: '500' },
-  strategy_detail_apy_text: { color: '#0A3F5C', fontFamily: 'Noto Sans', fontWeight: '600', fontSize: '16px' },
+  strategy_detail_apy_text: { color: '#0A3F5C', fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px' },
   flex_right_container: { flexDirection: 'column', width: '30rem', gap: '1rem' },
   flex_owner_details_container: {
     flexDirection: 'row',
@@ -142,7 +142,7 @@ export const styles = {
   },
   time_remaining_text_container: { gap: '1rem' },
   time_remaining_time_display_text: {
-    fontFamily: 'Noto Sans',
+    fontFamily: 'Plus Jakarta Sans',
     fontStyle: 'normal',
     fontWeight: 'bold',
     fontSize: '30px',
@@ -151,7 +151,7 @@ export const styles = {
     color: '#DF4886',
   },
   time_remaining_comment_text: {
-    fontFamily: 'Noto Sans',
+    fontFamily: 'Plus Jakarta Sans',
     fontStyle: 'normal',
     fontWeight: 'bold',
     fontSize: '30px',

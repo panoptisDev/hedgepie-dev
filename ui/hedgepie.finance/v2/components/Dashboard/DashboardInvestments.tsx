@@ -134,7 +134,9 @@ function DashboardInvestments() {
       }}
     >
       <Box sx={{ display: 'flex', flexDirection: ['column', 'row', 'row', 'row'], alignItems: 'center', gap: '10px' }}>
-        <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '24px', color: '#000000' }}>My Investments</Text>
+        <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '24px', color: '#000000' }}>
+          My Investments
+        </Text>
         <Box
           sx={{
             marginLeft: 'auto',
@@ -201,7 +203,7 @@ function DashboardInvestments() {
               <tr
                 style={{
                   fontWeight: '600',
-                  fontFamily: 'Inter',
+                  fontFamily: 'Plus Jakarta Sans',
                   color: '#1A1A1A',
                   fontSize: '16px',
                   textAlign: 'center',
@@ -218,11 +220,13 @@ function DashboardInvestments() {
             </thead>
             <tbody>
               {investments.map((investment) => (
-                <tr style={{ textAlign: 'center', color: '#1A1A1A', fontSize: '14px', fontFamily: 'Inter' }}>
+                <tr
+                  style={{ textAlign: 'center', color: '#1A1A1A', fontSize: '14px', fontFamily: 'Plus Jakarta Sans' }}
+                >
                   <td>
                     <Text
                       sx={{
-                        fontFamily: 'Inter',
+                        fontFamily: 'Plus Jakarta Sans',
                         fontWeight: '600',
                         color: '#14114B',
                         cursor: 'pointer',
@@ -245,7 +249,9 @@ function DashboardInvestments() {
                   <td>{investment.totalParticipants}</td>
                   <td>
                     <Box sx={{ display: 'flex', flexDirection: 'column', alignItems: 'center', gap: '5px' }}>
-                      <Text sx={{ fontFamily: 'Inter', fontWeight: '600' }}>{investment.stake.bnbValue}</Text>
+                      <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600' }}>
+                        {investment.stake.bnbValue}
+                      </Text>
                       <Text sx={{ color: '#8988A5', fontSize: '10px' }}>{investment.stake.usdValue}</Text>
                     </Box>
                   </td>
@@ -273,7 +279,7 @@ function DashboardInvestments() {
                           border: '1px solid #8BCCEE',
                           backgroundColor: '#F2F9FD',
                           color: '#1A1A1A',
-                          fontFamily: 'Inter',
+                          fontFamily: 'Plus Jakarta Sans',
                           fontWeight: '600',
                           fontSize: '14px',
                           cursor: 'pointer',
@@ -289,7 +295,7 @@ function DashboardInvestments() {
                           border: '1px solid #8BCCEE',
                           backgroundColor: '#F2F9FD',
                           color: '#1A1A1A',
-                          fontFamily: 'Inter',
+                          fontFamily: 'Plus Jakarta Sans',
                           fontWeight: '600',
                           fontSize: '14px',
                           cursor: 'pointer',
@@ -318,7 +324,7 @@ function DashboardInvestments() {
             padding: '0rem 0.75rem',
           }}
         >
-          <Text sx={{ fontFamily: 'Inter', fontSize: '20px', color: '#14114B', fontWeight: '600' }}>
+          <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontSize: '20px', color: '#14114B', fontWeight: '600' }}>
             You currently have no investments. Explore our{' '}
             <Link href="/nft-leaderboard">
               <Text sx={{ color: '#1799DE', textDecoration: 'underline', cursor: 'pointer' }}>Leaderboard</Text>

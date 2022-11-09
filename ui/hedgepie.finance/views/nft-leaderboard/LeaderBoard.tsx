@@ -71,7 +71,7 @@ const LeaderBoard = () => {
         const nftInfo = await getNFTInfo(i)
         const bnbPrice = await getPrice('BNB')
         const tvl = bnbPrice ? `$${Number(getBalanceInEther(nftInfo.tvl) * bnbPrice).toFixed(3)} USD` : 'N/A'
-        const totalStaked = `${getBalanceInEther(nftInfo.tvl)} BNB`
+        const totalStaked = `${getBalanceInEther(nftInfo.tvl).toFixed(4)} BNB`
         const totalProfit =
           bnbPrice && profitMap[i] ? `$${Number(getBalanceInEther(profitMap[i]) * bnbPrice).toFixed(3)} USD` : 'N/A'
         const metadata = await metadataFile.json()

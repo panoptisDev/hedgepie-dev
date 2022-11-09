@@ -6,7 +6,7 @@ export const theme: Theme = {
     body: 'system-ui, sans-serif',
     heading: '"Avenir Next", sans-serif',
     monospace: 'Menlo, monospace',
-    noto: 'Noto Sans',
+    noto: 'Plus Jakarta Sans',
   },
   colors: {
     text: '#000',
@@ -31,7 +31,7 @@ export const theme: Theme = {
       py: 10,
       letterSpacing: '0.2em',
       fontWeight: 'none',
-      fontFamily: 'Noto Sans',
+      fontFamily: 'Plus Jakarta Sans',
       ':hover': { color: '#1799DE' },
       cursor: 'pointer',
     },
