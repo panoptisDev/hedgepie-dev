@@ -350,7 +350,7 @@ function StrategyOverview(props: { tokenId: number }) {
                       <Text sx={{ color: '#DF4886', fontWeight: '500', fontSize: '14px', marginLeft: '3px' }}>
                         {stakeUSD}
                       </Text>
-                      {stakeAmt > 0 && (
+                      {/* {stakeAmt > 0 && (
                         <Text
                           sx={{
                             color: '#1799DE',
@@ -364,7 +364,7 @@ function StrategyOverview(props: { tokenId: number }) {
                         >
                           Withdraw
                         </Text>
-                      )}
+                      )} */}
                     </Box>
                   </Box>
                 </Box>
@@ -515,6 +515,28 @@ function StrategyOverview(props: { tokenId: number }) {
                 COMPOUND
               </Box> */}
             </Box>
+          </Box>
+          <Box>
+            {stakeAmt > 0 && (
+              <Box
+                sx={{
+                  cursor: 'pointer',
+                  backgroundColor: '#201D54',
+                  color: '#FFFFFF',
+                  padding: '0.4rem 1rem',
+                  borderRadius: '8px',
+                  border: '2px solid #EFA3C2',
+                  flex: 1,
+                  textAlign: 'center',
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontWeight: '600',
+                  boxShadow: 'rgba(49, 59, 200, 0.8) 0px 3px 16px 0px',
+                }}
+                onClick={handleUnstake}
+              >
+                WITHDRAW
+              </Box>
+            )}
           </Box>
           <Box
             sx={{
