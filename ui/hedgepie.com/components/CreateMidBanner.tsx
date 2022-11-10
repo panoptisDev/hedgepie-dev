@@ -36,7 +36,7 @@ function CreateMidBanner() {
           display: "flex",
           flexDirection: "column",
           gap: "20px",
-          fontFamily: "Open Sans",
+          fontFamily: "Plus Jakarta Sans",
           width: ["90%", "90%", "90%", "40rem"],
         }}
       >

@@ -40,7 +40,7 @@ function StrategyList(props: StrategyListProps) {
         {textLine1 && (
           <Text
             sx={{
-              fontFamily: "Open Sans",
+              fontFamily: "Plus Jakarta Sans",
               fontSize: ["20px", "20px", "24px"],
               fontWeight: "500",
               color: "#000000",
@@ -53,7 +53,7 @@ function StrategyList(props: StrategyListProps) {
         {textLine2 && (
           <Text
             sx={{
-              fontFamily: "Open Sans",
+              fontFamily: "Plus Jakarta Sans",
               fontSize: ["20px", "20px", "24px"],
               fontWeight: "500",
               color: "#000000",

@@ -39,7 +39,7 @@ function FinalBanner(props: FinalBannerProps) {
           flexDirection: "column",
           alignItems: "center",
           justifyContent: "center",
-          fontFamily: "Open Sans",
+          fontFamily: "Plus Jakarta Sans",
         }}
       >
         <Text

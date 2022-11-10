@@ -62,7 +62,7 @@ function HedgePieNavBar(props: NavBarProps) {
             alignItems: "center",
             justifyContent: "center",
             fontSize: "18px",
-            fontFamily: "Open Sans",
+            fontFamily: "Plus Jakarta Sans",
             backgroundColor: selected === p ? "#1799DE" : "transparent",
             color: "#FFFFFF",
             height: "100%",

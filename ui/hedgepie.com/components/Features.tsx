@@ -76,7 +76,7 @@ function Features(props: FeaturesProps) {
             flexDirection: "column",
             padding: "32px 24px",
             gap: "20px",
-            fontFamily: "Open Sans",
+            fontFamily: "Plus Jakarta Sans",
             minWidth: ["100%", "100%", "100%", "20rem"],
             maxWidth: "25rem",
             height: ["max-content", "max-content", "max-content", "28rem"],

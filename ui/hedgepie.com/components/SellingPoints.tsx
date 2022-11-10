@@ -102,7 +102,7 @@ function SellingPoints(props: SellingPointsProps) {
                   display: "flex",
                   flexDirection: "column",
                   gap: "20px",
-                  fontFamily: "Open Sans",
+                  fontFamily: "Plus Jakarta Sans",
                 }}
               >
                 <Text
@@ -155,7 +155,7 @@ function SellingPoints(props: SellingPointsProps) {
                   display: "flex",
                   flexDirection: "column",
                   gap: "20px",
-                  fontFamily: "Open Sans",
+                  fontFamily: "Plus Jakarta Sans",
                 }}
               >
                 <Text
