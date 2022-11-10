@@ -31,7 +31,7 @@ export const styles = {
   flex_column: { flexDirection: 'column', justifyContent: 'center', alignItems: 'center' },
   flex_sub_title: { flexDirection: 'row', marginBottom: '1rem', marginTop: '1rem' },
   sub_title_text: {
-    fontFamily: 'Noto Sans',
+    fontFamily: 'Plus Jakarta Sans',
     fontWeight: '600',
     fontSize: '16px',
     color: '#DF4886',
@@ -86,7 +86,7 @@ export const styles = {
   arrow_icon: { width: '2rem', height: '2rem', color: '#fff' },
   hpie_token_image: { width: '60px', height: '50px' },
   flex_slippage_tolerance: { marginLeft: '55%', alignItems: 'center', gap: '0.5rem' },
-  slippage_tolerance_text: { color: '#8E8DA0', fontWeight: '600', fontSize: '16px', fontFamily: 'Noto Sans' },
+  slippage_tolerance_text: { color: '#8E8DA0', fontWeight: '600', fontSize: '16px', fontFamily: 'Plus Jakarta Sans' },
   slippage_tolerance_input: {
     borderRadius: '30px',
     width: '5rem',

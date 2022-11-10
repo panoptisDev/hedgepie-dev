@@ -174,38 +174,49 @@ function DashboardYieldStakeInfo() {
                       color: activeTab === 'yield' ? '#1799DE' : '#000000',
                       borderBottom: activeTab === 'yield' ? '2px solid #1799DE' : '2px solid #D9D9D9',
                       cursor: 'pointer',
-                      fontFamily: 'Inter',
+                      fontFamily: 'Plus Jakarta Sans',
                       padding: '1rem',
                     }}
                     onClick={() => {
                       setActiveTab('yield')
                     }}
                   >
-                    <Text sx={{ fontSize: '16px', fontFamily: 'Inter', fontWeight: '600' }}>Total Yield</Text>
+                    <Text sx={{ fontSize: '16px', fontFamily: 'Plus Jakarta Sans', fontWeight: '600' }}>
+                      Total Yield
+                    </Text>
                   </Box>
                   <Box
                     sx={{
                       color: activeTab === 'stake' ? '#1799DE' : '#000000',
                       borderBottom: activeTab === 'stake' ? '2px solid #1799DE' : '2px solid #D9D9D9',
                       cursor: 'pointer',
-                      fontFamily: 'Inter',
+                      fontFamily: 'Plus Jakarta Sans',
                       padding: '1rem',
                     }}
                     onClick={() => {
                       setActiveTab('stake')
                     }}
                   >
-                    <Text sx={{ fontSize: '16px', fontFamily: 'Inter', fontWeight: '600' }}>Total Staked</Text>
+                    <Text sx={{ fontSize: '16px', fontFamily: 'Plus Jakarta Sans', fontWeight: '600' }}>
+                      Total Staked
+                    </Text>
                   </Box>
                 </Box>
                 <Box sx={{ width: '100%', height: '100%', padding: '0.5rem' }}>
                   {activeTab === 'yield' && (
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                        <Text sx={{ fontFamily: 'Inter', fontSize: '24px', fontWeight: '700', color: '#000000' }}>
+                        <Text
+                          sx={{
+                            fontFamily: 'Plus Jakarta Sans',
+                            fontSize: '24px',
+                            fontWeight: '700',
+                            color: '#000000',
+                          }}
+                        >
                           {`$${bnbPrice && totalYield ? (bnbPrice * totalYield).toFixed(4) : '0.0'} USD`}
                         </Text>
-                        {/* <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '700', color: '#4F4F4F' }}>
+                        {/* <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontSize: '10px', fontWeight: '700', color: '#4F4F4F' }}>
                     10th Aug - 19th Sept, 2022
                   </Text> */}
                       </Box>
@@ -215,8 +226,12 @@ function DashboardYieldStakeInfo() {
                             <Box
                               sx={{ width: '10px', height: '10px', backgroundColor: i.color, borderRadius: '60px' }}
                             ></Box>
-                            <Text sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: '600' }}>{i.title}</Text>
-                            <Text sx={{ fontFamily: 'Inter', fontSize: '14px', fontWeight: '400' }}>{i.value}</Text>
+                            <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontSize: '16px', fontWeight: '600' }}>
+                              {i.title}
+                            </Text>
+                            <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontSize: '14px', fontWeight: '400' }}>
+                              {i.value}
+                            </Text>
                           </Box>
                         ))}
                       </Box>
@@ -225,10 +240,17 @@ function DashboardYieldStakeInfo() {
                   {activeTab === 'stake' && (
                     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
                       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '3px' }}>
-                        <Text sx={{ fontFamily: 'Inter', fontSize: '24px', fontWeight: '700', color: '#000000' }}>
+                        <Text
+                          sx={{
+                            fontFamily: 'Plus Jakarta Sans',
+                            fontSize: '24px',
+                            fontWeight: '700',
+                            color: '#000000',
+                          }}
+                        >
                           {`$${bnbPrice && totalStake ? (bnbPrice * totalStake).toFixed(4) : '0.0'} USD`}
                         </Text>
-                        {/* <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '700', color: '#4F4F4F' }}>
+                        {/* <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontSize: '10px', fontWeight: '700', color: '#4F4F4F' }}>
                     10th Aug - 19th Sept, 2022
                   </Text> */}
                       </Box>
@@ -238,8 +260,12 @@ function DashboardYieldStakeInfo() {
                             <Box
                               sx={{ width: '10px', height: '10px', backgroundColor: i.color, borderRadius: '60px' }}
                             ></Box>
-                            <Text sx={{ fontFamily: 'Inter', fontSize: '16px', fontWeight: '600' }}>{i.title}</Text>
-                            <Text sx={{ fontFamily: 'Inter', fontSize: '14px', fontWeight: '400' }}>{i.value}</Text>
+                            <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontSize: '16px', fontWeight: '600' }}>
+                              {i.title}
+                            </Text>
+                            <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontSize: '14px', fontWeight: '400' }}>
+                              {i.value}
+                            </Text>
                           </Box>
                         ))}
                       </Box>
@@ -274,7 +300,7 @@ function DashboardYieldStakeInfo() {
             padding: '0rem 0.75rem',
           }}
         >
-          <Text sx={{ fontFamily: 'Inter', fontSize: '20px', color: '#14114B', fontWeight: '600' }}>
+          <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontSize: '20px', color: '#14114B', fontWeight: '600' }}>
             Please Stake into some Strategies to view its data here 🎉
           </Text>
         </Box>

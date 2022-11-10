@@ -14,13 +14,13 @@ function PRSection() {
           height: '100%',
         }}
       >
-        <Text sx={{ color: '#fff', fontFamily: 'Noto Sans', fontSize: '36px', fontWeight: '700' }}>
+        <Text sx={{ color: '#fff', fontFamily: 'Plus Jakarta Sans', fontSize: '36px', fontWeight: '700' }}>
           Get a slice of the DeFi Pie
         </Text>
         <Text
           sx={{
             color: '#fff',
-            fontFamily: 'Noto Sans',
+            fontFamily: 'Plus Jakarta Sans',
             fontSize: '18px',
             fontWeight: '500',
             width: '16rem',

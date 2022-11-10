@@ -8,12 +8,12 @@ interface SidebarProps {
   active: string
 }
 
-export type SidebarItemType = 'home' | 'stats' | 'history' | 'help'
+export type SidebarItemType = 'home' | 'stats' | 'history' | 'help' | 'leaderboard'
 
 function Sidebar(props: SidebarProps) {
   // const sidebarItems: SidebarItemType[] = ['home', 'stats', 'history']
 
-  const sidebarItems: SidebarItemType[] = ['home']
+  const sidebarItems: SidebarItemType[] = ['home', 'leaderboard']
   const dashboardValue = useContext(DashboardContext)
   const router = useRouter()
 
@@ -23,6 +23,8 @@ function Sidebar(props: SidebarProps) {
         return 'v2/dashboard'
       case 'stats':
         return 'v2/strategy'
+      case 'leaderboard':
+        return 'v2/leaderboard'
       default:
         return 'v2/dashboard'
     }

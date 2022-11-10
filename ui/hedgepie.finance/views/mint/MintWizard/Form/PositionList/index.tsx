@@ -125,7 +125,7 @@ const PositionList = () => {
                 textAlign: 'center',
                 letterSpacing: '1px',
                 color: '#000',
-                fontFamily: 'Inter',
+                fontFamily: 'Plus Jakarta Sans',
               }}
             >
               Add position

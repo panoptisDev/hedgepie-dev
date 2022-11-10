@@ -27,7 +27,7 @@ const ChoosePath = () => {
             fontWeight: 700,
             textAlign: 'center',
             color: '#14114B',
-            fontFamily: 'Noto Sans',
+            fontFamily: 'Plus Jakarta Sans',
             letterSpacing: '-2px',
           }}
         >
