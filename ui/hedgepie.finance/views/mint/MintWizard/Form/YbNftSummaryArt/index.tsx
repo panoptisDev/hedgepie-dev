@@ -40,7 +40,7 @@ const YbNftSummaryArt = () => {
             },
           }}
         >
-          {formData.nftName ? formData.nftName : 'YBNFT'}
+          {formData.nftName ? formData.nftName : 'Strategy'}
         </Box>
         <Box mt={22}>
           <Box
