@@ -17,10 +17,10 @@ const MintWizard = () => {
         borderRadius: 8,
         overflow: 'hidden',
         boxShadow: 'rgba(100, 100, 111, 0.2) 0px 7px 29px 0px',
-        backgroundColor: '#fff',
+        // backgroundColor: '#fff',
       }}
     >
-      <Box
+      {/* <Box
         sx={{
           display: 'flex',
           alignItems: 'center',
@@ -39,7 +39,7 @@ const MintWizard = () => {
         }}
       >
         Create a Strategy
-      </Box>
+      </Box> */}
       <Box
         sx={{
           padding: 20,
