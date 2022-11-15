@@ -46,9 +46,10 @@ const MintWizard = () => {
           [`@media screen and (min-width: 800px)`]: {
             padding: 40,
           },
+          width: '100%',
         }}
       >
-        <MintWizardNav
+        {/* <MintWizardNav
           sx={{
             display: 'none',
             [`@media screen and (min-width: 800px)`]: {
@@ -63,7 +64,29 @@ const MintWizard = () => {
               display: 'none',
             },
           }}
-        />
+        /> */}
+        <Box sx={{ padding: '2rem', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
+          <Box
+            sx={{
+              height: '1rem',
+              borderRadius: '16px',
+              width: '40rem',
+              backgroundColor: '#FFFFFF',
+              border: '1px solid #E3E3E3',
+            }}
+          >
+            <Box
+              sx={{
+                height: '1rem',
+                borderRadius: '16px',
+                width: `${(wizard.order + 1) * 10}rem`,
+                backgroundColor: '#1799DE',
+                border: '1px solid #E3E3E3',
+                boxShadow: '2px 1px 2px rgba(133, 175, 197, 0.4)',
+              }}
+            ></Box>
+          </Box>
+        </Box>
         {wizard.order === 0 && <FormInitialStake />}
         {wizard.order === 1 && <FormPosition />}
         {wizard.order === 2 && <FormPerformanceFee />}

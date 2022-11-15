@@ -42,7 +42,7 @@ function SidebarItem(props: SidebarItemProps) {
       case 'help':
         return '/icons/help.svg'
       case 'leaderboard':
-        return '/icons/list.svg'
+        return '/icons/leaderboard.svg'
       case 'mint':
         return '/icons/list.svg'
       default:
