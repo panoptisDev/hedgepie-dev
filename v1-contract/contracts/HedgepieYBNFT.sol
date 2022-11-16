@@ -118,6 +118,59 @@ contract YBNFT is BEP721, Ownable {
     }
 
     /**
+     * @notice Update performance fee of adapters
+     * @param _tokenId  tokenId of NFT
+     * @param _performanceFee  address of adapters
+     */
+    function updatePerformanceFee(uint256 _tokenId, uint256 _performanceFee)
+        external
+    {
+        require(
+            _performanceFee < 1000,
+            "Performance fee should be less than 10%"
+        );
+        require(msg.sender == ownerOf(_tokenId), "Invalid NFT Owner");
+
+        performanceFee[_tokenId] = _performanceFee;
+    }
+
+    /**
+     * @notice Update allocation of adapters
+     * @param _tokenId  tokenId of NFT
+     * @param _adapterAllocations  array of adapter allocation
+     */
+    function updateAllocations(
+        uint256 _tokenId,
+        uint256[] calldata _adapterAllocations
+    ) external {
+        require(
+            _adapterAllocations.length == adapterInfo[_tokenId].length,
+            "Invalid allocation length"
+        );
+        require(msg.sender == ownerOf(_tokenId), "Invalid NFT Owner");
+        require(
+            _checkPercent(_adapterAllocations),
+            "Incorrect adapter allocation"
+        );
+
+        for (uint256 i = 0; i < adapterInfo[_tokenId].length; i++)
+            adapterInfo[_tokenId][i].allocation = _adapterAllocations[i];
+    }
+
+    /**
+     * @notice Update token URI of NFT
+     * @param _tokenId  tokenId of NFT
+     * @param _tokenURI  URI of NFT
+     */
+    function updateTokenURI(uint256 _tokenId, string memory _tokenURI)
+        external
+    {
+        require(msg.sender == ownerOf(_tokenId), "Invalid NFT Owner");
+
+        _setTokenURI(_tokenId, _tokenURI);
+    }
+
+    /**
      * @notice Set token uri
      * @param _tokenId  token id
      * @param _tokenURI  token uri
