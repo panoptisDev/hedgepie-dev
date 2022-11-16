@@ -83,12 +83,12 @@ contract PickleSingleGaugeAdapter is BaseAdapterEth {
                 : 0;
 
             AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
-            if (rewardAmt0 != 0 && rewardToken != address(0)) {
+            if (rewardAmt0 != 0 && rewardToken != address(0) && adapterInfo.totalStaked != 0) {
                 adapterInfo.accTokenPerShare +=
                     (rewardAmt0 * 1e12) /
                     adapterInfo.totalStaked;
             }
-            if (rewardAmt1 != 0 && rewardToken1 != address(0)) {
+            if (rewardAmt1 != 0 && rewardToken1 != address(0) && adapterInfo.totalStaked != 0) {
                 adapterInfo.accTokenPerShare1 +=
                     (rewardAmt1 * 1e12) /
                     adapterInfo.totalStaked;
@@ -251,13 +251,35 @@ contract PickleSingleGaugeAdapter is BaseAdapterEth {
 
         address adapterInfoEthAddr = IHedgepieInvestorEth(investor)
             .adapterInfo();
-        amountOut += rewards[2];
         if (rewards[2] != 0) {
             IHedgepieAdapterInfoEth(adapterInfoEthAddr).updateProfitInfo(
                 _tokenId,
                 rewards[2],
                 true
             );
+
+            unchecked {
+                amountOut += rewards[2];
+                rewards[2] =
+                    (rewards[2] *
+                        IYBNFT(IHedgepieInvestorEth(investor).ybnft())
+                            .performanceFee(_tokenId)) /
+                    1e4;
+            }
+        }
+
+        if (amountOut != 0) {
+            bool success;
+            if (rewards[2] != 0) {
+                (success, ) = payable(IHedgepieInvestorEth(investor).treasury())
+                    .call{value: rewards[2]}("");
+                require(success, "Failed to send ether to Treasury");
+            }
+
+            (success, ) = payable(_account).call{value: amountOut - rewards[2]}(
+                ""
+            );
+            require(success, "Failed to send ether");
         }
 
         // Update adapterInfo contract
@@ -280,27 +302,7 @@ contract PickleSingleGaugeAdapter is BaseAdapterEth {
         unchecked {
             adapterInfo.totalStaked -= userInfo.amount;
         }
-
         delete userAdapterInfos[_account][_tokenId];
-
-        if (amountOut != 0) {
-            bool success;
-            if (rewards[2] != 0) {
-                rewards[2] =
-                    (rewards[2] *
-                        IYBNFT(IHedgepieInvestorEth(investor).ybnft())
-                            .performanceFee(_tokenId)) /
-                    1e4;
-                (success, ) = payable(IHedgepieInvestorEth(investor).treasury())
-                    .call{value: rewards[2]}("");
-                require(success, "Failed to send ether to Treasury");
-            }
-
-            (success, ) = payable(_account).call{value: amountOut - rewards[2]}(
-                ""
-            );
-            require(success, "Failed to send ether");
-        }
     }
 
     /**

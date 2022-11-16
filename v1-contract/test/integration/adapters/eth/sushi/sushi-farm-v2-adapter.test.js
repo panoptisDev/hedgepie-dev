@@ -3,11 +3,6 @@ const { ethers } = require("hardhat");
 
 const BigNumber = ethers.BigNumber;
 
-const unlockAccount = async (address) => {
-  await hre.network.provider.send("hardhat_impersonateAccount", [address]);
-  return hre.ethers.provider.getSigner(address);
-};
-
 const forkNetwork = async () => {
   await hre.network.provider.request({
     method: "hardhat_reset",
@@ -21,14 +16,13 @@ const forkNetwork = async () => {
   });
 };
 
-describe("SushiFarmV2AdapterEth Integration Test", function () {
+describe.only("SushiFarmV2AdapterEth Integration Test", function () {
   before("Deploy contract", async function () {
     await forkNetwork();
 
     const [owner, alice, bob, tom, treasury] = await ethers.getSigners();
 
     const performanceFee = 100;
-    const pid = 42;
     const weth = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
     const sushi = "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2";
     const radar = "0x44709a920fCcF795fbC57BAA433cc3dd53C44DbE";
@@ -268,34 +262,45 @@ describe("SushiFarmV2AdapterEth Integration Test", function () {
 
       // withdraw from nftId: 1
       const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
+      const beforeOwnerETH = await ethers.provider.getBalance(this.owner.address);
+      let aliceInfo = (await this.adapter.userAdapterInfos(this.aliceAddr, 1)).invested;
 
-      await expect(this.investor.connect(this.alice).withdrawETH(1, { gasPrice: 21e9 })).to.emit(
+      const gasPrice = 21e9;
+      const gas = await this.investor.connect(this.alice).estimateGas.withdrawETH(1, { gasPrice });
+      await expect(this.investor.connect(this.alice).withdrawETH(1, { gasPrice })).to.emit(
         this.investor,
         "WithdrawETH"
       );
 
       const afterETH = await ethers.provider.getBalance(this.aliceAddr);
-
       expect(BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))).to.eq(true);
 
-      const aliceInfo = (await this.adapter.userAdapterInfos(this.aliceAddr, 1)).invested;
+      // check protocol fee
+      const rewardAmt = afterETH.sub(beforeETH);
+      const afterOwnerETH = await ethers.provider.getBalance(this.owner.address);
+      let actualPending = rewardAmt.add(gas.mul(gasPrice));
+      if(actualPending.gt(aliceInfo)) {
+        actualPending = actualPending.sub(BigNumber.from(aliceInfo));
+        const protocolFee = afterOwnerETH.sub(beforeOwnerETH);
+        expect(protocolFee).to.gt(0);
+        expect(actualPending).to.be.within(
+          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).sub(gas.mul(gasPrice)),
+          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).add(gas.mul(gasPrice))
+        );
+      }
+
+      aliceInfo = (await this.aAdapter.userAdapterInfos(this.aliceAddr, 1)).invested;
       expect(aliceInfo).to.eq(BigNumber.from(0));
 
-      const bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1)).invested;
+      const bobInfo = (await this.aAdapter.userAdapterInfos(this.bobAddr, 1)).invested;
       const bobDeposit = Number(bobInfo) / Math.pow(10, 18);
       expect(bobDeposit).to.eq(20);
 
       expect(
-        BigNumber.from((await this.adapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
-      ).to.eq(true) &&
-        expect(
-          BigNumber.from((await this.adapter.adapterInfos(1)).accTokenPerShare1).gt(
-            BigNumber.from(this.accTokenPerShare1)
-          )
-        ).to.eq(true);
+        BigNumber.from((await this.aAdapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
+      ).to.eq(true);
 
-      this.accTokenPerShare = (await this.adapter.adapterInfos(1)).accTokenPerShare;
-      this.accTokenPerShare1 = (await this.adapter.adapterInfos(1)).accTokenPerShare1;
+      this.accTokenPerShare = (await this.aAdapter.adapterInfos(1)).accTokenPerShare;
     });
 
     it("(3) test TVL & participants after Alice withdraw", async function () {
@@ -308,33 +313,45 @@ describe("SushiFarmV2AdapterEth Integration Test", function () {
     it("(4) should receive the ETH successfully after withdraw function for Bob", async function () {
       await ethers.provider.send("evm_increaseTime", [3600 * 24 * 30]);
       await ethers.provider.send("evm_mine", []);
+
       // withdraw from nftId: 1
       const beforeETH = await ethers.provider.getBalance(this.bobAddr);
+      const beforeOwnerETH = await ethers.provider.getBalance(this.owner.address);
+      let bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1)).invested;
 
-      await expect(this.investor.connect(this.bob).withdrawETH(1, { gasPrice: 21e9 })).to.emit(
+      const gasPrice = 21e9;
+      const gas = await this.investor.connect(this.bob).estimateGas.withdrawETH(1, { gasPrice });
+      await expect(this.investor.connect(this.bob).withdrawETH(1, { gasPrice })).to.emit(
         this.investor,
         "WithdrawETH"
       );
 
       const afterETH = await ethers.provider.getBalance(this.bobAddr);
-
       expect(BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))).to.eq(true);
 
-      const bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1)).invested;
+      // check protocol fee
+      const rewardAmt = afterETH.sub(beforeETH);
+      const afterOwnerETH = await ethers.provider.getBalance(this.owner.address);
+      let actualPending = rewardAmt.add(gas.mul(gasPrice));
+      if(actualPending.gt(bobInfo)) {
+        actualPending = actualPending.sub(BigNumber.from(bobInfo));
+        const protocolFee = afterOwnerETH.sub(beforeOwnerETH);
+        expect(protocolFee).to.gt(0);
+        expect(actualPending).to.be.within(
+          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).sub(gas.mul(gasPrice)),
+          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).add(gas.mul(gasPrice))
+        );
+      }
+
+      bobInfo = (await this.aAdapter.userAdapterInfos(this.bobAddr, 1)).invested;
       expect(bobInfo).to.eq(BigNumber.from(0));
 
       // Check accTokenPerShare Info
       expect(
-        BigNumber.from((await this.adapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
-      ).to.eq(true) &&
-        expect(
-          BigNumber.from((await this.adapter.adapterInfos(1)).accTokenPerShare1).gt(
-            BigNumber.from(this.accTokenPerShare1)
-          )
-        ).to.eq(true);
+        BigNumber.from((await this.aAdapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
+      ).to.eq(true);
 
-      this.accTokenPerShare = (await this.adapter.adapterInfos(1)).accTokenPerShare;
-      this.accTokenPerShare1 = (await this.adapter.adapterInfos(1)).accTokenPerShare1;
+      this.accTokenPerShare = (await this.aAdapter.adapterInfos(1)).accTokenPerShare;
     });
 
     it("(5) test TVL & participants after Alice & Bob withdraw", async function () {
