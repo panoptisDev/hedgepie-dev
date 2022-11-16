@@ -237,7 +237,7 @@ describe("AaveLendAdapterEth Integration Test", function () {
       // withdraw from nftId: 1
       const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
       const beforeOwnerETH = await ethers.provider.getBalance(this.owner.address);
-      let aliceInfo = (await this.aAdapter.userAdapterInfos(this.aliceAddr, 1)).invested;
+      let aliceInfo = (await this.adapter.userAdapterInfos(this.aliceAddr, 1)).invested;
 
       const gasPrice = 21e9;
       const gas = await this.investor.connect(this.alice).estimateGas.withdrawETH(1, { gasPrice });
@@ -291,7 +291,7 @@ describe("AaveLendAdapterEth Integration Test", function () {
       // withdraw from nftId: 1
       const beforeETH = await ethers.provider.getBalance(this.bobAddr);
       const beforeOwnerETH = await ethers.provider.getBalance(this.owner.address);
-      let bobInfo = (await this.aAdapter.userAdapterInfos(this.bobAddr, 1)).invested;
+      let bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1)).invested;
 
       const gasPrice = 21e9;
       const gas = await this.investor.connect(this.bob).estimateGas.withdrawETH(1, { gasPrice });
