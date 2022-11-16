@@ -7,7 +7,7 @@ const toast = (message: string, type?: string) => {
       backgroundColor: type == 'success' ? '#1799DE' : type === 'warning' ? '#de588e' : '#1799DE',
       borderRadius: '10px',
       padding: '10px',
-      fontFamily: 'Noto Sans',
+      fontFamily: 'Plus Jakarta Sans',
       color: '#FFF',
       fontSize: '16px',
       width: 'fit-content',

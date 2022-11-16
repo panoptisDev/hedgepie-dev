@@ -189,8 +189,10 @@ function StrategyOverview(props: { tokenId: number }) {
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Title Section */}
       <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-        <Text sx={{ fontFamily: 'Inter', fontWeight: '500', fontSize: '20px', color: '#000000' }}>Overview/</Text>
-        <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '24px', color: '#000000' }}>
+        <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '500', fontSize: '20px', color: '#000000' }}>
+          Overview/
+        </Text>
+        <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '24px', color: '#000000' }}>
           Strategy Details
         </Text>
       </Box>
@@ -227,12 +229,12 @@ function StrategyOverview(props: { tokenId: number }) {
           ) : (
             <>
               <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '1rem' }}>
-                <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '20px', color: '#000000' }}>
+                <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '20px', color: '#000000' }}>
                   {fundName}
                 </Text>
                 {/* <Text
                   sx={{
-                    fontFamily: 'Inter',
+                    fontFamily: 'Plus Jakarta Sans',
                     fontWeight: '500',
                     fontSize: '16px',
                     color: '#4F4F4F',
@@ -252,7 +254,7 @@ function StrategyOverview(props: { tokenId: number }) {
                 }}
               ></Box>
               <Box sx={{ maxWidth: '28rem' }}>
-                <Text sx={{ fontFamily: 'Inter', fontWeight: '500', fontSize: '16px', color: '#4F4F4F' }}>
+                <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '500', fontSize: '16px', color: '#4F4F4F' }}>
                   {description}
                 </Text>
               </Box>
@@ -269,7 +271,9 @@ function StrategyOverview(props: { tokenId: number }) {
                       padding: '0.5rem',
                     }}
                   >
-                    <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}>Pref. Fee</Text>
+                    <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>
+                      Performance Fee
+                    </Text>
                     <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{performanceFee}</Text>
                   </Box>
                   <Box
@@ -284,7 +288,7 @@ function StrategyOverview(props: { tokenId: number }) {
                     }}
                   >
                     <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                      <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}>APY</Text>
+                      <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>APY</Text>
                       <Box sx={{ marginLeft: 'auto', cursor: 'pointer' }}>
                         <Image src="/icons/info.svg" width={20} height={20} />
                       </Box>
@@ -302,7 +306,9 @@ function StrategyOverview(props: { tokenId: number }) {
                       padding: '0.5rem',
                     }}
                   >
-                    <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}># Investors</Text>
+                    <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>
+                      # Investors
+                    </Text>
                     <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{investors}</Text>
                   </Box>
                 </Box>
@@ -320,7 +326,7 @@ function StrategyOverview(props: { tokenId: number }) {
                     }}
                   >
                     <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                      <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}>TVL</Text>
+                      <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>TVL</Text>
                       <Box sx={{ marginLeft: 'auto', cursor: 'pointer' }}>
                         <Image src="/icons/info.svg" width={20} height={20} />
                       </Box>
@@ -338,13 +344,13 @@ function StrategyOverview(props: { tokenId: number }) {
                       padding: '0.5rem',
                     }}
                   >
-                    <Text sx={{ color: '#475569', fontFamily: 'Inter', fontSize: '14px' }}>Your Stake</Text>
+                    <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>Your Stake</Text>
                     <Box sx={{ display: 'flex', flexDirection: 'column' }}>
                       <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{stake}</Text>
                       <Text sx={{ color: '#DF4886', fontWeight: '500', fontSize: '14px', marginLeft: '3px' }}>
                         {stakeUSD}
                       </Text>
-                      {stakeAmt > 0 && (
+                      {/* {stakeAmt > 0 && (
                         <Text
                           sx={{
                             color: '#1799DE',
@@ -358,7 +364,7 @@ function StrategyOverview(props: { tokenId: number }) {
                         >
                           Withdraw
                         </Text>
-                      )}
+                      )} */}
                     </Box>
                   </Box>
                 </Box>
@@ -388,7 +394,7 @@ function StrategyOverview(props: { tokenId: number }) {
               padding: '0.5rem',
             }}
           >
-            <Text sx={{ color: '#14114B', fontWeight: '600', fontFamily: 'Inter', fontSize: '16px' }}>
+            <Text sx={{ color: '#14114B', fontWeight: '600', fontFamily: 'Plus Jakarta Sans', fontSize: '16px' }}>
               Edit History
             </Text>
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '8px' }}>
@@ -414,7 +420,7 @@ function StrategyOverview(props: { tokenId: number }) {
                 <Text
                   sx={{
                     color: '#1A1A1A',
-                    fontFamily: 'Inter',
+                    fontFamily: 'Plus Jakarta Sans',
                     fontWeight: '600',
                     fontSize: '12px',
                     ':hover': { textDecorationLine: 'underline' },
@@ -446,7 +452,9 @@ function StrategyOverview(props: { tokenId: number }) {
                 gap: '15px',
               }}
             >
-              <Text sx={{ fontSize: '16px', fontFamily: 'Inter', color: '#94A3B8' }}>Stake into {fundName}</Text>
+              <Text sx={{ fontSize: '16px', fontFamily: 'Plus Jakarta Sans', color: '#94A3B8' }}>
+                Stake into {fundName}
+              </Text>
               <Box
                 sx={{ display: 'flex', flexDirection: 'row', gap: '10px', alignItems: 'center', paddingRight: '1rem' }}
               >
@@ -454,7 +462,7 @@ function StrategyOverview(props: { tokenId: number }) {
                   sx={{
                     color: '#FFFFFF',
                     fontWeight: '600',
-                    fontFamily: 'Inter',
+                    fontFamily: 'Plus Jakarta Sans',
                     fontSize: '24px',
                     backgroundColor: '#413d85',
                     textAlign: 'right',
@@ -468,7 +476,9 @@ function StrategyOverview(props: { tokenId: number }) {
                   onKeyPress={onInputKeyPress}
                   onWheel={(e) => e.currentTarget.blur()}
                 />
-                <Text sx={{ color: '#FFFFFF', fontWeight: '600', fontFamily: 'Inter', fontSize: '24px' }}>BNB</Text>
+                <Text sx={{ color: '#FFFFFF', fontWeight: '600', fontFamily: 'Plus Jakarta Sans', fontSize: '24px' }}>
+                  BNB
+                </Text>
               </Box>
             </Box>
             <Box sx={{ display: 'flex', gap: '10px', flexDirection: 'row', alignItems: 'center' }}>
@@ -482,7 +492,7 @@ function StrategyOverview(props: { tokenId: number }) {
                   border: '2px solid #EFA3C2',
                   flex: 1,
                   textAlign: 'center',
-                  fontFamily: 'Inter',
+                  fontFamily: 'Plus Jakarta Sans',
                   fontWeight: '600',
                   boxShadow: 'rgba(49, 59, 200, 0.8) 0px 3px 16px 0px',
                 }}
@@ -499,12 +509,34 @@ function StrategyOverview(props: { tokenId: number }) {
                   borderRadius: '8px',
                   flex: 1,
                   textAlign: 'center',
-                  fontFamily: 'Inter',
+                  fontFamily: 'Plus Jakarta Sans',
                 }}
               >
                 COMPOUND
               </Box> */}
             </Box>
+          </Box>
+          <Box>
+            {stakeAmt > 0 && (
+              <Box
+                sx={{
+                  cursor: 'pointer',
+                  backgroundColor: '#201D54',
+                  color: '#FFFFFF',
+                  padding: '0.4rem 1rem',
+                  borderRadius: '8px',
+                  border: '2px solid #EFA3C2',
+                  flex: 1,
+                  textAlign: 'center',
+                  fontFamily: 'Plus Jakarta Sans',
+                  fontWeight: '600',
+                  boxShadow: 'rgba(49, 59, 200, 0.8) 0px 3px 16px 0px',
+                }}
+                onClick={handleUnstake}
+              >
+                WITHDRAW
+              </Box>
+            )}
           </Box>
           <Box
             sx={{
@@ -526,8 +558,10 @@ function StrategyOverview(props: { tokenId: number }) {
                 gap: '15px',
               }}
             >
-              <Text sx={{ fontSize: '16px', fontFamily: 'Inter', color: '#94A3B8' }}>Your Yield</Text>
-              <Text sx={{ color: '#EFA906', fontWeight: '600', fontFamily: 'Inter', fontSize: '24px' }}>{reward}</Text>
+              <Text sx={{ fontSize: '16px', fontFamily: 'Plus Jakarta Sans', color: '#94A3B8' }}>Your Yield</Text>
+              <Text sx={{ color: '#EFA906', fontWeight: '600', fontFamily: 'Plus Jakarta Sans', fontSize: '24px' }}>
+                {reward}
+              </Text>
             </Box>
             <Box sx={{ display: 'flex', gap: '10px', flexDirection: 'row', alignItems: 'center' }}>
               {rewardBNB > 0 && (
@@ -541,7 +575,7 @@ function StrategyOverview(props: { tokenId: number }) {
                     border: '2px solid #EFA3C2',
                     flex: 1,
                     textAlign: 'center',
-                    fontFamily: 'Inter',
+                    fontFamily: 'Plus Jakarta Sans',
                   }}
                   onClick={handleClaim}
                 >
@@ -557,7 +591,7 @@ function StrategyOverview(props: { tokenId: number }) {
                   borderRadius: '8px',
                   flex: 1,
                   textAlign: 'center',
-                  fontFamily: 'Inter',
+                  fontFamily: 'Plus Jakarta Sans',
                 }}
               >
                 COMPOUND

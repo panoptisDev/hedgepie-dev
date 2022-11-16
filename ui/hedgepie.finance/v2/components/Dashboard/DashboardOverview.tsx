@@ -75,9 +75,13 @@ function DashboardOverview() {
     <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
       {/* Title Section */}
       <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-        <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '24px', color: '#000000' }}>Overview</Text>
+        <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '24px', color: '#000000' }}>
+          Overview
+        </Text>
         <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '5px', marginLeft: 'auto' }}>
-          <Text sx={{ fontFamily: 'Inter', fontWeight: '600', fontSize: '16px', color: '#000000' }}>Date:</Text>
+          <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#000000' }}>
+            Date:
+          </Text>
           <Text>{date}</Text>
         </Box>
       </Box>
@@ -116,7 +120,7 @@ function DashboardOverview() {
           >
             <Text
               sx={{
-                fontFamily: 'Inter',
+                fontFamily: 'Plus Jakarta Sans',
                 fontSize: ['10px', '12px', '12px', '12px'],
                 fontWeight: '500',
                 color: '#94A3B8',
@@ -131,7 +135,7 @@ function DashboardOverview() {
                 <>
                   <Text
                     sx={{
-                      fontFamily: 'Inter',
+                      fontFamily: 'Plus Jakarta Sans',
                       fontSize: ['12px', '16px', '16px', '16px'],
                       fontWeight: '600',
                       color: '#FFFFFF',
@@ -139,7 +143,7 @@ function DashboardOverview() {
                   >
                     {totalInvested}
                   </Text>
-                  <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '400', color: '#8BCCEE' }}>
+                  <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontSize: '10px', fontWeight: '400', color: '#8BCCEE' }}>
                     {totalInvestedUSD}
                   </Text>
                 </>
@@ -163,7 +167,7 @@ function DashboardOverview() {
           >
             <Text
               sx={{
-                fontFamily: 'Inter',
+                fontFamily: 'Plus Jakarta Sans',
                 fontSize: ['10px', '12px', '12px', '12px'],
                 fontWeight: '600',
                 color: '#4F4F4F',
@@ -178,7 +182,7 @@ function DashboardOverview() {
                 <>
                   <Text
                     sx={{
-                      fontFamily: 'Inter',
+                      fontFamily: 'Plus Jakarta Sans',
                       fontSize: ['12px', '16px', '16px', '16px'],
                       fontWeight: '600',
                       color: '#000000',
@@ -186,7 +190,7 @@ function DashboardOverview() {
                   >
                     {totalYield}
                   </Text>
-                  <Text sx={{ fontFamily: 'Inter', fontSize: '10px', fontWeight: '400', color: '#000000' }}>
+                  <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontSize: '10px', fontWeight: '400', color: '#000000' }}>
                     {totalYieldUSD}
                   </Text>
                 </>
@@ -210,7 +214,7 @@ function DashboardOverview() {
           >
             <Text
               sx={{
-                fontFamily: 'Inter',
+                fontFamily: 'Plus Jakarta Sans',
                 fontSize: ['10px', '12px', '12px', '12px'],
                 fontWeight: '600',
                 color: '#4F4F4F',
@@ -221,7 +225,7 @@ function DashboardOverview() {
             <Box sx={{ display: 'flex', flexDirection: 'column', gap: '2px', alignItems: 'center' }}>
               <Text
                 sx={{
-                  fontFamily: 'Inter',
+                  fontFamily: 'Plus Jakarta Sans',
                   fontSize: ['12px', '16px', '16px', '16px'],
                   fontWeight: '600',
                   color: '#000000',
@@ -247,7 +251,9 @@ function DashboardOverview() {
               router.push('/nft-leaderboard')
             }}
           >
-            <Text sx={{ fontFamily: 'Inter', fontSize: '13px', fontWeight: '600', color: '#1A1A1A' }}>Explore</Text>
+            <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontSize: '13px', fontWeight: '600', color: '#1A1A1A' }}>
+              Explore
+            </Text>
             <ArrowRight style={{ width: '20px', height: '20px', marginLeft: 'auto' }} />
           </Box>
         </Box>
@@ -274,7 +280,7 @@ function DashboardOverview() {
                 padding: '0rem 0.75rem',
               }}
             >
-              <Text sx={{ fontFamily: 'Inter', fontSize: '20px', color: '#14114B', fontWeight: '600' }}>
+              <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontSize: '20px', color: '#14114B', fontWeight: '600' }}>
                 Insights of your Historic data shall appear here soon 🎉
               </Text>
             </Box>
@@ -290,7 +296,7 @@ function DashboardOverview() {
               }}
             >
               <Box sx={{ display: 'flex', flexDirection: 'row', gap: '25px', alignItems: 'center' }}>
-                <Text sx={{ color: '#000000', fontSize: '16px', fontWeight: '600', fontFamily: 'Inter' }}>
+                <Text sx={{ color: '#000000', fontSize: '16px', fontWeight: '600', fontFamily: 'Plus Jakarta Sans' }}>
                   Total Invested
                 </Text>
                 <Box sx={{ display: 'flex', flexDirection: 'row', gap: '10px', alignItems: 'center' }}>
@@ -304,7 +310,7 @@ function DashboardOverview() {
                     1M
                   </Box>
                 </Box>
-                <Text sx={{ fontFamily: 'Inter', fontSize: '24px', fontWeight: '600', marginLeft: 'auto' }}>
+                <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontSize: '24px', fontWeight: '600', marginLeft: 'auto' }}>
                   $5,987
                 </Text>
               </Box>

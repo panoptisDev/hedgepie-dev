@@ -62,14 +62,14 @@ function StrategyInfo() {
             gap: '20px',
           }}
         >
-          <Text sx={{ fontFamily: 'Inter', fontSize: '20px', color: '#14114B', fontWeight: '600' }}>
+          <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontSize: '20px', color: '#14114B', fontWeight: '600' }}>
             Please connect wallet to access information regarding your strategy 🎉
           </Text>
           <Button
             sx={{
               padding: '10px',
               fontSize: '20px',
-              fontFamily: 'Inter',
+              fontFamily: 'Plus Jakarta Sans',
               background: 'linear-gradient(333.11deg, #1799DE -34.19%, #E98EB3 87.94%)',
               cursor: 'pointer',
             }}

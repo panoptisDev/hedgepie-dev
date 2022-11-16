@@ -56,15 +56,16 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
       total = total + parseInt(p.weight)
     })
     total = total + parseInt(e.target.value)
+    console.log('total::' + total)
 
-    if (total > 100) {
-      toast('Total Allocation can be below 100% only', 'warning')
-      onUpdate({
-        ...data,
-        weight: '0',
-      })
-      return
-    }
+    // if (total > 100) {
+    //   toast('Total Allocation can be below 100% only', 'warning')
+    //   onUpdate({
+    //     ...data,
+    //     weight: '0',
+    //   })
+    //   return
+    // }
     if (newValue <= 100) {
       onUpdate({
         ...data,
@@ -150,7 +151,7 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
             <Box sx={{}}>%</Box>
           </Box>
         </td>
-        <td>
+        {/* <td>
           <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
             <Button
               sx={{
@@ -179,7 +180,7 @@ const Position = ({ data, onUpdate, onDelete, onLock, allocated }) => {
               <Image src="/images/icon-trash.png" />
             </Button>
           </Box>
-        </td>
+        </td> */}
         {/* <Box
           sx={{
             flex: '1 1 0',

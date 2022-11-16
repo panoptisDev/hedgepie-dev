@@ -44,7 +44,7 @@ const NftName = () => {
           },
         }}
       >
-        Provide a name you want to give your YB-NFT
+        Provide a name you want to give your Strategy
       </Box>
       <Box mt={24}>
         <Input
@@ -52,7 +52,7 @@ const NftName = () => {
           className="nft-name-input"
           sx={{
             height: 62,
-            width: '50%',
+            width: '100%',
             backgroundColor: '#F3F3F3',
             border: '1.5px solid #E3E3E3',
             borderRadius: 8,
@@ -64,7 +64,7 @@ const NftName = () => {
           // placeholder="NFT Title ..."
           value={formData.nftName}
           onChange={handleNameChange}
-          placeholder="Name this YB-NFT"
+          placeholder="Name this Strategy"
         />
       </Box>
     </Box>

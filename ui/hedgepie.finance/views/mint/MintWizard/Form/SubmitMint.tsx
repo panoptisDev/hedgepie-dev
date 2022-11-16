@@ -52,14 +52,14 @@ const SubmitMint = () => {
     }
 
     if (!account) {
-      toast('Please connect your wallet to mint a YB NFT', 'warning')
+      toast('Please connect your wallet to mint a strategy', 'warning')
       return
     }
 
     let isValid = true
     if (formData) {
       if (formData.nftName === '') {
-        toast('NFT Name cannot be empty', 'warning')
+        toast('Strategy Name cannot be empty', 'warning')
         isValid = false
       }
 

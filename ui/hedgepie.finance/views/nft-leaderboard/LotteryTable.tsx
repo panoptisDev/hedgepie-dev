@@ -49,7 +49,7 @@ const LotteryTable = ({ data, onSort, sortKey }: any) => {
                 borderTopLeftRadius: '20px',
               }}
             >
-              HedgePies
+              Strategy
             </th>
             <th
               style={{
