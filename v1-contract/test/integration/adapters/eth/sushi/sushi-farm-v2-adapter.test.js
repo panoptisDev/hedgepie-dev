@@ -16,7 +16,7 @@ const forkNetwork = async () => {
   });
 };
 
-describe.only("SushiFarmV2AdapterEth Integration Test", function () {
+describe("SushiFarmV2AdapterEth Integration Test", function () {
   before("Deploy contract", async function () {
     await forkNetwork();
 
