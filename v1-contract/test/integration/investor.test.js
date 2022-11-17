@@ -23,6 +23,5 @@ describe("Investor Integration Test", function () {
         this.alice = alice;
 
         // TODO: should generate contract interface of invester, ybnft, adapterManager and adapter contract
-
     });
 });

@@ -10,20 +10,26 @@ const topics = ethers.utils.id("WithdrawBNB(address,address,uint256,uint256)");
 const covalentAPIURL = `https://api.covalenthq.com/v1/${chainId}/events/topics/${topics}/?quote-currency=USD&format=JSON&starting-block=${startBlk}&ending-block=${endBlk}&sender-address=${addrInvestor}&page-size=10000&key=${covalentAPIKey}`;
 
 function encode(types, values) {
-  return ethers.utils.defaultAbiCoder.encode(types, values);
+    return ethers.utils.defaultAbiCoder.encode(types, values);
 }
 
 function decode(types, value) {
-  return ethers.utils.defaultAbiCoder.decode(types, value);
+    return ethers.utils.defaultAbiCoder.decode(types, value);
 }
 
 const fetchEvent = async () => {
-  let { data: res } = await axios.get(covalentAPIURL);
+    let { data: res } = await axios.get(covalentAPIURL);
 
-  if (res.data.items.length != 0) {
-    res = res.data.items;
-    console.log(res[res.length - 1], decode(["address", "uint256", "uint256"], res[res.length - 1].raw_log_data));
-  }
+    if (res.data.items.length != 0) {
+        res = res.data.items;
+        console.log(
+            res[res.length - 1],
+            decode(
+                ["address", "uint256", "uint256"],
+                res[res.length - 1].raw_log_data
+            )
+        );
+    }
 };
 
 fetchEvent();

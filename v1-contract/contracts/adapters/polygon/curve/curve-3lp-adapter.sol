@@ -4,7 +4,10 @@ pragma solidity ^0.8.4;
 import "../../BaseAdapterMatic.sol";
 
 interface IGauge {
-    function claimable_reward(address addr, address token) external view returns (uint256);
+    function claimable_reward(address addr, address token)
+        external
+        view
+        returns (uint256);
 }
 
 contract Curve3LPAdaper is BaseAdapterMatic {
@@ -47,7 +50,7 @@ contract Curve3LPAdaper is BaseAdapterMatic {
         name = _name;
         isReward = true;
     }
-    
+
     /**
      * @notice Get invest calldata
      * @param _amount  amount of invest
@@ -87,11 +90,11 @@ contract Curve3LPAdaper is BaseAdapterMatic {
     function getAddLiqCallData(uint256 _amount)
         external
         view
-        returns(
+        returns (
             address to,
             uint256 value,
             bytes memory data
-        ) 
+        )
     {
         to = router;
         value = 0;
@@ -99,14 +102,14 @@ contract Curve3LPAdaper is BaseAdapterMatic {
         uint256[3] memory amounts;
         amounts[lpOrder] = _amount;
 
-        data = underlying ?
-            abi.encodeWithSignature(
+        data = underlying
+            ? abi.encodeWithSignature(
                 "add_liquidity(uint256[3],uint256,bool)",
                 amounts,
                 0,
                 true
-            ) : 
-            abi.encodeWithSignature(
+            )
+            : abi.encodeWithSignature(
                 "add_liquidity(uint256[3],uint256)",
                 amounts,
                 0
@@ -116,24 +119,24 @@ contract Curve3LPAdaper is BaseAdapterMatic {
     function getRemoveLiqCallData(uint256 _amount)
         external
         view
-        returns(
+        returns (
             address to,
             uint256 value,
             bytes memory data
-        ) 
+        )
     {
         to = router;
         value = 0;
 
-        data = underlying ? 
-            abi.encodeWithSignature(
+        data = underlying
+            ? abi.encodeWithSignature(
                 "remove_liquidity_one_coin(uint256,int128,uint256,bool)",
                 _amount,
                 lpOrder,
                 0,
                 true
-            ) : 
-            abi.encodeWithSignature(
+            )
+            : abi.encodeWithSignature(
                 "remove_liquidity_one_coin(uint256,int128,uint256)",
                 _amount,
                 lpOrder,

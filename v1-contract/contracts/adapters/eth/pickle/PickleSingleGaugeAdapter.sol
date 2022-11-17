@@ -10,16 +10,13 @@ import "../../../interfaces/IHedgepieInvestorEth.sol";
 import "../../../interfaces/IHedgepieAdapterInfoEth.sol";
 
 interface IStrategy {
-    function deposit(uint) external;
+    function deposit(uint256) external;
 
-    function withdraw(uint) external;
+    function withdraw(uint256) external;
 
     function getReward() external;
 
-    function earned(address _user)
-        external
-        view
-        returns (uint256);
+    function earned(address _user) external view returns (uint256);
 }
 
 interface IJar {
@@ -66,9 +63,7 @@ contract PickleSingleGaugeAdapter is BaseAdapterEth {
      * @notice Get reward from gauge
      * @param _tokenId  tokenId
      */
-    function _getReward(
-        uint256 _tokenId
-    ) internal {
+    function _getReward(uint256 _tokenId) internal {
         uint256 rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this));
         uint256 rewardAmt1 = rewardToken1 != address(0)
             ? IBEP20(rewardToken1).balanceOf(address(this))
@@ -77,18 +72,28 @@ contract PickleSingleGaugeAdapter is BaseAdapterEth {
         IStrategy(strategy).getReward();
 
         unchecked {
-            rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
+            rewardAmt0 =
+                IBEP20(rewardToken).balanceOf(address(this)) -
+                rewardAmt0;
             rewardAmt1 = rewardToken1 != address(0)
                 ? IBEP20(rewardToken1).balanceOf(address(this)) - rewardAmt1
                 : 0;
 
             AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
-            if (rewardAmt0 != 0 && rewardToken != address(0) && adapterInfo.totalStaked != 0) {
+            if (
+                rewardAmt0 != 0 &&
+                rewardToken != address(0) &&
+                adapterInfo.totalStaked != 0
+            ) {
                 adapterInfo.accTokenPerShare +=
                     (rewardAmt0 * 1e12) /
                     adapterInfo.totalStaked;
             }
-            if (rewardAmt1 != 0 && rewardToken1 != address(0) && adapterInfo.totalStaked != 0) {
+            if (
+                rewardAmt1 != 0 &&
+                rewardToken1 != address(0) &&
+                adapterInfo.totalStaked != 0
+            ) {
                 adapterInfo.accTokenPerShare1 +=
                     (rewardAmt1 * 1e12) /
                     adapterInfo.totalStaked;
@@ -134,7 +139,9 @@ contract PickleSingleGaugeAdapter is BaseAdapterEth {
         IStrategy(strategy).deposit(amountOut);
 
         unchecked {
-            rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
+            rewardAmt0 =
+                IBEP20(rewardToken).balanceOf(address(this)) -
+                rewardAmt0;
             rewardAmt1 = rewardToken1 != address(0)
                 ? IBEP20(rewardToken1).balanceOf(address(this)) - rewardAmt1
                 : 0;
@@ -190,10 +197,12 @@ contract PickleSingleGaugeAdapter is BaseAdapterEth {
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
      */
-    function withdraw(
-        uint256 _tokenId,
-        address _account
-    ) external payable override returns (uint256 amountOut) {
+    function withdraw(uint256 _tokenId, address _account)
+        external
+        payable
+        override
+        returns (uint256 amountOut)
+    {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo memory userInfo = userAdapterInfos[_account][_tokenId];
 

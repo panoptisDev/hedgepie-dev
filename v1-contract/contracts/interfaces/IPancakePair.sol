@@ -8,7 +8,7 @@ interface IPancakePair {
 
     function totalSupply() external view returns (uint256);
 
-    function fee() external view returns(uint24);
+    function fee() external view returns (uint24);
 
     function getReserves()
         external

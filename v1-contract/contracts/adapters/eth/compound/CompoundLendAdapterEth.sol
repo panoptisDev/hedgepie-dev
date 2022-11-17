@@ -160,7 +160,8 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
                 taxAmount =
                     ((amountOut - userInfo.invested) *
                         IYBNFT(IHedgepieInvestorEth(investor).ybnft())
-                            .performanceFee(_tokenId)) / 1e4;
+                            .performanceFee(_tokenId)) /
+                    1e4;
                 (success, ) = payable(IHedgepieInvestorEth(investor).treasury())
                     .call{value: taxAmount}("");
                 require(success, "Failed to send ether to Treasury");

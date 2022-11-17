@@ -10,16 +10,13 @@ import "../../../interfaces/IHedgepieInvestorEth.sol";
 import "../../../interfaces/IHedgepieAdapterInfoEth.sol";
 
 interface IStrategy {
-    function deposit(uint) external;
+    function deposit(uint256) external;
 
-    function withdraw(uint) external;
+    function withdraw(uint256) external;
 
     function getReward() external;
 
-    function earned(address _user)
-        external
-        view
-        returns (uint256);
+    function earned(address _user) external view returns (uint256);
 }
 
 interface IJar {
@@ -29,26 +26,47 @@ interface IJar {
 }
 
 interface IPool {
-    function add_liquidity(uint256[2] memory,uint256) external payable;
+    function add_liquidity(uint256[2] memory, uint256) external payable;
 
-    function add_liquidity(uint256[3] memory,uint256) external payable;
+    function add_liquidity(uint256[3] memory, uint256) external payable;
 
-    function add_liquidity(uint256[4] memory,uint256) external payable;
+    function add_liquidity(uint256[4] memory, uint256) external payable;
 
-    function add_liquidity(uint256[2] memory,uint256,bool) external payable;
+    function add_liquidity(
+        uint256[2] memory,
+        uint256,
+        bool
+    ) external payable;
 
-    function add_liquidity(uint256[3] memory,uint256,bool) external payable;
+    function add_liquidity(
+        uint256[3] memory,
+        uint256,
+        bool
+    ) external payable;
 
-    function add_liquidity(uint256[4] memory,uint256,bool) external payable;
+    function add_liquidity(
+        uint256[4] memory,
+        uint256,
+        bool
+    ) external payable;
 
-    function remove_liquidity_one_coin(uint256,uint256,uint256) external;
+    function remove_liquidity_one_coin(
+        uint256,
+        uint256,
+        uint256
+    ) external;
 
-    function remove_liquidity_one_coin(uint256,uint256,uint256,bool) external;
+    function remove_liquidity_one_coin(
+        uint256,
+        uint256,
+        uint256,
+        bool
+    ) external;
 }
 
 contract PickleCurveGaugeAdapter is BaseAdapterEth {
     address public jar;
-    
+
     Curve curveInfo;
     struct Curve {
         address liquidityToken;
@@ -97,13 +115,14 @@ contract PickleCurveGaugeAdapter is BaseAdapterEth {
      * @notice Get curve LP
      * @param _amountIn  amount of liquidityToken
      */
-    function _getCurveLP(
-        uint256 _amountIn
-    ) internal returns(uint256 amountOut) {
+    function _getCurveLP(uint256 _amountIn)
+        internal
+        returns (uint256 amountOut)
+    {
         amountOut = IBEP20(stakingToken).balanceOf(address(this));
 
         bool _isETH = curveInfo.liquidityToken == weth;
-        if(!_isETH) {
+        if (!_isETH) {
             _amountIn = HedgepieLibraryEth.swapOnRouter(
                 address(this),
                 _amountIn,
@@ -114,43 +133,39 @@ contract PickleCurveGaugeAdapter is BaseAdapterEth {
             IBEP20(curveInfo.liquidityToken).approve(router, _amountIn);
         }
 
-        if(curveInfo.lpCnt == 2) {
+        if (curveInfo.lpCnt == 2) {
             uint256[2] memory amounts;
             amounts[curveInfo.lpOrder] = _amountIn;
 
-            if(_isETH) {
-                IPool(router).add_liquidity {
-                    value: _amountIn
-                } (amounts, 0, true);
+            if (_isETH) {
+                IPool(router).add_liquidity{value: _amountIn}(amounts, 0, true);
             } else {
-                IPool(router).add_liquidity (amounts, 0);
+                IPool(router).add_liquidity(amounts, 0);
             }
-        } else if(curveInfo.lpCnt == 3) {
+        } else if (curveInfo.lpCnt == 3) {
             uint256[3] memory amounts;
             amounts[curveInfo.lpOrder] = _amountIn;
 
-            if(_isETH) {
-                IPool(router).add_liquidity {
-                    value: _amountIn
-                } (amounts, 0, true);    
+            if (_isETH) {
+                IPool(router).add_liquidity{value: _amountIn}(amounts, 0, true);
             } else {
-                IPool(router).add_liquidity (amounts, 0);
+                IPool(router).add_liquidity(amounts, 0);
             }
-        } else if(curveInfo.lpCnt == 4) {
+        } else if (curveInfo.lpCnt == 4) {
             uint256[4] memory amounts;
             amounts[curveInfo.lpOrder] = _amountIn;
 
-            if(_isETH) {
-                IPool(router).add_liquidity {
-                    value: _amountIn
-                } (amounts, 0, true);    
+            if (_isETH) {
+                IPool(router).add_liquidity{value: _amountIn}(amounts, 0, true);
             } else {
-                IPool(router).add_liquidity (amounts, 0);
+                IPool(router).add_liquidity(amounts, 0);
             }
         }
 
         unchecked {
-            amountOut = IBEP20(stakingToken).balanceOf(address(this)) - amountOut;
+            amountOut =
+                IBEP20(stakingToken).balanceOf(address(this)) -
+                amountOut;
         }
     }
 
@@ -158,14 +173,16 @@ contract PickleCurveGaugeAdapter is BaseAdapterEth {
      * @notice Remove LP from curve
      * @param _amountIn  amount of LP to withdraw
      */
-    function _removeCurveLP(
-        uint256 _amountIn
-    ) internal returns(uint256 amountOut) {
+    function _removeCurveLP(uint256 _amountIn)
+        internal
+        returns (uint256 amountOut)
+    {
         bool _isETH = curveInfo.liquidityToken == weth;
-        amountOut = _isETH ? address(this).balance : 
-            IBEP20(curveInfo.liquidityToken).balanceOf(address(this));
+        amountOut = _isETH
+            ? address(this).balance
+            : IBEP20(curveInfo.liquidityToken).balanceOf(address(this));
 
-        if(_isETH) {
+        if (_isETH) {
             IPool(router).remove_liquidity_one_coin(
                 _amountIn,
                 curveInfo.lpOrder,
@@ -181,16 +198,18 @@ contract PickleCurveGaugeAdapter is BaseAdapterEth {
         }
 
         unchecked {
-            amountOut = _isETH ? address(this).balance - amountOut :
-                IBEP20(curveInfo.liquidityToken).balanceOf(address(this)) - amountOut;
+            amountOut = _isETH
+                ? address(this).balance - amountOut
+                : IBEP20(curveInfo.liquidityToken).balanceOf(address(this)) -
+                    amountOut;
         }
 
-        if(!_isETH) {
+        if (!_isETH) {
             amountOut = HedgepieLibraryEth.swapforEth(
-                address(this), 
-                amountOut, 
-                curveInfo.liquidityToken, 
-                swapRouter, 
+                address(this),
+                amountOut,
+                curveInfo.liquidityToken,
+                swapRouter,
                 weth
             );
         }
@@ -200,9 +219,7 @@ contract PickleCurveGaugeAdapter is BaseAdapterEth {
      * @notice Get reward from gauge
      * @param _tokenId  tokenId
      */
-    function _getReward(
-        uint256 _tokenId
-    ) internal {
+    function _getReward(uint256 _tokenId) internal {
         uint256 rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this));
         uint256 rewardAmt1 = rewardToken1 != address(0)
             ? IBEP20(rewardToken1).balanceOf(address(this))
@@ -211,7 +228,9 @@ contract PickleCurveGaugeAdapter is BaseAdapterEth {
         IStrategy(strategy).getReward();
 
         unchecked {
-            rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
+            rewardAmt0 =
+                IBEP20(rewardToken).balanceOf(address(this)) -
+                rewardAmt0;
             rewardAmt1 = rewardToken1 != address(0)
                 ? IBEP20(rewardToken1).balanceOf(address(this)) - rewardAmt1
                 : 0;
@@ -263,7 +282,9 @@ contract PickleCurveGaugeAdapter is BaseAdapterEth {
         IStrategy(strategy).deposit(amountOut);
 
         unchecked {
-            rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
+            rewardAmt0 =
+                IBEP20(rewardToken).balanceOf(address(this)) -
+                rewardAmt0;
             rewardAmt1 = rewardToken1 != address(0)
                 ? IBEP20(rewardToken1).balanceOf(address(this)) - rewardAmt1
                 : 0;
@@ -319,10 +340,12 @@ contract PickleCurveGaugeAdapter is BaseAdapterEth {
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
      */
-    function withdraw(
-        uint256 _tokenId,
-        address _account
-    ) external payable override returns (uint256 amountOut) {
+    function withdraw(uint256 _tokenId, address _account)
+        external
+        payable
+        override
+        returns (uint256 amountOut)
+    {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo memory userInfo = userAdapterInfos[_account][_tokenId];
 

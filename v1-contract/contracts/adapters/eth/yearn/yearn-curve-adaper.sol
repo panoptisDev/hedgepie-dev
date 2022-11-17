@@ -14,27 +14,48 @@ interface IStrategy {
 
     function withdraw(uint256 _amount) external;
 
-    function totalAssets() external view returns(uint256);
+    function totalAssets() external view returns (uint256);
 
-    function totalSupply() external view returns(uint256);
+    function totalSupply() external view returns (uint256);
 }
 
 interface IPool {
-    function add_liquidity(uint256[2] memory,uint256) external payable;
+    function add_liquidity(uint256[2] memory, uint256) external payable;
 
-    function add_liquidity(uint256[3] memory,uint256) external payable;
+    function add_liquidity(uint256[3] memory, uint256) external payable;
 
-    function add_liquidity(uint256[4] memory,uint256) external payable;
+    function add_liquidity(uint256[4] memory, uint256) external payable;
 
-    function add_liquidity(uint256[2] memory,uint256,bool) external payable;
+    function add_liquidity(
+        uint256[2] memory,
+        uint256,
+        bool
+    ) external payable;
 
-    function add_liquidity(uint256[3] memory,uint256,bool) external payable;
+    function add_liquidity(
+        uint256[3] memory,
+        uint256,
+        bool
+    ) external payable;
 
-    function add_liquidity(uint256[4] memory,uint256,bool) external payable;
+    function add_liquidity(
+        uint256[4] memory,
+        uint256,
+        bool
+    ) external payable;
 
-    function remove_liquidity_one_coin(uint256,uint256,uint256,bool) external;
+    function remove_liquidity_one_coin(
+        uint256,
+        uint256,
+        uint256,
+        bool
+    ) external;
 
-    function remove_liquidity_one_coin(uint256,uint256,uint256) external;
+    function remove_liquidity_one_coin(
+        uint256,
+        uint256,
+        uint256
+    ) external;
 }
 
 contract YearnCurveAdapter is BaseAdapterEth {
@@ -88,55 +109,66 @@ contract YearnCurveAdapter is BaseAdapterEth {
      * @param _amountIn  amount of liquidityToken
      * @param _isETH  bool for liquidityToken is ETH
      */
-    function getCurveLP(
-        uint256 _amountIn,
-        bool _isETH
-    ) private returns(uint256 amountOut) {
+    function getCurveLP(uint256 _amountIn, bool _isETH)
+        private
+        returns (uint256 amountOut)
+    {
         amountOut = IBEP20(stakingToken).balanceOf(address(this));
 
-        if(lpCnt == 2) {
+        if (lpCnt == 2) {
             uint256[2] memory amounts;
             amounts[lpOrder] = _amountIn;
 
-            if(underlying) {
-                IPool(router).add_liquidity {
-                    value: _isETH ? _amountIn : 0
-                } (amounts, 0, true);
+            if (underlying) {
+                IPool(router).add_liquidity{value: _isETH ? _amountIn : 0}(
+                    amounts,
+                    0,
+                    true
+                );
             } else {
-                IPool(router).add_liquidity {
-                    value: _isETH ? _amountIn : 0
-                } (amounts, 0);
+                IPool(router).add_liquidity{value: _isETH ? _amountIn : 0}(
+                    amounts,
+                    0
+                );
             }
-        } else if(lpCnt == 3) {
+        } else if (lpCnt == 3) {
             uint256[3] memory amounts;
             amounts[lpOrder] = _amountIn;
 
-            if(underlying) {
-                IPool(router).add_liquidity {
-                    value: _isETH ? _amountIn : 0
-                } (amounts, 0, true);
+            if (underlying) {
+                IPool(router).add_liquidity{value: _isETH ? _amountIn : 0}(
+                    amounts,
+                    0,
+                    true
+                );
             } else {
-                IPool(router).add_liquidity {
-                    value: _isETH ? _amountIn : 0
-                } (amounts, 0);
+                IPool(router).add_liquidity{value: _isETH ? _amountIn : 0}(
+                    amounts,
+                    0
+                );
             }
-        } else if(lpCnt == 4) {
+        } else if (lpCnt == 4) {
             uint256[4] memory amounts;
             amounts[lpOrder] = _amountIn;
 
-            if(underlying) {
-                IPool(router).add_liquidity {
-                    value: _isETH ? _amountIn : 0
-                } (amounts, 0, true);
+            if (underlying) {
+                IPool(router).add_liquidity{value: _isETH ? _amountIn : 0}(
+                    amounts,
+                    0,
+                    true
+                );
             } else {
-                IPool(router).add_liquidity {
-                    value: _isETH ? _amountIn : 0
-                } (amounts, 0);
+                IPool(router).add_liquidity{value: _isETH ? _amountIn : 0}(
+                    amounts,
+                    0
+                );
             }
         }
 
         unchecked {
-            amountOut = IBEP20(stakingToken).balanceOf(address(this)) - amountOut;
+            amountOut =
+                IBEP20(stakingToken).balanceOf(address(this)) -
+                amountOut;
         }
     }
 
@@ -145,14 +177,15 @@ contract YearnCurveAdapter is BaseAdapterEth {
      * @param _amountIn  amount of LP to withdraw
      * @param _isETH  bool for liquidityToken is ETH
      */
-    function removeCurveLP(
-        uint256 _amountIn,
-        bool _isETH
-    ) private returns(uint256 amountOut) {
-        amountOut = _isETH ? address(this).balance : 
-            IBEP20(liquidityToken).balanceOf(address(this));
+    function removeCurveLP(uint256 _amountIn, bool _isETH)
+        private
+        returns (uint256 amountOut)
+    {
+        amountOut = _isETH
+            ? address(this).balance
+            : IBEP20(liquidityToken).balanceOf(address(this));
 
-        if(underlying) {
+        if (underlying) {
             IPool(router).remove_liquidity_one_coin(
                 _amountIn,
                 lpOrder,
@@ -160,16 +193,13 @@ contract YearnCurveAdapter is BaseAdapterEth {
                 true
             );
         } else {
-            IPool(router).remove_liquidity_one_coin(
-                _amountIn,
-                lpOrder,
-                0
-            );
+            IPool(router).remove_liquidity_one_coin(_amountIn, lpOrder, 0);
         }
 
         unchecked {
-            amountOut = _isETH ? address(this).balance - amountOut :
-                IBEP20(liquidityToken).balanceOf(address(this)) - amountOut;
+            amountOut = _isETH
+                ? address(this).balance - amountOut
+                : IBEP20(liquidityToken).balanceOf(address(this)) - amountOut;
         }
     }
 
@@ -187,7 +217,7 @@ contract YearnCurveAdapter is BaseAdapterEth {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
 
         bool isETH = liquidityToken == weth;
-        if(isETH) {
+        if (isETH) {
             amountOut = _amountIn;
         } else {
             amountOut = HedgepieLibraryEth.swapOnRouter(
@@ -202,7 +232,7 @@ contract YearnCurveAdapter is BaseAdapterEth {
 
         // get curve lp
         amountOut = getCurveLP(amountOut, isETH);
-        
+
         uint256 repayAmt = IBEP20(repayToken).balanceOf(address(this));
 
         IBEP20(stakingToken).approve(strategy, amountOut);
@@ -245,10 +275,12 @@ contract YearnCurveAdapter is BaseAdapterEth {
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
      */
-    function withdraw(
-        uint256 _tokenId,
-        address _account
-    ) external payable override returns (uint256 amountOut) {
+    function withdraw(uint256 _tokenId, address _account)
+        external
+        payable
+        override
+        returns (uint256 amountOut)
+    {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
         amountOut = IBEP20(stakingToken).balanceOf(address(this));
@@ -256,19 +288,21 @@ contract YearnCurveAdapter is BaseAdapterEth {
         IStrategy(strategy).withdraw(userInfo.userShares);
 
         unchecked {
-            amountOut = IBEP20(stakingToken).balanceOf(address(this)) - amountOut;
+            amountOut =
+                IBEP20(stakingToken).balanceOf(address(this)) -
+                amountOut;
         }
 
         // withdraw liquiditytoken from curve pool
         bool isETH = liquidityToken == weth;
         amountOut = removeCurveLP(amountOut, isETH);
 
-        if(!isETH) {
+        if (!isETH) {
             amountOut = HedgepieLibraryEth.swapforEth(
-                address(this), 
-                amountOut, 
-                liquidityToken, 
-                swapRouter, 
+                address(this),
+                amountOut,
+                liquidityToken,
+                swapRouter,
                 weth
             );
         }
@@ -277,14 +311,14 @@ contract YearnCurveAdapter is BaseAdapterEth {
             uint256 taxAmount;
             bool success;
 
-            if(userInfo.invested <= amountOut) {
-                taxAmount = ((amountOut - userInfo.invested) *
-                    IYBNFT(IHedgepieInvestorEth(investor).ybnft()).performanceFee(
-                        _tokenId
-                    )) / 1e4;
-                (success, ) = payable(
-                    IHedgepieInvestorEth(investor).treasury()
-                ).call{value: taxAmount}("");
+            if (userInfo.invested <= amountOut) {
+                taxAmount =
+                    ((amountOut - userInfo.invested) *
+                        IYBNFT(IHedgepieInvestorEth(investor).ybnft())
+                            .performanceFee(_tokenId)) /
+                    1e4;
+                (success, ) = payable(IHedgepieInvestorEth(investor).treasury())
+                    .call{value: taxAmount}("");
                 require(success, "Failed to send ether to Treasury");
             }
 
@@ -336,8 +370,8 @@ contract YearnCurveAdapter is BaseAdapterEth {
     {
         UserAdapterInfo memory userInfo = userAdapterInfos[_account][_tokenId];
 
-        uint256 _vAmount = (userInfo.userShares *
-            IStrategy(strategy).totalAssets() /
+        uint256 _vAmount = ((userInfo.userShares *
+            IStrategy(strategy).totalAssets()) /
             IStrategy(strategy).totalSupply());
 
         if (_vAmount <= userInfo.amount) return 0;

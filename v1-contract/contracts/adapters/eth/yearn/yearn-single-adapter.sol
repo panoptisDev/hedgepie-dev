@@ -14,9 +14,9 @@ interface IStrategy {
 
     function withdraw(uint256 _amount) external;
 
-    function totalAssets() external view returns(uint256);
+    function totalAssets() external view returns (uint256);
 
-    function totalSupply() external view returns(uint256);
+    function totalSupply() external view returns (uint256);
 }
 
 contract YearnSingleAdapter is BaseAdapterEth {
@@ -106,16 +106,18 @@ contract YearnSingleAdapter is BaseAdapterEth {
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
      */
-    function withdraw(
-        uint256 _tokenId,
-        address _account
-    ) external payable override returns (uint256 amountOut) {
+    function withdraw(uint256 _tokenId, address _account)
+        external
+        payable
+        override
+        returns (uint256 amountOut)
+    {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
         amountOut = IBEP20(stakingToken).balanceOf(address(this));
 
         IStrategy(strategy).withdraw(userInfo.userShares);
-        
+
         amountOut = IBEP20(stakingToken).balanceOf(address(this)) - amountOut;
         amountOut = HedgepieLibraryEth.swapforEth(
             address(this),
@@ -129,14 +131,14 @@ contract YearnSingleAdapter is BaseAdapterEth {
             uint256 taxAmount;
             bool success;
 
-            if(userInfo.invested <= amountOut) {
-                taxAmount = ((amountOut - userInfo.invested) *
-                    IYBNFT(IHedgepieInvestorEth(investor).ybnft()).performanceFee(
-                        _tokenId
-                    )) / 1e4;
-                (success, ) = payable(
-                    IHedgepieInvestorEth(investor).treasury()
-                ).call{value: taxAmount}("");
+            if (userInfo.invested <= amountOut) {
+                taxAmount =
+                    ((amountOut - userInfo.invested) *
+                        IYBNFT(IHedgepieInvestorEth(investor).ybnft())
+                            .performanceFee(_tokenId)) /
+                    1e4;
+                (success, ) = payable(IHedgepieInvestorEth(investor).treasury())
+                    .call{value: taxAmount}("");
                 require(success, "Failed to send ether to Treasury");
             }
 
@@ -167,7 +169,7 @@ contract YearnSingleAdapter is BaseAdapterEth {
         unchecked {
             // update adapter info
             adapterInfos[_tokenId].totalStaked -= userInfo.amount;
-            
+
             // update user info
             userInfo.amount = 0;
             userInfo.invested = 0;
@@ -188,8 +190,8 @@ contract YearnSingleAdapter is BaseAdapterEth {
     {
         UserAdapterInfo memory userInfo = userAdapterInfos[_account][_tokenId];
 
-        uint256 _vAmount = (userInfo.userShares *
-            IStrategy(strategy).totalAssets() /
+        uint256 _vAmount = ((userInfo.userShares *
+            IStrategy(strategy).totalAssets()) /
             IStrategy(strategy).totalSupply());
 
         if (_vAmount <= userInfo.amount) return 0;
