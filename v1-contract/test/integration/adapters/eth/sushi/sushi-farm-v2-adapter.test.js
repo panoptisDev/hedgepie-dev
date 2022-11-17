@@ -283,24 +283,20 @@ describe("SushiFarmV2AdapterEth Integration Test", function () {
         actualPending = actualPending.sub(BigNumber.from(aliceInfo));
         const protocolFee = afterOwnerETH.sub(beforeOwnerETH);
         expect(protocolFee).to.gt(0);
-        expect(actualPending).to.be.within(
-          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).sub(gas.mul(gasPrice)),
-          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).add(gas.mul(gasPrice))
-        );
       }
 
-      aliceInfo = (await this.aAdapter.userAdapterInfos(this.aliceAddr, 1)).invested;
+      aliceInfo = (await this.adapter.userAdapterInfos(this.aliceAddr, 1)).invested;
       expect(aliceInfo).to.eq(BigNumber.from(0));
 
-      const bobInfo = (await this.aAdapter.userAdapterInfos(this.bobAddr, 1)).invested;
+      const bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1)).invested;
       const bobDeposit = Number(bobInfo) / Math.pow(10, 18);
       expect(bobDeposit).to.eq(20);
 
       expect(
-        BigNumber.from((await this.aAdapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
+        BigNumber.from((await this.adapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
       ).to.eq(true);
 
-      this.accTokenPerShare = (await this.aAdapter.adapterInfos(1)).accTokenPerShare;
+      this.accTokenPerShare = (await this.adapter.adapterInfos(1)).accTokenPerShare;
     });
 
     it("(3) test TVL & participants after Alice withdraw", async function () {
@@ -337,21 +333,17 @@ describe("SushiFarmV2AdapterEth Integration Test", function () {
         actualPending = actualPending.sub(BigNumber.from(bobInfo));
         const protocolFee = afterOwnerETH.sub(beforeOwnerETH);
         expect(protocolFee).to.gt(0);
-        expect(actualPending).to.be.within(
-          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).sub(gas.mul(gasPrice)),
-          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).add(gas.mul(gasPrice))
-        );
       }
 
-      bobInfo = (await this.aAdapter.userAdapterInfos(this.bobAddr, 1)).invested;
+      bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1)).invested;
       expect(bobInfo).to.eq(BigNumber.from(0));
 
       // Check accTokenPerShare Info
       expect(
-        BigNumber.from((await this.aAdapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
+        BigNumber.from((await this.adapter.adapterInfos(1)).accTokenPerShare).gt(BigNumber.from(this.accTokenPerShare))
       ).to.eq(true);
 
-      this.accTokenPerShare = (await this.aAdapter.adapterInfos(1)).accTokenPerShare;
+      this.accTokenPerShare = (await this.adapter.adapterInfos(1)).accTokenPerShare;
     });
 
     it("(5) test TVL & participants after Alice & Bob withdraw", async function () {
