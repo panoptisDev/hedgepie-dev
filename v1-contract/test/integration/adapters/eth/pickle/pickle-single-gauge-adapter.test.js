@@ -361,7 +361,7 @@ describe("PickleSingleGaugeAdapterEth Integration Test", function () {
                     beforeETH,
                     actualPending
                 );
-                if (protocolFee.gt(0))
+                if (protocolFee.gt(0)) {
                     expect(actualPending).to.be.within(
                         protocolFee
                             .mul(1e4 - this.performanceFee)
@@ -372,6 +372,7 @@ describe("PickleSingleGaugeAdapterEth Integration Test", function () {
                             .div(this.performanceFee)
                             .add(gas.mul(gasPrice))
                     );
+                }
             }
 
             aliceInfo = (
