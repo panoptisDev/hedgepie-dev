@@ -50,6 +50,7 @@ const LeaderBoard = () => {
 
       let tokens = [] as TokenInfo[]
       for (let i = 1; i <= maxTokenId; i++) {
+        if (process.env.DUMMY_TOKENS && Array.from(JSON.parse(process.env.DUMMY_TOKENS))?.indexOf(i) !== -1) continue
         const tokenUri = await getTokenUri(i)
         // Is the link is invalid, just proceed
         if (!tokenUri.includes('.ipfs.')) {
