@@ -66,7 +66,7 @@ contract UniswapLPAdapter is BaseAdapterMatic {
         tokenId = liquidityNFT[_user][_nftId];
     }
 
-    function getTick() external view returns(int24 _lower, int24 _upper) {
+    function getTick() external view returns (int24 _lower, int24 _upper) {
         _lower = tickLower;
         _upper = tickUpper;
     }

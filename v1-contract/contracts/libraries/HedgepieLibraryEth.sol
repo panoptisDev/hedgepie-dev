@@ -136,7 +136,7 @@ library HedgepieLibraryEth {
             tokenAmount[0] = _amountIn / 2;
             tokenAmount[1] = _amountIn - tokenAmount[0];
         }
-        
+
         if (tokens[0] != weth) {
             tokenAmount[0] = swapOnRouter(
                 _adapter.addr,

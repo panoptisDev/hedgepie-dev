@@ -31,7 +31,7 @@ contract QuickStakeAdapter is BaseAdapterMatic {
         isReward = true;
         isVault = true;
     }
-    
+
     /**
      * @notice Get invest calldata
      * @param _amount  amount of invest

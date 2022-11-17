@@ -23,7 +23,7 @@ contract AaveMarketV2Adapter is BaseAdapterMatic {
         name = _name;
         isVault = true;
     }
-    
+
     /**
      * @notice Get invest calldata
      * @param _amount  amount of invest
@@ -40,7 +40,7 @@ contract AaveMarketV2Adapter is BaseAdapterMatic {
         to = strategy;
         value = 0;
         data = abi.encodeWithSignature(
-            "deposit(address,uint256,address,uint16)", 
+            "deposit(address,uint256,address,uint16)",
             stakingToken,
             _amount,
             investor,
@@ -64,7 +64,7 @@ contract AaveMarketV2Adapter is BaseAdapterMatic {
         to = strategy;
         value = 0;
         data = abi.encodeWithSignature(
-            "withdraw(address,uint256,address)", 
+            "withdraw(address,uint256,address)",
             stakingToken,
             _amount,
             investor

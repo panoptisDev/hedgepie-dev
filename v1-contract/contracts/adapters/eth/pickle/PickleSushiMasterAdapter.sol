@@ -10,9 +10,9 @@ import "../../../interfaces/IHedgepieInvestorEth.sol";
 import "../../../interfaces/IHedgepieAdapterInfoEth.sol";
 
 interface IStrategy {
-    function deposit(uint, uint) external;
+    function deposit(uint256, uint256) external;
 
-    function withdraw(uint, uint) external;
+    function withdraw(uint256, uint256) external;
 
     function pendingPickle(uint256 _pid, address _user)
         external
@@ -42,7 +42,7 @@ contract PickleSushiMasterAdapter is BaseAdapterEth {
      * @param _name  adatper name
      */
     constructor(
-        uint _pid,
+        uint256 _pid,
         address _strategy,
         address _jar,
         address _stakingToken,
@@ -102,7 +102,9 @@ contract PickleSushiMasterAdapter is BaseAdapterEth {
         IStrategy(strategy).deposit(pid, amountOut);
 
         unchecked {
-            rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
+            rewardAmt0 =
+                IBEP20(rewardToken).balanceOf(address(this)) -
+                rewardAmt0;
             rewardAmt1 = rewardToken1 != address(0)
                 ? IBEP20(rewardToken1).balanceOf(address(this)) - rewardAmt1
                 : 0;
@@ -158,10 +160,12 @@ contract PickleSushiMasterAdapter is BaseAdapterEth {
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
      */
-    function withdraw(
-        uint256 _tokenId,
-        address _account
-    ) external payable override returns (uint256 amountOut) {
+    function withdraw(uint256 _tokenId, address _account)
+        external
+        payable
+        override
+        returns (uint256 amountOut)
+    {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo memory userInfo = userAdapterInfos[_account][_tokenId];
 
@@ -175,7 +179,9 @@ contract PickleSushiMasterAdapter is BaseAdapterEth {
         IStrategy(strategy).withdraw(pid, userInfo.amount);
 
         unchecked {
-            rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this)) - rewardAmt0;
+            rewardAmt0 =
+                IBEP20(rewardToken).balanceOf(address(this)) -
+                rewardAmt0;
             rewardAmt1 = rewardToken1 != address(0)
                 ? IBEP20(rewardToken1).balanceOf(address(this)) - rewardAmt1
                 : 0;

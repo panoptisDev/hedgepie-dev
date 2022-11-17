@@ -4,9 +4,9 @@ pragma solidity ^0.8.4;
 import "../../BaseAdapterMatic.sol";
 
 interface IStakingDualRewards {
-    function earnedA(address account) external view returns(uint256);
+    function earnedA(address account) external view returns (uint256);
 
-    function earnedB(address account) external view returns(uint256);
+    function earnedB(address account) external view returns (uint256);
 }
 
 contract QuickLPDualAdapter is BaseAdapterMatic {
@@ -36,7 +36,7 @@ contract QuickLPDualAdapter is BaseAdapterMatic {
 
         isReward = true;
     }
-    
+
     /**
      * @notice Get invest calldata
      * @param _amount  amount of invest
