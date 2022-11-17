@@ -35,6 +35,7 @@ function DashboardOverview() {
       let invested = 0
       const bnbPrice = await getPrice('BNB')
       for (let i = 1; i <= maxTokenId; i++) {
+        if (process.env.DUMMY_TOKENS && Array.from(JSON.parse(process.env.DUMMY_TOKENS))?.indexOf(i) !== -1) continue
         let investedInToken = await getBalance(i)
         invested = invested + getBalanceInEther(investedInToken)
       }
@@ -54,6 +55,7 @@ function DashboardOverview() {
       let reward = 0
       const bnbPrice = await getPrice('BNB')
       for (let i = 1; i <= maxTokenId; i++) {
+        if (process.env.DUMMY_TOKENS && Array.from(JSON.parse(process.env.DUMMY_TOKENS))?.indexOf(i) !== -1) continue
         let investedInToken = await getBalance(i)
         if (investedInToken == 0.0) {
           continue

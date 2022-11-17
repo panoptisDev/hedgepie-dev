@@ -26,6 +26,7 @@ function DashboardFunds() {
       const maxTokenId = await getMaxTokenId()
       let ownedNFTs: number[] = []
       for (let i = 1; i <= maxTokenId; i++) {
+        if (process.env.DUMMY_TOKENS && Array.from(JSON.parse(process.env.DUMMY_TOKENS))?.indexOf(i) !== -1) continue
         const owner = await getOwnerOf(i)
         if (owner === account) ownedNFTs.push(i)
       }
