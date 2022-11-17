@@ -335,7 +335,7 @@ contract CurveGaugeAdapter is BaseAdapterEth {
 
         _getReward(_tokenId);
 
-        (uint256 reward, ) = HedgepieLibraryEth.getRewards(
+        (amountOut, ) = HedgepieLibraryEth.getRewards(
             address(this),
             _tokenId,
             _account
@@ -343,10 +343,10 @@ contract CurveGaugeAdapter is BaseAdapterEth {
 
         userInfo.userShares = adapterInfos[_tokenId].accTokenPerShare;
         
-        if(reward != 0) {
+        if(amountOut != 0) {
             amountOut = HedgepieLibraryEth.swapforEth(
                 address(this),
-                reward,
+                amountOut,
                 rewardToken,
                 swapRouter,
                 weth

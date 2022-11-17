@@ -249,13 +249,32 @@ describe("UniswapV3LPAdapter Integration Test", function () {
     it("(2)should receive ETH successfully after withdraw function for Alice", async function () {
       const ethBalBefore = await ethers.provider.getBalance(this.aliceAddr);
       const beforeETH = await ethers.provider.getBalance(this.adapter.address);
-      await expect(
-        this.investor.connect(this.alice).withdrawETH(1, { gasPrice: 21e9 })
-      ).to.emit(this.investor, "WithdrawETH");
-      const ethBalAfter = await ethers.provider.getBalance(this.aliceAddr);
+      const beforeOwnerETH = await ethers.provider.getBalance(this.owner.address);
+      const aliceInfo = (await this.adapter.userAdapterInfos(this.aliceAddr, 1)).invested;
 
+      const gasPrice = 21e9;
+      const gas = await this.investor.connect(this.alice).estimateGas.withdrawETH(1, { gasPrice });
+      await expect(
+        this.investor.connect(this.alice).withdrawETH(1, { gasPrice })
+      ).to.emit(this.investor, "WithdrawETH");
+      
       // compare user info
+      const ethBalAfter = await ethers.provider.getBalance(this.aliceAddr);
       expect(ethBalAfter).to.gt(ethBalBefore);
+
+      // check protocol fee
+      const rewardAmt = ethBalAfter.sub(ethBalBefore);
+      const afterOwnerETH = await ethers.provider.getBalance(this.owner.address);
+      let actualPending = rewardAmt.add(gas.mul(gasPrice));
+      if(actualPending.gt(aliceInfo)) {
+        actualPending = actualPending.sub(BigNumber.from(aliceInfo));
+        const protocolFee = afterOwnerETH.sub(beforeOwnerETH);
+        expect(protocolFee).to.gt(0);
+        expect(actualPending).to.be.within(
+          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).sub(gas.mul(gasPrice)),
+          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).add(gas.mul(gasPrice))
+        );
+      }
 
       // compare adapter info
       const aliceAdapterInfo = await this.adapter.userAdapterInfos(
@@ -272,14 +291,31 @@ describe("UniswapV3LPAdapter Integration Test", function () {
     it("(3)should receive ETH successfully after withdraw function for Bob", async function () {
       const ethBalBefore = await ethers.provider.getBalance(this.bobAddr);
       const beforeETH = await ethers.provider.getBalance(this.adapter.address);
-      await expect(this.investor.connect(this.bob).withdrawETH(1)).to.emit(
+      const beforeOwnerETH = await ethers.provider.getBalance(this.owner.address);
+      const bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1)).invested;
+
+      const gasPrice = 21e9;
+      const gas = await this.investor.connect(this.bob).estimateGas.withdrawETH(1, { gasPrice });
+      await expect(this.investor.connect(this.bob).withdrawETH(1, { gasPrice })).to.emit(
         this.investor,
         "WithdrawETH"
       );
       const ethBalAfter = await ethers.provider.getBalance(this.bobAddr);
-
-      // compare user info
       expect(ethBalAfter).to.gt(ethBalBefore);
+
+      // check protocol fee
+      const rewardAmt = ethBalAfter.sub(ethBalBefore);
+      const afterOwnerETH = await ethers.provider.getBalance(this.owner.address);
+      let actualPending = rewardAmt.add(gas.mul(gasPrice));
+      if(actualPending.gt(bobInfo)) {
+        actualPending = actualPending.sub(BigNumber.from(bobInfo));
+        const protocolFee = afterOwnerETH.sub(beforeOwnerETH);
+        expect(protocolFee).to.gt(0);
+        expect(actualPending).to.be.within(
+          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).sub(gas.mul(gasPrice)),
+          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).add(gas.mul(gasPrice))
+        );
+      }
 
       // compare adapter info
       const bobAdapterInfo = await this.adapter.userAdapterInfos(
@@ -296,14 +332,32 @@ describe("UniswapV3LPAdapter Integration Test", function () {
     it("(4)should receive ETH successfully after withdraw function for Tom", async function () {
       const ethBalBefore = await ethers.provider.getBalance(this.tomAddr);
       const beforeETH = await ethers.provider.getBalance(this.adapter.address);
-      await expect(this.investor.connect(this.tom).withdrawETH(1)).to.emit(
+      const beforeOwnerETH = await ethers.provider.getBalance(this.owner.address);
+      const tomInfo = (await this.adapter.userAdapterInfos(this.tomAddr, 1)).invested;
+
+      const gasPrice = 21e9;      
+      const gas = await this.investor.connect(this.tom).estimateGas.withdrawETH(1, { gasPrice });
+      await expect(this.investor.connect(this.tom).withdrawETH(1, { gasPrice })).to.emit(
         this.investor,
         "WithdrawETH"
       );
-      const ethBalAfter = await ethers.provider.getBalance(this.tomAddr);
 
-      // compare user info
+      const ethBalAfter = await ethers.provider.getBalance(this.tomAddr);
       expect(ethBalAfter).to.gt(ethBalBefore);
+
+      // check protocol fee
+      const rewardAmt = ethBalAfter.sub(ethBalBefore);
+      let actualPending = rewardAmt.add(gas.mul(gasPrice));
+      if(actualPending.gt(tomInfo)) {
+        actualPending = actualPending - tomInfo;
+        const afterOwnerETH = await ethers.provider.getBalance(this.owner.address);
+        const protocolFee = afterOwnerETH.sub(beforeOwnerETH);
+        expect(protocolFee).to.gt(0);
+        expect(actualPending).to.be.within(
+          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).sub(gas.mul(gasPrice)),
+          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).add(gas.mul(gasPrice))
+        );
+      }
 
       // compare adapter info
       const tomAdapterInfo = await this.adapter.userAdapterInfos(

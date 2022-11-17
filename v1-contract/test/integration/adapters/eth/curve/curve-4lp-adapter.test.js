@@ -251,6 +251,7 @@ describe("CurveGaugeAdapter4LP Integration Test", function () {
 
       // withdraw from nftId: 1
       const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
+      const beforeTreasuryETH = await ethers.provider.getBalance(this.owner.address);
 
       await expect(this.investor.connect(this.alice).withdrawETH(1, { gasPrice: 21e9 })).to.emit(
         this.investor,
@@ -258,8 +259,9 @@ describe("CurveGaugeAdapter4LP Integration Test", function () {
       );
 
       const afterETH = await ethers.provider.getBalance(this.aliceAddr);
-
+      const afterTreasuryETH = await ethers.provider.getBalance(this.owner.address);
       expect(BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))).to.eq(true);
+      expect(BigNumber.from(afterTreasuryETH).gt(BigNumber.from(beforeTreasuryETH))).to.eq(true);
 
       const aliceInfo = (await this.aAdapter.userAdapterInfos(this.aliceAddr, 1)).invested;
       expect(aliceInfo).to.eq(BigNumber.from(0));
@@ -288,6 +290,7 @@ describe("CurveGaugeAdapter4LP Integration Test", function () {
       await ethers.provider.send("evm_mine", []);
       // withdraw from nftId: 1
       const beforeETH = await ethers.provider.getBalance(this.bobAddr);
+      const beforeTreasuryETH = await ethers.provider.getBalance(this.owner.address);
 
       await expect(this.investor.connect(this.bob).withdrawETH(1, { gasPrice: 21e9 })).to.emit(
         this.investor,
@@ -295,8 +298,9 @@ describe("CurveGaugeAdapter4LP Integration Test", function () {
       );
 
       const afterETH = await ethers.provider.getBalance(this.bobAddr);
-
+      const afterTreasuryETH = await ethers.provider.getBalance(this.owner.address);
       expect(BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))).to.eq(true);
+      expect(BigNumber.from(afterTreasuryETH).gt(BigNumber.from(beforeTreasuryETH))).to.eq(true);
 
       const bobInfo = (await this.aAdapter.userAdapterInfos(this.bobAddr, 1)).invested;
       expect(bobInfo).to.eq(BigNumber.from(0));

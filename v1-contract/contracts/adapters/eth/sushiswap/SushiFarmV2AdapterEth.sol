@@ -79,7 +79,6 @@ contract SushiFarmV2AdapterEth is BaseAdapterEth {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
-        uint256 amountOut;
         if (router == address(0)) {
             amountOut = HedgepieLibraryEth.swapOnRouter(
                 address(this),
@@ -273,10 +272,7 @@ contract SushiFarmV2AdapterEth is BaseAdapterEth {
         );
 
         adapterInfo.totalStaked -= userInfo.amount;
-        userInfo.amount = 0;
-        userInfo.invested = 0;
-        userInfo.userShares = 0;
-        userInfo.userShares1 = 0;
+        delete userAdapterInfos[_account][_tokenId];
 
         if (amountOut != 0) {
             bool success;
@@ -323,7 +319,6 @@ contract SushiFarmV2AdapterEth is BaseAdapterEth {
         userInfo.userShares = adapterInfos[_tokenId].accTokenPerShare;
         userInfo.userShares1 = adapterInfos[_tokenId].accTokenPerShare1;
 
-        uint256 amountOut;
         if (reward != 0 && rewardToken != address(0)) {
             amountOut += HedgepieLibraryEth.swapforEth(
                 address(this),

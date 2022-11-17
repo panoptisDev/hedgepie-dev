@@ -3,11 +3,6 @@ const { ethers } = require("hardhat");
 
 const BigNumber = ethers.BigNumber;
 
-const unlockAccount = async (address) => {
-  await hre.network.provider.send("hardhat_impersonateAccount", [address]);
-  return hre.ethers.provider.getSigner(address);
-};
-
 const forkNetwork = async () => {
   await hre.network.provider.request({
     method: "hardhat_reset",
@@ -207,14 +202,34 @@ describe("CompoundLendAdapterEth Integration Test", function () {
     it("(2) should receive the ETH successfully after withdraw function for Alice", async function () {
       // withdraw from nftId: 1
       const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
+      const beforeOwnerETH = await ethers.provider.getBalance(this.owner.address);
+      let aliceInfo = (await this.adapter.userAdapterInfos(this.aliceAddr, 1)).invested;
 
-      await this.investor.connect(this.alice).withdrawETH(1, { gasPrice: 21e9 });
+      const gasPrice = 21e9;
+      const gas = await this.investor.connect(this.alice).estimateGas.withdrawETH(1, { gasPrice });
+      await expect(this.investor.connect(this.alice).withdrawETH(1, { gasPrice })).to.emit(
+        this.investor,
+        "WithdrawETH"
+      );
 
       const afterETH = await ethers.provider.getBalance(this.aliceAddr);
-
       expect(BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))).to.eq(true);
 
-      const aliceInfo = (await this.adapter.userAdapterInfos(this.aliceAddr, 1)).invested;
+      // check protocol fee
+      const rewardAmt = afterETH.sub(beforeETH);
+      const afterOwnerETH = await ethers.provider.getBalance(this.owner.address);
+      let actualPending = rewardAmt.add(gas.mul(gasPrice));
+      if(actualPending.gt(aliceInfo)) {
+        actualPending = actualPending.sub(BigNumber.from(aliceInfo));
+        const protocolFee = afterOwnerETH.sub(beforeOwnerETH);
+        expect(protocolFee).to.gt(0);
+        expect(actualPending).to.be.within(
+          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).sub(gas.mul(gasPrice)),
+          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).add(gas.mul(gasPrice))
+        );
+      }
+
+      aliceInfo = (await this.adapter.userAdapterInfos(this.aliceAddr, 1)).invested;
       expect(aliceInfo).to.eq(BigNumber.from(0));
 
       const bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1)).invested;
@@ -232,14 +247,34 @@ describe("CompoundLendAdapterEth Integration Test", function () {
     it("(4) should receive the ETH successfully after withdraw function for Bob", async function () {
       // withdraw from nftId: 1
       const beforeETH = await ethers.provider.getBalance(this.bobAddr);
+      const beforeOwnerETH = await ethers.provider.getBalance(this.owner.address);
+      let bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1)).invested;
 
-      await this.investor.connect(this.bob).withdrawETH(1, { gasPrice: 21e9 });
+      const gasPrice = 21e9;
+      const gas = await this.investor.connect(this.bob).estimateGas.withdrawETH(1, { gasPrice });
+      await expect(this.investor.connect(this.bob).withdrawETH(1, { gasPrice })).to.emit(
+        this.investor,
+        "WithdrawETH"
+      );
 
       const afterETH = await ethers.provider.getBalance(this.bobAddr);
-
       expect(BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))).to.eq(true);
 
-      const bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1)).invested;
+      // check protocol fee
+      const rewardAmt = afterETH.sub(beforeETH);
+      const afterOwnerETH = await ethers.provider.getBalance(this.owner.address);
+      let actualPending = rewardAmt.add(gas.mul(gasPrice));
+      if(actualPending.gt(bobInfo)) {
+        actualPending = actualPending.sub(BigNumber.from(bobInfo));
+        const protocolFee = afterOwnerETH.sub(beforeOwnerETH);
+        expect(protocolFee).to.gt(0);
+        expect(actualPending).to.be.within(
+          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).sub(gas.mul(gasPrice)),
+          protocolFee.mul(1e4 - this.performanceFee).div(this.performanceFee).add(gas.mul(gasPrice))
+        );
+      }
+
+      bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1)).invested;
       expect(bobInfo).to.eq(BigNumber.from(0));
     });
 
