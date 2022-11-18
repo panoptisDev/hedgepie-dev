@@ -32,6 +32,7 @@ function DashboardPage(props: DashboardPageProps) {
     const maxTokenId = await getMaxTokenId()
     let tokenArr: any[] = []
     for (let i = 1; i <= maxTokenId; i++) {
+      if (process.env.DUMMY_TOKENS && Array.from(JSON.parse(process.env.DUMMY_TOKENS))?.indexOf(i) !== -1) continue
       const tokenUri = await getTokenUri(i)
       if (!tokenUri.includes('.ipfs.')) {
         return
@@ -48,9 +49,9 @@ function DashboardPage(props: DashboardPageProps) {
     setTokens(tokenArr)
   }
 
-  useEffect(() => {
-    getSideBarItems()
-  }, [])
+  // useEffect(() => {
+  //   getSideBarItems()
+  // }, [])
 
   return (
     <DashboardContext.Provider value={value}>

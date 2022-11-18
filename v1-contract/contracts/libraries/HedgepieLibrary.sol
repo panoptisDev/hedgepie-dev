@@ -116,7 +116,7 @@ library HedgepieLibrary {
             );
             IBEP20(tokens[1]).approve(_router, tokenAmount[1]);
         }
-        
+
         if (tokenAmount[0] != 0 && tokenAmount[1] != 0) {
             if (tokens[0] == wbnb || tokens[1] == wbnb) {
                 (, , amountOut) = IPancakeRouter(_router).addLiquidityETH{
@@ -160,13 +160,8 @@ library HedgepieLibrary {
         bytes memory callData;
 
         if (!IAdapter(_adapterAddr).isEntered()) {
-            (
-                to,
-                value,
-                callData
-            ) = IAdapterManager(_adapterManager).getEnterMarketCallData(
-                    _adapterAddr
-                );
+            (to, value, callData) = IAdapterManager(_adapterManager)
+                .getEnterMarketCallData(_adapterAddr);
 
             (success, ) = to.call{value: value}(callData);
             require(success, "Error: EnterMarket internal issue");
@@ -338,8 +333,20 @@ library HedgepieLibrary {
                     block.timestamp + 2 hours
                 );
 
-            amountOut += swapforBNB(_adapter.addr, amountA, token0, _router, wbnb);
-            amountOut += swapforBNB(_adapter.addr, amountB, token1, _router, wbnb);
+            amountOut += swapforBNB(
+                _adapter.addr,
+                amountA,
+                token0,
+                _router,
+                wbnb
+            );
+            amountOut += swapforBNB(
+                _adapter.addr,
+                amountB,
+                token1,
+                _router,
+                wbnb
+            );
         }
     }
 

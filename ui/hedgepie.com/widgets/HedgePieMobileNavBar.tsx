@@ -67,7 +67,7 @@ function HedgePieMobileNavBar(props: NavBarProps) {
         <MenuItem
           key={p}
           style={{
-            fontFamily: "Open Sans",
+            fontFamily: "Plus Jakarta Sans",
             backgroundColor: p === selected ? "#17DE" : "#FFFFFF",
           }}
           onClick={() => {

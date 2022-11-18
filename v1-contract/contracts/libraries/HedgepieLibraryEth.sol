@@ -124,7 +124,7 @@ library HedgepieLibraryEth {
         IYBNFT.Adapter memory _adapter,
         address weth,
         uint256 _amountIn,
-        uint256 _tokenId
+        uint256
     ) public returns (uint256 amountOut) {
         address[2] memory tokens;
         tokens[0] = IPancakePair(_adapter.token).token0();
@@ -132,8 +132,11 @@ library HedgepieLibraryEth {
         address _router = IAdapterEth(_adapter.addr).router();
 
         uint256[2] memory tokenAmount;
-        tokenAmount[0] = _amountIn / 2;
-        tokenAmount[1] = _amountIn - tokenAmount[0];
+        unchecked {
+            tokenAmount[0] = _amountIn / 2;
+            tokenAmount[1] = _amountIn - tokenAmount[0];
+        }
+
         if (tokens[0] != weth) {
             tokenAmount[0] = swapOnRouter(
                 _adapter.addr,
@@ -187,7 +190,7 @@ library HedgepieLibraryEth {
         IYBNFT.Adapter memory _adapter,
         address weth,
         uint256 _amountIn,
-        uint256 _tokenId
+        uint256
     ) public returns (uint256 amountOut) {
         address[2] memory tokens;
         tokens[0] = IPancakePair(_adapter.token).token0();
@@ -245,84 +248,4 @@ library HedgepieLibraryEth {
             );
         }
     }
-
-    // function getLPLiquidity(
-    //     address _adapterAddr,
-    //     address _adapterToken,
-    //     uint256 _amountIn,
-    //     address _adapterManager,
-    //     address _swapRouter,
-    //     address _weth
-    // ) public returns (uint256 amountOut) {
-    //     address _liquidity = IAdapterEth(_adapterAddr).liquidityToken();
-    //     amountOut = swapOnRouter(
-    //         _adapterAddr,
-    //         _amountIn,
-    //         _liquidity,
-    //         _swapRouter,
-    //         _weth
-    //     );
-    //     IBEP20(_liquidity).approve(
-    //         IAdapterEth(_adapterAddr).router(),
-    //         amountOut
-    //     );
-
-    //     uint256 beforeBalance = IBEP20(_adapterToken).balanceOf(address(this));
-
-    //     (
-    //         address to,
-    //         uint256 value,
-    //         bytes memory callData
-    //     ) = IAdapterEthManagerMatic(_adapterManager).getAddLiqCallData(
-    //             _adapterAddr,
-    //             amountOut
-    //         );
-
-    //     (bool success, ) = to.call{value: value}(callData);
-    //     require(success, "Error: Pool internal issue");
-
-    //     unchecked {
-    //         amountOut =
-    //             IBEP20(_adapterToken).balanceOf(address(this)) -
-    //             beforeBalance;
-    //     }
-    // }
-
-    // function withdrawLPLiquidity(
-    //     address _adapterAddr,
-    //     address _adapterToken,
-    //     uint256 _amountIn,
-    //     address _adapterManager,
-    //     address _swapRouter,
-    //     address _weth
-    // ) public returns (uint256 amountOut) {
-    //     address _liquidity = IAdapterEth(_adapterAddr).liquidityToken();
-    //     uint256 beforeBalance = IBEP20(_liquidity).balanceOf(address(this));
-
-    //     IBEP20(_adapterToken).approve(
-    //         IAdapterEth(_adapterAddr).router(),
-    //         _amountIn
-    //     );
-
-    //     (
-    //         address to,
-    //         uint256 value,
-    //         bytes memory callData
-    //     ) = IAdapterEthManagerMatic(_adapterManager).getRemoveLiqCallData(
-    //             _adapterAddr,
-    //             _amountIn
-    //         );
-
-    //     (bool success, ) = to.call{value: value}(callData);
-    //     require(success, "Error: Pool internal issue");
-
-    //     amountOut = IBEP20(_liquidity).balanceOf(address(this)) - beforeBalance;
-    //     amountOut = swapforEth(
-    //         _adapterAddr,
-    //         amountOut,
-    //         _liquidity,
-    //         _swapRouter,
-    //         _weth
-    //     );
-    // }
 }

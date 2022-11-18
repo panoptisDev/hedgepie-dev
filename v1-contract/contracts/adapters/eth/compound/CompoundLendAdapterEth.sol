@@ -30,9 +30,6 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
     // Saving isEntered to comptroller
     bool public isEntered;
 
-    // Invested cToken amount per user
-    mapping(address => mapping(uint256 => uint256)) public cTokenAmt;
-
     /**
      * @notice Construct
      * @param _strategy  address of strategy
@@ -101,7 +98,7 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
 
         userInfo.amount += amountOut;
         userInfo.invested += _amountIn;
-        cTokenAmt[_account][_tokenId] +=
+        userInfo.userShares +=
             IBEP20(strategy).balanceOf(address(this)) -
             cAmount;
 
@@ -140,20 +137,13 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
     {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
-        uint256 userCTokenAmt = cTokenAmt[_account][_tokenId];
 
         amountOut = IBEP20(stakingToken).balanceOf(address(this));
 
-        IBEP20(strategy).approve(strategy, userCTokenAmt);
-        IStrategy(strategy).redeem(userCTokenAmt);
+        IBEP20(strategy).approve(strategy, userInfo.userShares);
+        IStrategy(strategy).redeem(userInfo.userShares);
 
         amountOut = IBEP20(stakingToken).balanceOf(address(this)) - amountOut;
-
-        uint256 rewardPercent;
-        if (amountOut > userInfo.amount)
-            rewardPercent =
-                ((amountOut - userInfo.amount) * 10000) /
-                userInfo.amount;
 
         amountOut = HedgepieLibraryEth.swapforEth(
             address(this),
@@ -162,6 +152,26 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
             swapRouter,
             weth
         );
+
+        if (amountOut != 0) {
+            bool success;
+            uint256 taxAmount;
+            if (amountOut > userInfo.invested) {
+                taxAmount =
+                    ((amountOut - userInfo.invested) *
+                        IYBNFT(IHedgepieInvestorEth(investor).ybnft())
+                            .performanceFee(_tokenId)) /
+                    1e4;
+                (success, ) = payable(IHedgepieInvestorEth(investor).treasury())
+                    .call{value: taxAmount}("");
+                require(success, "Failed to send ether to Treasury");
+            }
+
+            (success, ) = payable(_account).call{value: amountOut - taxAmount}(
+                ""
+            );
+            require(success, "Failed to send ether");
+        }
 
         address adapterInfoEthAddr = IHedgepieInvestorEth(investor)
             .adapterInfo();
@@ -184,32 +194,7 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
         );
 
         adapterInfo.totalStaked -= userInfo.amount;
-        userInfo.amount = 0;
-        userInfo.invested = 0;
-        userInfo.userShares = 0;
-        cTokenAmt[_account][_tokenId] = 0;
-
-        if (amountOut != 0) {
-            bool success;
-            uint256 taxAmount;
-            if (rewardPercent != 0) {
-                taxAmount =
-                    (((amountOut * rewardPercent) / 10000) *
-                        IYBNFT(IHedgepieInvestorEth(investor).ybnft())
-                            .performanceFee(_tokenId)) /
-                    1e4;
-                (success, ) = payable(IHedgepieInvestorEth(investor).treasury())
-                    .call{value: taxAmount}("");
-                require(success, "Failed to send ether to Treasury");
-            }
-
-            (success, ) = payable(_account).call{value: amountOut - taxAmount}(
-                ""
-            );
-            require(success, "Failed to send ether");
-        }
-
-        return amountOut;
+        delete userAdapterInfos[_account][_tokenId];
     }
 
     /**
@@ -238,15 +223,11 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
         returns (uint256 reward)
     {
         UserAdapterInfo memory userInfo = userAdapterInfos[_account][_tokenId];
-        AdapterInfo memory adapterInfo = adapterInfos[_tokenId];
-        uint256 userCTokenAmt = cTokenAmt[_account][_tokenId];
 
-        uint256 cTokenDecimals = IBEP20(strategy).decimals();
-        uint256 underlyingDecimals = IBEP20(stakingToken).decimals();
         uint256 exchangeRateCurrent = IStrategy(strategy).exchangeRateStored();
         uint256 mantissa = 18;
 
-        uint256 underlyingAmt = (exchangeRateCurrent * userCTokenAmt) /
+        uint256 underlyingAmt = (exchangeRateCurrent * userInfo.userShares) /
             (10**mantissa);
 
         if (underlyingAmt < userInfo.amount) return 0;

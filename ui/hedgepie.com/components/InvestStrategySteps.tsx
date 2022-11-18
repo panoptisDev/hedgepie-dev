@@ -26,7 +26,7 @@ function InvestStrategySteps() {
         padding: ["20px 30px", "20px 30px", "20px 30px", "50px 100px"],
         flexDirection: "column",
         gap: ["20px", "30px", "30px", "40px"],
-        fontFamily: "Open Sans",
+        fontFamily: "Plus Jakarta Sans",
         justifyContent: "center",
         alignItems: "center",
       }}
@@ -70,7 +70,7 @@ function InvestStrategySteps() {
               flexDirection: "column",
               alignItems: "center",
               gap: "20px",
-              fontFamily: "Open Sans",
+              fontFamily: "Plus Jakarta Sans",
               width: "22rem",
               textAlign: "center",
             }}

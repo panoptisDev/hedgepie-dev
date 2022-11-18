@@ -17,7 +17,11 @@ export default function Custom404() {
     >
       <Image src="/images/logo.svg" alt="Hedge Pie Logo" />
       <Text
-        sx={{ fontFamily: "Open Sans", fontSize: "24px", fontWeight: "600" }}
+        sx={{
+          fontFamily: "Plus Jakarta Sans",
+          fontSize: "24px",
+          fontWeight: "600",
+        }}
       >
         Coming Soon!
       </Text>

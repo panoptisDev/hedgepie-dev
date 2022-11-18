@@ -135,14 +135,17 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                     amountOut = HedgepieLibraryMatic.swapOnRouter(
                         adapter.addr,
                         amountIn,
-                        IAdapterMatic(adapter.addr).lpStakingToken() == address(0)
+                        IAdapterMatic(adapter.addr).lpStakingToken() ==
+                            address(0)
                             ? adapter.token
                             : IAdapterMatic(adapter.addr).lpStakingToken(),
                         swapRouter,
                         wmatic
                     );
                 }
-            } else if (IAdapterMatic(adapter.addr).liquidityToken() != address(0)) {
+            } else if (
+                IAdapterMatic(adapter.addr).liquidityToken() != address(0)
+            ) {
                 amountOut = HedgepieLibraryMatic.getLPLiquidity(
                     adapter.addr,
                     adapter.token,
@@ -179,14 +182,18 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                 ];
 
                 // Get stargate LP token
-                if (IAdapterMatic(adapter.addr).lpStakingToken() != address(0)) {
-                    IBEP20(IAdapterMatic(adapter.addr).lpStakingToken()).approve(
-                        IAdapterMatic(adapter.addr).lpProvider(),
-                        amountOut
-                    );
+                if (
+                    IAdapterMatic(adapter.addr).lpStakingToken() != address(0)
+                ) {
+                    IBEP20(IAdapterMatic(adapter.addr).lpStakingToken())
+                        .approve(
+                            IAdapterMatic(adapter.addr).lpProvider(),
+                            amountOut
+                        );
 
-                    (address to, , bytes memory data) = IAdapterMatic(adapter.addr)
-                        .getLPCallData(amountOut);
+                    (address to, , bytes memory data) = IAdapterMatic(
+                        adapter.addr
+                    ).getLPCallData(amountOut);
 
                     amountOut = IBEP20(adapter.token).balanceOf(address(this));
                     (bool success, ) = to.call{value: 0}(data);
@@ -296,7 +303,10 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                         amountOut += balances[2];
                     }
                 } else {
-                    if (IAdapterMatic(adapter.addr).lpStakingToken() != address(0)) {
+                    if (
+                        IAdapterMatic(adapter.addr).lpStakingToken() !=
+                        address(0)
+                    ) {
                         IBEP20(adapter.token).approve(
                             IAdapterMatic(adapter.addr).lpProvider(),
                             balances[1] - balances[0]
@@ -326,14 +336,17 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                     amountOut += HedgepieLibraryMatic.swapforMatic(
                         adapter.addr,
                         balances[2],
-                        IAdapterMatic(adapter.addr).lpStakingToken() == address(0)
+                        IAdapterMatic(adapter.addr).lpStakingToken() ==
+                            address(0)
                             ? adapter.token
                             : IAdapterMatic(adapter.addr).lpStakingToken(),
                         swapRouter,
                         wmatic
                     );
                 }
-            } else if (IAdapterMatic(adapter.addr).liquidityToken() != address(0)) {
+            } else if (
+                IAdapterMatic(adapter.addr).liquidityToken() != address(0)
+            ) {
                 amountOut += HedgepieLibraryMatic.withdrawLPLiquidity(
                     adapter.addr,
                     adapter.token,
@@ -355,19 +368,15 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                 if (IAdapterMatic(adapter.addr).rewardToken() != address(0)) {
                     // Convert rewards to MATIC
                     uint256[2] memory rewards;
-                    (rewards[0], rewards[1]) = HedgepieLibraryMatic
-                        .getRewards(
-                            adapterInfos[_tokenId][adapter.addr],
-                            userAdapterInfos[msg.sender][_tokenId][
-                                adapter.addr
-                            ],
-                            adapter.addr
-                        );
+                    (rewards[0], rewards[1]) = HedgepieLibraryMatic.getRewards(
+                        adapterInfos[_tokenId][adapter.addr],
+                        userAdapterInfos[msg.sender][_tokenId][adapter.addr],
+                        adapter.addr
+                    );
                     if (
                         rewards[0] >
-                        IBEP20(IAdapterMatic(adapter.addr).rewardToken()).balanceOf(
-                            address(this)
-                        )
+                        IBEP20(IAdapterMatic(adapter.addr).rewardToken())
+                            .balanceOf(address(this))
                     )
                         rewards[0] = IBEP20(
                             IAdapterMatic(adapter.addr).rewardToken()
@@ -380,10 +389,8 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                         1e4;
 
                     if (taxAmount != 0) {
-                        IBEP20(IAdapterMatic(adapter.addr).rewardToken()).transfer(
-                            treasuryAddr,
-                            taxAmount
-                        );
+                        IBEP20(IAdapterMatic(adapter.addr).rewardToken())
+                            .transfer(treasuryAddr, taxAmount);
                     }
 
                     if (rewards[0] != 0) {
@@ -602,7 +609,11 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
         }
 
         // update storage data on adapter
-        IAdapterMatic(_adapterAddr).setWithdrawalAmount(msg.sender, _tokenId, 0);
+        IAdapterMatic(_adapterAddr).setWithdrawalAmount(
+            msg.sender,
+            _tokenId,
+            0
+        );
     }
 
     /**
@@ -655,7 +666,8 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                             )
                         )[1];
 
-                address rewardToken1 = IAdapterMatic(adapter.addr).rewardToken1();
+                address rewardToken1 = IAdapterMatic(adapter.addr)
+                    .rewardToken1();
                 if (rewardToken1 != address(0)) {
                     updatedAccTokenPerShare =
                         adapterInfo.accTokenPerShare1 +
@@ -698,7 +710,8 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard, IERC721Receiver {
                             )
                         )[1];
                 } else {
-                    address pairToken = IAdapterMatic(adapter.addr).stakingToken();
+                    address pairToken = IAdapterMatic(adapter.addr)
+                        .stakingToken();
                     address[2] memory tokens;
                     tokens[0] = IPancakePair(pairToken).token0();
                     tokens[1] = IPancakePair(pairToken).token1();

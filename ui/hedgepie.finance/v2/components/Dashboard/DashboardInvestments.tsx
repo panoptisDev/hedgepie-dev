@@ -25,6 +25,7 @@ function DashboardInvestments() {
       let investedData: number[] = []
       const maxTokenId = await getMaxTokenId()
       for (let i = 1; i <= maxTokenId; i++) {
+        if (process.env.DUMMY_TOKENS && Array.from(JSON.parse(process.env.DUMMY_TOKENS))?.indexOf(i) !== -1) continue
         const investedInToken = await getBalance(i)
         if (getBalanceInEther(investedInToken) !== getBalanceInEther(0)) {
           investedData.push(i)

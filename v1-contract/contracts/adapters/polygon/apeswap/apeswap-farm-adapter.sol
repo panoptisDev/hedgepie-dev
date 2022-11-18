@@ -38,7 +38,7 @@ contract ApeswapFarmAdapter is BaseAdapterMatic {
         name = _name;
         pid = _pid;
     }
-    
+
     /**
      * @notice Get invest calldata
      * @param _amount  amount of invest
@@ -55,7 +55,7 @@ contract ApeswapFarmAdapter is BaseAdapterMatic {
         to = strategy;
         value = 0;
         data = abi.encodeWithSignature(
-            "deposit(uint256,uint256,address)", 
+            "deposit(uint256,uint256,address)",
             pid,
             _amount,
             investor
@@ -78,7 +78,7 @@ contract ApeswapFarmAdapter is BaseAdapterMatic {
         to = strategy;
         value = 0;
         data = abi.encodeWithSignature(
-            "withdrawAndHarvest(uint256,uint256,address)", 
+            "withdrawAndHarvest(uint256,uint256,address)",
             pid,
             _amount,
             investor
@@ -97,5 +97,5 @@ contract ApeswapFarmAdapter is BaseAdapterMatic {
      */
     function pendingReward1() external pure returns (uint256) {
         return 0;
-    }    
+    }
 }

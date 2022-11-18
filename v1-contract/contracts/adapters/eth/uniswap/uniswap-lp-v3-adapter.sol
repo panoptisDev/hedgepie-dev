@@ -91,15 +91,13 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
      * @param _token  address of token
      * @param _inAmount  amount of ETH
      */
-    function _swapAndApprove(
-        address _token,
-        uint256 _inAmount
-    ) internal returns (uint256 amountOut) {
+    function _swapAndApprove(address _token, uint256 _inAmount)
+        internal
+        returns (uint256 amountOut)
+    {
         if (_token == weth) {
             amountOut = _inAmount;
-            IWrap(weth).deposit {
-                value: amountOut
-            }();
+            IWrap(weth).deposit{value: amountOut}();
         } else {
             amountOut = HedgepieLibraryEth.swapOnRouter(
                 address(this),
@@ -118,16 +116,13 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
      * @param _token  address of token
      * @param _amount  amount of token
      */
-    function _removeRemain(
-        address _token,
-        uint256 _amount
-    ) internal {
-        if(_amount > 0) {
+    function _removeRemain(address _token, uint256 _amount) internal {
+        if (_amount > 0) {
             HedgepieLibraryEth.swapforEth(
-                address(this), 
-                _amount, 
-                _token, 
-                router, 
+                address(this),
+                _amount,
+                _token,
+                router,
                 weth
             );
             IBEP20(_token).approve(strategy, 0);
@@ -195,14 +190,14 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
             uint256 taxAmount;
             bool success;
 
-            if(userInfo.invested <= amountOut) {
-                taxAmount = ((amountOut - userInfo.invested) *
-                    IYBNFT(IHedgepieInvestorEth(investor).ybnft()).performanceFee(
-                        _tokenId
-                    )) / 1e4;
-                (success, ) = payable(
-                    IHedgepieInvestorEth(investor).treasury()
-                ).call{value: taxAmount}("");
+            if (userInfo.invested <= amountOut) {
+                taxAmount =
+                    ((amountOut - userInfo.invested) *
+                        IYBNFT(IHedgepieInvestorEth(investor).ybnft())
+                            .performanceFee(_tokenId)) /
+                    1e4;
+                (success, ) = payable(IHedgepieInvestorEth(investor).treasury())
+                    .call{value: taxAmount}("");
                 require(success, "Failed to send ether to Treasury");
             }
 
@@ -233,7 +228,7 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
         unchecked {
             // update adapter info
             adapterInfos[_tokenId].totalStaked -= userInfo.amount;
-            
+
             // update user info
             userInfo.amount = 0;
             userInfo.invested = 0;
@@ -313,7 +308,7 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
 
         uint256 ethBalAfter = address(this).balance;
         ethAmount = _amountIn + ethBalBefore - ethBalAfter;
-        if(ethBalAfter > ethBalBefore) {
+        if (ethBalAfter > ethBalBefore) {
             (bool success, ) = payable(_account).call{
                 value: ethBalAfter - ethBalBefore
             }("");
@@ -344,9 +339,7 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
         uint256[2] memory amounts;
         amounts[0] = IBEP20(tokens[0]).balanceOf(address(this));
         amounts[1] = IBEP20(tokens[1]).balanceOf(address(this));
-        INonfungiblePositionManager(
-            strategy
-        ).decreaseLiquidity(
+        INonfungiblePositionManager(strategy).decreaseLiquidity(
             INonfungiblePositionManager.DecreaseLiquidityParams({
                 tokenId: v3TokenId,
                 liquidity: uint128(_amountIn),
@@ -366,26 +359,30 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
         );
 
         unchecked {
-            amounts[0] = IBEP20(tokens[0]).balanceOf(address(this)) - amounts[0];
-            amounts[1] = IBEP20(tokens[1]).balanceOf(address(this)) - amounts[1];
+            amounts[0] =
+                IBEP20(tokens[0]).balanceOf(address(this)) -
+                amounts[0];
+            amounts[1] =
+                IBEP20(tokens[1]).balanceOf(address(this)) -
+                amounts[1];
         }
 
         // swap underlying tokens to weth
         if (amounts[0] != 0)
             amountOut += HedgepieLibraryEth.swapforEth(
-                address(this), 
-                amounts[0], 
-                tokens[0], 
-                router, 
+                address(this),
+                amounts[0],
+                tokens[0],
+                router,
                 weth
             );
 
         if (amounts[1] != 0)
             amountOut += HedgepieLibraryEth.swapforEth(
-                address(this), 
-                amounts[1], 
-                tokens[1], 
-                router, 
+                address(this),
+                amounts[1],
+                tokens[1],
+                router,
                 weth
             );
     }

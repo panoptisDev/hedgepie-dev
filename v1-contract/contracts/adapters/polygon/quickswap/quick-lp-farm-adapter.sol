@@ -31,7 +31,7 @@ contract QuickLPFarmAdapter is BaseAdapterMatic {
 
         isReward = true;
     }
-    
+
     /**
      * @notice Get invest calldata
      * @param _amount  amount of invest

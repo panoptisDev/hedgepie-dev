@@ -135,7 +135,7 @@ function SubContents(props: SubContentsProps) {
             flexDirection: ["column", "column", "row", "row"],
             gap: ["20px", "20px", "20px", "100px"],
             alignItems: "center",
-            fontFamily: "Open Sans",
+            fontFamily: "Plus Jakarta Sans",
           }}
           key={sc.title}
         >
@@ -164,14 +164,14 @@ function SubContents(props: SubContentsProps) {
               flexDirection: "column",
               gap: ["20px", "20px", "20px", "30px"],
               width: ["90%", "60%", "60%", "60rem"],
-              fontFamily: "Open Sans",
+              fontFamily: "Plus Jakarta Sans",
             }}
           >
             <Text
               sx={{
                 color: "#14114B",
                 fontSize: ["24px", "24px", "28px", "32px"],
-                fontWeight: "700",
+                fontWeight: "400",
               }}
             >
               {sc.title}

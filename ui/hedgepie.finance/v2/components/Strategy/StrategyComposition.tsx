@@ -33,11 +33,11 @@ function StrategyComposition(props: { tokenId: number }) {
   const router = useRouter()
   const [onMintModal] = useModal(
     <Modal title="">
-      <Box sx={{ width: '1000vw' }}>
-        <MintWizard />
+      <Box sx={{ width: '100%' }}>
+        <MintWizard tokenId={tokenId} />
       </Box>
     </Modal>,
-    false,
+    true,
   )
 
   // Get the Metadata, Allocations, etc of the current YBNFT
@@ -47,6 +47,10 @@ function StrategyComposition(props: { tokenId: number }) {
     const fetchContractData = async () => {
       const maxTokenId = await getMaxTokenId()
       if (Number(tokenId) > maxTokenId) {
+        router.push('/')
+        return
+      }
+      if (process.env.DUMMY_TOKENS && Array.from(JSON.parse(process.env.DUMMY_TOKENS))?.indexOf(tokenId) !== -1) {
         router.push('/')
         return
       }
@@ -147,7 +151,7 @@ function StrategyComposition(props: { tokenId: number }) {
           Strategy Composition
         </Text>
         {/* Mint Edit Modal */}
-        {/* <Box
+        <Box
           sx={{
             backgroundColor: '#F3F3F3',
             borderRadius: '4px',
@@ -155,12 +159,12 @@ function StrategyComposition(props: { tokenId: number }) {
             marginLeft: 'auto',
             cursor: 'pointer',
           }}
-          // onClick={() => {
-          //   onMintModal()
-          // }}
+          onClick={() => {
+            onMintModal()
+          }}
         >
           <Image src="/icons/edit_square.svg" width={20} height={20} />
-        </Box>*/}
+        </Box>
       </Box>
       <Box sx={{ display: 'flex', flexDirection: ['column', 'column', 'column', 'row'], gap: '10px', width: '100%' }}>
         <Box sx={{ border: '1px solid #E3E3E3', borderRadius: '4px', flex: 2, width: '100%', overflow: 'auto' }}>

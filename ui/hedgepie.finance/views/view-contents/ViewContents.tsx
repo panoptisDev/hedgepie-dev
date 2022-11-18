@@ -84,6 +84,10 @@ const ViewContents = (props: Props) => {
         router.push('/')
         return
       }
+      if (process.env.DUMMY_TOKENS && Array.from(JSON.parse(process.env.DUMMY_TOKENS))?.indexOf(tokenId) !== -1) {
+        router.push('/')
+        return
+      }
       const tokenUri = await getTokenUri(tokenId)
       setMetadataURL(tokenUri)
       const allocations = await getAllocations(tokenId)
