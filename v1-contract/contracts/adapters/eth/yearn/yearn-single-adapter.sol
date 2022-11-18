@@ -53,7 +53,7 @@ contract YearnSingleAdapter is BaseAdapterEth {
         uint256 _tokenId,
         address _account,
         uint256 _amountIn
-    ) external payable override returns (uint256 amountOut) {
+    ) external payable override onlyInvestor returns (uint256 amountOut) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
 
         amountOut = HedgepieLibraryEth.swapOnRouter(
@@ -110,6 +110,7 @@ contract YearnSingleAdapter is BaseAdapterEth {
         external
         payable
         override
+        onlyInvestor
         returns (uint256 amountOut)
     {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];

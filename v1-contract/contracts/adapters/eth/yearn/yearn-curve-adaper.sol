@@ -109,7 +109,7 @@ contract YearnCurveAdapter is BaseAdapterEth {
      * @param _amountIn  amount of liquidityToken
      * @param _isETH  bool for liquidityToken is ETH
      */
-    function getCurveLP(uint256 _amountIn, bool _isETH)
+    function _getCurveLP(uint256 _amountIn, bool _isETH)
         private
         returns (uint256 amountOut)
     {
@@ -177,7 +177,7 @@ contract YearnCurveAdapter is BaseAdapterEth {
      * @param _amountIn  amount of LP to withdraw
      * @param _isETH  bool for liquidityToken is ETH
      */
-    function removeCurveLP(uint256 _amountIn, bool _isETH)
+    function _removeCurveLP(uint256 _amountIn, bool _isETH)
         private
         returns (uint256 amountOut)
     {
@@ -213,7 +213,7 @@ contract YearnCurveAdapter is BaseAdapterEth {
         uint256 _tokenId,
         address _account,
         uint256 _amountIn
-    ) external payable override returns (uint256 amountOut) {
+    ) external payable override onlyInvestor returns (uint256 amountOut) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
 
         bool isETH = liquidityToken == weth;
@@ -231,7 +231,7 @@ contract YearnCurveAdapter is BaseAdapterEth {
         }
 
         // get curve lp
-        amountOut = getCurveLP(amountOut, isETH);
+        amountOut = _getCurveLP(amountOut, isETH);
 
         uint256 repayAmt = IBEP20(repayToken).balanceOf(address(this));
 
@@ -279,6 +279,7 @@ contract YearnCurveAdapter is BaseAdapterEth {
         external
         payable
         override
+        onlyInvestor
         returns (uint256 amountOut)
     {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
@@ -295,7 +296,7 @@ contract YearnCurveAdapter is BaseAdapterEth {
 
         // withdraw liquiditytoken from curve pool
         bool isETH = liquidityToken == weth;
-        amountOut = removeCurveLP(amountOut, isETH);
+        amountOut = _removeCurveLP(amountOut, isETH);
 
         if (!isETH) {
             amountOut = HedgepieLibraryEth.swapforEth(

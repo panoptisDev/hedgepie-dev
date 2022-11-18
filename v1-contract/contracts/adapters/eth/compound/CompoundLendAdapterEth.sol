@@ -65,7 +65,7 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
         uint256 _tokenId,
         address _account,
         uint256 _amountIn
-    ) external payable override returns (uint256 amountOut) {
+    ) external payable override onlyInvestor returns (uint256 amountOut) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
@@ -133,6 +133,7 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
         external
         payable
         override
+        onlyInvestor
         returns (uint256 amountOut)
     {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
@@ -195,20 +196,6 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
 
         adapterInfo.totalStaked -= userInfo.amount;
         delete userAdapterInfos[_account][_tokenId];
-    }
-
-    /**
-     * @notice Claim the pending reward
-     * @param _tokenId YBNFT token id
-     * @param _account user wallet address
-     */
-    function claim(uint256 _tokenId, address _account)
-        external
-        payable
-        override
-        returns (uint256)
-    {
-        return 0;
     }
 
     /**
