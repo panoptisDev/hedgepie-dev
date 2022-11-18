@@ -104,7 +104,7 @@ contract PickleSushiGaugeAdapter is BaseAdapterEth {
         uint256 _tokenId,
         address _account,
         uint256 _amountIn
-    ) external payable override returns (uint256 amountOut) {
+    ) external payable override onlyInvestor returns (uint256 amountOut) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
 
         // get sushi LP
@@ -194,6 +194,7 @@ contract PickleSushiGaugeAdapter is BaseAdapterEth {
         external
         payable
         override
+        onlyInvestor
         returns (uint256 amountOut)
     {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
@@ -313,6 +314,7 @@ contract PickleSushiGaugeAdapter is BaseAdapterEth {
         external
         payable
         override
+        onlyInvestor
         returns (uint256)
     {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];

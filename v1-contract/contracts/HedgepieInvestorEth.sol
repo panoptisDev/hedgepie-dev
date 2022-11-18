@@ -85,12 +85,12 @@ contract HedgepieInvestorEth is Ownable, ReentrancyGuard {
             "Error: Insufficient ETH"
         );
 
-        IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
+        IYBNFT.Adapter[] memory adapterInfos = IYBNFT(ybnft).getAdapterInfo(
             _tokenId
         );
 
-        for (uint8 i = 0; i < adapterInfo.length; i++) {
-            IYBNFT.Adapter memory adapter = adapterInfo[i];
+        for (uint8 i = 0; i < adapterInfos.length; i++) {
+            IYBNFT.Adapter memory adapter = adapterInfos[i];
 
             uint256 amountIn = (_amount * adapter.allocation) / 1e4;
             IAdapterEth(adapter.addr).deposit{value: amountIn}(
@@ -112,13 +112,13 @@ contract HedgepieInvestorEth is Ownable, ReentrancyGuard {
         nonReentrant
         onlyValidNFT(_tokenId)
     {
-        IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
+        IYBNFT.Adapter[] memory adapterInfos = IYBNFT(ybnft).getAdapterInfo(
             _tokenId
         );
 
         uint256 amountOut;
-        for (uint8 i = 0; i < adapterInfo.length; i++) {
-            amountOut += IAdapterEth(adapterInfo[i].addr).withdraw(
+        for (uint8 i = 0; i < adapterInfos.length; i++) {
+            amountOut += IAdapterEth(adapterInfos[i].addr).withdraw(
                 _tokenId,
                 msg.sender
             );
@@ -136,13 +136,13 @@ contract HedgepieInvestorEth is Ownable, ReentrancyGuard {
         nonReentrant
         onlyValidNFT(_tokenId)
     {
-        IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
+        IYBNFT.Adapter[] memory adapterInfos = IYBNFT(ybnft).getAdapterInfo(
             _tokenId
         );
 
         uint256 amountOut;
-        for (uint8 i = 0; i < adapterInfo.length; i++) {
-            amountOut += IAdapterEth(adapterInfo[i].addr).claim(
+        for (uint8 i = 0; i < adapterInfos.length; i++) {
+            amountOut += IAdapterEth(adapterInfos[i].addr).claim(
                 _tokenId,
                 msg.sender
             );
@@ -164,12 +164,12 @@ contract HedgepieInvestorEth is Ownable, ReentrancyGuard {
     {
         if (!IYBNFT(ybnft).exists(_tokenId)) return 0;
 
-        IYBNFT.Adapter[] memory adapterInfo = IYBNFT(ybnft).getAdapterInfo(
+        IYBNFT.Adapter[] memory adapterInfos = IYBNFT(ybnft).getAdapterInfo(
             _tokenId
         );
 
-        for (uint8 i = 0; i < adapterInfo.length; i++) {
-            amountOut += IAdapterEth(adapterInfo[i].addr).pendingReward(
+        for (uint8 i = 0; i < adapterInfos.length; i++) {
+            amountOut += IAdapterEth(adapterInfos[i].addr).pendingReward(
                 _tokenId,
                 _account
             );

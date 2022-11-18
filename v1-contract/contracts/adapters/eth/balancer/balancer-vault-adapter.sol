@@ -89,7 +89,7 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
         uint256 _tokenId,
         address _account,
         uint256 _amountIn
-    ) external payable override returns (uint256) {
+    ) external payable override onlyInvestor returns (uint256) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
@@ -164,6 +164,7 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
         external
         payable
         override
+        onlyInvestor
         returns (uint256 amountOut)
     {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
@@ -253,34 +254,6 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
             require(success, "Failed to send ether");
         }
         return amountOut;
-    }
-
-    /**
-     * @notice Claim the pending reward
-     * @param _tokenId YBNFT token id
-     * @param _account user wallet address
-     */
-    function claim(uint256 _tokenId, address _account)
-        external
-        payable
-        override
-        returns (uint256)
-    {
-        return 0;
-    }
-
-    /**
-     * @notice Return the pending reward by ETH
-     * @param _tokenId YBNFT token id
-     * @param _account user wallet address
-     */
-    function pendingReward(uint256 _tokenId, address _account)
-        external
-        view
-        override
-        returns (uint256 reward)
-    {
-        return 0;
     }
 
     receive() external payable {}

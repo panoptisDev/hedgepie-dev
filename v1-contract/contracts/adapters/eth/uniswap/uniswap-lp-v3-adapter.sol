@@ -52,41 +52,6 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
     }
 
     /**
-     * @notice Set liqudityToken
-     * @param _user  user address
-     * @param _nftId  nftId
-     * @param _tokenId  amount of withdrawal
-     */
-    function setLiquidityNFT(
-        address _user,
-        uint256 _nftId,
-        uint256 _tokenId
-    ) public {
-        liquidityNFT[_user][_nftId] = _tokenId;
-    }
-
-    /**
-     * @notice Get liqudity token
-     * @param _user  user address
-     * @param _nftId  nftId
-     */
-    function getLiquidityNFT(address _user, uint256 _nftId)
-        public
-        view
-        returns (uint256 tokenId)
-    {
-        tokenId = liquidityNFT[_user][_nftId];
-    }
-
-    /**
-     * @notice Get tick info
-     */
-    function getTick() public view returns (int24 _lower, int24 _upper) {
-        _lower = tickLower;
-        _upper = tickUpper;
-    }
-
-    /**
      * @notice Swap ETH to tokens and approve
      * @param _token  address of token
      * @param _inAmount  amount of ETH
@@ -139,7 +104,7 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
         uint256 _tokenId,
         address _account,
         uint256 _amountIn
-    ) external payable override returns (uint256 amountIn) {
+    ) external payable override onlyInvestor returns (uint256 amountIn) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
         (amountIn, _amountIn) = _deposit(_tokenId, _account, _amountIn);
 
@@ -179,6 +144,7 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
         external
         payable
         override
+        onlyInvestor
         returns (uint256 amountOut)
     {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
@@ -259,7 +225,7 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
         tokenAmount[1] = _swapAndApprove(tokens[1], _amountIn / 2);
 
         // deposit staking token to uniswapV3 strategy (mint or increaseLiquidity)
-        uint256 v3TokenId = getLiquidityNFT(_account, _tokenId);
+        uint256 v3TokenId = liquidityNFT[_account][_tokenId];
         if (v3TokenId != 0) {
             (
                 amountOut,
@@ -276,15 +242,13 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
                 })
             );
         } else {
-            int24[2] memory ticks;
-            (ticks[0], ticks[1]) = getTick();
             INonfungiblePositionManager.MintParams
                 memory params = INonfungiblePositionManager.MintParams({
                     token0: tokens[0],
                     token1: tokens[1],
                     fee: IPancakePair(stakingToken).fee(),
-                    tickLower: ticks[0],
-                    tickUpper: ticks[1],
+                    tickLower: tickLower,
+                    tickUpper: tickUpper,
                     amount0Desired: tokenAmount[0],
                     amount1Desired: tokenAmount[1],
                     amount0Min: 0,
@@ -300,7 +264,7 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
                 tokenAmount[3]
             ) = INonfungiblePositionManager(strategy).mint(params);
 
-            setLiquidityNFT(_account, _tokenId, v3TokenId);
+            liquidityNFT[_account][_tokenId] = v3TokenId;
         }
 
         _removeRemain(tokens[0], tokenAmount[0] - tokenAmount[2]);
@@ -332,7 +296,7 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
         tokens[0] = IPancakePair(stakingToken).token0();
         tokens[1] = IPancakePair(stakingToken).token1();
 
-        uint256 v3TokenId = getLiquidityNFT(_account, _tokenId);
+        uint256 v3TokenId = liquidityNFT[_account][_tokenId];
         require(v3TokenId != 0, "Invalid request");
 
         // withdraw staking token to uniswapV3 strategy (collect or decreaseLiquidity)

@@ -5,8 +5,6 @@ import "../interfaces/IYBNFT.sol";
 import "../interfaces/IAdapterEth.sol";
 import "../interfaces/IPancakePair.sol";
 import "../interfaces/IPancakeRouter.sol";
-import "../interfaces/IVaultStrategy.sol";
-import "../interfaces/IAdapterManager.sol";
 
 import "../HedgepieInvestorEth.sol";
 import "../adapters/BaseAdapterEth.sol";
@@ -102,22 +100,6 @@ library HedgepieLibraryEth {
                     userInfo.amount) /
                 1e12;
         }
-    }
-
-    function getDepositAmount(
-        address[2] memory addrs,
-        address _adapter,
-        bool isVault
-    ) public view returns (uint256 amountOut) {
-        amountOut = addrs[0] != address(0)
-            ? IBEP20(addrs[0]).balanceOf(address(this))
-            : (
-                isVault
-                    ? IAdapterEth(_adapter).pendingShares()
-                    : addrs[1] != address(0)
-                    ? IBEP20(addrs[1]).balanceOf(address(this))
-                    : 0
-            );
     }
 
     function getLP(
