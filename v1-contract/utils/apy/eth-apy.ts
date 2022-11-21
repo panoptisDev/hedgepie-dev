@@ -60,8 +60,6 @@ const getAPY = async (adapterInfo: GET_APR_INFO) => {
     } else if (adapterType === TYPE_ADAPTER.UNISWAP_V3) {
         // code for apr calculation for uniswap_v3
     } else if (adapterType === TYPE_ADAPTER.YEARN) {
-        // code for apr calculation for yearn
-
         return await apyYearn(await ctAdapter.strategy());
     }
 };
