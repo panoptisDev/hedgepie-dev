@@ -14,14 +14,18 @@ function DashboardPage(props: DashboardPageProps) {
   const { children, tab } = props
   const [activeTab, setActiveTab] = useState<SidebarItemType>('home')
   const [tokens, setTokens] = useState<{ id: number; name: string }[]>([])
+  const [sidebarExpanded, setSidebarExpanded] = useState(true)
+
   const { getMaxTokenId, getTokenUri } = useYBNFTMint()
   const value = React.useMemo(
     () => ({
       activeTab,
       setActiveTab,
       tokens,
+      sidebarExpanded,
+      setSidebarExpanded,
     }),
-    [activeTab, setActiveTab, tokens],
+    [activeTab, setActiveTab, tokens, sidebarExpanded],
   )
 
   useEffect(() => {
