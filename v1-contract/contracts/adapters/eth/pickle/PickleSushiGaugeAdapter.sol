@@ -102,8 +102,8 @@ contract PickleSushiGaugeAdapter is BaseAdapterEth {
      */
     function deposit(
         uint256 _tokenId,
-        address _account,
-        uint256 _amountIn
+        uint256 _amountIn,
+        address _account
     ) external payable override onlyInvestor returns (uint256 amountOut) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
 
@@ -111,8 +111,7 @@ contract PickleSushiGaugeAdapter is BaseAdapterEth {
         uint256 lpOut = HedgepieLibraryEth.getLP(
             IYBNFT.Adapter(0, stakingToken, address(this)),
             weth,
-            _amountIn,
-            0
+            _amountIn
         );
 
         // deposit to Jar
@@ -220,21 +219,20 @@ contract PickleSushiGaugeAdapter is BaseAdapterEth {
         amountOut = HedgepieLibraryEth.withdrawLP(
             IYBNFT.Adapter(0, stakingToken, address(this)),
             weth,
-            lpAmount,
-            0
+            lpAmount
         );
 
         uint256[3] memory rewards;
         (rewards[0], rewards[1]) = HedgepieLibraryEth.getRewards(
-            address(this),
             _tokenId,
+            address(this),
             _account
         );
 
         if (rewards[0] != 0) {
             rewards[2] = HedgepieLibraryEth.swapforEth(
-                address(this),
                 rewards[0],
+                address(this),
                 rewardToken,
                 swapRouter,
                 weth
@@ -243,8 +241,8 @@ contract PickleSushiGaugeAdapter is BaseAdapterEth {
 
         if (rewards[1] != 0) {
             rewards[2] += HedgepieLibraryEth.swapforEth(
-                address(this),
                 rewards[1],
+                address(this),
                 rewardToken1,
                 swapRouter,
                 weth
@@ -322,8 +320,8 @@ contract PickleSushiGaugeAdapter is BaseAdapterEth {
         _getReward(_tokenId);
 
         (uint256 reward, uint256 reward1) = HedgepieLibraryEth.getRewards(
-            address(this),
             _tokenId,
+            address(this),
             _account
         );
 
@@ -333,8 +331,8 @@ contract PickleSushiGaugeAdapter is BaseAdapterEth {
         uint256 amountOut;
         if (reward != 0 && rewardToken != address(0)) {
             amountOut += HedgepieLibraryEth.swapforEth(
-                address(this),
                 reward,
+                address(this),
                 rewardToken,
                 swapRouter,
                 weth
@@ -343,8 +341,8 @@ contract PickleSushiGaugeAdapter is BaseAdapterEth {
 
         if (reward1 != 0 && rewardToken1 != address(0)) {
             amountOut += HedgepieLibraryEth.swapforEth(
-                address(this),
                 reward1,
+                address(this),
                 rewardToken1,
                 swapRouter,
                 weth

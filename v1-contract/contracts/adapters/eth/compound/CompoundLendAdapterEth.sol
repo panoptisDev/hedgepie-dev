@@ -63,16 +63,16 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
      */
     function deposit(
         uint256 _tokenId,
-        address _account,
-        uint256 _amountIn
+        uint256 _amountIn,
+        address _account
     ) external payable override onlyInvestor returns (uint256 amountOut) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
         amountOut = HedgepieLibraryEth.swapOnRouter(
-            address(this),
             _amountIn,
+            address(this),
             stakingToken,
             swapRouter,
             weth
@@ -147,8 +147,8 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
         amountOut = IBEP20(stakingToken).balanceOf(address(this)) - amountOut;
 
         amountOut = HedgepieLibraryEth.swapforEth(
-            address(this),
             amountOut,
+            address(this),
             stakingToken,
             swapRouter,
             weth

@@ -1,24 +1,12 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
 
 const BigNumber = ethers.BigNumber;
 
-const forkNetwork = async () => {
-    await hre.network.provider.request({
-        method: "hardhat_reset",
-        params: [
-            {
-                forking: {
-                    jsonRpcUrl: "https://rpc.ankr.com/eth",
-                },
-            },
-        ],
-    });
-};
-
 describe("BalancerVaultAdapterEth Integration Test", function () {
     before("Deploy contract", async function () {
-        await forkNetwork();
+        await forkETHNetwork();
 
         const [owner, alice, bob, tom, treasury] = await ethers.getSigners();
 
@@ -136,24 +124,8 @@ describe("BalancerVaultAdapterEth Integration Test", function () {
         await this.aAdapter.setInvestor(this.investor.address);
 
         // Set paths for swapping tokens
-        await this.aAdapter.setPath(this.weth, this.wstETH, [
-            this.weth,
-            dai,
-            this.wstETH,
-        ]);
-        await this.aAdapter.setPath(this.wstETH, this.weth, [
-            this.wstETH,
-            dai,
-            this.weth,
-        ]);
-        await this.aAdapter.setPath(this.weth, this.compound, [
-            this.weth,
-            this.compound,
-        ]);
-        await this.aAdapter.setPath(this.compound, this.weth, [
-            this.compound,
-            this.weth,
-        ]);
+        await setPath(this.aAdapter, this.weth, this.wstETH, dai);
+        await setPath(this.aAdapter, this.weth, this.compound);
 
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);

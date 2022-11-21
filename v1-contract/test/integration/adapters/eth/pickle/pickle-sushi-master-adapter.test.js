@@ -1,29 +1,12 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
 
 const BigNumber = ethers.BigNumber;
 
-const unlockAccount = async (address) => {
-    await hre.network.provider.send("hardhat_impersonateAccount", [address]);
-    return hre.ethers.provider.getSigner(address);
-};
-
-const forkNetwork = async () => {
-    await hre.network.provider.request({
-        method: "hardhat_reset",
-        params: [
-            {
-                forking: {
-                    jsonRpcUrl: "https://rpc.ankr.com/eth",
-                },
-            },
-        ],
-    });
-};
-
 describe("PickleSushiFarmAdapterEth Integration Test", function () {
     before("Deploy contract", async function () {
-        await forkNetwork();
+        await forkETHNetwork();
 
         const [owner, alice, bob, treasury] = await ethers.getSigners();
 
@@ -133,10 +116,8 @@ describe("PickleSushiFarmAdapterEth Integration Test", function () {
         await this.investor.setAdapterManager(this.adapterManager.address);
         await this.investor.setTreasury(this.owner.address);
 
-        await this.aAdapter.setPath(weth, pickle, [weth, pickle]);
-        await this.aAdapter.setPath(pickle, weth, [pickle, weth]);
-        await this.aAdapter.setPath(weth, wbtc, [weth, wbtc]);
-        await this.aAdapter.setPath(wbtc, weth, [wbtc, weth]);
+        await setPath(this.aAdapter, weth, pickle);
+        await setPath(this.aAdapter, weth, wbtc);
 
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);

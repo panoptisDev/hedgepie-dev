@@ -1,24 +1,12 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
 
 const BigNumber = ethers.BigNumber;
 
-const forkNetwork = async () => {
-    await hre.network.provider.request({
-        method: "hardhat_reset",
-        params: [
-            {
-                forking: {
-                    jsonRpcUrl: "https://rpc.ankr.com/eth",
-                },
-            },
-        ],
-    });
-};
-
 describe("AaveLendAdapterEth Integration Test", function () {
     before("Deploy contract", async function () {
-        await forkNetwork();
+        await forkETHNetwork();
 
         const [owner, alice, bob, tom, treasury] = await ethers.getSigners();
 
@@ -27,6 +15,7 @@ describe("AaveLendAdapterEth Integration Test", function () {
         const aUSDC = "0xBcca60bB61934080951369a648Fb03DF4F96263C";
         const usdc = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
         const strategy = "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9"; // LendingPool
+        const swapRouter = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"; // sushi router
         const stakingToken = usdc;
 
         this.performanceFee = performanceFee;
@@ -37,7 +26,6 @@ describe("AaveLendAdapterEth Integration Test", function () {
         this.alice = alice;
         this.bob = bob;
         this.tom = tom;
-        this.sushiRouter = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F";
 
         this.bobAddr = bob.address;
         this.aliceAddr = alice.address;
@@ -62,7 +50,7 @@ describe("AaveLendAdapterEth Integration Test", function () {
             strategy,
             usdc,
             aUSDC,
-            this.sushiRouter,
+            swapRouter,
             "AAVE::Lend::USDC",
             weth
         );
@@ -127,16 +115,7 @@ describe("AaveLendAdapterEth Integration Test", function () {
         await this.investor.setAdapterManager(this.adapterManager.address);
         await this.investor.setTreasury(this.owner.address);
 
-        // Set investor in pancake adapter
-        await this.adapter.setInvestor(this.investor.address);
-        await this.adapter.setPath(this.weth, this.usdc, [
-            this.weth,
-            this.usdc,
-        ]);
-        await this.adapter.setPath(this.usdc, this.weth, [
-            this.usdc,
-            this.weth,
-        ]);
+        await setPath(this.adapter, this.weth, this.usdc);
 
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);

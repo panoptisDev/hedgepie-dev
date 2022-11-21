@@ -1,22 +1,12 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
 
-const forkNetwork = async () => {
-    await hre.network.provider.request({
-        method: "hardhat_reset",
-        params: [
-            {
-                forking: {
-                    jsonRpcUrl: "https://rpc.ankr.com/eth",
-                },
-            },
-        ],
-    });
-};
+const BigNumber = ethers.BigNumber;
 
 describe("UniswapV3LPAdapter Integration Test", function () {
     before("Deploy contract", async function () {
-        await forkNetwork();
+        await forkETHNetwork();
 
         const [owner, alice, bob, tom, treasury] = await ethers.getSigners();
 
@@ -121,12 +111,8 @@ describe("UniswapV3LPAdapter Integration Test", function () {
         await this.investor.setAdapterManager(this.adapterManager.address);
         await this.investor.setTreasury(this.owner.address);
 
-        // Set investor in UniswapV3LPAdapter
-        await this.adapter.setInvestor(this.investor.address);
-
         // set path
-        await this.adapter.setPath(weth, matic, [weth, matic]);
-        await this.adapter.setPath(matic, weth, [matic, weth]);
+        await setPath(this.adapter, weth, matic);
 
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);

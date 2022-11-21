@@ -65,8 +65,8 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
             IWrap(weth).deposit{value: amountOut}();
         } else {
             amountOut = HedgepieLibraryEth.swapOnRouter(
-                address(this),
                 _inAmount,
+                address(this),
                 _token,
                 router,
                 weth
@@ -84,8 +84,8 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
     function _removeRemain(address _token, uint256 _amount) internal {
         if (_amount > 0) {
             HedgepieLibraryEth.swapforEth(
-                address(this),
                 _amount,
+                address(this),
                 _token,
                 router,
                 weth
@@ -102,11 +102,11 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
      */
     function deposit(
         uint256 _tokenId,
-        address _account,
-        uint256 _amountIn
+        uint256 _amountIn,
+        address _account
     ) external payable override onlyInvestor returns (uint256 amountIn) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
-        (amountIn, _amountIn) = _deposit(_tokenId, _account, _amountIn);
+        (amountIn, _amountIn) = _deposit(_tokenId, _amountIn, _account);
 
         // update user info
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
@@ -209,8 +209,8 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
      */
     function _deposit(
         uint256 _tokenId,
-        address _account,
-        uint256 _amountIn
+        uint256 _amountIn,
+        address _account
     ) internal returns (uint256 amountOut, uint256 ethAmount) {
         // get underlying tokens of staking token
         address[2] memory tokens;
@@ -334,8 +334,8 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
         // swap underlying tokens to weth
         if (amounts[0] != 0)
             amountOut += HedgepieLibraryEth.swapforEth(
-                address(this),
                 amounts[0],
+                address(this),
                 tokens[0],
                 router,
                 weth
@@ -343,8 +343,8 @@ contract UniswapV3LPAdapter is BaseAdapterEth, IERC721Receiver {
 
         if (amounts[1] != 0)
             amountOut += HedgepieLibraryEth.swapforEth(
-                address(this),
                 amounts[1],
+                address(this),
                 tokens[1],
                 router,
                 weth

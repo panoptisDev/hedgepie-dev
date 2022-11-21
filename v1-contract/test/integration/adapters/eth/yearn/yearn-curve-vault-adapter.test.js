@@ -1,24 +1,12 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { forkETHNetwork } = require('../../../../shared/utilities');
 
 const BigNumber = ethers.BigNumber;
 
-const forkNetwork = async () => {
-    await hre.network.provider.request({
-        method: "hardhat_reset",
-        params: [
-            {
-                forking: {
-                    jsonRpcUrl: "https://rpc.ankr.com/eth",
-                },
-            },
-        ],
-    });
-};
-
 describe("YearnCurveAdapterEth Integration Test", function () {
     before("Deploy contract", async function () {
-        await forkNetwork();
+        await forkETHNetwork();
 
         const [owner, alice, bob, treasury] = await ethers.getSigners();
 

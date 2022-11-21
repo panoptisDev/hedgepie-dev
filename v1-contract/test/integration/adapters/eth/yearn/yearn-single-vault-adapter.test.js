@@ -1,24 +1,12 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
 
 const BigNumber = ethers.BigNumber;
 
-const forkNetwork = async () => {
-    await hre.network.provider.request({
-        method: "hardhat_reset",
-        params: [
-            {
-                forking: {
-                    jsonRpcUrl: "https://rpc.ankr.com/eth",
-                },
-            },
-        ],
-    });
-};
-
 describe("YearnSingleAdapterEth Integration Test", function () {
     before("Deploy contract", async function () {
-        await forkNetwork();
+        await forkETHNetwork();
 
         const [owner, alice, bob, treasury] = await ethers.getSigners();
 
@@ -119,17 +107,9 @@ describe("YearnSingleAdapterEth Integration Test", function () {
         await this.investor.setAdapterManager(this.adapterManager.address);
         await this.investor.setTreasury(this.owner.address);
 
-        // Set investor in yearn single vault adapter
-        await this.aAdapter.setInvestor(this.investor.address);
-        await this.aAdapter.setPath(this.weth, stakingToken, [
-            this.weth,
-            stakingToken,
-        ]);
-        await this.aAdapter.setPath(stakingToken, this.weth, [
-            stakingToken,
-            this.weth,
-        ]);
-
+        // set path
+        await setPath(this.aAdapter, this.weth, stakingToken);
+        
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);
         console.log("Strategy: ", strategy);

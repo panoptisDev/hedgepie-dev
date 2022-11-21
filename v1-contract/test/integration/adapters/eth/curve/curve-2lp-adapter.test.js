@@ -1,24 +1,12 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
 
 const BigNumber = ethers.BigNumber;
 
-const forkNetwork = async () => {
-    await hre.network.provider.request({
-        method: "hardhat_reset",
-        params: [
-            {
-                forking: {
-                    jsonRpcUrl: "https://rpc.ankr.com/eth",
-                },
-            },
-        ],
-    });
-};
-
 describe("CurveGaugeAdapter2LP Integration Test", function () {
     before("Deploy contract", async function () {
-        await forkNetwork();
+        await forkETHNetwork();
 
         const [owner, alice, bob, treasury] = await ethers.getSigners();
 
@@ -133,16 +121,8 @@ describe("CurveGaugeAdapter2LP Integration Test", function () {
         await this.investor.setTreasury(this.owner.address);
 
         // set path
-        await this.aAdapter.setPath(weth, crvToken, [weth, crvToken]);
-        await this.aAdapter.setPath(crvToken, weth, [crvToken, weth]);
-        await this.aAdapter.setPath(weth, liquidityToken, [
-            weth,
-            liquidityToken,
-        ]);
-        await this.aAdapter.setPath(liquidityToken, weth, [
-            liquidityToken,
-            weth,
-        ]);
+        await setPath(this.aAdapter, weth, crvToken);
+        await setPath(this.aAdapter, weth, liquidityToken);
 
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);

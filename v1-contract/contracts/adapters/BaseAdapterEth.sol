@@ -35,9 +35,9 @@ abstract contract BaseAdapterEth is Ownable {
 
     address public investor;
 
-    string public name;
-
     address public weth;
+
+    string public name;
 
     // inToken => outToken => paths
     mapping(address => mapping(address => address[])) public paths;
@@ -134,8 +134,8 @@ abstract contract BaseAdapterEth is Ownable {
      */
     function deposit(
         uint256 _tokenId,
-        address _account,
-        uint256 _amountIn
+        uint256 _amountIn,
+        address _account
     ) external payable virtual returns (uint256 amountOut) {}
 
     /**

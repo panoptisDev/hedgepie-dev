@@ -1,29 +1,12 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
 
 const BigNumber = ethers.BigNumber;
 
-const unlockAccount = async (address) => {
-    await hre.network.provider.send("hardhat_impersonateAccount", [address]);
-    return hre.ethers.provider.getSigner(address);
-};
-
-const forkNetwork = async () => {
-    await hre.network.provider.request({
-        method: "hardhat_reset",
-        params: [
-            {
-                forking: {
-                    jsonRpcUrl: "https://rpc.ankr.com/eth",
-                },
-            },
-        ],
-    });
-};
-
 describe("SushiFarmAdapterEth Integration Test", function () {
     before("Deploy contract", async function () {
-        await forkNetwork();
+        await forkETHNetwork();
 
         const [owner, alice, bob, tom, treasury] = await ethers.getSigners();
 
@@ -139,25 +122,9 @@ describe("SushiFarmAdapterEth Integration Test", function () {
         await this.investor.setAdapterManager(this.adapterManager.address);
         await this.investor.setTreasury(this.owner.address);
 
-        // Set investor in pancake adapter
-        await this.aAdapter.setInvestor(this.investor.address);
-        await this.aAdapter.setPath(this.weth, this.sushi, [
-            this.weth,
-            this.sushi,
-        ]);
-        await this.aAdapter.setPath(this.sushi, this.weth, [
-            this.sushi,
-            this.weth,
-        ]);
-        await this.aAdapter.setPath(this.weth, this.usdc, [
-            this.weth,
-            this.usdc,
-        ]);
-        await this.aAdapter.setPath(this.usdc, this.weth, [
-            this.usdc,
-            this.weth,
-        ]);
-
+        await setPath(this.aAdapter, this.weth, this.sushi);
+        await setPath(this.aAdapter, this.weth, this.usdc);
+        
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);
         console.log("Strategy: ", strategy);

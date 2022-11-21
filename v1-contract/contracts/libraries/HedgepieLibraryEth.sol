@@ -10,22 +10,14 @@ import "../HedgepieInvestorEth.sol";
 import "../adapters/BaseAdapterEth.sol";
 
 library HedgepieLibraryEth {
-    function getPaths(
-        address _adapter,
-        address _inToken,
-        address _outToken
-    ) public view returns (address[] memory path) {
-        return IAdapterEth(_adapter).getPaths(_inToken, _outToken);
-    }
-
     function swapOnRouter(
-        address _adapter,
         uint256 _amountIn,
+        address _adapter,
         address _outToken,
         address _router,
         address weth
     ) public returns (uint256 amountOut) {
-        address[] memory path = getPaths(_adapter, weth, _outToken);
+        address[] memory path = IAdapterEth(_adapter).getPaths(weth, _outToken);
         uint256 beforeBalance = IBEP20(_outToken).balanceOf(address(this));
 
         IPancakeRouter(_router)
@@ -38,8 +30,8 @@ library HedgepieLibraryEth {
     }
 
     function swapforEth(
-        address _adapter,
         uint256 _amountIn,
+        address _adapter,
         address _inToken,
         address _router,
         address _weth
@@ -48,7 +40,7 @@ library HedgepieLibraryEth {
             IWrap(_weth).withdraw(_amountIn);
             amountOut = _amountIn;
         } else {
-            address[] memory path = getPaths(_adapter, _inToken, _weth);
+            address[] memory path = IAdapterEth(_adapter).getPaths(_inToken, _weth);
             uint256 beforeBalance = address(this).balance;
 
             IBEP20(_inToken).approve(_router, _amountIn);
@@ -68,8 +60,8 @@ library HedgepieLibraryEth {
     }
 
     function getRewards(
-        address _adapterAddr,
         uint256 _tokenId,
+        address _adapterAddr,
         address _account
     ) public view returns (uint256 reward, uint256 reward1) {
         BaseAdapterEth.AdapterInfo memory adapterInfo = IAdapterEth(
@@ -105,8 +97,7 @@ library HedgepieLibraryEth {
     function getLP(
         IYBNFT.Adapter memory _adapter,
         address weth,
-        uint256 _amountIn,
-        uint256
+        uint256 _amountIn
     ) public returns (uint256 amountOut) {
         address[2] memory tokens;
         tokens[0] = IPancakePair(_adapter.token).token0();
@@ -121,8 +112,8 @@ library HedgepieLibraryEth {
 
         if (tokens[0] != weth) {
             tokenAmount[0] = swapOnRouter(
-                _adapter.addr,
                 tokenAmount[0],
+                _adapter.addr,
                 tokens[0],
                 _router,
                 weth
@@ -132,8 +123,8 @@ library HedgepieLibraryEth {
 
         if (tokens[1] != weth) {
             tokenAmount[1] = swapOnRouter(
-                _adapter.addr,
                 tokenAmount[1],
+                _adapter.addr,
                 tokens[1],
                 _router,
                 weth
@@ -171,8 +162,7 @@ library HedgepieLibraryEth {
     function withdrawLP(
         IYBNFT.Adapter memory _adapter,
         address weth,
-        uint256 _amountIn,
-        uint256
+        uint256 _amountIn
     ) public returns (uint256 amountOut) {
         address[2] memory tokens;
         tokens[0] = IPancakePair(_adapter.token).token0();
@@ -196,8 +186,8 @@ library HedgepieLibraryEth {
 
             amountOut = amountETH;
             amountOut += swapforEth(
-                _adapter.addr,
                 amountToken,
+                _adapter.addr,
                 tokenAddr,
                 IAdapterEth(_adapter.addr).swapRouter(),
                 weth
@@ -215,15 +205,15 @@ library HedgepieLibraryEth {
                 );
 
             amountOut += swapforEth(
-                _adapter.addr,
                 amountA,
+                _adapter.addr,
                 tokens[0],
                 IAdapterEth(_adapter.addr).swapRouter(),
                 weth
             );
             amountOut += swapforEth(
-                _adapter.addr,
                 amountB,
+                _adapter.addr,
                 tokens[1],
                 IAdapterEth(_adapter.addr).swapRouter(),
                 weth

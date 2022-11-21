@@ -1,24 +1,12 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
 
 const BigNumber = ethers.BigNumber;
 
-const forkNetwork = async () => {
-    await hre.network.provider.request({
-        method: "hardhat_reset",
-        params: [
-            {
-                forking: {
-                    jsonRpcUrl: "https://rpc.ankr.com/eth",
-                },
-            },
-        ],
-    });
-};
-
 describe("PickleCurveGaugeAdapterEth Integration Test", function () {
     before("Deploy contract", async function () {
-        await forkNetwork();
+        await forkETHNetwork();
 
         const [owner, alice, bob, treasury] = await ethers.getSigners();
 
@@ -132,8 +120,8 @@ describe("PickleCurveGaugeAdapterEth Integration Test", function () {
         await this.investor.setAdapterManager(this.adapterManager.address);
         await this.investor.setTreasury(this.owner.address);
 
-        await this.aAdapter.setPath(weth, pickle, [weth, pickle]);
-        await this.aAdapter.setPath(pickle, weth, [pickle, weth]);
+        // set path
+        await setPath(this.aAdapter, weth, pickle);
 
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);
