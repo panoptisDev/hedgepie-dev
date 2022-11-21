@@ -16,6 +16,8 @@ interface IAdapterEth {
         uint256 _index
     ) external view returns (uint256);
 
+    function jar() external view returns (address);
+
     function DEEPTH() external view returns (uint8);
 
     function isVault() external view returns (bool);
