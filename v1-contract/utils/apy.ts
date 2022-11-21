@@ -1,7 +1,5 @@
-const ethers = require("ethers");
-const {
-    abi: AdapterEthABI,
-} = require("../artifacts/contracts/interfaces/IAdapterEth.sol/IAdapterEth.json");
+import ethers from "ethers";
+import AdapterEthABI from "../artifacts/contracts/interfaces/IAdapterEth.sol/IAdapterEth.json";
 
 // Parameter type to get APR based on NETWORK_ID and ADAPTER_ADDRESS
 interface GET_APR_INFO {
@@ -66,8 +64,8 @@ const getAdapterType: (
         chainId
     );
     const ctAdapter = new ethers.Contract(
-        process.env.NFT_CONTRACT_ADDRESS,
-        AdapterEthABI,
+        adapterAddr,
+        AdapterEthABI as any,
         provider
     );
     const strategyAddr = await ctAdapter.strategy();
