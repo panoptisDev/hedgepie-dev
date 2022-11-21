@@ -123,8 +123,8 @@ describe("SushiFarmV2AdapterEth Integration Test", function () {
         await this.investor.setAdapterManager(this.adapterManager.address);
         await this.investor.setTreasury(this.owner.address);
 
-        await setPath(this.aAdapter, this.weth, this.sushi);
-        await setPath(this.aAdapter, this.weth, this.radar);
+        await setPath(this.adapter, this.weth, this.sushi);
+        await setPath(this.adapter, this.weth, this.radar);
 
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);
