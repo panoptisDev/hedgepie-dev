@@ -1,22 +1,13 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
+const { adapterFixture, investorFixture } = require('../../../../shared/fixtures');
 
-const forkNetwork = async () => {
-    await hre.network.provider.request({
-        method: "hardhat_reset",
-        params: [
-            {
-                forking: {
-                    jsonRpcUrl: "https://rpc.ankr.com/eth",
-                },
-            },
-        ],
-    });
-};
+const BigNumber = ethers.BigNumber;
 
 describe("UniswapV3LPAdapter Integration Test", function () {
     before("Deploy contract", async function () {
-        await forkNetwork();
+        await forkETHNetwork();
 
         const [owner, alice, bob, tom, treasury] = await ethers.getSigners();
 
@@ -41,15 +32,8 @@ describe("UniswapV3LPAdapter Integration Test", function () {
         this.upper = -75420;
 
         // Deploy UniswapV3LPAdapter contract
-        const Lib = await ethers.getContractFactory("HedgepieLibraryEth");
-        const lib = await Lib.deploy();
-        const UniswapV3LpAdapter = await ethers.getContractFactory(
-            "UniswapV3LPAdapter",
-            {
-                libraries: {
-                    HedgepieLibraryEth: lib.address,
-                },
-            }
+        const UniswapV3LpAdapter = await adapterFixture(
+            "UniswapV3LPAdapter"
         );
         this.adapter = await UniswapV3LpAdapter.deploy(
             strategy,
@@ -62,71 +46,19 @@ describe("UniswapV3LPAdapter Integration Test", function () {
         );
         await this.adapter.deployed();
 
-        // Deploy YBNFT contract
-        const ybNftFactory = await ethers.getContractFactory("YBNFT");
-        this.ybNft = await ybNftFactory.deploy();
-
-        // Deploy Adaptor Info contract
-        const adapterInfo = await ethers.getContractFactory(
-            "HedgepieAdapterInfoEth"
+        [
+            this.adapterInfo,
+            this.investor,
+            this.ybNft
+        ] = await investorFixture(
+            this.adapter,
+            treasury.address,
+            stakingToken,
+            performanceFee
         );
-        this.adapterInfo = await adapterInfo.deploy();
-        await this.adapterInfo.setManager(this.adapter.address, true);
-
-        // Deploy Investor contract
-        const investorFactory = await ethers.getContractFactory(
-            "HedgepieInvestorEth"
-        );
-        this.investor = await investorFactory.deploy(
-            this.ybNft.address,
-            this.treasuryAddr,
-            this.adapterInfo.address
-        );
-
-        // Deploy Adaptor Manager contract
-        const adapterManager = await ethers.getContractFactory(
-            "HedgepieAdapterManagerEth"
-        );
-        this.adapterManager = await adapterManager.deploy();
-
-        // set investor
-        await this.adapter.setInvestor(this.investor.address);
-
-        // Mint NFTs
-        // tokenID: 1
-        await this.ybNft.mint(
-            [10000],
-            [stakingToken],
-            [this.adapter.address],
-            performanceFee,
-            "test tokenURI1"
-        );
-
-        // tokenID: 2
-        await this.ybNft.mint(
-            [10000],
-            [stakingToken],
-            [this.adapter.address],
-            performanceFee,
-            "test tokenURI2"
-        );
-
-        // Add UniswapV3LPAdapter to AdapterManager
-        await this.adapterManager.addAdapter(this.adapter.address);
-
-        // Set investor in adapter manager
-        await this.adapterManager.setInvestor(this.investor.address);
-
-        // Set adapter manager in investor
-        await this.investor.setAdapterManager(this.adapterManager.address);
-        await this.investor.setTreasury(this.owner.address);
-
-        // Set investor in UniswapV3LPAdapter
-        await this.adapter.setInvestor(this.investor.address);
 
         // set path
-        await this.adapter.setPath(weth, matic, [weth, matic]);
-        await this.adapter.setPath(matic, weth, [matic, weth]);
+        await setPath(this.adapter, weth, matic);
 
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);
@@ -275,7 +207,7 @@ describe("UniswapV3LPAdapter Integration Test", function () {
                 this.adapter.address
             );
             const beforeOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             const aliceInfo = (
                 await this.adapter.userAdapterInfos(this.aliceAddr, 1)
@@ -298,7 +230,7 @@ describe("UniswapV3LPAdapter Integration Test", function () {
             // check protocol fee
             const rewardAmt = ethBalAfter.sub(ethBalBefore);
             const afterOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let actualPending = rewardAmt.add(gas.mul(gasPrice));
             if (actualPending.gt(aliceInfo)) {
@@ -337,7 +269,7 @@ describe("UniswapV3LPAdapter Integration Test", function () {
                 this.adapter.address
             );
             const beforeOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             const bobInfo = (
                 await this.adapter.userAdapterInfos(this.bobAddr, 1)
@@ -356,7 +288,7 @@ describe("UniswapV3LPAdapter Integration Test", function () {
             // check protocol fee
             const rewardAmt = ethBalAfter.sub(ethBalBefore);
             const afterOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let actualPending = rewardAmt.add(gas.mul(gasPrice));
             if (actualPending.gt(bobInfo)) {
@@ -395,7 +327,7 @@ describe("UniswapV3LPAdapter Integration Test", function () {
                 this.adapter.address
             );
             const beforeOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             const tomInfo = (
                 await this.adapter.userAdapterInfos(this.tomAddr, 1)
@@ -418,7 +350,7 @@ describe("UniswapV3LPAdapter Integration Test", function () {
             if (actualPending.gt(tomInfo)) {
                 actualPending = actualPending - tomInfo;
                 const afterOwnerETH = await ethers.provider.getBalance(
-                    this.owner.address
+                    this.treasuryAddr
                 );
                 const protocolFee = afterOwnerETH.sub(beforeOwnerETH);
                 expect(protocolFee).to.gt(0);

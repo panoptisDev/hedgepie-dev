@@ -211,8 +211,8 @@ contract YearnCurveAdapter is BaseAdapterEth {
      */
     function deposit(
         uint256 _tokenId,
-        address _account,
-        uint256 _amountIn
+        uint256 _amountIn,
+        address _account
     ) external payable override onlyInvestor returns (uint256 amountOut) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
 
@@ -221,8 +221,8 @@ contract YearnCurveAdapter is BaseAdapterEth {
             amountOut = _amountIn;
         } else {
             amountOut = HedgepieLibraryEth.swapOnRouter(
-                address(this),
                 _amountIn,
+                address(this),
                 liquidityToken,
                 swapRouter,
                 weth
@@ -300,8 +300,8 @@ contract YearnCurveAdapter is BaseAdapterEth {
 
         if (!isETH) {
             amountOut = HedgepieLibraryEth.swapforEth(
-                address(this),
                 amountOut,
+                address(this),
                 liquidityToken,
                 swapRouter,
                 weth

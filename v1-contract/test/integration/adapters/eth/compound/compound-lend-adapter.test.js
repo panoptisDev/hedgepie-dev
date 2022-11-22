@@ -1,24 +1,13 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
+const { adapterFixture, investorFixture } = require('../../../../shared/fixtures');
 
 const BigNumber = ethers.BigNumber;
 
-const forkNetwork = async () => {
-    await hre.network.provider.request({
-        method: "hardhat_reset",
-        params: [
-            {
-                forking: {
-                    jsonRpcUrl: "https://rpc.ankr.com/eth",
-                },
-            },
-        ],
-    });
-};
-
 describe("CompoundLendAdapterEth Integration Test", function () {
     before("Deploy contract", async function () {
-        await forkNetwork();
+        await forkETHNetwork();
 
         const [owner, alice, bob, tom, treasury] = await ethers.getSigners();
 
@@ -28,124 +17,48 @@ describe("CompoundLendAdapterEth Integration Test", function () {
         const strategy = "0xe65cdB6479BaC1e22340E4E755fAE7E509EcD06c"; // cAAVE Token
         const comptroller = "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B"; // Compound comptroller
         const stakingToken = aave;
+        const swapRouter = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F" // sushi router
 
         this.performanceFee = performanceFee;
-        this.weth = weth;
-        this.aave = aave;
 
         this.owner = owner;
         this.alice = alice;
         this.bob = bob;
-        this.tom = tom;
-        this.sushiRouter = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F";
 
         this.bobAddr = bob.address;
         this.aliceAddr = alice.address;
-        this.tomAddr = tom.address;
         this.treasuryAddr = treasury.address;
 
         // Deploy CompoundLendAdapterEth contract
-        const Lib = await ethers.getContractFactory("HedgepieLibraryEth");
-        const lib = await Lib.deploy();
-        const AaveFarmAdapter = await ethers.getContractFactory(
-            "CompoundLendAdapterEth",
-            {
-                libraries: {
-                    HedgepieLibraryEth: lib.address,
-                },
-            }
-        );
-
+        const AaveFarmAdapter = await adapterFixture("CompoundLendAdapterEth");
         this.adapter = await AaveFarmAdapter.deploy(
             strategy,
             comptroller,
             aave,
-            this.sushiRouter,
-            "COMPOUND::Lend::AAVE",
-            weth
+            swapRouter,
+            weth,
+            "COMPOUND::Lend::AAVE"
         );
         await this.adapter.deployed();
 
-        // Deploy YBNFT contract
-        const ybNftFactory = await ethers.getContractFactory("YBNFT");
-        this.ybNft = await ybNftFactory.deploy();
-
-        // Deploy Adaptor Info contract
-        const adapterInfo = await ethers.getContractFactory(
-            "HedgepieAdapterInfoEth"
-        );
-        this.adapterInfo = await adapterInfo.deploy();
-        await this.adapterInfo.setManager(this.adapter.address, true);
-
-        // Deploy Investor contract
-        const investorFactory = await ethers.getContractFactory(
-            "HedgepieInvestorEth"
-        );
-        this.investor = await investorFactory.deploy(
-            this.ybNft.address,
-            this.treasuryAddr,
-            this.adapterInfo.address
+        [
+            this.adapterInfo,
+            this.investor,
+            this.ybNft
+        ] = await investorFixture(
+            this.adapter,
+            treasury.address,
+            stakingToken,
+            performanceFee
         );
 
-        // Deploy Adaptor Manager contract
-        const adapterManager = await ethers.getContractFactory(
-            "HedgepieAdapterManagerEth"
-        );
-        this.adapterManager = await adapterManager.deploy();
-
-        // set investor
-        await this.adapter.setInvestor(this.investor.address);
-
-        // Mint NFTs
-        // tokenID: 1
-        await this.ybNft.mint(
-            [10000],
-            [stakingToken],
-            [this.adapter.address],
-            performanceFee,
-            "test tokenURI1"
-        );
-
-        // tokenID: 2
-        await this.ybNft.mint(
-            [10000],
-            [stakingToken],
-            [this.adapter.address],
-            performanceFee,
-            "test tokenURI2"
-        );
-
-        // Add Venus Adapter to AdapterManager
-        await this.adapterManager.addAdapter(this.adapter.address);
-
-        // Set investor in adapter manager
-        await this.adapterManager.setInvestor(this.investor.address);
-
-        // Set adapter manager in investor
-        await this.investor.setAdapterManager(this.adapterManager.address);
-        await this.investor.setTreasury(this.owner.address);
-
-        // Set investor in pancake adapter
-        await this.adapter.setInvestor(this.investor.address);
-        await this.adapter.setPath(this.weth, this.aave, [
-            this.weth,
-            this.aave,
-        ]);
-        await this.adapter.setPath(this.aave, this.weth, [
-            this.aave,
-            this.weth,
-        ]);
+        await setPath(this.adapter, weth, aave);
 
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);
         console.log("Strategy: ", strategy);
         console.log("Info: ", this.adapterInfo.address);
         console.log("AaveLendAdapterEth: ", this.adapter.address);
-
-        this.lpContract = await ethers.getContractAt(
-            "VBep20Interface",
-            stakingToken
-        );
     });
 
     describe("depositETH function test", function () {
@@ -272,7 +185,7 @@ describe("CompoundLendAdapterEth Integration Test", function () {
             // withdraw from nftId: 1
             const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
             const beforeOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let aliceInfo = (
                 await this.adapter.userAdapterInfos(this.aliceAddr, 1)
@@ -294,7 +207,7 @@ describe("CompoundLendAdapterEth Integration Test", function () {
             // check protocol fee
             const rewardAmt = afterETH.sub(beforeETH);
             const afterOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let actualPending = rewardAmt.add(gas.mul(gasPrice));
             if (actualPending.gt(aliceInfo)) {
@@ -343,7 +256,7 @@ describe("CompoundLendAdapterEth Integration Test", function () {
             // withdraw from nftId: 1
             const beforeETH = await ethers.provider.getBalance(this.bobAddr);
             const beforeOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1))
                 .invested;
@@ -364,7 +277,7 @@ describe("CompoundLendAdapterEth Integration Test", function () {
             // check protocol fee
             const rewardAmt = afterETH.sub(beforeETH);
             const afterOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let actualPending = rewardAmt.add(gas.mul(gasPrice));
             if (actualPending.gt(bobInfo)) {

@@ -20,10 +20,10 @@ interface IYBNFT {
     function exists(uint256) external view returns (bool);
 
     function mint(
-        uint256[] calldata adapterAllocations,
-        address[] calldata adapterTokens,
-        address[] calldata adapterAddrs,
-        uint256 performanceFee,
-        string memory tokenURI
+        uint256[] calldata,
+        address[] calldata,
+        address[] calldata,
+        uint256,
+        string memory
     ) external;
 }

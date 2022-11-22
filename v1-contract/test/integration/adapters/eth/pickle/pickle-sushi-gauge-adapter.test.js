@@ -1,24 +1,13 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
+const { adapterFixture, investorFixture } = require('../../../../shared/fixtures');
 
 const BigNumber = ethers.BigNumber;
 
-const forkNetwork = async () => {
-    await hre.network.provider.request({
-        method: "hardhat_reset",
-        params: [
-            {
-                forking: {
-                    jsonRpcUrl: "https://rpc.ankr.com/eth",
-                },
-            },
-        ],
-    });
-};
-
 describe("PickleSushiGaugeAdapterEth Integration Test", function () {
     before("Deploy contract", async function () {
-        await forkNetwork();
+        await forkETHNetwork();
 
         const [owner, alice, bob, treasury] = await ethers.getSigners();
 
@@ -44,17 +33,9 @@ describe("PickleSushiGaugeAdapterEth Integration Test", function () {
         this.accTokenPerShare1 = BigNumber.from(0);
 
         // Deploy PickleSushiAdapter contract
-        const Lib = await ethers.getContractFactory("HedgepieLibraryEth");
-        const lib = await Lib.deploy();
-        const PickleSushiAdapter = await ethers.getContractFactory(
-            "PickleSushiGaugeAdapter",
-            {
-                libraries: {
-                    HedgepieLibraryEth: lib.address,
-                },
-            }
+        const PickleSushiAdapter = await adapterFixture(
+            "PickleSushiGaugeAdapter"
         );
-
         this.aAdapter = await PickleSushiAdapter.deploy(
             strategy,
             jar,
@@ -67,77 +48,26 @@ describe("PickleSushiGaugeAdapterEth Integration Test", function () {
         );
         await this.aAdapter.deployed();
 
-        // Deploy YBNFT contract
-        const ybNftFactory = await ethers.getContractFactory("YBNFT");
-        this.ybNft = await ybNftFactory.deploy();
-
-        // Deploy Adaptor Info contract
-        const adapterInfo = await ethers.getContractFactory(
-            "HedgepieAdapterInfoEth"
-        );
-        this.adapterInfo = await adapterInfo.deploy();
-        await this.adapterInfo.setManager(this.aAdapter.address, true);
-
-        // Deploy Investor contract
-        const investorFactory = await ethers.getContractFactory(
-            "HedgepieInvestorEth"
-        );
-        this.investor = await investorFactory.deploy(
-            this.ybNft.address,
-            this.treasuryAddr,
-            this.adapterInfo.address
-        );
-
-        // Deploy Adaptor Manager contract
-        const adapterManager = await ethers.getContractFactory(
-            "HedgepieAdapterManagerEth"
-        );
-        this.adapterManager = await adapterManager.deploy();
-
-        // set investor
-        await this.aAdapter.setInvestor(this.investor.address);
-
-        // Mint NFTs
-        // tokenID: 1
-        await this.ybNft.mint(
-            [10000],
-            [lpToken],
-            [this.aAdapter.address],
-            performanceFee,
-            "test tokenURI1"
-        );
-
-        // tokenID: 2
-        await this.ybNft.mint(
-            [10000],
-            [lpToken],
-            [this.aAdapter.address],
-            performanceFee,
-            "test tokenURI2"
-        );
-
-        // Add PickleSushiAdapter to AdapterManager
-        await this.adapterManager.addAdapter(this.aAdapter.address);
-
-        // Set investor in adapter manager
-        await this.adapterManager.setInvestor(this.investor.address);
-
-        // Set adapter manager in investor
-        await this.investor.setAdapterManager(this.adapterManager.address);
-        await this.investor.setTreasury(this.owner.address);
-
-        await this.aAdapter.setPath(weth, pickle, [weth, pickle]);
-        await this.aAdapter.setPath(pickle, weth, [pickle, weth]);
-        await this.aAdapter.setPath(weth, wbtc, [weth, wbtc]);
-        await this.aAdapter.setPath(wbtc, weth, [wbtc, weth]);
+        [
+            this.adapterInfo,
+            this.investor,
+            this.ybNft
+        ] = await investorFixture(
+            this.aAdapter,
+            treasury.address,
+            lpToken,
+            performanceFee
+            );
+        
+        // set path
+        await setPath(this.aAdapter, weth, pickle);
+        await setPath(this.aAdapter, weth, wbtc);
 
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);
         console.log("Strategy: ", strategy);
         console.log("Info: ", this.adapterInfo.address);
         console.log("PickleSushiGaugeAdapter: ", this.aAdapter.address);
-
-        this.pickle = await ethers.getContractAt("IBEP20", pickle);
     });
 
     describe("depositETH function test", function () {
@@ -256,7 +186,7 @@ describe("PickleSushiGaugeAdapterEth Integration Test", function () {
 
             const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
             const beforeETHOwner = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             const pending = await this.investor.pendingReward(
                 1,
@@ -271,7 +201,7 @@ describe("PickleSushiGaugeAdapterEth Integration Test", function () {
 
             const afterETH = await ethers.provider.getBalance(this.aliceAddr);
             const protocolFee = (
-                await ethers.provider.getBalance(this.owner.address)
+                await ethers.provider.getBalance(this.treasuryAddr)
             ).sub(beforeETHOwner);
             const actualPending = afterETH
                 .sub(beforeETH)
@@ -328,7 +258,7 @@ describe("PickleSushiGaugeAdapterEth Integration Test", function () {
             // withdraw from nftId: 1
             const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
             const beforeOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let aliceInfo = (
                 await this.aAdapter.userAdapterInfos(this.aliceAddr, 1)
@@ -350,7 +280,7 @@ describe("PickleSushiGaugeAdapterEth Integration Test", function () {
             // check protocol fee
             const rewardAmt = afterETH.sub(beforeETH);
             const afterOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let actualPending = rewardAmt.add(gas.mul(gasPrice));
             if (actualPending.gt(aliceInfo)) {
@@ -410,7 +340,7 @@ describe("PickleSushiGaugeAdapterEth Integration Test", function () {
             // withdraw from nftId: 1
             const beforeETH = await ethers.provider.getBalance(this.bobAddr);
             const beforeOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let bobInfo = (
                 await this.aAdapter.userAdapterInfos(this.bobAddr, 1)
@@ -432,7 +362,7 @@ describe("PickleSushiGaugeAdapterEth Integration Test", function () {
             // check protocol fee
             const rewardAmt = afterETH.sub(beforeETH);
             const afterOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let actualPending = rewardAmt.add(gas.mul(gasPrice));
             if (actualPending.gt(bobInfo)) {

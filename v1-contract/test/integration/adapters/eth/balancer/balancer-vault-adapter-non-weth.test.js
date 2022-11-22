@@ -1,26 +1,15 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
+const { adapterFixture, investorFixture } = require('../../../../shared/fixtures');
 
 const BigNumber = ethers.BigNumber;
 
-const forkNetwork = async () => {
-    await hre.network.provider.request({
-        method: "hardhat_reset",
-        params: [
-            {
-                forking: {
-                    jsonRpcUrl: "https://rpc.ankr.com/eth",
-                },
-            },
-        ],
-    });
-};
-
 describe("BalancerVaultAdapterEth Integration Test", function () {
     before("Deploy contract", async function () {
-        await forkNetwork();
+        await forkETHNetwork();
 
-        const [owner, alice, bob, tom, treasury] = await ethers.getSigners();
+        const [owner, alice, bob, treasury] = await ethers.getSigners();
 
         const performanceFee = 100;
         const pid =
@@ -34,126 +23,43 @@ describe("BalancerVaultAdapterEth Integration Test", function () {
         const swapRouter = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"; // sushi router address
 
         this.performanceFee = performanceFee;
-        this.weth = weth;
-        this.wstETH = wstETH;
-        this.compound = compound;
-        this.repayToken = repayToken;
 
         this.owner = owner;
         this.alice = alice;
         this.bob = bob;
-        this.tom = tom;
-        this.sushiRouter = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F";
 
         this.bobAddr = bob.address;
         this.aliceAddr = alice.address;
-        this.tomAddr = tom.address;
         this.treasuryAddr = treasury.address;
 
         // Deploy BalancerVaultAdapterEth contract
-        const Lib = await ethers.getContractFactory("HedgepieLibraryEth");
-        const lib = await Lib.deploy();
-        const SushiLPAdapter = await ethers.getContractFactory(
-            "BalancerVaultAdapterEth",
-            {
-                libraries: {
-                    HedgepieLibraryEth: lib.address,
-                },
-            }
-        );
-
+        const SushiLPAdapter = await adapterFixture("BalancerVaultAdapterEth");
         this.aAdapter = await SushiLPAdapter.deploy(
             pid,
             strategy,
-            [wstETH, compound],
             repayToken,
             swapRouter,
+            weth,
+            [wstETH, compound],
             "Balancer::Vault::wsETH-Compound",
-            weth
+            
         );
         await this.aAdapter.deployed();
 
-        // Deploy YBNFT contract
-        const ybNftFactory = await ethers.getContractFactory("YBNFT");
-        this.ybNft = await ybNftFactory.deploy();
-
-        // Deploy Adaptor Info contract
-        const adapterInfo = await ethers.getContractFactory(
-            "HedgepieAdapterInfoEth"
+        [
+            this.adapterInfo,
+            this.investor,
+            this.ybNft
+        ] = await investorFixture(
+            this.aAdapter,
+            treasury.address,
+            weth,
+            performanceFee
         );
-        this.adapterInfo = await adapterInfo.deploy();
-        await this.adapterInfo.setManager(this.aAdapter.address, true);
-
-        // Deploy Investor contract
-        const investorFactory = await ethers.getContractFactory(
-            "HedgepieInvestorEth"
-        );
-        this.investor = await investorFactory.deploy(
-            this.ybNft.address,
-            this.treasuryAddr,
-            this.adapterInfo.address
-        );
-
-        // Deploy Adaptor Manager contract
-        const adapterManager = await ethers.getContractFactory(
-            "HedgepieAdapterManagerEth"
-        );
-        this.adapterManager = await adapterManager.deploy();
-
-        // set investor
-        await this.aAdapter.setInvestor(this.investor.address);
-
-        // Mint NFTs
-        // tokenID: 1
-        await this.ybNft.mint(
-            [10000],
-            [weth],
-            [this.aAdapter.address],
-            performanceFee,
-            "test tokenURI1"
-        );
-
-        // tokenID: 2
-        await this.ybNft.mint(
-            [10000],
-            [weth],
-            [this.aAdapter.address],
-            performanceFee,
-            "test tokenURI2"
-        );
-
-        // Add Balancer Adapter to AdapterManager
-        await this.adapterManager.addAdapter(this.aAdapter.address);
-
-        // Set investor in adapter manager
-        await this.adapterManager.setInvestor(this.investor.address);
-
-        // Set adapter manager in investor
-        await this.investor.setAdapterManager(this.adapterManager.address);
-        await this.investor.setTreasury(this.owner.address);
-
-        // Set investor in balancer vault adapter
-        await this.aAdapter.setInvestor(this.investor.address);
 
         // Set paths for swapping tokens
-        await this.aAdapter.setPath(this.weth, this.wstETH, [
-            this.weth,
-            dai,
-            this.wstETH,
-        ]);
-        await this.aAdapter.setPath(this.wstETH, this.weth, [
-            this.wstETH,
-            dai,
-            this.weth,
-        ]);
-        await this.aAdapter.setPath(this.weth, this.compound, [
-            this.weth,
-            this.compound,
-        ]);
-        await this.aAdapter.setPath(this.compound, this.weth, [
-            this.compound,
-            this.weth,
-        ]);
+        await setPath(this.aAdapter, weth, wstETH, dai);
+        await setPath(this.aAdapter, weth, compound);
 
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);
@@ -294,7 +200,7 @@ describe("BalancerVaultAdapterEth Integration Test", function () {
             // withdraw from nftId: 1
             const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
             const beforeOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let aliceInfo = (
                 await this.aAdapter.userAdapterInfos(this.aliceAddr, 1)
@@ -316,7 +222,7 @@ describe("BalancerVaultAdapterEth Integration Test", function () {
             // check protocol fee
             const rewardAmt = afterETH.sub(beforeETH);
             const afterOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let actualPending = rewardAmt.add(gas.mul(gasPrice));
             if (actualPending.gt(aliceInfo)) {
@@ -369,7 +275,7 @@ describe("BalancerVaultAdapterEth Integration Test", function () {
             // withdraw from nftId: 1
             const beforeETH = await ethers.provider.getBalance(this.bobAddr);
             const beforeOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let bobInfo = (
                 await this.aAdapter.userAdapterInfos(this.bobAddr, 1)
@@ -391,7 +297,7 @@ describe("BalancerVaultAdapterEth Integration Test", function () {
             // check protocol fee
             const rewardAmt = afterETH.sub(beforeETH);
             const afterOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let actualPending = rewardAmt.add(gas.mul(gasPrice));
             if (actualPending.gt(bobInfo)) {
