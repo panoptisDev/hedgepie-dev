@@ -1,6 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
+const { adapterFixture, investorFixture } = require('../../../../shared/fixtures');
 
 const BigNumber = ethers.BigNumber;
 
@@ -8,7 +9,7 @@ describe("SushiFarmAdapterEth Integration Test", function () {
     before("Deploy contract", async function () {
         await forkETHNetwork();
 
-        const [owner, alice, bob, tom, treasury] = await ethers.getSigners();
+        const [owner, alice, bob, treasury] = await ethers.getSigners();
 
         const performanceFee = 100;
         const weth = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
@@ -17,124 +18,54 @@ describe("SushiFarmAdapterEth Integration Test", function () {
         const strategy = "0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd"; // MasterChef V1
         const swapRouter = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"; // sushi router address
         const lpToken = "0x397FF1542f962076d0BFE58eA045FfA2d347ACa0"; // USDC-WETH LP
-
+        
         this.performanceFee = performanceFee;
-        this.weth = weth;
-        this.usdc = usdc;
-        this.sushi = sushi;
 
         this.owner = owner;
         this.alice = alice;
         this.bob = bob;
-        this.tom = tom;
-        this.sushiRouter = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F";
 
         this.bobAddr = bob.address;
         this.aliceAddr = alice.address;
-        this.tomAddr = tom.address;
         this.treasuryAddr = treasury.address;
         this.accTokenPerShare = BigNumber.from(0);
         this.accTokenPerShare1 = BigNumber.from(0);
 
-        // Get existing contract handle
-        this.sushiToken = await ethers.getContractAt("IBEP20", this.sushi);
-
         // Deploy Pancakeswap LP Adapter contract
-        const Lib = await ethers.getContractFactory("HedgepieLibraryEth");
-        const lib = await Lib.deploy();
-        const SushiLPAdapter = await ethers.getContractFactory(
-            "SushiFarmAdapterEth",
-            {
-                libraries: {
-                    HedgepieLibraryEth: lib.address,
-                },
-            }
+        const SushiLPAdapter = await adapterFixture(
+            "SushiFarmAdapterEth"
         );
-
         this.aAdapter = await SushiLPAdapter.deploy(
             1,
             strategy,
             lpToken,
             sushi,
-            this.sushiRouter,
             swapRouter,
-            "SushiSwap::Farm::USDC-ETH",
-            weth
+            swapRouter,
+            weth,
+            "SushiSwap::Farm::USDC-ETH"
         );
         await this.aAdapter.deployed();
 
-        // Deploy YBNFT contract
-        const ybNftFactory = await ethers.getContractFactory("YBNFT");
-        this.ybNft = await ybNftFactory.deploy();
-
-        // Deploy Adaptor Info contract
-        const adapterInfo = await ethers.getContractFactory(
-            "HedgepieAdapterInfoEth"
-        );
-        this.adapterInfo = await adapterInfo.deploy();
-        await this.adapterInfo.setManager(this.aAdapter.address, true);
-
-        // Deploy Investor contract
-        const investorFactory = await ethers.getContractFactory(
-            "HedgepieInvestorEth"
-        );
-        this.investor = await investorFactory.deploy(
-            this.ybNft.address,
-            this.treasuryAddr,
-            this.adapterInfo.address
+        [
+            this.adapterInfo,
+            this.investor,
+            this.ybNft
+        ] = await investorFixture(
+            this.aAdapter,
+            treasury.address,
+            lpToken,
+            performanceFee
         );
 
-        // Deploy Adaptor Manager contract
-        const adapterManager = await ethers.getContractFactory(
-            "HedgepieAdapterManagerEth"
-        );
-        this.adapterManager = await adapterManager.deploy();
-
-        // set investor
-        await this.aAdapter.setInvestor(this.investor.address);
-
-        // Mint NFTs
-        // tokenID: 1
-        await this.ybNft.mint(
-            [10000],
-            [lpToken],
-            [this.aAdapter.address],
-            performanceFee,
-            "test tokenURI1"
-        );
-
-        // tokenID: 2
-        await this.ybNft.mint(
-            [10000],
-            [lpToken],
-            [this.aAdapter.address],
-            performanceFee,
-            "test tokenURI2"
-        );
-
-        // Add Venus Adapter to AdapterManager
-        await this.adapterManager.addAdapter(this.aAdapter.address);
-
-        // Set investor in adapter manager
-        await this.adapterManager.setInvestor(this.investor.address);
-
-        // Set adapter manager in investor
-        await this.investor.setAdapterManager(this.adapterManager.address);
-        await this.investor.setTreasury(this.owner.address);
-
-        await setPath(this.aAdapter, this.weth, this.sushi);
-        await setPath(this.aAdapter, this.weth, this.usdc);
+        await setPath(this.aAdapter, weth, sushi);
+        await setPath(this.aAdapter, weth, usdc);
         
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);
         console.log("Strategy: ", strategy);
         console.log("Info: ", this.adapterInfo.address);
         console.log("SushiSwapFarmLPAdapter: ", this.aAdapter.address);
-
-        this.lpContract = await ethers.getContractAt(
-            "VBep20Interface",
-            lpToken
-        );
     });
 
     describe("depositETH function test", function () {
@@ -258,7 +189,7 @@ describe("SushiFarmAdapterEth Integration Test", function () {
         it("(5) test claim, pendingReward function and protocol-fee", async function () {
             const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
             const beforeETHOwner = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             const pending = await this.investor.pendingReward(
                 1,
@@ -273,7 +204,7 @@ describe("SushiFarmAdapterEth Integration Test", function () {
 
             const afterETH = await ethers.provider.getBalance(this.aliceAddr);
             const protocolFee = (
-                await ethers.provider.getBalance(this.owner.address)
+                await ethers.provider.getBalance(this.treasuryAddr)
             ).sub(beforeETHOwner);
             const actualPending = afterETH
                 .sub(beforeETH)
@@ -331,7 +262,7 @@ describe("SushiFarmAdapterEth Integration Test", function () {
             // withdraw from nftId: 1
             const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
             const beforeOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let aliceInfo = (
                 await this.aAdapter.userAdapterInfos(this.aliceAddr, 1)
@@ -353,7 +284,7 @@ describe("SushiFarmAdapterEth Integration Test", function () {
             // check protocol fee
             const rewardAmt = afterETH.sub(beforeETH);
             const afterOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let actualPending = rewardAmt.add(gas.mul(gasPrice));
             if (actualPending.gt(aliceInfo)) {
@@ -416,7 +347,7 @@ describe("SushiFarmAdapterEth Integration Test", function () {
             // withdraw from nftId: 1
             const beforeETH = await ethers.provider.getBalance(this.bobAddr);
             const beforeOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let bobInfo = (
                 await this.aAdapter.userAdapterInfos(this.bobAddr, 1)
@@ -438,7 +369,7 @@ describe("SushiFarmAdapterEth Integration Test", function () {
             // check protocol fee
             const rewardAmt = afterETH.sub(beforeETH);
             const afterOwnerETH = await ethers.provider.getBalance(
-                this.owner.address
+                this.treasuryAddr
             );
             let actualPending = rewardAmt.add(gas.mul(gasPrice));
             if (actualPending.gt(bobInfo)) {

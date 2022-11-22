@@ -19,7 +19,6 @@ async function setPath(adapter, first, second, third = null) {
         await adapter.setPath(first, second, [first, second]);
         await adapter.setPath(second, first, [second, first]);
     }
-    
 }
 
 module.exports = {

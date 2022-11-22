@@ -44,8 +44,8 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
         address _comptroller,
         address _stakingToken,
         address _swapRouter,
-        string memory _name,
-        address _weth
+        address _weth,
+        string memory _name
     ) {
         stakingToken = _stakingToken;
         strategy = _strategy;

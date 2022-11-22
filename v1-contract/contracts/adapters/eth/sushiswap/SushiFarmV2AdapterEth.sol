@@ -48,8 +48,8 @@ contract SushiFarmV2AdapterEth is BaseAdapterEth {
         address _rewardToken1,
         address _router,
         address _swapRouter,
-        string memory _name,
-        address _weth
+        address _weth,
+        string memory _name
     ) {
         pid = _pid;
         stakingToken = _stakingToken;

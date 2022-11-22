@@ -1,6 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
 const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
+const { adapterFixture, investorFixture } = require('../../../../shared/fixtures');
 
 const BigNumber = ethers.BigNumber;
 
@@ -33,17 +34,9 @@ describe("PickleSushiFarmAdapterEth Integration Test", function () {
         this.accTokenPerShare1 = BigNumber.from(0);
 
         // Deploy PickleSushiAdapter contract
-        const Lib = await ethers.getContractFactory("HedgepieLibraryEth");
-        const lib = await Lib.deploy();
-        const PickleSushiAdapter = await ethers.getContractFactory(
-            "PickleSushiMasterAdapter",
-            {
-                libraries: {
-                    HedgepieLibraryEth: lib.address,
-                },
-            }
+        const PickleSushiAdapter = await adapterFixture(
+            "PickleSushiMasterAdapter"
         );
-
         this.aAdapter = await PickleSushiAdapter.deploy(
             pid,
             strategy,
@@ -57,65 +50,17 @@ describe("PickleSushiFarmAdapterEth Integration Test", function () {
         );
         await this.aAdapter.deployed();
 
-        // Deploy YBNFT contract
-        const ybNftFactory = await ethers.getContractFactory("YBNFT");
-        this.ybNft = await ybNftFactory.deploy();
-
-        // Deploy Adaptor Info contract
-        const adapterInfo = await ethers.getContractFactory(
-            "HedgepieAdapterInfoEth"
-        );
-        this.adapterInfo = await adapterInfo.deploy();
-        await this.adapterInfo.setManager(this.aAdapter.address, true);
-
-        // Deploy Investor contract
-        const investorFactory = await ethers.getContractFactory(
-            "HedgepieInvestorEth"
-        );
-        this.investor = await investorFactory.deploy(
-            this.ybNft.address,
-            this.treasuryAddr,
-            this.adapterInfo.address
-        );
-
-        // Deploy Adaptor Manager contract
-        const adapterManager = await ethers.getContractFactory(
-            "HedgepieAdapterManagerEth"
-        );
-        this.adapterManager = await adapterManager.deploy();
-
-        // set investor
-        await this.aAdapter.setInvestor(this.investor.address);
-
-        // Mint NFTs
-        // tokenID: 1
-        await this.ybNft.mint(
-            [10000],
-            [lpToken],
-            [this.aAdapter.address],
-            performanceFee,
-            "test tokenURI1"
-        );
-
-        // tokenID: 2
-        await this.ybNft.mint(
-            [10000],
-            [lpToken],
-            [this.aAdapter.address],
-            performanceFee,
-            "test tokenURI2"
-        );
-
-        // Add PickleSushiAdapter to AdapterManager
-        await this.adapterManager.addAdapter(this.aAdapter.address);
-
-        // Set investor in adapter manager
-        await this.adapterManager.setInvestor(this.investor.address);
-
-        // Set adapter manager in investor
-        await this.investor.setAdapterManager(this.adapterManager.address);
-        await this.investor.setTreasury(this.owner.address);
-
+        [
+            this.adapterInfo,
+            this.investor,
+            this.ybNft
+        ] = await investorFixture(
+            this.aAdapter,
+            treasury.address,
+            lpToken,
+            performanceFee
+            );
+        
         await setPath(this.aAdapter, weth, pickle);
         await setPath(this.aAdapter, weth, wbtc);
 
@@ -124,8 +69,6 @@ describe("PickleSushiFarmAdapterEth Integration Test", function () {
         console.log("Strategy: ", strategy);
         console.log("Info: ", this.adapterInfo.address);
         console.log("PickleSushiFarmAdapter: ", this.aAdapter.address);
-
-        this.pickle = await ethers.getContractAt("IBEP20", pickle);
     });
 
     describe("depositETH function test", function () {

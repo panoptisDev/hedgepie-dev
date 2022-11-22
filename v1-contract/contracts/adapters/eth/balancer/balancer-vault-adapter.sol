@@ -58,11 +58,11 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
     constructor(
         bytes32 _pid,
         address _strategy,
-        address[] memory _rewardTokens,
         address _repayToken,
         address _swapRouter,
-        string memory _name,
-        address _weth
+        address _weth,
+        address[] memory _rewardTokens,
+        string memory _name
     ) {
         require(_rewardTokens.length > 1, "Invalid rewardTokens array length");
         poolId = _pid;

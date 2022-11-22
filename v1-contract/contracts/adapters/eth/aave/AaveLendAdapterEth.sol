@@ -41,8 +41,8 @@ contract AaveLendAdapterEth is BaseAdapterEth {
         address _stakingToken,
         address _rewardToken,
         address _swapRouter,
-        string memory _name,
-        address _weth
+        address _weth,
+        string memory _name
     ) {
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
