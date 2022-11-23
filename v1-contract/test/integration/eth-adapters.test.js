@@ -1,14 +1,290 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { setPath, forkETHNetwork } = require("../../../../shared/utilities");
-const {
-    adapterFixture,
-    investorFixture,
-} = require("../../../../shared/fixtures");
+const { setPath, forkETHNetwork } = require("../shared/utilities");
+const { adapterFixture } = require("../shared/fixtures");
 
 const BigNumber = ethers.BigNumber;
 
-const adapterParams = [
+describe("Global ETH Adapters Integration Test", function () {
+    before("Deploy adapter contracts", async function () {
+        await forkETHNetwork();
+
+        const performanceFee = 100;
+        const [owner, alice, bob, treasury] = await ethers.getSigners();
+
+        this.ethAdapters = [];
+        this.performanceFee = performanceFee;
+
+        this.owner = owner;
+        this.alice = alice;
+        this.bob = bob;
+        this.bobAddr = bob.address;
+        this.aliceAddr = alice.address;
+        this.treasuryAddr = treasury.address;
+
+        // Get Adapter fixtures
+        this.ethAdapters = [...(await deployAdapters())];
+
+        // Deploy YBNFT contract
+        const ybNftFactory = await ethers.getContractFactory("YBNFT");
+        this.ybNft = await ybNftFactory.deploy();
+        await this.ybNft.deployed();
+
+        // deploy adapterinfo
+        const AdapterInfo = await ethers.getContractFactory(
+            "HedgepieAdapterInfoEth"
+        );
+        this.adapterInfo = await AdapterInfo.deploy();
+        await this.adapterInfo.deployed();
+
+        // Deploy Investor contract
+        const InvestorFactory = await ethers.getContractFactory(
+            "HedgepieInvestorEth"
+        );
+        this.investor = await InvestorFactory.deploy(
+            this.ybNft.address,
+            this.treasuryAddr,
+            this.adapterInfo.address
+        );
+        await this.investor.deployed();
+
+        // set manager in adapterInfo
+        for (let i = 0; i < this.ethAdapters.length; i++) {
+            await this.ethAdapters[i].setInvestor(this.investor.address);
+            await this.adapterInfo.setManager(
+                this.ethAdapters[i].address,
+                true
+            );
+        }
+
+        // Deploy Adaptor Manager contract
+        const AdapterManager = await ethers.getContractFactory(
+            "HedgepieAdapterManagerEth"
+        );
+        this.adapterManager = await AdapterManager.deploy();
+        await this.adapterManager.deployed();
+
+        // Mint NFTs
+        // tokenID: 1
+        await this.ybNft.mint(
+            new Array(5).fill(10000 / 5),
+            stakingTokens.slice(0, 5),
+            this.ethAdapters.slice(0, 5).map((it) => it.address),
+            performanceFee,
+            "test tokenURI1"
+        );
+
+        // tokenID: 2
+        await this.ybNft.mint(
+            new Array(8).fill(10000 / 8),
+            stakingTokens.slice(5, 13),
+            this.ethAdapters.slice(5, 13).map((it) => it.address),
+            performanceFee,
+            "test tokenURI2"
+        );
+
+        // Set investor in adapter manager
+        await this.adapterManager.setInvestor(this.investor.address);
+
+        // Add Adapters to AdapterManager
+        for (let i = 0; i < this.ethAdapters.length; i++) {
+            await this.adapterManager.addAdapter(this.ethAdapters[i].address);
+        }
+
+        // Set adapter manager in investor
+        await this.investor.setAdapterManager(this.adapterManager.address);
+
+        console.log("Owner: ", this.owner.address);
+        console.log("YBNFT: ", this.ybNft.address);
+        console.log("Investor: ", this.investor.address);
+        console.log("Manager: ", this.adapterManager.address);
+        console.log("Info: ", this.adapterInfo.address, "\n");
+        for (let i = 0; i < this.ethAdapters.length; i++) {
+            console.log(
+                params[i][params[i].length - 2],
+                this.ethAdapters[i].address
+            );
+        }
+    });
+
+    describe("depositETH function test", function () {
+        it("(1) deposit should success for Alice", async function () {
+            const depositAmount = ethers.utils.parseEther("10");
+            await this.investor
+                .connect(this.alice)
+                .depositETH(1, depositAmount, {
+                    gasPrice: 21e9,
+                    value: depositAmount,
+                });
+
+            for (let i = 0; i < 5; i++) {
+                const aliceInfo = (
+                    await this.ethAdapters[i].userAdapterInfos(
+                        this.aliceAddr,
+                        1
+                    )
+                ).invested;
+                expect(Number(aliceInfo) / Math.pow(10, 18)).to.eq(2);
+
+                const aliceAdapterInfos = await this.ethAdapters[
+                    i
+                ].userAdapterInfos(this.aliceAddr, 1);
+
+                const adapterInfos = await this.ethAdapters[i].adapterInfos(1);
+                expect(BigNumber.from(adapterInfos.totalStaked)).to.eq(
+                    BigNumber.from(aliceAdapterInfos.amount)
+                );
+            }
+        });
+
+        it("(2) deposit should success for Bob", async function () {
+            // wait 40 mins by passing blocks
+            for (let i = 0; i < 7200; i++) {
+                await ethers.provider.send("evm_mine", []);
+            }
+            await ethers.provider.send("evm_increaseTime", [3600 * 24]);
+            await ethers.provider.send("evm_mine", []);
+
+            const depositAmount = ethers.utils.parseEther("20");
+            await this.investor.connect(this.bob).depositETH(2, depositAmount, {
+                gasPrice: 21e9,
+                value: depositAmount,
+            });
+
+            for (let i = 5; i < 13; i++) {
+                const bobInfo = (
+                    await this.ethAdapters[i].userAdapterInfos(this.bobAddr, 2)
+                ).invested;
+
+                i === 10
+                    ? expect(bobInfo).to.lte(
+                          BigNumber.from(25).mul(BigNumber.from(10).pow(17))
+                      )
+                    : expect(Number(bobInfo) / Math.pow(10, 17)).to.eq(25);
+
+                const bobAdapterInfos = await this.ethAdapters[
+                    i
+                ].userAdapterInfos(this.bobAddr, 2);
+
+                const adapterInfos = await this.ethAdapters[i].adapterInfos(2);
+                expect(BigNumber.from(adapterInfos.totalStaked)).to.eq(
+                    BigNumber.from(bobAdapterInfos.amount)
+                );
+            }
+        });
+
+        it("(3) test TVL & participants", async function () {
+            const nftInfo1 = await this.adapterInfo.adapterInfo(1);
+            const nftInfo2 = await this.adapterInfo.adapterInfo(2);
+
+            expect(
+                Number(
+                    ethers.utils.formatEther(
+                        BigNumber.from(nftInfo1.tvl).toString()
+                    )
+                )
+            ).to.be.eq(10) &&
+                expect(
+                    BigNumber.from(nftInfo1.participant).toString()
+                ).to.be.eq("1") &&
+                expect(
+                    Number(
+                        ethers.utils.formatEther(
+                            BigNumber.from(nftInfo2.tvl).toString()
+                        )
+                    )
+                ).to.gte(18) &&
+                expect(
+                    BigNumber.from(nftInfo2.participant).toString()
+                ).to.be.eq("1");
+        });
+    });
+
+    describe("withdrawETH() function test", function () {
+        it("(1) should receive the ETH successfully after withdraw function for Alice", async function () {
+            await ethers.provider.send("evm_increaseTime", [3600 * 24 * 30]);
+            await ethers.provider.send("evm_mine", []);
+
+            // withdraw from nftId: 1
+            const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
+
+            await expect(
+                this.investor
+                    .connect(this.alice)
+                    .withdrawETH(1, { gasPrice: 21e9 })
+            ).to.emit(this.investor, "WithdrawETH");
+
+            const afterETH = await ethers.provider.getBalance(this.aliceAddr);
+            expect(
+                BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))
+            ).to.eq(true);
+
+            for (let i = 0; i < 5; i++) {
+                aliceInfo = (
+                    await this.ethAdapters[i].userAdapterInfos(
+                        this.aliceAddr,
+                        1
+                    )
+                ).invested;
+                expect(aliceInfo).to.eq(BigNumber.from(0));
+            }
+        });
+
+        it("(2) should receive the ETH successfully after withdraw function for Bob", async function () {
+            await ethers.provider.send("evm_increaseTime", [3600 * 24 * 30]);
+            await ethers.provider.send("evm_mine", []);
+
+            // withdraw from nftId: 1
+            const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
+
+            await expect(
+                this.investor
+                    .connect(this.bob)
+                    .withdrawETH(2, { gasPrice: 21e9 })
+            ).to.emit(this.investor, "WithdrawETH");
+
+            const afterETH = await ethers.provider.getBalance(this.bobAddr);
+            expect(
+                BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))
+            ).to.eq(true);
+
+            for (let i = 5; i < 13; i++) {
+                bobInfo = (
+                    await this.ethAdapters[i].userAdapterInfos(this.bobAddr, 2)
+                ).invested;
+                expect(bobInfo).to.eq(BigNumber.from(0));
+            }
+        });
+
+        it("(3) test TVL & participants after Alice & Bob withdraw", async function () {
+            const nftInfo1 = await this.adapterInfo.adapterInfo(1);
+            const nftInfo2 = await this.adapterInfo.adapterInfo(2);
+
+            expect(
+                Number(
+                    ethers.utils.formatEther(
+                        BigNumber.from(nftInfo1.tvl).toString()
+                    )
+                )
+            ).to.be.eq(0) &&
+                expect(
+                    BigNumber.from(nftInfo1.participant).toString()
+                ).to.be.eq("0") &&
+                expect(
+                    Number(
+                        ethers.utils.formatEther(
+                            BigNumber.from(nftInfo2.tvl).toString()
+                        )
+                    )
+                ).to.be.eq(0) &&
+                expect(
+                    BigNumber.from(nftInfo2.participant).toString()
+                ).to.be.eq("0");
+        });
+    });
+});
+
+const params = [
     [
         //AAVE::Lend::CRV
         "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9", // Strategy: LendingPool
@@ -51,7 +327,7 @@ const adapterParams = [
     ],
     [
         // COMPOUND::Lend::DAI
-        "0xe65cdB6479BaC1e22340E4E755fAE7E509EcD06c", // Strategy: cAAVE Token
+        "0x5d3a536E4D6DbD6114cc1Ead35777bAB948E3643", // Strategy: cDAI Token
         "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B", // Comptroller
         "0x6B175474E89094C44Da98b954EedeAC495271d0F", // StakingToken: DAI
         "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F", // SwapRouter: SushiRouter
@@ -59,8 +335,8 @@ const adapterParams = [
         "COMPOUND::Lend::DAI",
         [
             [
+                "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
                 "0x6B175474E89094C44Da98b954EedeAC495271d0F",
-                "0xc02aaa39b223fe8d0a0e5c4f27ead9083c756cc2",
             ],
         ],
     ],
@@ -262,6 +538,22 @@ const adapterParams = [
     ],
 ];
 
+const stakingTokens = [
+    "0xD533a949740bb3306d119CC777fa900bA034cd52",
+    "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2",
+    "0x6B175474E89094C44Da98b954EedeAC495271d0F",
+    "0x845838DF265Dcd2c412A1Dc9e959c7d08537f8a2",
+    "0xEd4064f376cB8d68F770FB1Ff088a3d0F3FF5c4d",
+    "0xf4d2888d29D722226FafA5d9B24F9164c092421E",
+    "0xCEfF51756c56CeFFCA006cD410B03FFC46dd3a58",
+    "0xCEfF51756c56CeFFCA006cD410B03FFC46dd3a58",
+    "0x6B3595068778DD592e39A122f4f5a5cF09C90fE2",
+    "0x44709a920fCcF795fbC57BAA433cc3dd53C44DbE",
+    "0x290A6a7460B308ee3F19023D2D00dE604bcf5B42",
+    "0x3A283D9c08E8b55966afb64C515f5143cf907611",
+    "0xC011a73ee8576Fb46F5E1c5751cA3B9Fe0af2a6F",
+];
+
 const deployAdapters = async () => {
     let adapters = [];
     let adapterFixtures = [];
@@ -279,23 +571,174 @@ const deployAdapters = async () => {
     adapterFixtures.push(await adapterFixture("SushiFarmV2AdapterEth"));
     adapterFixtures.push(await adapterFixture("UniswapV3LPAdapter"));
     adapterFixtures.push(await adapterFixture("YearnCurveAdapter"));
-    cadapterFixtures.push(await adapterFixture("YearnSingleAdapter"));
+    adapterFixtures.push(await adapterFixture("YearnSingleAdapter"));
 
     // Deploy Adapters
-    for (let i = 0; i < adapterFixtures.length; i++) {
-        adapters.push(await adapterFixtures[i].deploy(adapterParams[i]));
+    adapters.push(
+        await adapterFixtures[0].deploy(
+            params[0][0],
+            params[0][1],
+            params[0][2],
+            params[0][3],
+            params[0][4],
+            params[0][5]
+        )
+    );
+    adapters.push(
+        await adapterFixtures[1].deploy(
+            params[1][0],
+            params[1][1],
+            params[1][2],
+            params[1][3],
+            params[1][4],
+            params[1][5],
+            params[1][6]
+        )
+    );
+    adapters.push(
+        await adapterFixtures[2].deploy(
+            params[2][0],
+            params[2][1],
+            params[2][2],
+            params[2][3],
+            params[2][4],
+            params[2][5]
+        )
+    );
+    adapters.push(
+        await adapterFixtures[3].deploy(
+            params[3][0],
+            params[3][1],
+            params[3][2],
+            params[3][3],
+            params[3][4],
+            params[3][5],
+            params[3][6],
+            params[3][7]
+        )
+    );
+    adapters.push(
+        await adapterFixtures[4].deploy(
+            params[4][0],
+            params[4][1],
+            params[4][2],
+            params[4][3],
+            params[4][4],
+            params[4][5],
+            params[4][6],
+            params[4][7],
+            params[4][8],
+            params[4][9]
+        )
+    );
+    adapters.push(
+        await adapterFixtures[5].deploy(
+            params[5][0],
+            params[5][1],
+            params[5][2],
+            params[5][3],
+            params[5][4],
+            params[5][5],
+            params[5][6],
+            params[5][7]
+        )
+    );
+    adapters.push(
+        await adapterFixtures[6].deploy(
+            params[6][0],
+            params[6][1],
+            params[6][2],
+            params[6][3],
+            params[6][4],
+            params[6][5],
+            params[6][6],
+            params[6][7]
+        )
+    );
+    adapters.push(
+        await adapterFixtures[7].deploy(
+            params[7][0],
+            params[7][1],
+            params[7][2],
+            params[7][3],
+            params[7][4],
+            params[7][5],
+            params[7][6],
+            params[7][7],
+            params[7][8]
+        )
+    );
+    adapters.push(
+        await adapterFixtures[8].deploy(
+            params[8][0],
+            params[8][1],
+            params[8][2],
+            params[8][3],
+            params[8][4],
+            params[8][5],
+            params[8][6],
+            params[8][7]
+        )
+    );
+    adapters.push(
+        await adapterFixtures[9].deploy(
+            params[9][0],
+            params[9][1],
+            params[9][2],
+            params[9][3],
+            params[9][4],
+            params[9][5],
+            params[9][6],
+            params[9][7],
+            params[9][8]
+        )
+    );
+    adapters.push(
+        await adapterFixtures[10].deploy(
+            params[10][0],
+            params[10][1],
+            params[10][2],
+            params[10][3],
+            params[10][4],
+            params[10][5],
+            params[10][6]
+        )
+    );
+    adapters.push(
+        await adapterFixtures[11].deploy(
+            params[11][0],
+            params[11][1],
+            params[11][2],
+            params[11][3],
+            params[11][4],
+            params[11][5],
+            params[11][6],
+            params[11][7],
+            params[11][8],
+            params[11][9]
+        )
+    );
+    adapters.push(
+        await adapterFixtures[12].deploy(
+            params[12][0],
+            params[12][1],
+            params[12][2],
+            params[12][3],
+            params[12][4]
+        )
+    );
 
-        for (
-            let j = 0;
-            j < adapterFixtures[i][adapterFixtures[i].length - 1].length;
-            j++
-        ) {
+    // Deploy Adapters
+    for (let i = 0; i < adapters.length; i++) {
+        await adapters[i].deployed();
+
+        for (let j = 0; j < params[i][params[i].length - 1].length; j++) {
             await setPath(
                 adapters[i],
-                adapterFixtures[i][adapterFixtures[i].length - 1][0],
-                adapterFixtures[i][adapterFixtures[i].length - 1][1],
-                adapterFixtures[i][adapterFixtures[i].length - 1].length === 2
-                    ? adapterFixtures[i][adapterFixtures[i].length - 1][2]
+                params[i][params[i].length - 1][j][0],
+                params[i][params[i].length - 1][j][1],
+                params[i][params[i].length - 1][j].length === 3
+                    ? params[i][params[i].length - 1][j][2]
                     : null
             );
         }
@@ -303,403 +746,3 @@ const deployAdapters = async () => {
 
     return adapters;
 };
-
-describe("ETH Adapters Integration Test", function () {
-    before("Deploy contract", async function () {
-        this.ethAdapters = [];
-        await forkETHNetwork();
-
-        const [owner, alice, bob, treasury] = await ethers.getSigners();
-
-        const performanceFee = 100;
-        const weth = "0xC02aaA39b223FE8D0A0e5C4F27eAD9083C756Cc2";
-        const aUSDC = "0xBcca60bB61934080951369a648Fb03DF4F96263C";
-        const usdc = "0xA0b86991c6218b36c1d19D4a2e9Eb0cE3606eB48";
-        const strategy = "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9"; // LendingPool
-        const swapRouter = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"; // sushi router
-        const stakingToken = usdc;
-
-        this.performanceFee = performanceFee;
-
-        this.owner = owner;
-        this.alice = alice;
-        this.bob = bob;
-
-        this.bobAddr = bob.address;
-        this.aliceAddr = alice.address;
-        this.treasuryAddr = treasury.address;
-
-        this.accTokenPerShare = BigNumber.from(0);
-        this.accTokenPerShare1 = BigNumber.from(0);
-
-        // Get Adapter fixtures
-        this.ethAdapters = [...(await deployAdapters())];
-        console.log(this.ethAdapters);
-
-        this.adapter = await AaveFarmAdapter.deploy(
-            strategy,
-            usdc,
-            aUSDC,
-            swapRouter,
-            weth,
-            "AAVE::Lend::USDC"
-        );
-        await this.adapter.deployed();
-
-        [this.adapterInfo, this.investor] = await investorFixture(
-            this.adapter,
-            treasury.address,
-            stakingToken,
-            performanceFee
-        );
-
-        await setPath(this.adapter, weth, usdc);
-
-        console.log("Owner: ", this.owner.address);
-        console.log("Investor: ", this.investor.address);
-        console.log("Strategy: ", strategy);
-        console.log("Info: ", this.adapterInfo.address);
-        console.log("AaveLendAdapterEth: ", this.adapter.address);
-    });
-
-    describe("depositETH function test", function () {
-        it("(1) should be reverted when nft tokenId is invalid", async function () {
-            // deposit to nftID: 3
-            const depositAmount = ethers.utils.parseEther("1");
-            await expect(
-                this.investor
-                    .connect(this.owner)
-                    .depositETH(3, depositAmount.toString(), {
-                        gasPrice: 21e9,
-                        value: depositAmount,
-                    })
-            ).to.be.revertedWith("Error: nft tokenId is invalid");
-        });
-
-        it("(2) should be reverted when amount is 0", async function () {
-            // deposit to nftID: 1
-            const depositAmount = ethers.utils.parseEther("0");
-            await expect(
-                this.investor.depositETH(1, depositAmount.toString(), {
-                    gasPrice: 21e9,
-                })
-            ).to.be.revertedWith("Error: Insufficient ETH");
-        });
-
-        it("(3) deposit should success for Alice", async function () {
-            const depositAmount = ethers.utils.parseEther("10");
-            await this.investor
-                .connect(this.alice)
-                .depositETH(1, depositAmount, {
-                    gasPrice: 21e9,
-                    value: depositAmount,
-                });
-
-            const aliceInfo = (
-                await this.adapter.userAdapterInfos(this.aliceAddr, 1)
-            ).invested;
-            expect(Number(aliceInfo) / Math.pow(10, 18)).to.eq(10);
-
-            const aliceAdapterInfos = await this.adapter.userAdapterInfos(
-                this.aliceAddr,
-                1
-            );
-            const adapterInfos = await this.adapter.adapterInfos(1);
-            expect(BigNumber.from(adapterInfos.totalStaked)).to.eq(
-                BigNumber.from(aliceAdapterInfos.amount)
-            );
-
-            // Check accTokenPerShare Info
-            this.accTokenPerShare = (
-                await this.adapter.adapterInfos(1)
-            ).accTokenPerShare;
-            expect(BigNumber.from(this.accTokenPerShare)).to.eq(
-                BigNumber.from(0)
-            );
-        });
-
-        it("(4) deposit should success for Bob", async function () {
-            // wait 40 mins
-            for (let i = 0; i < 7200; i++) {
-                await ethers.provider.send("evm_mine", []);
-            }
-            await ethers.provider.send("evm_increaseTime", [3600 * 24]);
-            await ethers.provider.send("evm_mine", []);
-
-            const beforeAdapterInfos = await this.adapter.adapterInfos(1);
-            const depositAmount = ethers.utils.parseEther("10");
-
-            await this.investor.connect(this.bob).depositETH(1, depositAmount, {
-                gasPrice: 21e9,
-                value: depositAmount,
-            });
-
-            await this.investor.connect(this.bob).depositETH(1, depositAmount, {
-                gasPrice: 21e9,
-                value: depositAmount,
-            });
-
-            const bobInfo = (
-                await this.adapter.userAdapterInfos(this.bobAddr, 1)
-            ).invested;
-            expect(Number(bobInfo) / Math.pow(10, 18)).to.eq(20);
-
-            const bobAdapterInfos = await this.adapter.userAdapterInfos(
-                this.bobAddr,
-                1
-            );
-            expect(BigNumber.from(bobAdapterInfos.amount).gt(0)).to.eq(true);
-
-            const afterAdapterInfos = await this.adapter.adapterInfos(1);
-
-            expect(
-                BigNumber.from(afterAdapterInfos.totalStaked).gt(
-                    beforeAdapterInfos.totalStaked
-                )
-            ).to.eq(true);
-
-            // Check accTokenPerShare Info
-            expect(
-                BigNumber.from(
-                    (await this.adapter.adapterInfos(1)).accTokenPerShare
-                ).gt(BigNumber.from(this.accTokenPerShare))
-            ).to.eq(true);
-
-            this.accTokenPerShare = (
-                await this.adapter.adapterInfos(1)
-            ).accTokenPerShare;
-        });
-
-        it("(5) test claim, pendingReward function and protocol-fee", async function () {
-            const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
-            const beforeETHOwner = await ethers.provider.getBalance(
-                this.treasuryAddr
-            );
-
-            const pending = await this.investor.pendingReward(
-                1,
-                this.aliceAddr
-            );
-
-            const gasPrice = await ethers.provider.getGasPrice();
-            const gas = await this.investor
-                .connect(this.alice)
-                .estimateGas.claim(1);
-            await this.investor.connect(this.alice).claim(1);
-
-            const afterETH = await ethers.provider.getBalance(this.aliceAddr);
-            const protocolFee = (
-                await ethers.provider.getBalance(this.treasuryAddr)
-            ).sub(beforeETHOwner);
-            const actualPending = afterETH
-                .sub(beforeETH)
-                .add(gas.mul(gasPrice));
-
-            expect(pending).to.be.within(
-                actualPending.sub(BigNumber.from(8e13)),
-                actualPending
-            ) &&
-                expect(protocolFee).to.be.within(
-                    actualPending
-                        .sub(BigNumber.from(8e13))
-                        .mul(this.performanceFee)
-                        .div(1e4),
-                    actualPending.mul(this.performanceFee).div(1e4)
-                );
-        });
-
-        it("(6) test TVL & participants", async function () {
-            const nftInfo = await this.adapterInfo.adapterInfo(1);
-
-            expect(
-                Number(
-                    ethers.utils.formatEther(
-                        BigNumber.from(nftInfo.tvl).toString()
-                    )
-                )
-            ).to.be.eq(30) &&
-                expect(BigNumber.from(nftInfo.participant).toString()).to.be.eq(
-                    "2"
-                );
-        });
-    });
-
-    describe("withdrawETH() function test", function () {
-        it("(1) revert when nft tokenId is invalid", async function () {
-            for (let i = 0; i < 10; i++) {
-                await ethers.provider.send("evm_mine", []);
-            }
-            await ethers.provider.send("evm_increaseTime", [3600 * 24]);
-            await ethers.provider.send("evm_mine", []);
-
-            // withdraw to nftID: 3
-            await expect(
-                this.investor
-                    .connect(this.owner)
-                    .withdrawETH(3, { gasPrice: 21e9 })
-            ).to.be.revertedWith("Error: nft tokenId is invalid");
-        });
-
-        it("(2) should receive the ETH successfully after withdraw function for Alice", async function () {
-            await ethers.provider.send("evm_increaseTime", [3600 * 24 * 30]);
-            await ethers.provider.send("evm_mine", []);
-
-            // withdraw from nftId: 1
-            const beforeETH = await ethers.provider.getBalance(this.aliceAddr);
-            const beforeOwnerETH = await ethers.provider.getBalance(
-                this.treasuryAddr
-            );
-            let aliceInfo = (
-                await this.adapter.userAdapterInfos(this.aliceAddr, 1)
-            ).invested;
-
-            const gasPrice = 21e9;
-            const gas = await this.investor
-                .connect(this.alice)
-                .estimateGas.withdrawETH(1, { gasPrice });
-            await expect(
-                this.investor.connect(this.alice).withdrawETH(1, { gasPrice })
-            ).to.emit(this.investor, "WithdrawETH");
-
-            const afterETH = await ethers.provider.getBalance(this.aliceAddr);
-            expect(
-                BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))
-            ).to.eq(true);
-
-            // check protocol fee
-            const rewardAmt = afterETH.sub(beforeETH);
-            const afterOwnerETH = await ethers.provider.getBalance(
-                this.treasuryAddr
-            );
-            let actualPending = rewardAmt.add(gas.mul(gasPrice));
-            if (actualPending.gt(aliceInfo)) {
-                actualPending = actualPending.sub(BigNumber.from(aliceInfo));
-                const protocolFee = afterOwnerETH.sub(beforeOwnerETH);
-                expect(protocolFee).to.gt(0);
-                expect(actualPending).to.be.within(
-                    protocolFee
-                        .mul(1e4 - this.performanceFee)
-                        .div(this.performanceFee)
-                        .sub(gas.mul(gasPrice)),
-                    protocolFee
-                        .mul(1e4 - this.performanceFee)
-                        .div(this.performanceFee)
-                        .add(gas.mul(gasPrice))
-                );
-            }
-
-            aliceInfo = (await this.adapter.userAdapterInfos(this.aliceAddr, 1))
-                .invested;
-            expect(aliceInfo).to.eq(BigNumber.from(0));
-
-            const bobInfo = (
-                await this.adapter.userAdapterInfos(this.bobAddr, 1)
-            ).invested;
-            const bobDeposit = Number(bobInfo) / Math.pow(10, 18);
-            expect(bobDeposit).to.eq(20);
-
-            expect(
-                BigNumber.from(
-                    (await this.adapter.adapterInfos(1)).accTokenPerShare
-                ).gt(BigNumber.from(this.accTokenPerShare))
-            ).to.eq(true);
-
-            this.accTokenPerShare = (
-                await this.adapter.adapterInfos(1)
-            ).accTokenPerShare;
-        });
-
-        it("(3) test TVL & participants after Alice withdraw", async function () {
-            const nftInfo = await this.adapterInfo.adapterInfo(1);
-
-            expect(
-                Number(
-                    ethers.utils.formatEther(
-                        BigNumber.from(nftInfo.tvl).toString()
-                    )
-                )
-            ).to.be.eq(20) &&
-                expect(BigNumber.from(nftInfo.participant).toString()).to.be.eq(
-                    "1"
-                );
-        });
-
-        it("(4) should receive the ETH successfully after withdraw function for Bob", async function () {
-            await ethers.provider.send("evm_increaseTime", [3600 * 24 * 30]);
-            await ethers.provider.send("evm_mine", []);
-
-            // withdraw from nftId: 1
-            const beforeETH = await ethers.provider.getBalance(this.bobAddr);
-            const beforeOwnerETH = await ethers.provider.getBalance(
-                this.treasuryAddr
-            );
-            let bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1))
-                .invested;
-
-            const gasPrice = 21e9;
-            const gas = await this.investor
-                .connect(this.bob)
-                .estimateGas.withdrawETH(1, { gasPrice });
-            await expect(
-                this.investor.connect(this.bob).withdrawETH(1, { gasPrice })
-            ).to.emit(this.investor, "WithdrawETH");
-
-            const afterETH = await ethers.provider.getBalance(this.bobAddr);
-            expect(
-                BigNumber.from(afterETH).gt(BigNumber.from(beforeETH))
-            ).to.eq(true);
-
-            // check protocol fee
-            const rewardAmt = afterETH.sub(beforeETH);
-            const afterOwnerETH = await ethers.provider.getBalance(
-                this.treasuryAddr
-            );
-            let actualPending = rewardAmt.add(gas.mul(gasPrice));
-            if (actualPending.gt(bobInfo)) {
-                actualPending = actualPending.sub(BigNumber.from(bobInfo));
-                const protocolFee = afterOwnerETH.sub(beforeOwnerETH);
-                expect(protocolFee).to.gt(0);
-                expect(actualPending).to.be.within(
-                    protocolFee
-                        .mul(1e4 - this.performanceFee)
-                        .div(this.performanceFee)
-                        .sub(gas.mul(gasPrice)),
-                    protocolFee
-                        .mul(1e4 - this.performanceFee)
-                        .div(this.performanceFee)
-                        .add(gas.mul(gasPrice))
-                );
-            }
-
-            bobInfo = (await this.adapter.userAdapterInfos(this.bobAddr, 1))
-                .invested;
-            expect(bobInfo).to.eq(BigNumber.from(0));
-
-            // Check accTokenPerShare Info
-            expect(
-                BigNumber.from(
-                    (await this.adapter.adapterInfos(1)).accTokenPerShare
-                ).gt(BigNumber.from(this.accTokenPerShare))
-            ).to.eq(true);
-
-            this.accTokenPerShare = (
-                await this.adapter.adapterInfos(1)
-            ).accTokenPerShare;
-        });
-
-        it("(5) test TVL & participants after Alice & Bob withdraw", async function () {
-            const nftInfo = await this.adapterInfo.adapterInfo(1);
-
-            expect(
-                Number(
-                    ethers.utils.formatEther(
-                        BigNumber.from(nftInfo.tvl).toString()
-                    )
-                )
-            ).to.be.eq(0) &&
-                expect(BigNumber.from(nftInfo.participant).toString()).to.be.eq(
-                    "0"
-                );
-        });
-    });
-});

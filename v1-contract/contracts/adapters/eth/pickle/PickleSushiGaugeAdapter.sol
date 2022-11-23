@@ -109,7 +109,7 @@ contract PickleSushiGaugeAdapter is BaseAdapterEth {
 
         // get sushi LP
         uint256 lpOut = HedgepieLibraryEth.getLP(
-            IYBNFT.Adapter(0, stakingToken, address(this)),
+            IYBNFT.Adapter(0, stakingToken, address(this), 0, 0),
             weth,
             _amountIn
         );
@@ -217,7 +217,7 @@ contract PickleSushiGaugeAdapter is BaseAdapterEth {
         }
 
         amountOut = HedgepieLibraryEth.withdrawLP(
-            IYBNFT.Adapter(0, stakingToken, address(this)),
+            IYBNFT.Adapter(0, stakingToken, address(this), 0, 0),
             weth,
             lpAmount
         );
