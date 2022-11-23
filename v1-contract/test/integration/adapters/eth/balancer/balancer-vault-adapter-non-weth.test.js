@@ -1,7 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
-const { adapterFixture, investorFixture } = require('../../../../shared/fixtures');
+const { setPath, forkETHNetwork } = require("../../../../shared/utilities");
+const {
+    adapterFixture,
+    investorFixture,
+} = require("../../../../shared/fixtures");
 
 const BigNumber = ethers.BigNumber;
 
@@ -41,16 +44,11 @@ describe("BalancerVaultAdapterEth Integration Test", function () {
             swapRouter,
             weth,
             [wstETH, compound],
-            "Balancer::Vault::wsETH-Compound",
-            
+            "Balancer::Vault::wsETH-Compound"
         );
         await this.aAdapter.deployed();
 
-        [
-            this.adapterInfo,
-            this.investor,
-            this.ybNft
-        ] = await investorFixture(
+        [this.adapterInfo, this.investor, this.ybNft] = await investorFixture(
             this.aAdapter,
             treasury.address,
             weth,

@@ -1,7 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
-const { adapterFixture, investorFixture } = require('../../../../shared/fixtures');
+const { setPath, forkETHNetwork } = require("../../../../shared/utilities");
+const {
+    adapterFixture,
+    investorFixture,
+} = require("../../../../shared/fixtures");
 
 const BigNumber = ethers.BigNumber;
 
@@ -32,9 +35,7 @@ describe("UniswapV3LPAdapter Integration Test", function () {
         this.upper = -75420;
 
         // Deploy UniswapV3LPAdapter contract
-        const UniswapV3LpAdapter = await adapterFixture(
-            "UniswapV3LPAdapter"
-        );
+        const UniswapV3LpAdapter = await adapterFixture("UniswapV3LPAdapter");
         this.adapter = await UniswapV3LpAdapter.deploy(
             strategy,
             stakingToken,
@@ -46,11 +47,7 @@ describe("UniswapV3LPAdapter Integration Test", function () {
         );
         await this.adapter.deployed();
 
-        [
-            this.adapterInfo,
-            this.investor,
-            this.ybNft
-        ] = await investorFixture(
+        [this.adapterInfo, this.investor, this.ybNft] = await investorFixture(
             this.adapter,
             treasury.address,
             stakingToken,

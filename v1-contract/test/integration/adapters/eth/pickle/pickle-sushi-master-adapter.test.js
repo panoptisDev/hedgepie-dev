@@ -1,7 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
-const { adapterFixture, investorFixture } = require('../../../../shared/fixtures');
+const { setPath, forkETHNetwork } = require("../../../../shared/utilities");
+const {
+    adapterFixture,
+    investorFixture,
+} = require("../../../../shared/fixtures");
 
 const BigNumber = ethers.BigNumber;
 
@@ -50,17 +53,13 @@ describe("PickleSushiFarmAdapterEth Integration Test", function () {
         );
         await this.aAdapter.deployed();
 
-        [
-            this.adapterInfo,
-            this.investor,
-            this.ybNft
-        ] = await investorFixture(
+        [this.adapterInfo, this.investor, this.ybNft] = await investorFixture(
             this.aAdapter,
             treasury.address,
             lpToken,
             performanceFee
-            );
-        
+        );
+
         await setPath(this.aAdapter, weth, pickle);
         await setPath(this.aAdapter, weth, wbtc);
 

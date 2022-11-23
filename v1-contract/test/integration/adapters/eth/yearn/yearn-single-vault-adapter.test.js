@@ -1,7 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
-const { adapterFixture, investorFixture } = require('../../../../shared/fixtures');
+const { setPath, forkETHNetwork } = require("../../../../shared/utilities");
+const {
+    adapterFixture,
+    investorFixture,
+} = require("../../../../shared/fixtures");
 
 const BigNumber = ethers.BigNumber;
 
@@ -28,9 +31,7 @@ describe("YearnSingleAdapterEth Integration Test", function () {
         this.treasuryAddr = treasury.address;
 
         // Deploy Pancakeswap LP Adapter contract
-        const YearnSingleAdapter = await adapterFixture(
-            "YearnSingleAdapter"
-        );
+        const YearnSingleAdapter = await adapterFixture("YearnSingleAdapter");
         this.aAdapter = await YearnSingleAdapter.deploy(
             strategy,
             stakingToken,
@@ -40,11 +41,7 @@ describe("YearnSingleAdapterEth Integration Test", function () {
         );
         await this.aAdapter.deployed();
 
-        [
-            this.adapterInfo,
-            this.investor,
-            this.ybNft
-        ] = await investorFixture(
+        [this.adapterInfo, this.investor, this.ybNft] = await investorFixture(
             this.aAdapter,
             treasury.address,
             stakingToken,
@@ -55,7 +52,7 @@ describe("YearnSingleAdapterEth Integration Test", function () {
         await setPath(this.aAdapter, weth, stakingToken);
 
         this.repayToken = await ethers.getContractAt("IBEP20", strategy);
-        
+
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);
         console.log("Strategy: ", strategy);

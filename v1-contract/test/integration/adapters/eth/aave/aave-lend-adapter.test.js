@@ -1,7 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
-const { adapterFixture, investorFixture } = require('../../../../shared/fixtures');
+const { setPath, forkETHNetwork } = require("../../../../shared/utilities");
+const {
+    adapterFixture,
+    investorFixture,
+} = require("../../../../shared/fixtures");
 
 const BigNumber = ethers.BigNumber;
 
@@ -44,10 +47,7 @@ describe("AaveLendAdapterEth Integration Test", function () {
         );
         await this.adapter.deployed();
 
-        [
-            this.adapterInfo,
-            this.investor,
-        ] = await investorFixture(
+        [this.adapterInfo, this.investor] = await investorFixture(
             this.adapter,
             treasury.address,
             stakingToken,

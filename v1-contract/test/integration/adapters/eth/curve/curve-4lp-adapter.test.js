@@ -1,7 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
-const { adapterFixture, investorFixture } = require('../../../../shared/fixtures');
+const { setPath, forkETHNetwork } = require("../../../../shared/utilities");
+const {
+    adapterFixture,
+    investorFixture,
+} = require("../../../../shared/fixtures");
 
 const BigNumber = ethers.BigNumber;
 
@@ -34,9 +37,7 @@ describe("CurveGaugeAdapter4LP Integration Test", function () {
         this.accTokenPerShare1 = BigNumber.from(0);
 
         // Deploy CurveGauge Adapter contract
-        const CurveGaugeAdapter = await adapterFixture(
-            "CurveGaugeAdapter"
-        );
+        const CurveGaugeAdapter = await adapterFixture("CurveGaugeAdapter");
         this.aAdapter = await CurveGaugeAdapter.deploy(
             strategy,
             stakingToken,
@@ -54,11 +55,7 @@ describe("CurveGaugeAdapter4LP Integration Test", function () {
         );
         await this.aAdapter.deployed();
 
-        [
-            this.adapterInfo,
-            this.investor,
-            this.ybNft
-        ] = await investorFixture(
+        [this.adapterInfo, this.investor, this.ybNft] = await investorFixture(
             this.aAdapter,
             treasury.address,
             stakingToken,

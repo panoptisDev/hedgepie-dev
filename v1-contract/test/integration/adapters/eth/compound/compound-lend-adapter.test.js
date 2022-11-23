@@ -1,7 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
-const { adapterFixture, investorFixture } = require('../../../../shared/fixtures');
+const { setPath, forkETHNetwork } = require("../../../../shared/utilities");
+const {
+    adapterFixture,
+    investorFixture,
+} = require("../../../../shared/fixtures");
 
 const BigNumber = ethers.BigNumber;
 
@@ -17,7 +20,7 @@ describe("CompoundLendAdapterEth Integration Test", function () {
         const strategy = "0xe65cdB6479BaC1e22340E4E755fAE7E509EcD06c"; // cAAVE Token
         const comptroller = "0x3d9819210A31b4961b30EF54bE2aeD79B9c9Cd3B"; // Compound comptroller
         const stakingToken = aave;
-        const swapRouter = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F" // sushi router
+        const swapRouter = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"; // sushi router
 
         this.performanceFee = performanceFee;
 
@@ -41,11 +44,7 @@ describe("CompoundLendAdapterEth Integration Test", function () {
         );
         await this.adapter.deployed();
 
-        [
-            this.adapterInfo,
-            this.investor,
-            this.ybNft
-        ] = await investorFixture(
+        [this.adapterInfo, this.investor, this.ybNft] = await investorFixture(
             this.adapter,
             treasury.address,
             stakingToken,

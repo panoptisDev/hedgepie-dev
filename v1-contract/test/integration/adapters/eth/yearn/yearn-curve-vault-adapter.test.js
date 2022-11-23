@@ -1,7 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { forkETHNetwork } = require('../../../../shared/utilities');
-const { adapterFixture, investorFixture } = require('../../../../shared/fixtures');
+const { forkETHNetwork } = require("../../../../shared/utilities");
+const {
+    adapterFixture,
+    investorFixture,
+} = require("../../../../shared/fixtures");
 
 const BigNumber = ethers.BigNumber;
 
@@ -30,9 +33,7 @@ describe("YearnCurveAdapterEth Integration Test", function () {
         this.treasuryAddr = treasury.address;
 
         // Deploy YearnCurveVault Adapter contract
-        const YearnCurveAdapter = await adapterFixture(
-            "YearnCurveAdapter"
-        );
+        const YearnCurveAdapter = await adapterFixture("YearnCurveAdapter");
         this.aAdapter = await YearnCurveAdapter.deploy(
             strategy,
             stakingToken,
@@ -47,17 +48,13 @@ describe("YearnCurveAdapterEth Integration Test", function () {
         );
         await this.aAdapter.deployed();
 
-        [
-            this.adapterInfo,
-            this.investor,
-            this.ybNft
-        ] = await investorFixture(
+        [this.adapterInfo, this.investor, this.ybNft] = await investorFixture(
             this.aAdapter,
             treasury.address,
             stakingToken,
             performanceFee
         );
-        
+
         this.repayToken = await ethers.getContractAt("IBEP20", strategy);
 
         console.log("Owner: ", this.owner.address);

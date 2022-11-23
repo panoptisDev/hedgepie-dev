@@ -70,33 +70,24 @@ async function investorFixture(
     // Set adapter manager in investor
     await investor.setAdapterManager(adapterManager.address);
 
-    return [
-        adapterInfo,
-        investor,
-        ybNft
-    ];
+    return [adapterInfo, investor, ybNft];
 }
 
-async function adapterFixture(
-    adapterName
-) {
+async function adapterFixture(adapterName) {
     // Deploy HedgepieLibraryEth contract
     const Lib = await ethers.getContractFactory("HedgepieLibraryEth");
     const lib = await Lib.deploy();
 
-    const Adapter = await ethers.getContractFactory(
-        adapterName,
-        {
-            libraries: {
-                HedgepieLibraryEth: lib.address,
-            },
-        }
-    );
-    
+    const Adapter = await ethers.getContractFactory(adapterName, {
+        libraries: {
+            HedgepieLibraryEth: lib.address,
+        },
+    });
+
     return Adapter;
 }
 
 module.exports = {
     adapterFixture,
-    investorFixture
-}
+    investorFixture,
+};

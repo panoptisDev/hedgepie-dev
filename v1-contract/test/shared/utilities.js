@@ -9,10 +9,10 @@ async function forkETHNetwork() {
             },
         ],
     });
-};
+}
 
 async function setPath(adapter, first, second, third = null) {
-    if(third) {
+    if (third) {
         await adapter.setPath(first, second, [first, third, second]);
         await adapter.setPath(second, first, [second, third, first]);
     } else {
@@ -23,5 +23,5 @@ async function setPath(adapter, first, second, third = null) {
 
 module.exports = {
     setPath,
-    forkETHNetwork
-}
+    forkETHNetwork,
+};

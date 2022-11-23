@@ -1,7 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
-const { adapterFixture, investorFixture } = require('../../../../shared/fixtures');
+const { setPath, forkETHNetwork } = require("../../../../shared/utilities");
+const {
+    adapterFixture,
+    investorFixture,
+} = require("../../../../shared/fixtures");
 
 const BigNumber = ethers.BigNumber;
 
@@ -18,7 +21,7 @@ describe("SushiFarmAdapterEth Integration Test", function () {
         const strategy = "0xc2EdaD668740f1aA35E4D8f227fB8E17dcA888Cd"; // MasterChef V1
         const swapRouter = "0xd9e1cE17f2641f24aE83637ab66a2cca9C378B9F"; // sushi router address
         const lpToken = "0x397FF1542f962076d0BFE58eA045FfA2d347ACa0"; // USDC-WETH LP
-        
+
         this.performanceFee = performanceFee;
 
         this.owner = owner;
@@ -32,9 +35,7 @@ describe("SushiFarmAdapterEth Integration Test", function () {
         this.accTokenPerShare1 = BigNumber.from(0);
 
         // Deploy Pancakeswap LP Adapter contract
-        const SushiLPAdapter = await adapterFixture(
-            "SushiFarmAdapterEth"
-        );
+        const SushiLPAdapter = await adapterFixture("SushiFarmAdapterEth");
         this.aAdapter = await SushiLPAdapter.deploy(
             1,
             strategy,
@@ -47,11 +48,7 @@ describe("SushiFarmAdapterEth Integration Test", function () {
         );
         await this.aAdapter.deployed();
 
-        [
-            this.adapterInfo,
-            this.investor,
-            this.ybNft
-        ] = await investorFixture(
+        [this.adapterInfo, this.investor, this.ybNft] = await investorFixture(
             this.aAdapter,
             treasury.address,
             lpToken,
@@ -60,7 +57,7 @@ describe("SushiFarmAdapterEth Integration Test", function () {
 
         await setPath(this.aAdapter, weth, sushi);
         await setPath(this.aAdapter, weth, usdc);
-        
+
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);
         console.log("Strategy: ", strategy);

@@ -1,7 +1,10 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { setPath, forkETHNetwork } = require('../../../../shared/utilities');
-const { adapterFixture, investorFixture } = require('../../../../shared/fixtures');
+const { setPath, forkETHNetwork } = require("../../../../shared/utilities");
+const {
+    adapterFixture,
+    investorFixture,
+} = require("../../../../shared/fixtures");
 
 const BigNumber = ethers.BigNumber;
 
@@ -20,7 +23,7 @@ describe("SushiFarmV2AdapterEth Integration Test", function () {
         const lpToken = "0x559eBE4E206e6B4D50e9bd3008cDA7ce640C52cb"; // RADAR-WETH LP
 
         this.performanceFee = performanceFee;
-        
+
         this.owner = owner;
         this.alice = alice;
         this.bob = bob;
@@ -32,9 +35,7 @@ describe("SushiFarmV2AdapterEth Integration Test", function () {
         this.accTokenPerShare1 = BigNumber.from(0);
 
         // Deploy Pancakeswap LP Adapter contract
-        const SushiLPAdapter = await adapterFixture(
-            "SushiFarmV2AdapterEth"
-        );
+        const SushiLPAdapter = await adapterFixture("SushiFarmV2AdapterEth");
         this.adapter = await SushiLPAdapter.deploy(
             42,
             strategy,
@@ -48,16 +49,12 @@ describe("SushiFarmV2AdapterEth Integration Test", function () {
         );
         await this.adapter.deployed();
 
-        [
-            this.adapterInfo,
-            this.investor,
-            this.ybNft
-        ] = await investorFixture(
+        [this.adapterInfo, this.investor, this.ybNft] = await investorFixture(
             this.adapter,
             treasury.address,
             lpToken,
             performanceFee
-            );
+        );
 
         await setPath(this.adapter, weth, sushi);
         await setPath(this.adapter, weth, radar);
