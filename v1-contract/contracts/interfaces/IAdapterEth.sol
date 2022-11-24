@@ -11,7 +11,7 @@ interface IAdapterEth {
         returns (address[] memory);
 
     function stakingToken() external view returns (address);
-    
+
     function strategy() external view returns (address);
 
     function name() external view returns (string memory);

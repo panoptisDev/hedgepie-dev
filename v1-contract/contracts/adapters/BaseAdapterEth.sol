@@ -49,7 +49,7 @@ abstract contract BaseAdapterEth is Ownable {
     // nft id => AdapterInfo
     mapping(uint256 => AdapterInfo) public adapterInfos;
 
-    modifier onlyInvestor {
+    modifier onlyInvestor() {
         require(msg.sender == investor, "Not investor");
         _;
     }

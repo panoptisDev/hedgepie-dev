@@ -140,7 +140,9 @@ describe("AlpacaAUSDPoolAdapter Integration Test", function () {
                     this.owner.address,
                     1,
                     depositAmount.toString(),
-                    { gasPrice: 21e9 }
+                    {
+                        gasPrice: 21e9,
+                    }
                 )
             ).to.be.revertedWith("Error: Amount can not be 0");
         });

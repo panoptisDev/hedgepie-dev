@@ -231,6 +231,7 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
             _account,
             false
         );
+
         adapterInfo.totalStaked -= userInfo.amount;
         userInfo.amount = 0;
         userInfo.invested = 0;

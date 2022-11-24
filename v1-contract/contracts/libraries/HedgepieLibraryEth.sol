@@ -40,7 +40,10 @@ library HedgepieLibraryEth {
             IWrap(_weth).withdraw(_amountIn);
             amountOut = _amountIn;
         } else {
-            address[] memory path = IAdapterEth(_adapter).getPaths(_inToken, _weth);
+            address[] memory path = IAdapterEth(_adapter).getPaths(
+                _inToken,
+                _weth
+            );
             uint256 beforeBalance = address(this).balance;
 
             IBEP20(_inToken).approve(_router, _amountIn);
