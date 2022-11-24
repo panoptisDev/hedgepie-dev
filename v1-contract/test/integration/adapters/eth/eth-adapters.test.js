@@ -1,7 +1,7 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
-const { setPath, forkETHNetwork } = require("../shared/utilities");
-const { adapterFixture } = require("../shared/fixtures");
+const { setPath, forkETHNetwork } = require("../../../shared/utilities");
+const { adapterFixture } = require("../../../shared/fixtures");
 
 const BigNumber = ethers.BigNumber;
 
