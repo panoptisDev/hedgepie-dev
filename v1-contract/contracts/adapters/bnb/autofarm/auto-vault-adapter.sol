@@ -1,9 +1,16 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../../BaseAdapter.sol";
+import "../../BaseAdapterBsc.sol";
 
-interface IMasterChef {
+import "../../../libraries/HedgepieLibraryBsc.sol";
+
+import "../../../interfaces/IYBNFT.sol";
+import "../../../interfaces/IVaultStrategy.sol";
+import "../../../interfaces/IHedgepieInvestorBsc.sol";
+import "../../../interfaces/IHedgepieAdapterInfoBsc.sol";
+
+interface IStrategy {
     function pendingAUTO(uint256 pid, address user)
         external
         view
@@ -13,140 +20,239 @@ interface IMasterChef {
         external
         view
         returns (uint256, uint256);
+
+    function deposit(uint256 pid, uint256 shares) external;
+
+    function withdraw(uint256 pid, uint256 shares) external;
 }
 
-contract AutoVaultAdapter is BaseAdapter {
+contract AutoVaultAdapterBsc is BaseAdapterBsc {
+    // vStrategy address of vault
+    address public vStrategy;
+
     /**
      * @notice Construct
+     * @param _pid pool id of strategy
      * @param _strategy  address of strategy
      * @param _vStrategy  address of vault strategy
      * @param _stakingToken  address of staking token
-     * @param _rewardToken  address of reward token
      * @param _router  address of DEX router
+     * @param _swapRouter  address of swap router
+     * @param _wbnb  address of wbnb
      * @param _name  adatper name
      */
     constructor(
+        uint256 _pid,
         address _strategy,
         address _vStrategy,
         address _stakingToken,
-        address _rewardToken,
         address _router,
+        address _swapRouter,
+        address _wbnb,
         string memory _name
     ) {
-        stakingToken = _stakingToken;
-        rewardToken = _rewardToken;
+        pid = _pid;
         strategy = _strategy;
         vStrategy = _vStrategy;
-        name = _name;
+        stakingToken = _stakingToken;
         router = _router;
-        isVault = true;
+        swapRouter = _swapRouter;
+        wbnb = _wbnb;
+        name = _name;
     }
 
     /**
-     * @notice Get withdrwal amount
-     * @param _user  user address
-     * @param _nftId  nftId
+     * @notice Deposit with ETH
+     * @param _tokenId YBNFT token id
+     * @param _account user wallet address
+     * @param _amountIn ETH amount
      */
-    function getWithdrawalAmount(address _user, uint256 _nftId)
-        external
-        view
-        returns (uint256 amount)
-    {
-        amount = withdrawalAmount[_user][_nftId];
-    }
+    function deposit(
+        uint256 _tokenId,
+        uint256 _amountIn,
+        address _account
+    ) external payable override onlyInvestor returns (uint256) {
+        require(msg.value == _amountIn, "Error: msg.value is not correct");
+        AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
+        UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
-    /**
-     * @notice Get invest calldata
-     * @param _amount  amount of invest
-     */
-    function getInvestCallData(uint256 _amount)
-        external
-        view
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        )
-    {
-        to = strategy;
-        value = 0;
-        data = abi.encodeWithSignature(
-            "deposit(uint256,uint256)",
-            pid,
-            _amount
+        // get LP
+        uint256 lpOut = HedgepieLibraryBsc.getLP(
+            IYBNFT.Adapter(0, stakingToken, address(this), 0, 0),
+            wbnb,
+            _amountIn
         );
+
+        // deposit
+        (uint256 beforeShare, ) = IStrategy(strategy).userInfo(
+            pid,
+            address(this)
+        );
+        IBEP20(stakingToken).approve(strategy, lpOut);
+        IStrategy(strategy).deposit(pid, lpOut);
+        (uint256 afterShare, ) = IStrategy(strategy).userInfo(
+            pid,
+            address(this)
+        );
+
+        adapterInfo.totalStaked += lpOut;
+        userInfo.amount += lpOut;
+        userInfo.userShares += afterShare - beforeShare;
+        userInfo.invested += _amountIn;
+
+        // Update adapterInfo contract
+        address adapterInfoEthAddr = IHedgepieInvestorBsc(investor)
+            .adapterInfo();
+        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTVLInfo(
+            _tokenId,
+            _amountIn,
+            true
+        );
+        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTradedInfo(
+            _tokenId,
+            _amountIn,
+            true
+        );
+        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateParticipantInfo(
+            _tokenId,
+            _account,
+            true
+        );
+
+        return _amountIn;
     }
 
     /**
-     * @notice Get devest calldata`
-     * @param _amount  amount of devest
+     * @notice Withdraw the deposited ETH
+     * @param _tokenId YBNFT token id
+     * @param _account user wallet address
      */
-    function getDevestCallData(uint256 _amount)
+    function withdraw(uint256 _tokenId, address _account)
+        external
+        payable
+        override
+        onlyInvestor
+        returns (uint256 amountOut)
+    {
+        AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
+        UserAdapterInfo memory userInfo = userAdapterInfos[_account][_tokenId];
+
+        // withdraw from MasterChef
+        uint256 vAmount = (userInfo.userShares *
+            IVaultStrategy(vStrategy).wantLockedTotal()) /
+            IVaultStrategy(vStrategy).sharesTotal();
+        uint256 lpOut = IBEP20(stakingToken).balanceOf(address(this));
+        IStrategy(strategy).withdraw(pid, vAmount);
+
+        unchecked {
+            lpOut = IBEP20(stakingToken).balanceOf(address(this)) - lpOut;
+        }
+
+        amountOut = HedgepieLibraryBsc.withdrawLP(
+            IYBNFT.Adapter(0, stakingToken, address(this), 0, 0),
+            wbnb,
+            lpOut
+        );
+
+        address adapterInfoEthAddr = IHedgepieInvestorBsc(investor)
+            .adapterInfo();
+
+        uint256 reward;
+        if (amountOut > userInfo.invested) {
+            reward = amountOut - userInfo.invested;
+
+            IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateProfitInfo(
+                _tokenId,
+                reward,
+                true
+            );
+        }
+
+        // Update adapterInfo contract
+        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTVLInfo(
+            _tokenId,
+            userInfo.invested,
+            false
+        );
+        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTradedInfo(
+            _tokenId,
+            userInfo.invested,
+            true
+        );
+        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateParticipantInfo(
+            _tokenId,
+            _account,
+            false
+        );
+
+        unchecked {
+            adapterInfo.totalStaked -= userInfo.amount;
+        }
+
+        delete userAdapterInfos[_account][_tokenId];
+
+        if (amountOut != 0) {
+            bool success;
+            if (reward != 0) {
+                reward =
+                    (reward *
+                        IYBNFT(IHedgepieInvestorBsc(investor).ybnft())
+                            .performanceFee(_tokenId)) /
+                    1e4;
+                (success, ) = payable(IHedgepieInvestorBsc(investor).treasury())
+                    .call{value: reward}("");
+                require(success, "Failed to send ether to Treasury");
+            }
+
+            (success, ) = payable(_account).call{value: amountOut - reward}("");
+            require(success, "Failed to send ether");
+        }
+    }
+
+    /**
+     * @notice Return the pending reward by BNB
+     * @param _tokenId YBNFT token id
+     * @param _account user wallet address
+     */
+    function pendingReward(uint256 _tokenId, address _account)
         external
         view
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        )
+        override
+        returns (uint256 reward)
     {
-        to = strategy;
-        value = 0;
-        data = abi.encodeWithSignature(
-            "withdraw(uint256,uint256)",
-            pid,
-            _amount
-        );
+        UserAdapterInfo memory userInfo = userAdapterInfos[_account][_tokenId];
+        AdapterInfo memory adapterInfo = adapterInfos[_tokenId];
+
+        uint256 vAmount = (userInfo.userShares *
+            IVaultStrategy(vStrategy).wantLockedTotal()) /
+            IVaultStrategy(vStrategy).sharesTotal();
+
+        if (vAmount < userInfo.amount) return 0;
+
+        address token0 = IPancakePair(stakingToken).token0();
+        address token1 = IPancakePair(stakingToken).token1();
+        (uint112 reserve0, uint112 reserve1, ) = IPancakePair(stakingToken)
+            .getReserves();
+
+        uint256 amount0 = (reserve0 * (vAmount - userInfo.amount)) /
+            IPancakePair(stakingToken).totalSupply();
+        uint256 amount1 = (reserve1 * (vAmount - userInfo.amount)) /
+            IPancakePair(stakingToken).totalSupply();
+
+        if (token0 == wbnb) reward += amount0;
+        else
+            reward += IPancakeRouter(swapRouter).getAmountsOut(
+                amount0,
+                getPaths(token0, wbnb)
+            )[1];
+
+        if (token1 == wbnb) reward += amount1;
+        else
+            reward += IPancakeRouter(swapRouter).getAmountsOut(
+                amount1,
+                getPaths(token1, wbnb)
+            )[1];
     }
 
-    /**
-     * @notice Get pending AUTO token reward
-     */
-    function pendingReward() external view override returns (uint256 reward) {
-        reward = IMasterChef(strategy).pendingAUTO(pid, msg.sender);
-    }
-
-    /**
-     * @notice Get pending shares
-     */
-    function pendingShares() external view override returns (uint256 shares) {
-        (shares, ) = IMasterChef(strategy).userInfo(pid, msg.sender);
-    }
-
-    /**
-     * @notice Increase withdrwal amount
-     * @param _user  user address
-     * @param _nftId  nftId
-     * @param _amount  amount of withdrawal
-     */
-    /// #if_succeeds {:msg "withdrawalAmount not increased"} withdrawalAmount[_user][_nftId] == old(withdrawalAmount[_user][_nftId]) + _amount;
-    function increaseWithdrawalAmount(
-        address _user,
-        uint256 _nftId,
-        uint256 _amount
-    ) external onlyInvestor {
-        withdrawalAmount[_user][_nftId] += _amount;
-    }
-
-    /**
-     * @notice Set withdrwal amount
-     * @param _user  user address
-     * @param _nftId  nftId
-     * @param _amount  amount of withdrawal
-     */
-    function setWithdrawalAmount(
-        address _user,
-        uint256 _nftId,
-        uint256 _amount
-    ) external onlyInvestor {
-        withdrawalAmount[_user][_nftId] = _amount;
-    }
-
-    /**
-     * @notice Set poolId
-     * @param _pid pool in masterchef
-     */
-    function setPoolID(uint256 _pid) external onlyOwner {
-        pid = _pid;
-    }
+    receive() external payable {}
 }

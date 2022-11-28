@@ -21,7 +21,12 @@ async function setPath(adapter, first, second, third = null) {
     }
 }
 
+function encode(types, values) {
+    return ethers.utils.defaultAbiCoder.encode(types, values);
+}
+
 module.exports = {
+    encode,
     setPath,
     forkETHNetwork,
 };
