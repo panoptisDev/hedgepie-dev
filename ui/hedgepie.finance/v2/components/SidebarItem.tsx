@@ -1,6 +1,7 @@
 import Image from 'next/image'
-import React from 'react'
+import React, { useContext } from 'react'
 import { Box, Text } from 'theme-ui'
+import DashboardContext from 'v2/contexts/DashboardContext'
 import { SidebarItemType } from './Sidebar'
 
 interface SidebarItemProps {
@@ -11,6 +12,7 @@ interface SidebarItemProps {
 function SidebarItem(props: SidebarItemProps) {
   const { type, active } = props
   const isActive = active === type
+  const { sidebarExpanded } = useContext(DashboardContext)
 
   const getTitle = (type: SidebarItemType | undefined) => {
     switch (type) {
@@ -61,10 +63,11 @@ function SidebarItem(props: SidebarItemProps) {
         margin: '5px 2px',
         gap: ['10px', '10px', '10px', '30px'],
         cursor: 'pointer',
+        width: 'max-content',
       }}
     >
       <img src={getIcon(type)} />
-      <Text sx={{ color: '#667080', marginTop: '-3px' }}>{getTitle(type)}</Text>
+      {sidebarExpanded ? <Text sx={{ color: '#667080', marginTop: '-3px' }}>{getTitle(type)}</Text> : null}
     </Box>
   )
 }

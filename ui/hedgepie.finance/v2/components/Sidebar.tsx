@@ -3,6 +3,7 @@ import { Box, Button } from 'theme-ui'
 import DashboardContext from 'v2/contexts/DashboardContext'
 import SidebarItem from './SidebarItem'
 import { useRouter } from 'next/router'
+import { ChevronLeft, ChevronRight } from 'react-feather'
 
 interface SidebarProps {
   active: string
@@ -14,7 +15,7 @@ function Sidebar(props: SidebarProps) {
   // const sidebarItems: SidebarItemType[] = ['home', 'stats', 'history']
 
   const sidebarItems: SidebarItemType[] = ['home', 'leaderboard', 'mint']
-  const dashboardValue = useContext(DashboardContext)
+  const { activeTab, setActiveTab, sidebarExpanded, setSidebarExpanded } = useContext(DashboardContext)
   const router = useRouter()
 
   const getPageName = (s: SidebarItemType) => {
@@ -34,32 +35,58 @@ function Sidebar(props: SidebarProps) {
   return (
     <Box
       sx={{
-        minWidth: ['0rem', '0rem', '0rem', '18rem'],
+        minWidth: sidebarExpanded ? ['0rem', '0rem', '0rem', '14rem'] : '0rem',
         backgroundColor: '#14114B',
         borderTopLeftRadius: '14px',
         borderBottomLeftRadius: '14px',
-        padding: ['0rem', '0rem', '2rem 2rem', '2rem 2rem'],
+        padding: ['0rem', '0rem', '1rem 1rem', '1rem 1rem'],
         display: ['none', 'none', 'none', 'flex'],
         flexDirection: 'column',
         minHeight: '100vh',
+        boxShadow: '4px 0px 10px rgba(0, 0, 0, 0.25)',
       }}
     >
       <Box style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            cursor: 'pointer',
+            justifyContent: !sidebarExpanded ? 'center' : 'flex-end',
+          }}
+          onClick={() => {
+            setSidebarExpanded(!sidebarExpanded)
+          }}
+        >
+          <Box
+            sx={{ cursor: 'pointer' }}
+            onClick={() => {
+              setSidebarExpanded(!sidebarExpanded)
+            }}
+          >
+            {sidebarExpanded ? (
+              <ChevronLeft style={{ color: '#667080' }} />
+            ) : (
+              <ChevronRight style={{ color: '#667080' }} />
+            )}
+          </Box>
+        </Box>
         {sidebarItems.map((s) => (
           <Box
             onClick={() => {
-              dashboardValue.setActiveTab(s)
+              setActiveTab(s)
               router.push(`/${getPageName(s)}`)
             }}
           >
-            <SidebarItem type={s} active={dashboardValue.activeTab} />
+            <SidebarItem type={s} active={activeTab} />
           </Box>
         ))}
       </Box>
       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '4rem', marginTop: 'auto' }}>
         <Box sx={{ border: '1px solid #667080', width: '100%' }}></Box>
-        <Box onClick={() => dashboardValue.setActiveTab('help')}>
-          <SidebarItem type="help" active={dashboardValue.activeTab} />
+        <Box onClick={() => setActiveTab('help')}>
+          <SidebarItem type="help" active={activeTab} />
         </Box>
       </Box>
     </Box>
