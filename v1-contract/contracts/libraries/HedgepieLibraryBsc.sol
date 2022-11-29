@@ -29,7 +29,7 @@ library HedgepieLibraryBsc {
         amountOut = afterBalance - beforeBalance;
     }
 
-    function swapforEth(
+    function swapforBnb(
         uint256 _amountIn,
         address _adapter,
         address _inToken,
@@ -188,7 +188,7 @@ library HedgepieLibraryBsc {
                 );
 
             amountOut = amountETH;
-            amountOut += swapforEth(
+            amountOut += swapforBnb(
                 amountToken,
                 _adapter.addr,
                 tokenAddr,
@@ -207,14 +207,14 @@ library HedgepieLibraryBsc {
                     block.timestamp + 2 hours
                 );
 
-            amountOut += swapforEth(
+            amountOut += swapforBnb(
                 amountA,
                 _adapter.addr,
                 tokens[0],
                 IAdapterBsc(_adapter.addr).swapRouter(),
                 wbnb
             );
-            amountOut += swapforEth(
+            amountOut += swapforBnb(
                 amountB,
                 _adapter.addr,
                 tokens[1],
