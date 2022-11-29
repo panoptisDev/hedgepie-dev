@@ -155,7 +155,7 @@ contract PancakeSwapFarmLPAdapterBsc is BaseAdapterBsc {
         }
 
         if (router == address(0)) {
-            amountOut = HedgepieLibraryBsc.swapforEth(
+            amountOut = HedgepieLibraryBsc.swapforBnb(
                 amountOut,
                 address(this),
                 stakingToken,
@@ -178,7 +178,7 @@ contract PancakeSwapFarmLPAdapterBsc is BaseAdapterBsc {
 
         uint256 rewardETH;
         if (reward != 0) {
-            rewardETH = HedgepieLibraryBsc.swapforEth(
+            rewardETH = HedgepieLibraryBsc.swapforBnb(
                 reward,
                 address(this),
                 rewardToken,
@@ -269,7 +269,7 @@ contract PancakeSwapFarmLPAdapterBsc is BaseAdapterBsc {
 
         uint256 amountOut;
         if (reward != 0 && rewardToken != address(0)) {
-            amountOut += HedgepieLibraryBsc.swapforEth(
+            amountOut += HedgepieLibraryBsc.swapforBnb(
                 reward,
                 address(this),
                 rewardToken,
