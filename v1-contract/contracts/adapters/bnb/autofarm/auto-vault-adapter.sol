@@ -221,7 +221,6 @@ contract AutoVaultAdapterBsc is BaseAdapterBsc {
         returns (uint256 reward)
     {
         UserAdapterInfo memory userInfo = userAdapterInfos[_account][_tokenId];
-        AdapterInfo memory adapterInfo = adapterInfos[_tokenId];
 
         uint256 vAmount = (userInfo.userShares *
             IVaultStrategy(vStrategy).wantLockedTotal()) /

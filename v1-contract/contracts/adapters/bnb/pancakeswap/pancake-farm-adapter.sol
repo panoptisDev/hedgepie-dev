@@ -137,7 +137,6 @@ contract PancakeSwapFarmLPAdapterBsc is BaseAdapterBsc {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
         uint256 rewardAmt0;
-        uint256 rewardAmt1;
         amountOut = IBEP20(stakingToken).balanceOf(address(this));
 
         rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this));
@@ -170,7 +169,7 @@ contract PancakeSwapFarmLPAdapterBsc is BaseAdapterBsc {
             );
         }
 
-        (uint256 reward, uint256 reward1) = HedgepieLibraryBsc.getRewards(
+        (uint256 reward, ) = HedgepieLibraryBsc.getRewards(
             _tokenId,
             address(this),
             _account
@@ -258,7 +257,7 @@ contract PancakeSwapFarmLPAdapterBsc is BaseAdapterBsc {
     {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
-        (uint256 reward, uint256 reward1) = HedgepieLibraryBsc.getRewards(
+        (uint256 reward, ) = HedgepieLibraryBsc.getRewards(
             _tokenId,
             address(this),
             _account
