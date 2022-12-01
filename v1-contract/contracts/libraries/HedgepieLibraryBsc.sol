@@ -192,7 +192,7 @@ library HedgepieLibraryBsc {
                 amountToken,
                 _adapter.addr,
                 tokenAddr,
-                IAdapterBsc(_adapter.addr).swapRouter(),
+                _router,
                 wbnb
             );
         } else {
@@ -211,14 +211,14 @@ library HedgepieLibraryBsc {
                 amountA,
                 _adapter.addr,
                 tokens[0],
-                IAdapterBsc(_adapter.addr).swapRouter(),
+                _router,
                 wbnb
             );
             amountOut += swapforBnb(
                 amountB,
                 _adapter.addr,
                 tokens[1],
-                IAdapterBsc(_adapter.addr).swapRouter(),
+                _router,
                 wbnb
             );
         }
