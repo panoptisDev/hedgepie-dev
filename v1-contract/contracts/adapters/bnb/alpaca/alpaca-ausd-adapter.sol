@@ -15,8 +15,6 @@ interface IStrategy {
     function totalSupply() external view returns(uint256);
 
     function totalToken() external view returns(uint256);
-
-    function balanceOf(address) external view returns(uint256);
 }
 
 contract AlpacaAUSDAdapter is BaseAdapterBsc {
@@ -90,18 +88,10 @@ contract AlpacaAUSDAdapter is BaseAdapterBsc {
             repayAmt = IBEP20(repayToken).balanceOf(address(this)) - repayAmt;
 
             adapterInfo.totalStaked += amountOut;
-            if (repayAmt != 0) {
-                adapterInfo.accTokenPerShare +=
-                    (repayAmt * 1e12) /
-                    adapterInfo.totalStaked;
-            }
 
-            if (userInfo.amount == 0) {
-                userInfo.userShares = adapterInfo.accTokenPerShare;
-            }
             userInfo.amount += amountOut;
             userInfo.invested += _amountIn;
-            userInfo.userShares1 += repayAmt;
+            userInfo.userShares += repayAmt;
         }
 
         // Update adapterInfo contract
@@ -144,7 +134,7 @@ contract AlpacaAUSDAdapter is BaseAdapterBsc {
             : IBEP20(stakingToken).balanceOf(address(this));
 
         // withdraw
-        IStrategy(strategy).withdraw(userInfo.userShares1);
+        IStrategy(strategy).withdraw(userInfo.userShares);
 
         unchecked {
             amountOut = (isBNB ? address(this).balance
@@ -232,23 +222,18 @@ contract AlpacaAUSDAdapter is BaseAdapterBsc {
         returns (uint256 reward)
     {
         UserAdapterInfo memory userInfo = userAdapterInfos[_account][_tokenId];
-        AdapterInfo memory adapterInfo = adapterInfos[_tokenId];
 
-        uint256 _reward = IStrategy(strategy).balanceOf(address(this)) *
+        reward = userInfo.userShares *
             (IStrategy(strategy).totalToken()) / 
             (IStrategy(strategy).totalSupply());
 
-        uint256 updatedAccTokenPerShare = adapterInfo.accTokenPerShare +
-            ((_reward * 1e12) / adapterInfo.totalStaked);
+        if(reward < userInfo.amount) return 0;
 
-        uint256 tokenRewards = ((updatedAccTokenPerShare -
-            userInfo.userShares) * userInfo.amount) / 1e12;
-
-        if (tokenRewards != 0)
+        if (reward != 0)
             reward = stakingToken == wbnb
-                ? tokenRewards
+                ? reward
                 : IPancakeRouter(swapRouter).getAmountsOut(
-                    tokenRewards,
+                    reward,
                     getPaths(stakingToken, wbnb)
                 )[1];
     }
