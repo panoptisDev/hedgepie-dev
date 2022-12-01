@@ -13,6 +13,8 @@ contract YBNFT is BEP721, Ownable {
         uint256 allocation;
         address token;
         address addr;
+        uint96 created;
+        uint96 modified;
     }
 
     // current max tokenId
@@ -132,6 +134,10 @@ contract YBNFT is BEP721, Ownable {
         require(msg.sender == ownerOf(_tokenId), "Invalid NFT Owner");
 
         performanceFee[_tokenId] = _performanceFee;
+
+        for (uint256 i = 0; i < adapterInfo[_tokenId].length; i++) {
+            adapterInfo[_tokenId][i].modified = uint96(block.timestamp);
+        }
     }
 
     /**
@@ -153,8 +159,10 @@ contract YBNFT is BEP721, Ownable {
             "Incorrect adapter allocation"
         );
 
-        for (uint256 i = 0; i < adapterInfo[_tokenId].length; i++)
+        for (uint256 i = 0; i < adapterInfo[_tokenId].length; i++) {
             adapterInfo[_tokenId][i].allocation = _adapterAllocations[i];
+            adapterInfo[_tokenId][i].modified = uint96(block.timestamp);
+        }
     }
 
     /**
@@ -168,6 +176,9 @@ contract YBNFT is BEP721, Ownable {
         require(msg.sender == ownerOf(_tokenId), "Invalid NFT Owner");
 
         _setTokenURI(_tokenId, _tokenURI);
+        for (uint256 i = 0; i < adapterInfo[_tokenId].length; i++) {
+            adapterInfo[_tokenId][i].modified = uint96(block.timestamp);
+        }
     }
 
     /**
@@ -203,7 +214,9 @@ contract YBNFT is BEP721, Ownable {
                 Adapter({
                     allocation: _adapterAllocations[i],
                     token: _adapterTokens[i],
-                    addr: _adapterAddrs[i]
+                    addr: _adapterAddrs[i],
+                    created: uint96(block.timestamp),
+                    modified: uint96(block.timestamp)
                 })
             );
         }

@@ -172,9 +172,9 @@ contract CurveGaugeAdapter is BaseAdapterEth {
      */
     function deposit(
         uint256 _tokenId,
-        address _account,
-        uint256 _amountIn
-    ) external payable override returns (uint256 amountOut) {
+        uint256 _amountIn,
+        address _account
+    ) external payable override onlyInvestor returns (uint256 amountOut) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
 
         bool isETH = curveInfo.liquidityToken == weth;
@@ -182,8 +182,8 @@ contract CurveGaugeAdapter is BaseAdapterEth {
             amountOut = _amountIn;
         } else {
             amountOut = HedgepieLibraryEth.swapOnRouter(
-                address(this),
                 _amountIn,
+                address(this),
                 curveInfo.liquidityToken,
                 swapRouter,
                 weth
@@ -240,6 +240,7 @@ contract CurveGaugeAdapter is BaseAdapterEth {
         external
         payable
         override
+        onlyInvestor
         returns (uint256 amountOut)
     {
         UserAdapterInfo memory userInfo = userAdapterInfos[_account][_tokenId];
@@ -259,8 +260,8 @@ contract CurveGaugeAdapter is BaseAdapterEth {
         amountOut = _removeCurveLP(amountOut, isETH);
         if (!isETH) {
             amountOut = HedgepieLibraryEth.swapforEth(
-                address(this),
                 amountOut,
+                address(this),
                 curveInfo.liquidityToken,
                 swapRouter,
                 weth
@@ -268,8 +269,8 @@ contract CurveGaugeAdapter is BaseAdapterEth {
         }
 
         (uint256 reward, ) = HedgepieLibraryEth.getRewards(
-            address(this),
             _tokenId,
+            address(this),
             _account
         );
 
@@ -277,8 +278,8 @@ contract CurveGaugeAdapter is BaseAdapterEth {
             .adapterInfo();
         if (reward != 0) {
             reward = HedgepieLibraryEth.swapforEth(
-                address(this),
                 reward,
+                address(this),
                 rewardToken,
                 swapRouter,
                 weth
@@ -342,6 +343,7 @@ contract CurveGaugeAdapter is BaseAdapterEth {
         external
         payable
         override
+        onlyInvestor
         returns (uint256 amountOut)
     {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
@@ -349,8 +351,8 @@ contract CurveGaugeAdapter is BaseAdapterEth {
         _getReward(_tokenId);
 
         (amountOut, ) = HedgepieLibraryEth.getRewards(
-            address(this),
             _tokenId,
+            address(this),
             _account
         );
 
@@ -358,8 +360,8 @@ contract CurveGaugeAdapter is BaseAdapterEth {
 
         if (amountOut != 0) {
             amountOut = HedgepieLibraryEth.swapforEth(
-                address(this),
                 amountOut,
+                address(this),
                 rewardToken,
                 swapRouter,
                 weth

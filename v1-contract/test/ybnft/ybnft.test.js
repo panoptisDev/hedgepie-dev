@@ -106,6 +106,11 @@ describe("YBNFT capability for editing strategy Test", function () {
 
         // Mint NFTs
         // tokenID: 1
+        this.mintTime1 = Math.ceil(new Date().getTime() / 1000) + 1000;
+        await network.provider.send("evm_setNextBlockTimestamp", [
+            this.mintTime1,
+        ]);
+        await network.provider.send("evm_mine");
         await this.ybNft.mint(
             [5000, 5000],
             [stakingToken, stakingToken],
@@ -115,6 +120,11 @@ describe("YBNFT capability for editing strategy Test", function () {
         );
 
         // tokenID: 2
+        this.mintTime2 = this.mintTime1 + 1000;
+        await network.provider.send("evm_setNextBlockTimestamp", [
+            this.mintTime2,
+        ]);
+        await network.provider.send("evm_mine");
         await this.ybNft.mint(
             [4000, 6000],
             [stakingToken, stakingToken],
@@ -177,9 +187,14 @@ describe("YBNFT capability for editing strategy Test", function () {
             expect(adapter0Info.token).to.eq(this.stakingToken) &&
                 expect(adapter0Info.addr).to.eq(this.adapter1.address) &&
                 expect(adapter0Info.allocation).to.eq(5000) &&
+                expect(adapter0Info.created).to.eq(this.mintTime1 + 1) &&
+                expect(adapter0Info.modified).to.eq(this.mintTime1 + 1) &&
+                expect(adapter0Info.allocation).to.eq(5000) &&
                 expect(adapter1Info.token).to.eq(this.stakingToken) &&
                 expect(adapter1Info.addr).to.eq(this.adapter2.address) &&
-                expect(adapter1Info.allocation).to.eq(5000);
+                expect(adapter1Info.allocation).to.eq(5000) &&
+                expect(adapter1Info.created).to.eq(this.mintTime1 + 1) &&
+                expect(adapter1Info.modified).to.eq(this.mintTime1 + 1);
         });
 
         it("(3) check tokenURI", async function () {
@@ -194,10 +209,27 @@ describe("YBNFT capability for editing strategy Test", function () {
                 this.ybNft.updatePerformanceFee(1, 1000)
             ).to.be.revertedWith("Performance fee should be less than 10%");
 
+            this.modifyTime1 = this.mintTime2 + 1000;
+            await network.provider.send("evm_setNextBlockTimestamp", [
+                this.modifyTime1,
+            ]);
+            await network.provider.send("evm_mine");
             await this.ybNft.updatePerformanceFee(1, 500);
+
+            this.modifyTime2 = this.modifyTime1 + 1000;
+            await network.provider.send("evm_setNextBlockTimestamp", [
+                this.modifyTime2,
+            ]);
+            await network.provider.send("evm_mine");
             await this.ybNft.updatePerformanceFee(2, 800);
+
+            const adapter0Info = await this.ybNft.adapterInfo(1, 0);
+            const adapter1Info = await this.ybNft.adapterInfo(2, 0);
+
             expect(await this.ybNft.performanceFee(1)).to.eq(500) &&
-                expect(await this.ybNft.performanceFee(2)).to.eq(800);
+                expect(await this.ybNft.performanceFee(2)).to.eq(800) &&
+                expect(adapter0Info.modified).to.eq(this.modifyTime1 + 1) &&
+                expect(adapter1Info.modified).to.eq(this.modifyTime2 + 1);
         });
 
         it("(2) test capability to update adaper allocation", async function () {
@@ -205,7 +237,18 @@ describe("YBNFT capability for editing strategy Test", function () {
                 this.ybNft.updateAllocations(1, [1000, 10000])
             ).to.be.revertedWith("Incorrect adapter allocation");
 
+            this.modifyTime1 = this.modifyTime2 + 1000;
+            await network.provider.send("evm_setNextBlockTimestamp", [
+                this.modifyTime1,
+            ]);
+            await network.provider.send("evm_mine");
             await this.ybNft.updateAllocations(1, [1000, 9000]);
+
+            this.modifyTime2 = this.modifyTime1 + 1000;
+            await network.provider.send("evm_setNextBlockTimestamp", [
+                this.modifyTime2,
+            ]);
+            await network.provider.send("evm_mine");
             await this.ybNft.updateAllocations(2, [2000, 8000]);
 
             const adapter0Info = await this.ybNft.adapterInfo(1, 0);
@@ -216,7 +259,11 @@ describe("YBNFT capability for editing strategy Test", function () {
             expect(adapter0Info.allocation).to.eq(1000) &&
                 expect(adapter1Info.allocation).to.eq(9000) &&
                 expect(adapter2Info.allocation).to.eq(2000) &&
-                expect(adapter3Info.allocation).to.eq(8000);
+                expect(adapter3Info.allocation).to.eq(8000) &&
+                expect(adapter0Info.modified).to.eq(this.modifyTime1 + 1) &&
+                expect(adapter1Info.modified).to.eq(this.modifyTime1 + 1) &&
+                expect(adapter2Info.modified).to.eq(this.modifyTime2 + 1) &&
+                expect(adapter3Info.modified).to.eq(this.modifyTime2 + 1);
         });
 
         it("(3) check tokenURI", async function () {
@@ -224,11 +271,26 @@ describe("YBNFT capability for editing strategy Test", function () {
                 this.ybNft.updateTokenURI(3, "tokenURI3")
             ).to.be.revertedWith("BEP721: owner query for nonexistent token");
 
+            this.modifyTime1 = this.modifyTime2 + 1000;
+            await network.provider.send("evm_setNextBlockTimestamp", [
+                this.modifyTime1,
+            ]);
+            await network.provider.send("evm_mine");
             await this.ybNft.updateTokenURI(1, "tokenURI1");
+
+            this.modifyTime2 = this.modifyTime1 + 1000;
+            await network.provider.send("evm_setNextBlockTimestamp", [
+                this.modifyTime2,
+            ]);
+            await network.provider.send("evm_mine");
             await this.ybNft.updateTokenURI(2, "tokenURI2");
 
+            const adapter0Info = await this.ybNft.adapterInfo(1, 0);
+            const adapter1Info = await this.ybNft.adapterInfo(2, 0);
             expect(await this.ybNft.tokenURI(1)).to.eq("tokenURI1") &&
-                expect(await this.ybNft.tokenURI(2)).to.eq("tokenURI2");
+                expect(await this.ybNft.tokenURI(2)).to.eq("tokenURI2") &&
+                expect(adapter0Info.modified).to.eq(this.modifyTime1 + 1) &&
+                expect(adapter1Info.modified).to.eq(this.modifyTime2 + 1);
         });
     });
 });

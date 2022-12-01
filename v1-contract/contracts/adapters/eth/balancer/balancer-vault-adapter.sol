@@ -58,11 +58,11 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
     constructor(
         bytes32 _pid,
         address _strategy,
-        address[] memory _rewardTokens,
         address _repayToken,
         address _swapRouter,
-        string memory _name,
-        address _weth
+        address _weth,
+        address[] memory _rewardTokens,
+        string memory _name
     ) {
         require(_rewardTokens.length > 1, "Invalid rewardTokens array length");
         poolId = _pid;
@@ -87,9 +87,9 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
      */
     function deposit(
         uint256 _tokenId,
-        address _account,
-        uint256 _amountIn
-    ) external payable override returns (uint256) {
+        uint256 _amountIn,
+        address _account
+    ) external payable override onlyInvestor returns (uint256) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
@@ -112,8 +112,8 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
             );
         } else {
             uint256 amountOut = HedgepieLibraryEth.swapOnRouter(
-                address(this),
                 _amountIn,
+                address(this),
                 rewardTokens[0],
                 swapRouter,
                 weth
@@ -164,6 +164,7 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
         external
         payable
         override
+        onlyInvestor
         returns (uint256 amountOut)
     {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
@@ -194,8 +195,8 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
 
         for (i = 0; i < rewardTokens.length; i++)
             amountOut += HedgepieLibraryEth.swapforEth(
-                address(this),
                 rewardAmt[i],
+                address(this),
                 rewardTokens[i],
                 swapRouter,
                 weth
@@ -230,6 +231,7 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
             _account,
             false
         );
+
         adapterInfo.totalStaked -= userInfo.amount;
         userInfo.amount = 0;
         userInfo.invested = 0;
@@ -253,34 +255,6 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
             require(success, "Failed to send ether");
         }
         return amountOut;
-    }
-
-    /**
-     * @notice Claim the pending reward
-     * @param _tokenId YBNFT token id
-     * @param _account user wallet address
-     */
-    function claim(uint256 _tokenId, address _account)
-        external
-        payable
-        override
-        returns (uint256)
-    {
-        return 0;
-    }
-
-    /**
-     * @notice Return the pending reward by ETH
-     * @param _tokenId YBNFT token id
-     * @param _account user wallet address
-     */
-    function pendingReward(uint256 _tokenId, address _account)
-        external
-        view
-        override
-        returns (uint256 reward)
-    {
-        return 0;
     }
 
     receive() external payable {}

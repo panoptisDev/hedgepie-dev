@@ -14,7 +14,7 @@ export const styles = {
   header_inner_container: {
     margin: '0 auto',
     maxWidth: 1200,
-    height: 120,
+    height: 90,
     display: 'flex',
     alignItems: 'center',
   },

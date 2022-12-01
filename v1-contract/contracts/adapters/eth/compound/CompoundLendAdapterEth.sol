@@ -44,8 +44,8 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
         address _comptroller,
         address _stakingToken,
         address _swapRouter,
-        string memory _name,
-        address _weth
+        address _weth,
+        string memory _name
     ) {
         stakingToken = _stakingToken;
         strategy = _strategy;
@@ -63,16 +63,16 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
      */
     function deposit(
         uint256 _tokenId,
-        address _account,
-        uint256 _amountIn
-    ) external payable override returns (uint256 amountOut) {
+        uint256 _amountIn,
+        address _account
+    ) external payable override onlyInvestor returns (uint256 amountOut) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
         amountOut = HedgepieLibraryEth.swapOnRouter(
-            address(this),
             _amountIn,
+            address(this),
             stakingToken,
             swapRouter,
             weth
@@ -133,6 +133,7 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
         external
         payable
         override
+        onlyInvestor
         returns (uint256 amountOut)
     {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
@@ -146,8 +147,8 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
         amountOut = IBEP20(stakingToken).balanceOf(address(this)) - amountOut;
 
         amountOut = HedgepieLibraryEth.swapforEth(
-            address(this),
             amountOut,
+            address(this),
             stakingToken,
             swapRouter,
             weth
@@ -195,20 +196,6 @@ contract CompoundLendAdapterEth is BaseAdapterEth {
 
         adapterInfo.totalStaked -= userInfo.amount;
         delete userAdapterInfos[_account][_tokenId];
-    }
-
-    /**
-     * @notice Claim the pending reward
-     * @param _tokenId YBNFT token id
-     * @param _account user wallet address
-     */
-    function claim(uint256 _tokenId, address _account)
-        external
-        payable
-        override
-        returns (uint256)
-    {
-        return 0;
     }
 
     /**

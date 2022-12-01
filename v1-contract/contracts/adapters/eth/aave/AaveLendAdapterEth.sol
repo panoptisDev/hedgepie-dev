@@ -41,8 +41,8 @@ contract AaveLendAdapterEth is BaseAdapterEth {
         address _stakingToken,
         address _rewardToken,
         address _swapRouter,
-        string memory _name,
-        address _weth
+        address _weth,
+        string memory _name
     ) {
         stakingToken = _stakingToken;
         rewardToken = _rewardToken;
@@ -50,8 +50,6 @@ contract AaveLendAdapterEth is BaseAdapterEth {
         swapRouter = _swapRouter;
         name = _name;
         weth = _weth;
-
-        isReward = true;
     }
 
     /**
@@ -62,16 +60,16 @@ contract AaveLendAdapterEth is BaseAdapterEth {
      */
     function deposit(
         uint256 _tokenId,
-        address _account,
-        uint256 _amountIn
-    ) external payable override returns (uint256 amountOut) {
+        uint256 _amountIn,
+        address _account
+    ) external payable override onlyInvestor returns (uint256 amountOut) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
         amountOut = HedgepieLibraryEth.swapOnRouter(
-            address(this),
             _amountIn,
+            address(this),
             stakingToken,
             swapRouter,
             weth
@@ -132,6 +130,7 @@ contract AaveLendAdapterEth is BaseAdapterEth {
         external
         payable
         override
+        onlyInvestor
         returns (uint256 amountOut)
     {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
@@ -161,16 +160,16 @@ contract AaveLendAdapterEth is BaseAdapterEth {
         }
 
         amountOut = HedgepieLibraryEth.swapforEth(
-            address(this),
             amountOut,
+            address(this),
             stakingToken,
             swapRouter,
             weth
         );
 
         (uint256 reward, ) = HedgepieLibraryEth.getRewards(
-            address(this),
             _tokenId,
+            address(this),
             _account
         );
 
@@ -185,8 +184,8 @@ contract AaveLendAdapterEth is BaseAdapterEth {
             require(withdrawAmt == reward, "Error: Getting rewards failed");
 
             rewardETH = HedgepieLibraryEth.swapforEth(
-                address(this),
                 reward,
+                address(this),
                 stakingToken,
                 swapRouter,
                 weth
@@ -259,13 +258,14 @@ contract AaveLendAdapterEth is BaseAdapterEth {
         external
         payable
         override
+        onlyInvestor
         returns (uint256)
     {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
         (uint256 reward, ) = HedgepieLibraryEth.getRewards(
-            address(this),
             _tokenId,
+            address(this),
             _account
         );
 
@@ -282,8 +282,8 @@ contract AaveLendAdapterEth is BaseAdapterEth {
             require(withdrawAmt == reward, "Error: Getting rewards failed");
 
             amountOut += HedgepieLibraryEth.swapforEth(
-                address(this),
                 reward,
+                address(this),
                 stakingToken,
                 swapRouter,
                 weth

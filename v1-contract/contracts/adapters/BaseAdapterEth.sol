@@ -35,19 +35,12 @@ abstract contract BaseAdapterEth is Ownable {
 
     address public investor;
 
-    string public name;
-
-    bool public isReward;
-
-    bool public isVault;
-
     address public weth;
+
+    string public name;
 
     // inToken => outToken => paths
     mapping(address => mapping(address => address[])) public paths;
-
-    // user => nft id => withdrawal amount
-    mapping(address => mapping(uint256 => uint256)) public withdrawalAmount;
 
     // user => nft id => UserAdapterInfo
     mapping(address => mapping(uint256 => UserAdapterInfo))
@@ -55,6 +48,11 @@ abstract contract BaseAdapterEth is Ownable {
 
     // nft id => AdapterInfo
     mapping(uint256 => AdapterInfo) public adapterInfos;
+
+    modifier onlyInvestor() {
+        require(msg.sender == investor, "Not investor");
+        _;
+    }
 
     /**
      * @notice Get path
@@ -136,8 +134,8 @@ abstract contract BaseAdapterEth is Ownable {
      */
     function deposit(
         uint256 _tokenId,
-        address _account,
-        uint256 _amountIn
+        uint256 _amountIn,
+        address _account
     ) external payable virtual returns (uint256 amountOut) {}
 
     /**
@@ -174,7 +172,5 @@ abstract contract BaseAdapterEth is Ownable {
         view
         virtual
         returns (uint256 reward)
-    {
-        reward = 0;
-    }
+    {}
 }

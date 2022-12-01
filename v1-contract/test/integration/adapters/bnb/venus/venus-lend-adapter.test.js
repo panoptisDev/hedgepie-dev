@@ -1,137 +1,84 @@
 const { assert, expect } = require("chai");
 const { ethers } = require("hardhat");
 
+const { setPath } = require("../../../../shared/utilities");
+const {
+    adapterFixtureBsc,
+    investorFixtureBsc,
+} = require("../../../../shared/fixtures");
+
 const BigNumber = ethers.BigNumber;
 
-describe("VenusLendAdapter Integration Test", function () {
+describe("VenusLendAdapterBsc Integration Test", function () {
     before("Deploy contract", async function () {
-        const performanceFee = 50;
         const swapRouter = "0x10ED43C718714eb63d5aA57B78B54704E256024E"; // pks rounter address
         const wbnb = "0xbb4CdB9CBd36B01bD1cBaEBF2De08d9173bc095c";
         const busd = "0xe9e7CEA3DedcA5984780Bafc599bD69ADd087D56";
         const vbusd = "0x95c78222B3D6e262426483D42CfA53685A67Ab9D";
 
-        const [owner, alice, bob] = await ethers.getSigners();
+        const [owner, alice, bob, treasury] = await ethers.getSigners();
 
+        this.performanceFee = 50;
         this.alice = alice;
         this.owner = owner;
         this.bob = bob;
         this.strategy = vbusd;
         this.busd = busd;
 
-        // Deploy Venus Adapter contract
-        const VenusAdapter = await ethers.getContractFactory(
-            "VenusLendAdapter"
+        // Deploy VenusLendAdapterBsc contract
+        const VenusLendAdapterBsc = await adapterFixtureBsc(
+            "VenusLendAdapterBsc"
         );
-        this.vAdapter = await VenusAdapter.deploy(
+
+        this.adapter = await VenusLendAdapterBsc.deploy(
             this.strategy,
             busd,
             vbusd,
-            "Venus BUSD lend adapter"
-        );
-        await this.vAdapter.deployed();
-
-        // Deploy YBNFT contract
-        ybNftFactory = await ethers.getContractFactory("YBNFT");
-        this.ybNft = await ybNftFactory.deploy();
-
-        // Mint NFTs
-        // tokenID: 1
-        await this.ybNft.mint(
-            [10000],
-            [busd],
-            [this.vAdapter.address],
-            performanceFee,
-            "test tokenURI1"
-        );
-
-        // tokenID: 2
-        await this.ybNft.mint(
-            [10000],
-            [busd],
-            [this.vAdapter.address],
-            performanceFee,
-            "test tokenURI2"
-        );
-
-        const Lib = await ethers.getContractFactory("HedgepieLibrary");
-        const lib = await Lib.deploy();
-
-        // Deploy Investor contract
-        investorFactory = await ethers.getContractFactory("HedgepieInvestor", {
-            libraries: {
-                HedgepieLibrary: lib.address,
-            },
-        });
-        this.investor = await investorFactory.deploy(
-            this.ybNft.address,
             swapRouter,
-            wbnb
+            wbnb,
+            "Venus::BUSD::Lend"
         );
+        await this.adapter.deployed();
 
-        // Deploy Adaptor Manager contract
-        adapterManagerFactory = await ethers.getContractFactory(
-            "HedgepieAdapterManager"
-        );
-        this.adapterManager = await adapterManagerFactory.deploy();
+        [this.adapterInfo, this.investor, this.ybNft] =
+            await investorFixtureBsc(
+                this.adapter,
+                treasury.address,
+                busd,
+                this.performanceFee
+            );
 
-        // Add Venus Adapter to AdapterManager
-        await this.adapterManager.addAdapter(this.vAdapter.address);
-
-        // Set adapter manager in investor
-        await this.investor.setAdapterManager(this.adapterManager.address);
-
-        // Set investor in adapter manager
-        await this.adapterManager.setInvestor(this.investor.address);
-
-        // Set investor in vAdapter
-        await this.vAdapter.setInvestor(this.investor.address);
+        await setPath(this.adapter, wbnb, busd);
 
         console.log("YBNFT: ", this.ybNft.address);
         console.log("Investor: ", this.investor.address);
-        console.log("VenusAdapter: ", this.vAdapter.address);
-        console.log("AdapterManager: ", this.adapterManager.address);
+        console.log("VenusAdapter: ", this.adapter.address);
         console.log("Strategy: ", this.strategy);
         console.log("Owner: ", this.owner.address);
 
         this.vBUSD = await ethers.getContractAt("VBep20Interface", vbusd);
         this.BUSD = await ethers.getContractAt("VBep20Interface", busd);
         this.WBNB = await ethers.getContractAt("VBep20Interface", wbnb);
-
-        await this.vAdapter.setPath(busd, wbnb, [busd, wbnb]);
-        await this.vAdapter.setPath(wbnb, busd, [wbnb, busd]);
     });
 
     describe("should set correct state variable", function () {
         it("(1) Check strategy address", async function () {
-            expect(await this.vAdapter.strategy()).to.eq(this.strategy);
+            expect(await this.adapter.strategy()).to.eq(this.strategy);
         });
 
         it("(2) Check owner wallet", async function () {
-            expect(await this.vAdapter.owner()).to.eq(this.owner.address);
+            expect(await this.adapter.owner()).to.eq(this.owner.address);
         });
 
-        it("(3) Check AdapterManager address in Investor contract", async function () {
-            expect(await this.investor.adapterManager()).to.eq(
-                this.adapterManager.address
-            );
+        it("(3) Check owner wallet", async function () {
+            expect(await this.adapter.owner()).to.eq(this.owner.address);
         });
 
-        it("(4) Check Investor address in AdapterManager contract", async function () {
-            expect(await this.adapterManager.investor()).to.eq(
-                this.investor.address
-            );
-        });
-
-        it("(5) Check owner wallet", async function () {
-            expect(await this.vAdapter.owner()).to.eq(this.owner.address);
-        });
-
-        it("(6) Check AdapterInfo of YBNFT", async function () {
+        it("(4) Check AdapterInfo of YBNFT", async function () {
             const response = await this.ybNft.getAdapterInfo(1);
             expect(response[0].allocation).to.eq(10000) &&
                 expect(response[0].token).to.eq(this.busd) &&
-                expect(response[0].addr).to.eq(this.vAdapter.address);
+                expect(response[0].addr).to.eq(this.adapter.address);
         });
     });
 
@@ -140,15 +87,10 @@ describe("VenusLendAdapter Integration Test", function () {
             // deposit to nftID: 3
             const depositAmount = ethers.utils.parseEther("1");
             await expect(
-                this.investor.depositBNB(
-                    this.owner.address,
-                    3,
-                    depositAmount.toString(),
-                    {
-                        gasPrice: 21e9,
-                        value: depositAmount.toString(),
-                    }
-                )
+                this.investor.depositBNB(3, depositAmount.toString(), {
+                    gasPrice: 21e9,
+                    value: depositAmount.toString(),
+                })
             ).to.be.revertedWith("Error: nft tokenId is invalid");
         });
 
@@ -156,34 +98,24 @@ describe("VenusLendAdapter Integration Test", function () {
             // deposit to nftID: 1
             const depositAmount = ethers.utils.parseEther("0");
             await expect(
-                this.investor.depositBNB(
-                    this.owner.address,
-                    1,
-                    depositAmount.toString(),
-                    {
-                        gasPrice: 21e9,
-                        value: depositAmount.toString(),
-                    }
-                )
-            ).to.be.revertedWith("Error: Amount can not be 0");
+                this.investor.depositBNB(1, depositAmount.toString(), {
+                    gasPrice: 21e9,
+                    value: depositAmount.toString(),
+                })
+            ).to.be.revertedWith("Error: Insufficient BNB");
         });
 
         it("(3)should success 1 time and receive the vToken successfully after deposit function", async function () {
             const depositAmount = ethers.utils.parseEther("1");
 
-            await this.investor.depositBNB(
-                this.owner.address,
-                1,
-                depositAmount,
-                {
-                    gasPrice: 21e9,
-                    value: depositAmount.toString(),
-                }
-            );
+            await this.investor.depositBNB(1, depositAmount, {
+                gasPrice: 21e9,
+                value: depositAmount.toString(),
+            });
 
             expect(
                 BigNumber.from(
-                    await this.vBUSD.balanceOf(this.investor.address)
+                    await this.vBUSD.balanceOf(this.adapter.address)
                 ).gt(0)
             ).to.eq(true);
         });
@@ -191,32 +123,22 @@ describe("VenusLendAdapter Integration Test", function () {
         it("(4)should success multiple times", async function () {
             // deposit to nftID: 1
             let vBeforeBal = BigNumber.from(
-                await this.vBUSD.balanceOf(this.investor.address)
+                await this.vBUSD.balanceOf(this.adapter.address)
             );
 
             const depositAmount = ethers.utils.parseEther("1");
-            await this.investor.depositBNB(
-                this.owner.address,
-                1,
-                depositAmount.toString(),
-                {
-                    gasPrice: 21e9,
-                    value: depositAmount.toString(),
-                }
-            );
+            await this.investor.depositBNB(1, depositAmount.toString(), {
+                gasPrice: 21e9,
+                value: depositAmount.toString(),
+            });
 
-            await this.investor.depositBNB(
-                this.owner.address,
-                2,
-                depositAmount.toString(),
-                {
-                    gasPrice: 21e9,
-                    value: depositAmount.toString(),
-                }
-            );
+            await this.investor.depositBNB(2, depositAmount.toString(), {
+                gasPrice: 21e9,
+                value: depositAmount.toString(),
+            });
 
             let vAfterBal = BigNumber.from(
-                await this.vBUSD.balanceOf(this.investor.address)
+                await this.vBUSD.balanceOf(this.adapter.address)
             );
 
             expect(vAfterBal.gt(vBeforeBal)).to.eq(true);
@@ -227,7 +149,7 @@ describe("VenusLendAdapter Integration Test", function () {
         it("(1)should be reverted when nft tokenId is invalid", async function () {
             // withdraw to nftID: 3
             await expect(
-                this.investor.withdrawBNB(this.owner.address, 3, {
+                this.investor.withdrawBNB(3, {
                     gasPrice: 21e9,
                 })
             ).to.be.revertedWith("Error: nft tokenId is invalid");
@@ -239,10 +161,10 @@ describe("VenusLendAdapter Integration Test", function () {
             await expect(
                 this.investor
                     .connect(this.bob)
-                    .depositBNB(this.bob.address, 1, depositAmount.toString(), {
+                    .depositBNB(1, depositAmount.toString(), {
                         gasPrice: 21e9,
                     })
-            ).to.be.revertedWith("Error: Amount can not be 0");
+            ).to.be.revertedWith("Error: Insufficient BNB");
         });
 
         it("(3)should receive the WBNB successfully after withdraw function", async function () {
@@ -250,7 +172,7 @@ describe("VenusLendAdapter Integration Test", function () {
             let bnbBalBefore = await ethers.provider.getBalance(
                 this.owner.address
             );
-            await this.investor.withdrawBNB(this.owner.address, 1, {
+            await this.investor.withdrawBNB(1, {
                 gasPrice: 21e9,
             });
 
@@ -263,7 +185,7 @@ describe("VenusLendAdapter Integration Test", function () {
 
             // withdraw from nftId: 2
             bnbBalBefore = await ethers.provider.getBalance(this.owner.address);
-            await this.investor.withdrawBNB(this.owner.address, 2, {
+            await this.investor.withdrawBNB(2, {
                 gasPrice: 21e9,
             });
 
