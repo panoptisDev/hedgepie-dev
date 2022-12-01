@@ -281,6 +281,10 @@ function DashboardYieldStakeInfo() {
                   alignItems: 'center',
                   justifyContent: 'center',
                   height: '100%',
+                  backgroundColor: '#FEF6F9',
+                  border: '1px solid #BAB9C5',
+                  padding: '1rem',
+                  borderRadius: '16px',
                 }}
               >
                 <YieldStakeDoughnut data={activeTab === 'yield' ? yieldChartData : stakeChartData} labels={nftNames} />
