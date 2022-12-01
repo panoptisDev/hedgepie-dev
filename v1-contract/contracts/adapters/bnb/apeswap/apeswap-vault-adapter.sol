@@ -52,6 +52,7 @@ contract ApeswapVaultAdapter is BaseAdapterBsc {
         router = _router;
         wbnb = _wbnb;
         vStrategy = _vstrategy;
+        swapRouter = _router;
         name = _name;
     }
 

@@ -4,6 +4,7 @@ pragma solidity ^0.8.4;
 import "../../BaseAdapterBsc.sol";
 
 import "./interface/VBep20Interface.sol";
+import "./interface/ComptrollerInterface.sol";
 
 import "../../../libraries/HedgepieLibraryBsc.sol";
 
@@ -14,24 +15,43 @@ interface IStrategy {
     function mint(uint256 amount) external;
 
     function redeem(uint256 amount) external;
+
+    function redeemUnderlying(uint256 amount) external;
+
+    function borrow(uint256 amount) external;
+
+    function repayBorrow(uint256 amount) external;
 }
 
-contract VenusLendAdapterBsc is BaseAdapterBsc {
+contract VenusLevAdapterBsc is BaseAdapterBsc {
+    // user => nft id => withdrawal amounts stack
+    mapping(address => mapping(uint256 => uint256[10]))
+        public stackWithdrawalAmounts;
+
+    // borrow rate number
+    uint256 public borrowRate;
+
+    // depth of leverage
+    uint256 public depth;
+
+    // boolean value of isEntered
+    bool public isEntered;
+
+    // address of comptroller
+    address public comptroller;
+
     /**
      * @notice Construct
      * @param _strategy  address of strategy
-     * @param _stakingToken  address of staking token
-     * @param _repayToken  address of repay token
      * @param _swapRouter  address of swap router
      * @param _wbnb  address of wbnb
      * @param _name  adatper name
      */
     constructor(
         address _strategy,
-        address _stakingToken,
-        address _repayToken,
         address _swapRouter,
         address _wbnb,
+        uint256 _depth,
         string memory _name
     ) {
         require(
@@ -43,12 +63,17 @@ contract VenusLendAdapterBsc is BaseAdapterBsc {
             "Error: Invalid underlying address"
         );
 
+        stakingToken = VBep20Interface(_strategy).underlying();
+        repayToken = _strategy;
         strategy = _strategy;
-        stakingToken = _stakingToken;
-        repayToken = _repayToken;
         swapRouter = _swapRouter;
         wbnb = _wbnb;
         name = _name;
+
+        comptroller = VBep20Interface(strategy).comptroller();
+
+        borrowRate = 7900;
+        depth = _depth;
     }
 
     /**
@@ -63,7 +88,6 @@ contract VenusLendAdapterBsc is BaseAdapterBsc {
         address _account
     ) external payable override onlyInvestor returns (uint256 amountOut) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
-        AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
         amountOut = HedgepieLibraryBsc.swapOnRouter(
@@ -78,9 +102,11 @@ contract VenusLendAdapterBsc is BaseAdapterBsc {
         IBEP20(stakingToken).approve(strategy, amountOut);
         IStrategy(strategy).mint(amountOut);
         repayAmt = IBEP20(repayToken).balanceOf(address(this)) - repayAmt;
+        require(repayAmt != 0, "Error: mint failed");
 
-        adapterInfo.totalStaked += amountOut;
-        userInfo.amount += repayAmt;
+        // Leverage assets
+        _leverageAsset(_tokenId, amountOut, _account);
+
         userInfo.invested += _amountIn;
 
         // Update adapterInfo contract
@@ -125,13 +151,12 @@ contract VenusLendAdapterBsc is BaseAdapterBsc {
         amountOut = IBEP20(stakingToken).balanceOf(address(this));
         repayAmt = IBEP20(repayToken).balanceOf(address(this));
 
-        IBEP20(repayToken).approve(strategy, userInfo.amount);
-        IStrategy(strategy).redeem(userInfo.amount);
+        _repayAsset(_tokenId, _account);
 
         repayAmt = repayAmt - IBEP20(repayToken).balanceOf(address(this));
         amountOut = IBEP20(stakingToken).balanceOf(address(this)) - amountOut;
 
-        require(repayAmt == userInfo.amount, "Error: Redeem failed");
+        require(amountOut != 0, "Error: Redeem failed");
 
         amountOut = HedgepieLibraryBsc.swapforBnb(
             amountOut,
@@ -187,6 +212,8 @@ contract VenusLendAdapterBsc is BaseAdapterBsc {
         );
 
         adapterInfo.totalStaked -= userInfo.amount;
+        for (uint256 i = 0; i <= depth; i++)
+            delete stackWithdrawalAmounts[_account][_tokenId][i];
         userInfo.amount = 0;
         userInfo.invested = 0;
         userInfo.userShares = 0;
@@ -213,6 +240,77 @@ contract VenusLendAdapterBsc is BaseAdapterBsc {
         }
 
         return amountOut;
+    }
+
+    function _leverageAsset(
+        uint256 _tokenId,
+        uint256 _amount,
+        address _account
+    ) internal {
+        AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
+        UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
+
+        uint256[2] memory amounts;
+
+        if (!isEntered) {
+            address[] memory _vTokens = new address[](1);
+            _vTokens[0] = strategy;
+
+            // Enter market
+            ComptrollerInterface(comptroller).enterMarkets(_vTokens);
+            isEntered = true;
+
+            IBEP20(repayToken).approve(strategy, 2**256 - 1);
+        }
+
+        stackWithdrawalAmounts[_account][_tokenId][0] += _amount;
+
+        for (uint256 i = 0; i < depth; i++) {
+            amounts[0] = IBEP20(stakingToken).balanceOf(address(this));
+
+            IStrategy(strategy).borrow((_amount * borrowRate) / 1e4);
+
+            amounts[1] = IBEP20(stakingToken).balanceOf(address(this));
+            require(amounts[0] < amounts[1], "Error: Borrow failed");
+
+            _amount = amounts[1] - amounts[0];
+
+            IBEP20(stakingToken).approve(strategy, _amount);
+            IStrategy(strategy).mint(_amount);
+
+            stackWithdrawalAmounts[_account][_tokenId][i + 1] += _amount;
+            userInfo.amount += _amount;
+            adapterInfo.totalStaked += _amount;
+        }
+    }
+
+    function _repayAsset(uint256 _tokenId, address _account) internal {
+        require(isEntered, "Error: Not entered market");
+
+        uint256 _amount;
+        uint256 bAmt;
+        uint256 aAmt;
+
+        for (uint256 i = depth; i > 0; i--) {
+            _amount = stackWithdrawalAmounts[_account][_tokenId][i];
+
+            bAmt = IBEP20(stakingToken).balanceOf(address(this));
+
+            IStrategy(strategy).redeemUnderlying(_amount);
+            aAmt = IBEP20(stakingToken).balanceOf(address(this));
+            require(aAmt - bAmt == _amount, "Error: Devest failed");
+
+            IBEP20(stakingToken).approve(strategy, _amount);
+            IStrategy(strategy).repayBorrow(_amount);
+        }
+
+        _amount = stackWithdrawalAmounts[_account][_tokenId][0];
+
+        bAmt = IBEP20(stakingToken).balanceOf(address(this));
+        IStrategy(strategy).redeemUnderlying((_amount * 9999) / 10000);
+        aAmt = IBEP20(stakingToken).balanceOf(address(this));
+
+        require(bAmt < aAmt, "Error: Devest failed");
     }
 
     receive() external payable {}

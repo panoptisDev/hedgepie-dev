@@ -42,6 +42,7 @@ contract ApeswapFarmLPAdapter is BaseAdapterBsc {
         rewardToken = _rewardToken;
         strategy = _strategy;
         router = _router;
+        swapRouter = _router;
         wbnb = _wbnb;
         name = _name;
     }
