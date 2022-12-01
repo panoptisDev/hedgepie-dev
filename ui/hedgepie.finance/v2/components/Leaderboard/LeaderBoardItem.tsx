@@ -32,7 +32,7 @@ function LeaderBoardItem(props: LeaderboardItemProps) {
           flexDirection: 'row',
           justifyContent: 'center',
           alignItems: 'center',
-          padding: '5px',
+          padding: '5px 10px',
         }}
       >
         <Text sx={{ color: '#4F4F4F', fontWeight: '500', fontSize: '12px' }}>{tag}</Text>
@@ -43,15 +43,47 @@ function LeaderBoardItem(props: LeaderboardItemProps) {
     <Box
       sx={{
         borderRadius: '16px',
-        padding: '1rem',
+        padding: item?.filters?.includes('featured') ? '0rem 1rem 1rem 1rem' : '1rem',
         boxShadow: '0px 0px 8px rgba(0, 0, 0, 0.05), 0px 8px 20px rgba(0, 0, 0, 0.15)',
         height: 'max-content',
         backgroundColor: '#FFFFFF',
         display: 'flex',
         flexDirection: 'column',
         gap: '15px',
+        border: item?.filters?.includes('featured') ? '2.5px solid #EFA906' : '',
       }}
     >
+      {item?.filters?.includes('featured') ? (
+        <Box
+          sx={{
+            height: '30px',
+            width: '100%',
+            display: 'flex',
+            flexDirection: 'row',
+            justifyContent: 'center',
+            alignItems: 'center',
+            padding: 0,
+          }}
+        >
+          <Box
+            sx={{
+              backgroundColor: '#EFA906',
+              marginTop: '-7px',
+              display: 'flex',
+              flexDirection: 'row',
+              alignItems: 'center',
+              justifyContent: 'center',
+              gap: '10px',
+              padding: '4px 10px',
+              borderBottomLeftRadius: '16px',
+              borderBottomRightRadius: '16px',
+            }}
+          >
+            <Text sx={{ color: '#FFFFFF' }}>Featured</Text>
+            <Image src="/images/featured-icon.svg" sx={{ height: '15px', width: '15px' }} />
+          </Box>
+        </Box>
+      ) : null}
       <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
         {item.imageURL?.indexOf('ipfs') !== -1 ? (
           <Image src={item.imageURL} sx={{ width: 100, height: 100, boxShadow: '#ccc 0px 3px 3px 2px' }} />
@@ -67,6 +99,7 @@ function LeaderBoardItem(props: LeaderboardItemProps) {
           onClick={() => setLiked(!liked)}
         />
       </Box>
+      {!item?.filters?.includes('featured') ? <Box sx={{ height: '12px' }}></Box> : null}
       <Box sx={{ display: 'flex', flexDirection: 'row', justifyContent: 'space-between' }}>
         <Text sx={{ color: '#14114B', fontWeight: '500', fontSize: '16px' }}>{item.name}</Text>
         <Box sx={{ display: 'flex', flexDirection: 'row', gap: '5px', alignItems: 'center' }}>

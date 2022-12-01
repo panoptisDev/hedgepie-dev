@@ -5,7 +5,8 @@ import { Box, Spinner } from 'theme-ui'
 import fetchTotalProfit from 'utils/totalProfit'
 import { getPrice } from 'utils/getTokenPrice'
 import { getBalanceInEther } from 'utils/formatBalance'
-import LeaderBoardItem from './LeaderBoardItem'
+import LeaderBoardItem from 'v2/components/Leaderboard/LeaderBoardItem'
+import LeaderboardFilter, { LeaderboardFilterType } from 'v2/components/Leaderboard/LeaderboardFilter'
 
 export interface TokenInfo {
   name?: string
@@ -16,6 +17,7 @@ export interface TokenInfo {
   totalStaked?: string
   totalParticipants?: number
   totalProfit?: string
+  filters?: LeaderboardFilterType[]
 }
 
 function LeaderboardContent() {
@@ -54,9 +56,11 @@ function LeaderboardContent() {
         try {
           metadataFile = await fetch(tokenUri)
         } catch (err) {
+          console.log('werror ' + tokenUri)
           continue
         }
         console.log('metadataFile' + JSON.stringify(metadataFile))
+        console.log(metadataFile)
         if (metadataFile == null) {
           continue
         }
@@ -69,7 +73,7 @@ function LeaderboardContent() {
         const totalProfit =
           bnbPrice && profitMap[i] ? `$${Number(getBalanceInEther(profitMap[i]) * bnbPrice).toFixed(3)} USD` : 'N/A'
         const metadata = await metadataFile.json()
-        const leaderboardItem = {
+        let leaderboardItem: TokenInfo = {
           tokenId: i,
           name: metadata.name,
           imageURL: metadata.imageURL,
@@ -79,6 +83,7 @@ function LeaderboardContent() {
           totalParticipants: nftInfo.totalParticipant,
           totalProfit: totalProfit,
         }
+        if (i < 5) leaderboardItem.filters = ['featured']
         tokens.push(leaderboardItem)
         setLotteries(tokens)
       }
@@ -90,17 +95,29 @@ function LeaderboardContent() {
   }, [])
   return (
     <Box sx={{ display: 'flex', padding: '2rem', gap: '20px', flexDirection: 'row', width: '100%', flexWrap: 'wrap' }}>
+      {lotteries.length ? (
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
+          <LeaderboardFilter />
+          <Box
+            sx={{
+              display: 'flex',
+              gap: '30px',
+              flexDirection: 'row',
+              width: '100%',
+              flexWrap: 'wrap',
+            }}
+          >
+            {lotteries.map((item) => (
+              <LeaderBoardItem item={item} />
+            ))}
+          </Box>
+        </Box>
+      ) : null}
       {loading ? (
         <Box sx={{ width: '100%', height: '30vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Spinner />
         </Box>
-      ) : (
-        <>
-          {lotteries.map((item) => (
-            <LeaderBoardItem item={item} />
-          ))}
-        </>
-      )}
+      ) : null}
     </Box>
   )
 }

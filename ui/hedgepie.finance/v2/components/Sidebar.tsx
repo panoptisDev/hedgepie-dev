@@ -9,12 +9,12 @@ interface SidebarProps {
   active: string
 }
 
-export type SidebarItemType = 'home' | 'stats' | 'history' | 'help' | 'leaderboard' | 'mint'
+export type SidebarItemType = 'home' | 'stats' | 'history' | 'help' | 'leaderboard' | 'mint' | 'dashboard'
 
 function Sidebar(props: SidebarProps) {
   // const sidebarItems: SidebarItemType[] = ['home', 'stats', 'history']
 
-  const sidebarItems: SidebarItemType[] = ['home', 'leaderboard', 'mint']
+  const sidebarItems: SidebarItemType[] = ['home', 'dashboard', 'leaderboard', 'stats', 'history', 'mint']
   const { activeTab, setActiveTab, sidebarExpanded, setSidebarExpanded } = useContext(DashboardContext)
   const router = useRouter()
 
@@ -23,7 +23,7 @@ function Sidebar(props: SidebarProps) {
       case 'home':
         return 'v2/dashboard'
       case 'stats':
-        return 'v2/strategy'
+        return 'v2/strategy?tokenId=1'
       case 'leaderboard':
         return 'v2/leaderboard'
       case 'mint':
@@ -37,13 +37,14 @@ function Sidebar(props: SidebarProps) {
       sx={{
         minWidth: sidebarExpanded ? ['0rem', '0rem', '0rem', '14rem'] : '0rem',
         backgroundColor: '#14114B',
-        borderTopLeftRadius: '14px',
+        // borderTopLeftRadius: '14px',
         borderBottomLeftRadius: '14px',
         padding: ['0rem', '0rem', '1rem 1rem', '1rem 1rem'],
         display: ['none', 'none', 'none', 'flex'],
         flexDirection: 'column',
         minHeight: '100vh',
         boxShadow: '4px 0px 10px rgba(0, 0, 0, 0.25)',
+        borderTop: '1px solid #475569',
       }}
     >
       <Box style={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>

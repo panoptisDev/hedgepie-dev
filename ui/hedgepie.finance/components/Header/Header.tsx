@@ -56,7 +56,7 @@ const Header = ({ overlay = false, dark = true }: Props) => {
             <Image
               src="/images/logo.png"
               sx={{
-                height: 70,
+                height: 60,
               }}
             />
           </ThemeLink>
@@ -66,7 +66,7 @@ const Header = ({ overlay = false, dark = true }: Props) => {
           {/* <Link href="/vault" passHref>
             <ThemeLink mr={4}>Vault</ThemeLink>
           </Link> */}
-          <Box marginRight={'40px'}>
+          {/* <Box marginRight={'40px'}>
             <a target="_blank" href="/HedgePie-Whitepaper-V5.pdf">
               <ThemeLink sx={{ '&:hover': { backgroundColor: '#417e96' }, padding: '5px 8px', borderRadius: '10px' }}>
                 White Paper
@@ -101,7 +101,7 @@ const Header = ({ overlay = false, dark = true }: Props) => {
                 Mint
               </ThemeLink>
             </Link>
-          </Box>
+          </Box> */}
           <Box sx={styles.connect_wallet_btn_container as ThemeUICSSObject}>
             <ConnectWallet isHeaderBtn dark={dark} />
           </Box>
@@ -116,7 +116,7 @@ const Header = ({ overlay = false, dark = true }: Props) => {
             width: 'max-content',
           }}
         >
-          <Menu
+          {/* <Menu
             menuButton={
               <Box sx={styles.mobile_menu_btn as ThemeUICSSObject}>
                 <MenuIcon />
@@ -126,14 +126,11 @@ const Header = ({ overlay = false, dark = true }: Props) => {
             transition
             arrow
           >
-            {/* <MobileMenuLink href="/vault">Vault</MobileMenuLink>
-             */}
-
             <MobileMenuLink href="/v2/dashboard">Dashboard</MobileMenuLink>
             <MobileMenuLink href="/nft-leaderboard">Leaderboard</MobileMenuLink>
             <MobileMenuLink href="/mint">Mint</MobileMenuLink>
             <MobileMenuLink href="/HedgePie-Whitepaper-V5.pdf">White Paper</MobileMenuLink>
-          </Menu>
+          </Menu> */}
           <Box sx={styles.mobile_menu_connect_wallet as ThemeUICSSObject}>
             <Box
               mr={2}
