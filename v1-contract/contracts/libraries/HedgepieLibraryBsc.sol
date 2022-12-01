@@ -172,6 +172,7 @@ library HedgepieLibraryBsc {
         tokens[1] = IPancakePair(_adapter.token).token1();
 
         address _router = IAdapterBsc(_adapter.addr).router();
+        address swapRouter = IAdapterBsc(_adapter.addr).swapRouter();
 
         IBEP20(_adapter.token).approve(_router, _amountIn);
 
@@ -192,7 +193,7 @@ library HedgepieLibraryBsc {
                 amountToken,
                 _adapter.addr,
                 tokenAddr,
-                IAdapterBsc(_adapter.addr).swapRouter(),
+                swapRouter,
                 wbnb
             );
         } else {
@@ -211,14 +212,14 @@ library HedgepieLibraryBsc {
                 amountA,
                 _adapter.addr,
                 tokens[0],
-                IAdapterBsc(_adapter.addr).swapRouter(),
+                swapRouter,
                 wbnb
             );
             amountOut += swapforBnb(
                 amountB,
                 _adapter.addr,
                 tokens[1],
-                IAdapterBsc(_adapter.addr).swapRouter(),
+                swapRouter,
                 wbnb
             );
         }
