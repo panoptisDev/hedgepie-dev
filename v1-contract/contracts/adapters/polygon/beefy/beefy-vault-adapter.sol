@@ -66,7 +66,7 @@ contract BeefyVaultAdapterMatic is BaseAdapterMatic {
         data = abi.encodeWithSignature("withdraw(uint256)", _amount);
     }
 
-    function pendingShares() external view override returns (uint256 shares) {
+    function pendingShares() external view returns (uint256 shares) {
         shares = IVault(strategy).balanceOf(msg.sender);
     }
 }

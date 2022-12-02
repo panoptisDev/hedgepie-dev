@@ -1,7 +1,6 @@
 // SPDX-License-Identifier: AGPL-3.0-or-later
 pragma solidity ^0.8.4;
 
-import "./libraries/Ownable.sol";
 import "./interfaces/IAdapterMatic.sol";
 
 contract HedgepieAdapterManagerMatic is Ownable {
@@ -64,94 +63,6 @@ contract HedgepieAdapterManagerMatic is Ownable {
         returns (address adapterStrat)
     {
         adapterStrat = IAdapterMatic(_adapter).strategy();
-    }
-
-    /**
-     * @notice Get Deposit call data of adapter contract
-     * @param _adapter  adapter address
-     * @param _amount  deposit amount
-     */
-    function getDepositCallData(address _adapter, uint256 _amount)
-        external
-        view
-        onlyActiveAdapter(_adapter)
-        onlyInvestor
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        )
-    {
-        require(_amount > 0, "Amount can not be 0");
-        return IAdapterMatic(_adapter).getInvestCallData(_amount);
-    }
-
-    /**
-     * @notice Get Withdraw call data of adapter contract
-     * @param _adapter  adapter address
-     * @param _amount  deposit amount
-     */
-    function getWithdrawCallData(address _adapter, uint256 _amount)
-        external
-        view
-        onlyActiveAdapter(_adapter)
-        onlyInvestor
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        )
-    {
-        require(_amount > 0, "Amount can not be 0");
-        return IAdapterMatic(_adapter).getDevestCallData(_amount);
-    }
-
-    /**
-     * @notice Get reward call data of adapter contract
-     * @param _adapter  adapter address
-     */
-    function getRewardCallData(address _adapter)
-        external
-        view
-        onlyActiveAdapter(_adapter)
-        onlyInvestor
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        )
-    {
-        return IAdapterMatic(_adapter).getRewardCallData();
-    }
-
-    function getAddLiqCallData(address _adapter, uint256 _amount)
-        external
-        view
-        onlyActiveAdapter(_adapter)
-        onlyInvestor
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        )
-    {
-        require(_amount > 0, "Amount can not be 0");
-        return IAdapterMatic(_adapter).getAddLiqCallData(_amount);
-    }
-
-    function getRemoveLiqCallData(address _adapter, uint256 _amount)
-        external
-        view
-        onlyActiveAdapter(_adapter)
-        onlyInvestor
-        returns (
-            address to,
-            uint256 value,
-            bytes memory data
-        )
-    {
-        require(_amount > 0, "Amount can not be 0");
-        return IAdapterMatic(_adapter).getRemoveLiqCallData(_amount);
     }
 
     // ===== Owner functions =====
