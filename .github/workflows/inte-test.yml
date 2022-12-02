@@ -66,7 +66,7 @@ jobs:
         run: npx hardhat compile
         if: steps.hardhat-cache.outputs.cache-hit != 'true'
       - name: Run Test
-        run: yarn test:bnb
+        run: yarn test:polygon
         timeout-minutes: 30
         env:
           # pass GitHub token to allow accurately detecting a build vs a re-run build
