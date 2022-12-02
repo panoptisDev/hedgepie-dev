@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react'
+import React, { useState, useEffect, useContext } from 'react'
 import { useInvestor } from 'hooks/useInvestor'
 import { useYBNFTMint } from 'hooks/useYBNFTMint'
 import { Box, Spinner } from 'theme-ui'
@@ -7,6 +7,7 @@ import { getPrice } from 'utils/getTokenPrice'
 import { getBalanceInEther } from 'utils/formatBalance'
 import LeaderBoardItem from 'v2/components/Leaderboard/LeaderBoardItem'
 import LeaderboardFilter, { LeaderboardFilterType } from 'v2/components/Leaderboard/LeaderboardFilter'
+import DashboardContext from 'v2/contexts/DashboardContext'
 
 export interface TokenInfo {
   name?: string
@@ -27,6 +28,8 @@ function LeaderboardContent() {
   const { getNFTInfo } = useInvestor()
 
   const [loading, setLoading] = useState(true)
+
+  const { sidebarExpanded } = useContext(DashboardContext)
 
   useEffect(() => {
     setLotteries([])
@@ -94,7 +97,7 @@ function LeaderboardContent() {
     fetchLeaderboardData()
   }, [])
   return (
-    <Box sx={{ display: 'flex', padding: '2rem', gap: '20px', flexDirection: 'column' }}>
+    <Box sx={{ display: 'flex', padding: '2rem', gap: '20px', flexDirection: 'column', width: '100%' }}>
       {lotteries.length ? (
         <Box
           sx={{
