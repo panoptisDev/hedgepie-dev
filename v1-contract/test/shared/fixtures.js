@@ -267,5 +267,5 @@ module.exports = {
     adapterFixtureBsc,
     investorFixtureBsc,
     adapterFixtureMatic,
-    investorFixtureMatic
+    investorFixtureMatic,
 };

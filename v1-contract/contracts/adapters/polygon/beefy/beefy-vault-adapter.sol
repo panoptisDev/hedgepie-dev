@@ -7,12 +7,14 @@ import "../../../libraries/HedgepieLibraryMatic.sol";
 import "../../../interfaces/IHedgepieInvestorMatic.sol";
 import "../../../interfaces/IHedgepieAdapterInfoMatic.sol";
 
-interface IVault {
+interface IStrategy {
     function deposit(uint256) external;
 
     function withdraw(uint256) external;
 
-    function balanceOf(address) external view returns (uint256);
+    function balance() external view returns (uint256);
+
+    function totalSupply() external view returns (uint256);
 }
 
 contract BeefyVaultAdapterMatic is BaseAdapterMatic {

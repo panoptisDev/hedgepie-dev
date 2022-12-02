@@ -88,7 +88,7 @@ contract ApeswapFarmAdapter is BaseAdapterMatic {
     /**
      * @notice Get pending reward
      */
-    function pendingReward() external view override returns (uint256) {
+    function pendingReward() external view returns (uint256) {
         return IStrategy(strategy).pendingBanana(pid, investor);
     }
 
