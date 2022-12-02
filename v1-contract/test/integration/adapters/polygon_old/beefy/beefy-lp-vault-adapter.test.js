@@ -1,28 +1,19 @@
 const { expect } = require("chai");
 const { ethers } = require("hardhat");
+const { setPath, forkPolygonNetwork } = require("../../../../shared/utilities");
+const {
+    adapterFixtureMatic,
+    investorFixtureMatic,
+} = require("../../../../shared/fixtures");
 
 const BigNumber = ethers.BigNumber;
 
-const forkNetwork = async () => {
-    await hre.network.provider.request({
-        method: "hardhat_reset",
-        params: [
-            {
-                forking: {
-                    jsonRpcUrl: "https://polygon-rpc.com",
-                },
-            },
-        ],
-    });
-};
-
 describe("BeefyLPVaultAdapter Integration Test", function () {
     before("Deploy contract", async function () {
-        await forkNetwork();
+        await forkPolygonNetwork();
 
-        const [owner, alice, bob, tom] = await ethers.getSigners();
+        const [owner, alice, bob, treasury] = await ethers.getSigners();
 
-        const performanceFee = 50;
         const wmatic = "0x0d500B1d8E8eF31E21C99d1Db9A6444d3ADf1270";
         const LCDToken = "0xc2A45FE7d40bCAc8369371B08419DDAFd3131b4a";
         const strategy = "0x8c9dE3b735a154d8fC1e94183eA9b021913AC88B"; // LCD-Matic Vault
@@ -33,89 +24,33 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
         this.owner = owner;
         this.alice = alice;
         this.bob = bob;
-        this.tom = tom;
 
         this.bobAddr = bob.address;
         this.aliceAddr = alice.address;
-        this.tomAddr = tom.address;
-
-        this.accTokenPerShare = BigNumber.from(0);
+        this.treasuryAddr = treasury.address;
 
         // Deploy BeefyLPVault Adapter contract
-        const BeefyAdapter = await ethers.getContractFactory(
+        const BeefyAdapter = await adapterFixtureMatic(
             "BeefyVaultAdapterMatic"
         );
         this.aAdapter = await BeefyAdapter.deploy(
             strategy,
             stakingToken,
             swapRouter,
-            "PolygonBeefy::LCD-Matic LP::Vault"
+            wmatic,
+            "PolygonBeefy::Vault::LCD-Matic LP"
         );
         await this.aAdapter.deployed();
 
-        // Deploy YBNFT contract
-        const ybNftFactory = await ethers.getContractFactory("YBNFT");
-        this.ybNft = await ybNftFactory.deploy();
+        [this.adapterInfo, this.investor, this.ybNft] =
+            await investorFixtureMatic(
+                this.aAdapter,
+                treasury.address,
+                stakingToken,
+                this.performanceFee
+            );
 
-        const Lib = await ethers.getContractFactory("HedgepieLibraryMatic");
-        const lib = await Lib.deploy();
-
-        // Deploy Investor contract
-        const investorFactory = await ethers.getContractFactory(
-            "HedgepieInvestorMatic",
-            {
-                libraries: {
-                    HedgepieLibraryMatic: lib.address,
-                },
-            }
-        );
-        this.investor = await investorFactory.deploy(
-            this.ybNft.address,
-            swapRouter,
-            wmatic
-        );
-        await this.investor.deployed();
-
-        // Deploy Adaptor Manager contract
-        const adapterManager = await ethers.getContractFactory(
-            "HedgepieAdapterManagerMatic"
-        );
-        this.adapterManager = await adapterManager.deploy();
-
-        // Mint NFTs
-        // tokenID: 1
-        await this.ybNft.mint(
-            [10000],
-            [stakingToken],
-            [this.aAdapter.address],
-            performanceFee,
-            "test tokenURI1"
-        );
-
-        // tokenID: 2
-        await this.ybNft.mint(
-            [10000],
-            [stakingToken],
-            [this.aAdapter.address],
-            performanceFee,
-            "test tokenURI2"
-        );
-
-        // Add BeefyLPVault Adapter to AdapterManager
-        await this.adapterManager.addAdapter(this.aAdapter.address);
-
-        // Set investor in adapter manager
-        await this.adapterManager.setInvestor(this.investor.address);
-
-        // Set adapter manager in investor
-        await this.investor.setAdapterManager(this.adapterManager.address);
-        await this.investor.setTreasury(this.owner.address);
-
-        // Set investor in adapter
-        await this.aAdapter.setInvestor(this.investor.address);
-
-        await this.aAdapter.setPath(wmatic, LCDToken, [wmatic, LCDToken]);
-        await this.aAdapter.setPath(LCDToken, wmatic, [LCDToken, wmatic]);
+        await setPath(this.aAdapter, wmatic, LCDToken);
 
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);
@@ -123,118 +58,96 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
         console.log("BeefyLPVaultAdapter: ", this.aAdapter.address);
     });
 
-    describe("depositMATIC function test", function () {
-        it("(1)should be reverted when nft tokenId is invalid", async function () {
+    describe("depositMatic function test", function () {
+        it("(1) should be reverted when nft tokenId is invalid", async function () {
             // deposit to nftID: 3
             const depositAmount = ethers.utils.parseEther("1");
             await expect(
                 this.investor
                     .connect(this.owner)
-                    .depositMATIC(
-                        this.owner.address,
-                        3,
-                        depositAmount.toString(),
-                        {
-                            value: depositAmount,
-                        }
-                    )
-            ).to.be.revertedWith("nft tokenId is invalid");
+                    .depositMatic(3, depositAmount.toString(), {
+                        gasPrice: 21e9,
+                        value: depositAmount,
+                    })
+            ).to.be.revertedWith("Error: nft tokenId is invalid");
         });
 
-        it("(2)should be reverted when amount is 0", async function () {
+        it("(2) should be reverted when amount is 0", async function () {
             // deposit to nftID: 1
             const depositAmount = ethers.utils.parseEther("0");
             await expect(
-                this.investor.depositMATIC(
-                    this.owner.address,
-                    1,
-                    depositAmount.toString(),
-                    {
-                        value: depositAmount,
-                    }
-                )
-            ).to.be.revertedWith("Amount can not be 0");
+                this.investor.depositMatic(1, depositAmount.toString(), {
+                    gasPrice: 21e9,
+                })
+            ).to.be.revertedWith("Error: Insufficient Matic");
         });
 
         it("(3)deposit should success for Alice", async function () {
-            const depositAmount = ethers.utils.parseEther("100");
+            const beforeRepay = await this.repayToken.balanceOf(
+                this.aAdapter.address
+            );
+            const depositAmount = ethers.utils.parseEther("10");
             await expect(
-                this.investor
-                    .connect(this.alice)
-                    .depositMATIC(this.aliceAddr, 1, depositAmount, {
-                        value: depositAmount,
-                    })
+                this.investor.connect(this.alice).depositMatic(1, depositAmount, {
+                    value: depositAmount,
+                })
             )
-                .to.emit(this.investor, "DepositMATIC")
+                .to.emit(this.investor, "depositMatic")
                 .withArgs(this.aliceAddr, this.ybNft.address, 1, depositAmount);
 
-            const aliceInfo = await this.investor.userInfo(
+            const aliceAdapterInfos = await this.aAdapter.userAdapterInfos(
                 this.aliceAddr,
-                this.ybNft.address,
                 1
-            );
-            const aliceDeposit = Number(aliceInfo) / Math.pow(10, 18);
-            expect(aliceDeposit).to.eq(100);
-
-            const aliceAdapterInfos = await this.investor.userAdapterInfos(
-                this.aliceAddr,
-                1,
-                this.aAdapter.address
             );
             expect(BigNumber.from(aliceAdapterInfos.amount).gt(0)).to.eq(true);
 
-            const adapterInfos = await this.investor.adapterInfos(
-                1,
+            const adapterInfos = await this.aAdapter.adapterInfos(1);
+            expect(BigNumber.from(adapterInfos.totalStaked)).to.eq(
+                BigNumber.from(aliceAdapterInfos.amount)
+            );
+
+            const afterRepay = await this.repayToken.balanceOf(
                 this.aAdapter.address
             );
-            expect(
-                BigNumber.from(adapterInfos.totalStaked).sub(
-                    BigNumber.from(aliceAdapterInfos.amount)
-                )
-            ).to.eq(0);
+            expect(BigNumber.from(aliceAdapterInfos.userShares)).to.eq(
+                BigNumber.from(afterRepay).sub(BigNumber.from(beforeRepay))
+            );
         });
 
         it("(4)deposit should success for Bob", async function () {
-            const aliceAdapterInfos = await this.investor.userAdapterInfos(
+            const beforeRepay = await this.repayToken.balanceOf(
+                this.aAdapter.address
+            );
+            const aliceAdapterInfos = await this.aAdapter.userAdapterInfos(
                 this.aliceAddr,
-                1,
-                this.aAdapter.address
-            );
-            const beforeAdapterInfos = await this.investor.adapterInfos(
-                1,
-                this.aAdapter.address
-            );
-
-            const depositAmount = ethers.utils.parseEther("200");
-            await expect(
-                this.investor
-                    .connect(this.bob)
-                    .depositMATIC(this.bobAddr, 1, depositAmount, {
-                        value: depositAmount,
-                    })
-            )
-                .to.emit(this.investor, "DepositMATIC")
-                .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
-
-            const bobInfo = await this.investor.userInfo(
-                this.bobAddr,
-                this.ybNft.address,
                 1
             );
-            const bobDeposit = Number(bobInfo) / Math.pow(10, 18);
-            expect(bobDeposit).to.eq(200);
+            const beforeAdapterInfos = await this.aAdapter.adapterInfos(1);
 
-            const bobAdapterInfos = await this.investor.userAdapterInfos(
+            const depositAmount = ethers.utils.parseEther("10");
+            await expect(
+                this.investor.connect(this.bob).depositMatic(1, depositAmount, {
+                    value: depositAmount,
+                })
+            )
+                .to.emit(this.investor, "depositMatic")
+                .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
+
+            await expect(
+                this.investor.connect(this.bob).depositMatic(1, depositAmount, {
+                    value: depositAmount,
+                })
+            )
+                .to.emit(this.investor, "depositMatic")
+                .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
+
+            const bobAdapterInfos = await this.aAdapter.userAdapterInfos(
                 this.bobAddr,
-                1,
-                this.aAdapter.address
+                1
             );
             expect(BigNumber.from(bobAdapterInfos.amount).gt(0)).to.eq(true);
 
-            const afterAdapterInfos = await this.investor.adapterInfos(
-                1,
-                this.aAdapter.address
-            );
+            const afterAdapterInfos = await this.aAdapter.adapterInfos(1);
             expect(
                 BigNumber.from(afterAdapterInfos.totalStaked).gt(
                     beforeAdapterInfos.totalStaked
@@ -245,179 +158,193 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
                     aliceAdapterInfos.amount
                 )
             ).to.eq(BigNumber.from(bobAdapterInfos.amount));
+
+            const afterRepay = await this.repayToken.balanceOf(
+                this.aAdapter.address
+            );
+            expect(BigNumber.from(bobAdapterInfos.userShares)).to.eq(
+                BigNumber.from(afterRepay).sub(BigNumber.from(beforeRepay))
+            );
         }).timeout(50000000);
 
-        it("(5)deposit should success for Tom", async function () {
-            const beforeAdapterInfos = await this.investor.adapterInfos(
-                1,
-                this.aAdapter.address
-            );
+        it("(5) test TVL & participants", async function () {
+            const nftInfo = await this.adapterInfo.adapterInfo(1);
 
-            const depositAmount = ethers.utils.parseEther("30");
-            await expect(
-                this.investor
-                    .connect(this.tom)
-                    .depositMATIC(this.tomAddr, 1, depositAmount, {
-                        value: depositAmount,
-                    })
-            )
-                .to.emit(this.investor, "DepositMATIC")
-                .withArgs(this.tomAddr, this.ybNft.address, 1, depositAmount);
-
-            const tomInfo = await this.investor.userInfo(
-                this.tomAddr,
-                this.ybNft.address,
-                1
-            );
-            const tomDeposit = Number(tomInfo) / Math.pow(10, 18);
-            expect(tomDeposit).to.eq(30);
-
-            const tomAdapterInfos = await this.investor.userAdapterInfos(
-                this.tomAddr,
-                1,
-                this.aAdapter.address
-            );
-            expect(BigNumber.from(tomAdapterInfos.amount).gt(0)).to.eq(true);
-
-            const afterAdapterInfos = await this.investor.adapterInfos(
-                1,
-                this.aAdapter.address
-            );
             expect(
-                BigNumber.from(afterAdapterInfos.totalStaked).gt(
-                    beforeAdapterInfos.totalStaked
+                Number(
+                    ethers.utils.formatEther(
+                        BigNumber.from(nftInfo.tvl).toString()
+                    )
                 )
-            ).to.eq(true);
-            expect(
-                BigNumber.from(afterAdapterInfos.totalStaked).sub(
-                    tomAdapterInfos.amount
-                )
-            ).to.eq(BigNumber.from(beforeAdapterInfos.totalStaked));
-        }).timeout(50000000);
+            ).to.be.eq(30) &&
+                expect(BigNumber.from(nftInfo.participant).toString()).to.be.eq(
+                    "2"
+                );
+
+            const pendingInfo = await this.aAdapter.pendingReward(
+                1,
+                this.alice.address
+            );
+            expect(pendingInfo).to.gte(0);
+        });
     });
 
-    describe("withdrawMATIC() function test", function () {
-        it("(1)should be reverted when nft tokenId is invalid", async function () {
+    describe("withdrawMatic() function test", function () {
+        it("(1) revert when nft tokenId is invalid", async function () {
+            for (let i = 0; i < 10; i++) {
+                await ethers.provider.send("evm_mine", []);
+            }
+            await ethers.provider.send("evm_increaseTime", [3600 * 24]);
+            await ethers.provider.send("evm_mine", []);
+
             // withdraw to nftID: 3
             await expect(
-                this.investor.withdrawMATIC(this.owner.address, 3)
-            ).to.be.revertedWith("nft tokenId is invalid");
+                this.investor
+                    .connect(this.owner)
+                    .withdrawMatic(3, { gasPrice: 21e9 })
+            ).to.be.revertedWith("Error: nft tokenId is invalid");
         });
 
-        it("(2)should receive MATIC successfully after withdraw function for Alice", async function () {
+        it("(2) should receive the Matic successfully after withdraw function for Alice", async function () {
+            await ethers.provider.send("evm_increaseTime", [3600 * 24 * 30]);
+            await ethers.provider.send("evm_mine", []);
+
             // withdraw from nftId: 1
-            const beforeMATIC = await ethers.provider.getBalance(
-                this.aliceAddr
+            const beforeMatic = await ethers.provider.getBalance(this.aliceAddr);
+            const beforeOwnerMatic = await ethers.provider.getBalance(
+                this.treasuryAddr
             );
+            let aliceInfo = (
+                await this.aAdapter.userAdapterInfos(this.aliceAddr, 1)
+            ).invested;
 
+            const gasPrice = 21e9;
+            const gas = await this.investor
+                .connect(this.alice)
+                .estimateGas.withdrawMatic(1, { gasPrice });
             await expect(
-                this.investor
-                    .connect(this.alice)
-                    .withdrawMATIC(this.aliceAddr, 1)
-            ).to.emit(this.investor, "WithdrawMATIC");
+                this.investor.connect(this.alice).withdrawMatic(1, { gasPrice })
+            ).to.emit(this.investor, "WithdrawMatic");
 
-            const afterMATIC = await ethers.provider.getBalance(this.aliceAddr);
-
+            const afterMatic = await ethers.provider.getBalance(this.aliceAddr);
             expect(
-                BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))
+                BigNumber.from(afterMatic).gt(BigNumber.from(beforeMatic))
             ).to.eq(true);
 
-            const aliceInfo = await this.investor.userInfo(
-                this.aliceAddr,
-                this.ybNft.address,
-                1
+            // check protocol fee
+            const rewardAmt = afterMatic.sub(beforeMatic);
+            const afterOwnerMatic = await ethers.provider.getBalance(
+                this.treasuryAddr
             );
+            let actualPending = rewardAmt.add(gas.mul(gasPrice));
+            if (actualPending.gt(aliceInfo)) {
+                actualPending = actualPending.sub(BigNumber.from(aliceInfo));
+                const protocolFee = afterOwnerMatic.sub(beforeOwnerMatic);
+                expect(protocolFee).to.gt(0);
+                expect(actualPending).to.be.within(
+                    protocolFee
+                        .mul(1e4 - this.performanceFee)
+                        .div(this.performanceFee)
+                        .sub(gas.mul(gasPrice)),
+                    protocolFee
+                        .mul(1e4 - this.performanceFee)
+                        .div(this.performanceFee)
+                        .add(gas.mul(gasPrice))
+                );
+            }
+
+            aliceInfo = (
+                await this.aAdapter.userAdapterInfos(this.aliceAddr, 1)
+            ).invested;
             expect(aliceInfo).to.eq(BigNumber.from(0));
 
-            const aliceWithdrable = await this.aAdapter.getWithdrawalAmount(
-                this.aliceAddr,
-                1
-            );
-            expect(BigNumber.from(aliceWithdrable)).to.eq(BigNumber.from(0));
-
-            const bobInfo = await this.investor.userInfo(
-                this.bobAddr,
-                this.ybNft.address,
-                1
-            );
+            const bobInfo = (
+                await this.aAdapter.userAdapterInfos(this.bobAddr, 1)
+            ).invested;
             const bobDeposit = Number(bobInfo) / Math.pow(10, 18);
-            expect(bobDeposit).to.eq(200);
+            expect(bobDeposit).to.eq(20);
+        });
 
-            const bobWithdrable = await this.aAdapter.getWithdrawalAmount(
-                this.bobAddr,
-                1
-            );
-            expect(BigNumber.from(bobWithdrable).gt(0)).to.eq(true);
-        }).timeout(50000000);
-
-        it("(3)should receive MATIC successfully after withdraw function for Bob", async function () {
-            // withdraw from nftId: 1
-            const beforeMATIC = await ethers.provider.getBalance(this.bobAddr);
-
-            await expect(
-                this.investor.connect(this.bob).withdrawMATIC(this.bobAddr, 1)
-            ).to.emit(this.investor, "WithdrawMATIC");
-
-            const afterMATIC = await ethers.provider.getBalance(this.bobAddr);
+        it("(3) test TVL & participants after Alice withdraw", async function () {
+            const nftInfo = await this.adapterInfo.adapterInfo(1);
 
             expect(
-                BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))
+                Number(
+                    ethers.utils.formatEther(
+                        BigNumber.from(nftInfo.tvl).toString()
+                    )
+                )
+            ).to.be.eq(20) &&
+                expect(BigNumber.from(nftInfo.participant).toString()).to.be.eq(
+                    "1"
+                );
+        });
+
+        it("(4) should receive the Matic successfully after withdraw function for Bob", async function () {
+            await ethers.provider.send("evm_increaseTime", [3600 * 24 * 30]);
+            await ethers.provider.send("evm_mine", []);
+            // withdraw from nftId: 1
+            const beforeMatic = await ethers.provider.getBalance(this.bobAddr);
+            const beforeOwnerMatic = await ethers.provider.getBalance(
+                this.treasuryAddr
+            );
+            let bobInfo = (
+                await this.aAdapter.userAdapterInfos(this.bobAddr, 1)
+            ).invested;
+
+            const gasPrice = 21e9;
+            const gas = await this.investor
+                .connect(this.bob)
+                .estimateGas.withdrawMatic(1, { gasPrice });
+            await expect(
+                this.investor.connect(this.bob).withdrawMatic(1, { gasPrice })
+            ).to.emit(this.investor, "WithdrawMatic");
+
+            const afterMatic = await ethers.provider.getBalance(this.bobAddr);
+            expect(
+                BigNumber.from(afterMatic).gt(BigNumber.from(beforeMatic))
             ).to.eq(true);
 
-            const bobInfo = await this.investor.userInfo(
-                this.bobAddr,
-                this.ybNft.address,
-                1
-            );
+            // check protocol fee
+            const rewardAmt = afterMatic.sub(beforeMatic);
+            let actualPending = rewardAmt.add(gas.mul(gasPrice));
+            if (actualPending.gt(bobInfo)) {
+                actualPending = actualPending - bobInfo;
+                const afterOwnerMatic = await ethers.provider.getBalance(
+                    this.treasuryAddr
+                );
+                const protocolFee = afterOwnerMatic.sub(beforeOwnerMatic);
+                expect(protocolFee).to.gt(0);
+                expect(actualPending).to.be.within(
+                    protocolFee
+                        .mul(1e4 - this.performanceFee)
+                        .div(this.performanceFee)
+                        .sub(gas.mul(gasPrice)),
+                    protocolFee
+                        .mul(1e4 - this.performanceFee)
+                        .div(this.performanceFee)
+                        .add(gas.mul(gasPrice))
+                );
+            }
+
+            bobInfo = (await this.aAdapter.userAdapterInfos(this.bobAddr, 1))
+                .invested;
             expect(bobInfo).to.eq(BigNumber.from(0));
+        });
 
-            const bobWithdrable = await this.aAdapter.getWithdrawalAmount(
-                this.bobAddr,
-                1
-            );
-            expect(BigNumber.from(bobWithdrable)).to.eq(BigNumber.from(0));
-
-            const tomInfo = await this.investor.userInfo(
-                this.tomAddr,
-                this.ybNft.address,
-                1
-            );
-            const tomDeposit = Number(tomInfo) / Math.pow(10, 18);
-            expect(tomDeposit).to.eq(30);
-
-            const tomWithdrable = await this.aAdapter.getWithdrawalAmount(
-                this.tomAddr,
-                1
-            );
-            expect(BigNumber.from(tomWithdrable).gt(0)).to.eq(true);
-        }).timeout(50000000);
-
-        it("(4)should receive MATIC successfully after withdraw function for Tom", async function () {
-            // withdraw from nftId: 1
-            const beforeMATIC = await ethers.provider.getBalance(this.tomAddr);
-
-            await expect(
-                this.investor.connect(this.tom).withdrawMATIC(this.tomAddr, 1)
-            ).to.emit(this.investor, "WithdrawMATIC");
-
-            const afterMATIC = await ethers.provider.getBalance(this.tomAddr);
+        it("(5) test TVL & participants after Alice & Bob withdraw", async function () {
+            const nftInfo = await this.adapterInfo.adapterInfo(1);
 
             expect(
-                BigNumber.from(afterMATIC).gt(BigNumber.from(beforeMATIC))
-            ).to.eq(true);
-
-            const tomInfo = await this.investor.userInfo(
-                this.tomAddr,
-                this.ybNft.address,
-                1
-            );
-            expect(tomInfo).to.eq(BigNumber.from(0));
-
-            const tomWithdrable = await this.aAdapter.getWithdrawalAmount(
-                this.tomAddr,
-                1
-            );
-            expect(tomWithdrable).to.eq(0);
-        }).timeout(50000000);
+                Number(
+                    ethers.utils.formatEther(
+                        BigNumber.from(nftInfo.tvl).toString()
+                    )
+                )
+            ).to.be.eq(0) &&
+                expect(BigNumber.from(nftInfo.participant).toString()).to.be.eq(
+                    "0"
+                );
+        });
     });
 });
