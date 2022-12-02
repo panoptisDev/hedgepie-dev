@@ -20,7 +20,7 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
         const stakingToken = "0xAab5254e17380511887aabA7e96a5339A519E26a"; // LCD-Matic LP
         const swapRouter = "0xa5E0829CaCEd8fFDD4De3c43696c57F7D7A678ff"; // quickswap router address
 
-        this.performanceFee = performanceFee;
+        this.performanceFee = 50;
         this.owner = owner;
         this.alice = alice;
         this.bob = bob;
@@ -37,6 +37,7 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
             strategy,
             stakingToken,
             swapRouter,
+            swapRouter,
             wmatic,
             "PolygonBeefy::Vault::LCD-Matic LP"
         );
@@ -52,20 +53,22 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
 
         await setPath(this.aAdapter, wmatic, LCDToken);
 
+        this.repayToken = await ethers.getContractAt("IBEP20", strategy);
+
         console.log("Owner: ", this.owner.address);
         console.log("Investor: ", this.investor.address);
         console.log("Strategy: ", strategy);
         console.log("BeefyLPVaultAdapter: ", this.aAdapter.address);
     });
 
-    describe("depositMatic function test", function () {
+    describe("depositMATIC function test", function () {
         it("(1) should be reverted when nft tokenId is invalid", async function () {
             // deposit to nftID: 3
             const depositAmount = ethers.utils.parseEther("1");
             await expect(
                 this.investor
                     .connect(this.owner)
-                    .depositMatic(3, depositAmount.toString(), {
+                    .depositMATIC(3, depositAmount.toString(), {
                         gasPrice: 21e9,
                         value: depositAmount,
                     })
@@ -76,10 +79,10 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
             // deposit to nftID: 1
             const depositAmount = ethers.utils.parseEther("0");
             await expect(
-                this.investor.depositMatic(1, depositAmount.toString(), {
+                this.investor.depositMATIC(1, depositAmount.toString(), {
                     gasPrice: 21e9,
                 })
-            ).to.be.revertedWith("Error: Insufficient Matic");
+            ).to.be.revertedWith("Error: Insufficient MATIC");
         });
 
         it("(3)deposit should success for Alice", async function () {
@@ -88,11 +91,11 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
             );
             const depositAmount = ethers.utils.parseEther("10");
             await expect(
-                this.investor.connect(this.alice).depositMatic(1, depositAmount, {
+                this.investor.connect(this.alice).depositMATIC(1, depositAmount, {
                     value: depositAmount,
                 })
             )
-                .to.emit(this.investor, "depositMatic")
+                .to.emit(this.investor, "DepositMATIC")
                 .withArgs(this.aliceAddr, this.ybNft.address, 1, depositAmount);
 
             const aliceAdapterInfos = await this.aAdapter.userAdapterInfos(
@@ -126,19 +129,19 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
 
             const depositAmount = ethers.utils.parseEther("10");
             await expect(
-                this.investor.connect(this.bob).depositMatic(1, depositAmount, {
+                this.investor.connect(this.bob).depositMATIC(1, depositAmount, {
                     value: depositAmount,
                 })
             )
-                .to.emit(this.investor, "depositMatic")
+                .to.emit(this.investor, "DepositMATIC")
                 .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
 
             await expect(
-                this.investor.connect(this.bob).depositMatic(1, depositAmount, {
+                this.investor.connect(this.bob).depositMATIC(1, depositAmount, {
                     value: depositAmount,
                 })
             )
-                .to.emit(this.investor, "depositMatic")
+                .to.emit(this.investor, "DepositMATIC")
                 .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
 
             const bobAdapterInfos = await this.aAdapter.userAdapterInfos(
@@ -189,7 +192,7 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
         });
     });
 
-    describe("withdrawMatic() function test", function () {
+    describe("withdrawMATIC function test", function () {
         it("(1) revert when nft tokenId is invalid", async function () {
             for (let i = 0; i < 10; i++) {
                 await ethers.provider.send("evm_mine", []);
@@ -201,7 +204,7 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
             await expect(
                 this.investor
                     .connect(this.owner)
-                    .withdrawMatic(3, { gasPrice: 21e9 })
+                    .withdrawMATIC(3, { gasPrice: 21e9 })
             ).to.be.revertedWith("Error: nft tokenId is invalid");
         });
 
@@ -221,10 +224,10 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
             const gasPrice = 21e9;
             const gas = await this.investor
                 .connect(this.alice)
-                .estimateGas.withdrawMatic(1, { gasPrice });
+                .estimateGas.withdrawMATIC(1, { gasPrice });
             await expect(
-                this.investor.connect(this.alice).withdrawMatic(1, { gasPrice })
-            ).to.emit(this.investor, "WithdrawMatic");
+                this.investor.connect(this.alice).withdrawMATIC(1, { gasPrice })
+            ).to.emit(this.investor, "WithdrawMATIC");
 
             const afterMatic = await ethers.provider.getBalance(this.aliceAddr);
             expect(
@@ -295,10 +298,10 @@ describe("BeefyLPVaultAdapter Integration Test", function () {
             const gasPrice = 21e9;
             const gas = await this.investor
                 .connect(this.bob)
-                .estimateGas.withdrawMatic(1, { gasPrice });
+                .estimateGas.withdrawMATIC(1, { gasPrice });
             await expect(
-                this.investor.connect(this.bob).withdrawMatic(1, { gasPrice })
-            ).to.emit(this.investor, "WithdrawMatic");
+                this.investor.connect(this.bob).withdrawMATIC(1, { gasPrice })
+            ).to.emit(this.investor, "WithdrawMATIC");
 
             const afterMatic = await ethers.provider.getBalance(this.bobAddr);
             expect(
