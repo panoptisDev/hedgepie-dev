@@ -94,17 +94,36 @@ function LeaderboardContent() {
     fetchLeaderboardData()
   }, [])
   return (
-    <Box sx={{ display: 'flex', padding: '2rem', gap: '20px', flexDirection: 'row', width: '100%', flexWrap: 'wrap' }}>
+    <Box sx={{ display: 'flex', padding: '2rem', gap: '20px', flexDirection: 'column' }}>
       {lotteries.length ? (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '1rem', width: '100%' }}>
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '1rem',
+            width: '100%',
+            // alignItems: 'center',
+            justifyContent: 'center',
+          }}
+        >
           <LeaderboardFilter />
+          {/* <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              justifyContent: 'center',
+              alignItems: 'center',
+              width: '100%',
+            }}
+          > */}
           <Box
             sx={{
               display: 'flex',
               gap: '30px',
               flexDirection: 'row',
-              width: '100%',
               flexWrap: 'wrap',
+              width: 'fit-content',
+              justifyContent: 'center',
             }}
           >
             {lotteries.map((item) => (
@@ -112,7 +131,8 @@ function LeaderboardContent() {
             ))}
           </Box>
         </Box>
-      ) : null}
+      ) : // </Box>
+      null}
       {loading ? (
         <Box sx={{ width: '100%', height: '30vh', display: 'flex', alignItems: 'center', justifyContent: 'center' }}>
           <Spinner />
