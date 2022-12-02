@@ -154,7 +154,7 @@ contract StargateFarmAdapter is BaseAdapterMatic {
         data = abi.encodeWithSignature("getReward()");
     }
 
-    function pendingReward() external view override returns (uint256 reward) {
+    function pendingReward() external view returns (uint256 reward) {
         reward = IStakingRewards(strategy).pendingStargate(pid, msg.sender);
     }
 }

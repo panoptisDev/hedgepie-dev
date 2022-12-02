@@ -85,11 +85,11 @@ contract QuickStakeAdapter is BaseAdapterMatic {
         data = abi.encodeWithSignature("getReward()");
     }
 
-    function pendingReward() external view override returns (uint256 reward) {
+    function pendingReward() external view returns (uint256 reward) {
         reward = IStakingRewards(strategy).earned(msg.sender);
     }
 
-    function pendingShares() external view override returns (uint256 shares) {
+    function pendingShares() external view returns (uint256 shares) {
         shares = IStakingRewards(strategy).balanceOf(msg.sender);
     }
 }
