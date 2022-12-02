@@ -67,14 +67,14 @@ describe("ApeswapLPFarmAdapter Integration Test", function () {
         console.log("ApeswapLPFarmAdapter: ", this.aAdapter.address);
     });
 
-    describe("depositMatic function test", function () {
+    describe("depositMATIC function test", function () {
         it("(1) should be reverted when nft tokenId is invalid", async function () {
             // deposit to nftID: 3
             const depositAmount = ethers.utils.parseEther("1");
             await expect(
                 this.investor
                     .connect(this.owner)
-                    .depositMatic(3, depositAmount.toString(), {
+                    .depositMATIC(3, depositAmount.toString(), {
                         gasPrice: 21e9,
                         value: depositAmount,
                     })
@@ -85,21 +85,21 @@ describe("ApeswapLPFarmAdapter Integration Test", function () {
             // deposit to nftID: 1
             const depositAmount = ethers.utils.parseEther("0");
             await expect(
-                this.investor.depositMatic(1, depositAmount.toString(), {
+                this.investor.depositMATIC(1, depositAmount.toString(), {
                     gasPrice: 21e9,
                 })
-            ).to.be.revertedWith("Error: Insufficient Matic");
+            ).to.be.revertedWith("Error: Insufficient MATIC");
         });
 
         it("(3) deposit should success for Alice", async function () {
             const depositAmount = ethers.utils.parseEther("10");
             await expect(
-                this.investor.connect(this.alice).depositMatic(1, depositAmount, {
+                this.investor.connect(this.alice).depositMATIC(1, depositAmount, {
                     gasPrice: 21e9,
                     value: depositAmount,
                 })
             )
-                .to.emit(this.investor, "DepositMatic")
+                .to.emit(this.investor, "DepositMATIC")
                 .withArgs(this.aliceAddr, this.ybNft.address, 1, depositAmount);
 
             const aliceInfo = (
@@ -137,21 +137,21 @@ describe("ApeswapLPFarmAdapter Integration Test", function () {
             const depositAmount = ethers.utils.parseEther("10");
 
             await expect(
-                this.investor.connect(this.bob).depositMatic(1, depositAmount, {
+                this.investor.connect(this.bob).depositMATIC(1, depositAmount, {
                     gasPrice: 21e9,
                     value: depositAmount,
                 })
             )
-                .to.emit(this.investor, "DepositMatic")
+                .to.emit(this.investor, "DepositMATIC")
                 .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
 
             await expect(
-                this.investor.connect(this.bob).depositMatic(1, depositAmount, {
+                this.investor.connect(this.bob).depositMATIC(1, depositAmount, {
                     gasPrice: 21e9,
                     value: depositAmount,
                 })
             )
-                .to.emit(this.investor, "DepositMatic")
+                .to.emit(this.investor, "DepositMATIC")
                 .withArgs(this.bobAddr, this.ybNft.address, 1, depositAmount);
 
             const bobInfo = (
@@ -177,7 +177,7 @@ describe("ApeswapLPFarmAdapter Integration Test", function () {
             expect(
                 BigNumber.from(
                     (await this.aAdapter.adapterInfos(1)).accTokenPerShare
-                ).gt(BigNumber.from(this.accTokenPerShare))
+                ).gte(BigNumber.from(this.accTokenPerShare))
             ).to.eq(true);
 
             this.accTokenPerShare = (
@@ -238,7 +238,7 @@ describe("ApeswapLPFarmAdapter Integration Test", function () {
         });
     });
 
-    describe("withdrawMatic() function test", function () {
+    describe("withdrawMATIC() function test", function () {
         it("(1) revert when nft tokenId is invalid", async function () {
             for (let i = 0; i < 10; i++) {
                 await ethers.provider.send("evm_mine", []);
@@ -250,7 +250,7 @@ describe("ApeswapLPFarmAdapter Integration Test", function () {
             await expect(
                 this.investor
                     .connect(this.owner)
-                    .withdrawMatic(3, { gasPrice: 21e9 })
+                    .withdrawMATIC(3, { gasPrice: 21e9 })
             ).to.be.revertedWith("Error: nft tokenId is invalid");
         });
 
@@ -270,10 +270,10 @@ describe("ApeswapLPFarmAdapter Integration Test", function () {
             const gasPrice = 21e9;
             const gas = await this.investor
                 .connect(this.alice)
-                .estimateGas.withdrawMatic(1, { gasPrice });
+                .estimateGas.withdrawMATIC(1, { gasPrice });
             await expect(
-                this.investor.connect(this.alice).withdrawMatic(1, { gasPrice })
-            ).to.emit(this.investor, "WithdrawMatic");
+                this.investor.connect(this.alice).withdrawMATIC(1, { gasPrice })
+            ).to.emit(this.investor, "WithdrawMATIC");
 
             const afterMatic = await ethers.provider.getBalance(this.aliceAddr);
             expect(
@@ -345,10 +345,10 @@ describe("ApeswapLPFarmAdapter Integration Test", function () {
             const gasPrice = 21e9;
             const gas = await this.investor
                 .connect(this.bob)
-                .estimateGas.withdrawMatic(1, { gasPrice });
+                .estimateGas.withdrawMATIC(1, { gasPrice });
             await expect(
-                this.investor.connect(this.bob).withdrawMatic(1, { gasPrice })
-            ).to.emit(this.investor, "WithdrawMatic");
+                this.investor.connect(this.bob).withdrawMATIC(1, { gasPrice })
+            ).to.emit(this.investor, "WithdrawMATIC");
 
             const afterMatic = await ethers.provider.getBalance(this.bobAddr);
             expect(

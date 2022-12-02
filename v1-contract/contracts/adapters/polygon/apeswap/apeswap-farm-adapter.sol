@@ -12,6 +12,8 @@ interface IStrategy {
 
     function withdrawAndHarvest(uint256, uint256, address) external;
 
+    function harvest(uint256, address) external;
+
     function pendingBanana(uint256, address)
         external
         view
@@ -275,7 +277,21 @@ contract ApeswapFarmAdapter is BaseAdapterMatic {
         onlyInvestor
         returns (uint256 amountOut)
     {
+        AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
+
+        uint256 rewardAmt = IBEP20(rewardToken).balanceOf(address(this));
+
+        IStrategy(strategy).harvest(pid, address(this));
+
+        unchecked {
+            rewardAmt = IBEP20(rewardToken).balanceOf(address(this))
+                - rewardAmt;
+
+            adapterInfo.accTokenPerShare +=
+                (rewardAmt * 1e12) /
+                adapterInfo.totalStaked;
+        }
 
         (uint256 reward, ) = HedgepieLibraryMatic.getRewards(
             _tokenId,
@@ -330,7 +346,7 @@ contract ApeswapFarmAdapter is BaseAdapterMatic {
         AdapterInfo memory adapterInfo = adapterInfos[_tokenId];
 
         uint256 updatedAccTokenPerShare = adapterInfo.accTokenPerShare +
-            ((IStrategy(strategy).pendingBanana(pid, _account) * 1e12) /
+            ((IStrategy(strategy).pendingBanana(pid, address(this)) * 1e12) /
                 adapterInfo.totalStaked);
 
         uint256 tokenRewards = ((updatedAccTokenPerShare -
