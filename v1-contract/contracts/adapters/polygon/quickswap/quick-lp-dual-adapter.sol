@@ -90,7 +90,7 @@ contract QuickLPDualAdapter is BaseAdapterMatic {
         data = abi.encodeWithSignature("getReward()");
     }
 
-    function pendingReward() external view override returns (uint256 reward) {
+    function pendingReward() external view returns (uint256 reward) {
         reward = IStakingDualRewards(strategy).earnedA(msg.sender);
     }
 

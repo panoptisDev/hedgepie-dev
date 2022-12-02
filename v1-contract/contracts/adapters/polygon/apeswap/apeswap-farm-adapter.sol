@@ -80,7 +80,7 @@ contract ApeswapFarmAdapter is BaseAdapterMatic {
 
         // deposit
         IBEP20(stakingToken).approve(strategy, amountOut);
-        IStrategy(strategy).deposit(pid, amountOut);
+        IStrategy(strategy).deposit(pid, amountOut, address(this));
 
         unchecked {
             rewardAmt0 = IBEP20(rewardToken).balanceOf(address(this))
@@ -152,7 +152,7 @@ contract ApeswapFarmAdapter is BaseAdapterMatic {
             ? IBEP20(rewardToken1).balanceOf(address(this))
             : 0;
 
-        IStrategy(strategy).withdrawAndHarvest(pid, userInfo.amount);
+        IStrategy(strategy).withdrawAndHarvest(pid, userInfo.amount, address(this));
 
         unchecked {
             amountOut = IBEP20(stakingToken).balanceOf(address(this)) - amountOut;

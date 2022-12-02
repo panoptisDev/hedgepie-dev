@@ -159,7 +159,7 @@ contract Curve4LPAdaper is BaseAdapterMatic {
         data = abi.encodeWithSignature("claim_rewards(address)", investor);
     }
 
-    function pendingReward() external view override returns (uint256 reward) {
+    function pendingReward() external view returns (uint256 reward) {
         reward = IGauge(strategy).claimable_reward(investor, rewardToken);
     }
 
