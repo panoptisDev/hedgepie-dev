@@ -54,15 +54,6 @@ abstract contract BaseAdapterMatic is Ownable {
     // TODO: remove after complete polygon version
     address public liquidityToken;
 
-    // TODO: remove after complete polygon version
-    address public lpStakingToken;
-
-    // TODO: remove after complete polygon version
-    address public lpProvider;
-
-    // TODO: remove after complete polygon version
-    uint256 public lpPoolId;
-
     // inToken => outToken => paths
     mapping(address => mapping(address => address[])) public paths;
 
