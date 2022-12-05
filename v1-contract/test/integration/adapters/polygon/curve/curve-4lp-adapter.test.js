@@ -8,7 +8,7 @@ const {
 
 const BigNumber = ethers.BigNumber;
 
-describe.only("CurveGaugeAdapter Integration Test", function () {
+describe("CurveGaugeAdapter Integration Test", function () {
     before("Deploy contract", async function () {
         await forkPolygonNetwork();
 
