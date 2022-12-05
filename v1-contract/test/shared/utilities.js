@@ -11,6 +11,19 @@ async function forkETHNetwork() {
     });
 }
 
+async function forkPolygonNetwork() {
+    await hre.network.provider.request({
+        method: "hardhat_reset",
+        params: [
+            {
+                forking: {
+                    jsonRpcUrl: "https://polygon-rpc.com",
+                },
+            },
+        ],
+    });
+}
+
 async function setPath(adapter, first, second, third = null) {
     if (third) {
         await adapter.setPath(first, second, [first, third, second]);
@@ -29,4 +42,5 @@ module.exports = {
     encode,
     setPath,
     forkETHNetwork,
+    forkPolygonNetwork,
 };
