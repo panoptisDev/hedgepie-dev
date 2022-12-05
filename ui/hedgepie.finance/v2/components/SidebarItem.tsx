@@ -27,26 +27,31 @@ function SidebarItem(props: SidebarItemProps) {
       case 'leaderboard':
         return 'Leaderboard'
       case 'mint':
-        return 'Mint'
+        return 'Create'
+      case 'dashboard':
+        return 'Dashbaord'
       default:
         return type
     }
   }
 
-  const getIcon = (type: SidebarItemType | undefined) => {
+  const getIcon = (type: SidebarItemType | undefined, active: boolean) => {
+    const folder = active ? 'pink' : 'grey'
     switch (type) {
       case 'home':
-        return '/icons/home.svg'
+        return `/icons/${folder}/home.svg`
       case 'stats':
-        return '/icons/credit-card.svg'
+        return `/icons/${folder}/stats.svg`
       case 'history':
-        return '/icons/list.svg'
+        return `/icons/${folder}/history.svg`
       case 'help':
         return '/icons/help.svg'
       case 'leaderboard':
-        return '/icons/leaderboard.svg'
+        return `/icons/${folder}/leaderboard.svg`
       case 'mint':
-        return '/icons/list.svg'
+        return `/icons/${folder}/create.svg`
+      case 'dashboard':
+        return `/icons/${folder}/dashboard.svg`
       default:
         return '/icons/home.svg'
     }
@@ -54,20 +59,22 @@ function SidebarItem(props: SidebarItemProps) {
   return (
     <Box
       sx={{
-        backgroundColor: isActive ? '#FFFFFF' : '#14114B',
-        borderRadius: '14px',
+        backgroundColor: '#14114B',
+        // borderRadius: '14px',
         padding: '0.75rem 1rem',
         display: 'flex',
         flexDirection: 'row',
         alignItems: 'center',
         margin: '5px 2px',
-        gap: ['10px', '10px', '10px', '30px'],
+        gap: ['10px', '10px', '10px', '20px'],
         cursor: 'pointer',
         width: 'max-content',
       }}
     >
-      <img src={getIcon(type)} />
-      {sidebarExpanded ? <Text sx={{ color: '#667080', marginTop: '-3px' }}>{getTitle(type)}</Text> : null}
+      <img src={getIcon(type, isActive)} style={{ fill: '#FFFFFF' }} />
+      {sidebarExpanded ? (
+        <Text sx={{ color: isActive ? '#FFFFFF' : '#667080', marginTop: '-3px' }}>{getTitle(type)}</Text>
+      ) : null}
     </Box>
   )
 }

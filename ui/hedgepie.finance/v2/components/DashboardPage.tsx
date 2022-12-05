@@ -67,8 +67,9 @@ function DashboardPage(props: DashboardPageProps) {
             display: 'flex',
             flexDirection: 'row',
             gap: '10px',
-            margin: ['0.5rem', '0.5rem', '0.5rem', '2rem 4rem 8rem 4rem'],
-            borderRadius: '16px',
+            margin: ['0.5rem', '0.5rem', '0.5rem', '0rem 4rem 8rem 4rem'],
+            borderBottomLeftRadius: '16px',
+            borderBottomRightRadius: '16px',
             background: 'linear-gradient(137.62deg, rgba(252, 143, 143, 0.1) 0.17%, rgba(143, 143, 252, 0.3) 110.51%)',
           }}
         >

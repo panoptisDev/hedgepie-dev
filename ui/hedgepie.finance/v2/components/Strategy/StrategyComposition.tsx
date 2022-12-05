@@ -154,7 +154,7 @@ function StrategyComposition(props: { tokenId: number }) {
         <Box
           sx={{
             backgroundColor: '#F3F3F3',
-            borderRadius: '4px',
+            borderRadius: '8px',
             padding: '0.5rem',
             marginLeft: 'auto',
             cursor: 'pointer',
@@ -195,12 +195,13 @@ function StrategyComposition(props: { tokenId: number }) {
         </Box>
         <Box
           sx={{
-            border: '1px solid #E3E3E3',
-            borderRadius: '4px',
             flex: 1,
             display: 'flex',
             flexDirection: 'column',
             padding: '1rem',
+            backgroundColor: '#FEF6F9',
+            border: '1px solid #BAB9C5',
+            borderRadius: '8px',
           }}
         >
           <Text sx={{ color: '#14114B', fontSize: '16px', fontWeight: '600', fontFamily: 'Plus Jakarta Sans' }}>

@@ -6,6 +6,7 @@ import React, { useEffect, useState } from 'react'
 import { Box, Button, Spinner, Text } from 'theme-ui'
 import { getBalanceInEther } from 'utils/formatBalance'
 import { getPrice } from 'utils/getTokenPrice'
+import LeaderBoardItem from '../Leaderboard/LeaderBoardItem'
 
 function DashboardFunds() {
   const { getOwnerOf } = useYBNFTMint()
@@ -72,7 +73,16 @@ function DashboardFunds() {
           apy: '15%',
           yield: getBalanceInEther(reward).toFixed(5).toString() + ' BNB',
         }
-        fundData.push(fundObj)
+        let leaderboardItem = {
+          tokenId: i,
+          name: metadata.name,
+          imageURL: metadata.imageURL,
+          description: metadata.description,
+          tvl: tvl,
+          totalStaked: totalStaked,
+          totalParticipants: nftInfo.totalParticipant,
+        }
+        fundData.push(leaderboardItem)
       }
 
       setFunds(fundData)
@@ -118,117 +128,118 @@ function DashboardFunds() {
         >
           <>
             {funds.map((f) => (
-              <Box
-                sx={{ borderRadius: '8px', border: '1px solid #D9D9D9', cursor: 'pointer' }}
-                onClick={() => {
-                  router.push(`/v2/strategy/?tokenId=${f.index}`)
-                }}
-              >
-                <Box sx={{ display: 'flex', flexDirection: 'row', gap: '30px', padding: '1rem', alignItems: 'center' }}>
-                  <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#000000' }}>
-                    {f.name}
-                  </Text>
-                  {/* <Box
-                    sx={{
-                      borderRadius: '4px',
-                      backgroundColor: '#F3F3F3',
-                      padding: '0.2rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                    }}
-                  >
-                    <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '8px', color: '#4D4D4D' }}>
-                      Created:
-                    </Text>
-                    <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '10px', color: '#4D4D4D' }}>
-                      {f.createdDate}
-                    </Text>
-                  </Box>
-                  <Box
-                    sx={{
-                      borderRadius: '4px',
-                      backgroundColor: '#F3F3F3',
-                      padding: '0.2rem',
-                      display: 'flex',
-                      flexDirection: 'column',
-                    }}
-                  >
-                    <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '8px', color: '#4D4D4D' }}>
-                      Last Updated:
-                    </Text>
-                    <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '10px', color: '#4D4D4D' }}>
-                      {f.lastUpdated}
-                    </Text>
-                  </Box> */}
-                </Box>
-                <Box sx={{ height: '2px', backgroundColor: '#D9D9D9', width: '100%' }}></Box>
-                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '0.5rem 1rem 1rem 1rem' }}>
-                  <Box sx={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <Text
-                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}
-                      >
-                        Investors:
-                      </Text>
-                      <Text
-                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}
-                      >
-                        {f.investors}
-                      </Text>
-                    </Box>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <Text
-                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}
-                      >
-                        TVL:
-                      </Text>
-                      <Text
-                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}
-                      >
-                        {f.tvl}
-                      </Text>
-                    </Box>
-                  </Box>
-                  <Box sx={{ display: 'flex', flexDirection: 'row', gap: '15px' }}>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <Text
-                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}
-                      >
-                        Stake:
-                      </Text>
-                      <Text
-                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}
-                      >
-                        {f.stake}
-                      </Text>
-                    </Box>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <Text
-                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}
-                      >
-                        APY:
-                      </Text>
-                      <Text
-                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}
-                      >
-                        {f.apy}
-                      </Text>
-                    </Box>
-                    <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
-                      <Text
-                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}
-                      >
-                        Yield:
-                      </Text>
-                      <Text
-                        sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}
-                      >
-                        {f.yield}
-                      </Text>
-                    </Box>
-                  </Box>
-                </Box>
-              </Box>
+              <LeaderBoardItem item={f} />
+              // <Box
+              //   sx={{ borderRadius: '8px', border: '1px solid #D9D9D9', cursor: 'pointer' }}
+              //   onClick={() => {
+              //     router.push(`/v2/strategy/?tokenId=${f.index}`)
+              //   }}
+              // >
+              //   <Box sx={{ display: 'flex', flexDirection: 'row', gap: '30px', padding: '1rem', alignItems: 'center' }}>
+              //     <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#000000' }}>
+              //       {f.name}
+              //     </Text>
+              //     {/* <Box
+              //       sx={{
+              //         borderRadius: '4px',
+              //         backgroundColor: '#F3F3F3',
+              //         padding: '0.2rem',
+              //         display: 'flex',
+              //         flexDirection: 'column',
+              //       }}
+              //     >
+              //       <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '8px', color: '#4D4D4D' }}>
+              //         Created:
+              //       </Text>
+              //       <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '10px', color: '#4D4D4D' }}>
+              //         {f.createdDate}
+              //       </Text>
+              //     </Box>
+              //     <Box
+              //       sx={{
+              //         borderRadius: '4px',
+              //         backgroundColor: '#F3F3F3',
+              //         padding: '0.2rem',
+              //         display: 'flex',
+              //         flexDirection: 'column',
+              //       }}
+              //     >
+              //       <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '8px', color: '#4D4D4D' }}>
+              //         Last Updated:
+              //       </Text>
+              //       <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '10px', color: '#4D4D4D' }}>
+              //         {f.lastUpdated}
+              //       </Text>
+              //     </Box> */}
+              //   </Box>
+              //   <Box sx={{ height: '2px', backgroundColor: '#D9D9D9', width: '100%' }}></Box>
+              //   <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px', padding: '0.5rem 1rem 1rem 1rem' }}>
+              //     <Box sx={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
+              //       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              //         <Text
+              //           sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}
+              //         >
+              //           Investors:
+              //         </Text>
+              //         <Text
+              //           sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}
+              //         >
+              //           {f.investors}
+              //         </Text>
+              //       </Box>
+              //       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              //         <Text
+              //           sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}
+              //         >
+              //           TVL:
+              //         </Text>
+              //         <Text
+              //           sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}
+              //         >
+              //           {f.tvl}
+              //         </Text>
+              //       </Box>
+              //     </Box>
+              //     <Box sx={{ display: 'flex', flexDirection: 'row', gap: '15px' }}>
+              //       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              //         <Text
+              //           sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}
+              //         >
+              //           Stake:
+              //         </Text>
+              //         <Text
+              //           sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}
+              //         >
+              //           {f.stake}
+              //         </Text>
+              //       </Box>
+              //       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              //         <Text
+              //           sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}
+              //         >
+              //           APY:
+              //         </Text>
+              //         <Text
+              //           sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}
+              //         >
+              //           {f.apy}
+              //         </Text>
+              //       </Box>
+              //       <Box sx={{ display: 'flex', flexDirection: 'column', gap: '5px' }}>
+              //         <Text
+              //           sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '12px', color: '#4F4F4F' }}
+              //         >
+              //           Yield:
+              //         </Text>
+              //         <Text
+              //           sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '16px', color: '#1A1A1A' }}
+              //         >
+              //           {f.yield}
+              //         </Text>
+              //       </Box>
+              //     </Box>
+              //   </Box>
+              // </Box>
             ))}
           </>
         </Box>
