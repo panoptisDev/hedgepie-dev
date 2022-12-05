@@ -248,7 +248,7 @@ async function investorFixtureMatic(
 }
 
 async function adapterFixtureMatic(adapterName) {
-    // Deploy HedgepieLibraryEth contract
+    // Deploy HedgepieLibraryMatic contract
     const Lib = await ethers.getContractFactory("HedgepieLibraryMatic");
     const lib = await Lib.deploy();
 
