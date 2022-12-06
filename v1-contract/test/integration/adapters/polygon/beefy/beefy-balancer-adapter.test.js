@@ -8,7 +8,7 @@ const {
 
 const BigNumber = ethers.BigNumber;
 
-describe.only("BeefyBalancerAdapter Integration Test", function () {
+describe("BeefyBalancerAdapter Integration Test", function () {
     before("Deploy contract", async function () {
         await forkPolygonNetwork();
 
