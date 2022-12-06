@@ -58,9 +58,13 @@ interface IBalancerVault {
 }
 
 contract BeefyBalancerAdapter is BaseAdapterMatic {
-    bytes32 public immutable poolId;
+    BPool public bPool;
 
-    uint256 public immutable lpCnt;
+    struct BPool {
+        uint256 lpCnt;
+        uint256 lpOrder;
+        bytes32 poolId;
+    }
 
     /**
      * @notice Construct
@@ -70,8 +74,7 @@ contract BeefyBalancerAdapter is BaseAdapterMatic {
      * @param _router  address of router for LP
      * @param _swapRouter  address of swap router
      * @param _wmatic  address of wmatic
-     * @param _lpCnt  count of tokens in pool
-     * @param _poolId  number of poolID
+     * @param _bpool  info of balancer pool
      * @param _name  adatper name
      */
     constructor(
@@ -81,11 +84,9 @@ contract BeefyBalancerAdapter is BaseAdapterMatic {
         address _router,
         address _swapRouter,
         address _wmatic,
-        uint256 _lpCnt,
-        bytes32 _poolId,
+        BPool memory _bpool,
         string memory _name
     ) {
-        poolId = _poolId;
         strategy = _strategy;
         stakingToken = _stakingToken;
         liquidityToken = _liquidityToken;
@@ -94,8 +95,7 @@ contract BeefyBalancerAdapter is BaseAdapterMatic {
         swapRouter = _swapRouter;
         wmatic = _wmatic;
         name = _name;
-        lpCnt = _lpCnt;
-        isVault = true;
+        bPool = _bpool;
     }
 
     /**
@@ -107,18 +107,20 @@ contract BeefyBalancerAdapter is BaseAdapterMatic {
     ) internal returns(uint256 amountOut) {
         amountOut = IBEP20(stakingToken).balanceOf(address(this));
 
-        (IERC20[] memory tokens, ,) = IBalancerVault(router).getPoolTokens(poolId);
+        (IERC20[] memory tokens, ,) = IBalancerVault(router).getPoolTokens(
+            bPool.poolId
+        );
 
-        uint256[] memory amountsIn = new uint256[](lpCnt);
-        IAsset[] memory assets = new IAsset[](lpCnt);
-        for(uint256 i = 0 ; i < lpCnt; ++i) {
+        uint256[] memory amountsIn = new uint256[](bPool.lpCnt);
+        IAsset[] memory assets = new IAsset[](bPool.lpCnt);
+        for(uint256 i = 0 ; i < bPool.lpCnt; ++i) {
             assets[i] = IAsset(address(tokens[i]));
             amountsIn[i] = address(tokens[i]) == liquidityToken ? _amountIn : 0;
         }
 
         IBEP20(liquidityToken).approve(router, _amountIn);
         IBalancerVault(router).joinPool(
-            poolId,
+            bPool.poolId,
             address(this),
             address(this),
             IBalancerVault.JoinPoolRequest({
@@ -144,26 +146,24 @@ contract BeefyBalancerAdapter is BaseAdapterMatic {
     ) internal returns(uint256 amountOut) {
         amountOut = IBEP20(liquidityToken).balanceOf(address(this));
 
-        (IERC20[] memory tokens, ,) = IBalancerVault(router).getPoolTokens(poolId);
+        (IERC20[] memory tokens, ,) = IBalancerVault(router).getPoolTokens(
+            bPool.poolId
+        );
 
-        uint256[] memory amountsOut = new uint256[](lpCnt);
-        IAsset[] memory assets = new IAsset[](lpCnt);
-        uint256 tokenInd;
-        for(uint256 i = 0 ; i < lpCnt; ++i) {
+        uint256[] memory amountsOut = new uint256[](bPool.lpCnt);
+        IAsset[] memory assets = new IAsset[](bPool.lpCnt);
+        for(uint256 i = 0 ; i < bPool.lpCnt; ++i) {
             assets[i] = IAsset(address(tokens[i]));
-            if(address(tokens[i]) == liquidityToken) {
-                tokenInd = i;
-            }
         }
 
         IBalancerVault(router).exitPool(
-            poolId,
+            bPool.poolId,
             address(this),
             address(this),
             IBalancerVault.ExitPoolRequest({
                 assets: assets,
                 minAmountsOut: amountsOut,
-                userData: abi.encode(0, _amountIn, tokenInd), // exitKind = EXACT_BPT_IN_FOR_ONE_TOKEN_OUT
+                userData: abi.encode(0, _amountIn, bPool.lpOrder), // exitKind = EXACT_BPT_IN_FOR_ONE_TOKEN_OUT
                 toInternalBalance: false
             })
         );
@@ -343,15 +343,22 @@ contract BeefyBalancerAdapter is BaseAdapterMatic {
     {
         UserAdapterInfo memory userInfo = userAdapterInfos[_account][_tokenId];
 
-        uint256 _reward = userInfo.userShares *
+        uint256 lpReward = userInfo.userShares *
             (IStrategy(strategy).balance()) / 
             (IStrategy(strategy).totalSupply());
 
-        if(_reward < userInfo.amount) return 0;
+        (, uint256[] memory balances,) = IBalancerVault(router).getPoolTokens(
+            bPool.poolId
+        );
 
-        if(_reward != 0)
+        lpReward = balances[bPool.lpOrder] * lpReward
+            / IBEP20(stakingToken).totalSupply();
+
+        if(lpReward < userInfo.amount) return 0;
+
+        if(lpReward != 0)
             reward = IPancakeRouter(swapRouter).getAmountsOut(
-                _reward,
+                lpReward,
                 getPaths(liquidityToken, wmatic)
             )[1];
 
