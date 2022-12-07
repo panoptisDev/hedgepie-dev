@@ -11,6 +11,19 @@ async function forkETHNetwork() {
     });
 }
 
+async function forkBNBNetwork() {
+    await hre.network.provider.request({
+        method: "hardhat_reset",
+        params: [
+            {
+                forking: {
+                    jsonRpcUrl: "https://rpc.ankr.com/bsc",
+                },
+            },
+        ],
+    });
+}
+
 async function forkPolygonNetwork() {
     await hre.network.provider.request({
         method: "hardhat_reset",
@@ -42,5 +55,6 @@ module.exports = {
     encode,
     setPath,
     forkETHNetwork,
+    forkBNBNetwork,
     forkPolygonNetwork,
 };
