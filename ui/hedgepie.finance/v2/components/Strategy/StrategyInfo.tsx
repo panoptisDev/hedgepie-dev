@@ -8,6 +8,7 @@ import queryString from 'query-string'
 import useAuth from 'hooks/useAuth'
 import { useWeb3React } from '@web3-react/core'
 import { connectorLocalStorageKey, ConnectorNames, useWalletModal } from 'widgets/WalletModal'
+import RiskInformation from './RiskInformation'
 
 function StrategyInfo() {
   const router = useRouter()
@@ -46,6 +47,7 @@ function StrategyInfo() {
             <>
               <StrategyOverview tokenId={tokenId} />
               <StrategyComposition tokenId={tokenId} />
+              <RiskInformation tokenId={tokenId} />
               <StrategyCharts tokenId={tokenId} />
             </>
           )}
