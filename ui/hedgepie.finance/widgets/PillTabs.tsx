@@ -1,11 +1,22 @@
 import React from 'react'
+import { Box } from 'theme-ui'
 
 interface PillTabsProps {
-  tabs: [{ head?: React.ReactNode; content?: React.ReactNode }]
+  contents: { head?: React.ReactNode; content?: React.ReactNode }[]
 }
 
 function PillTabs(props: PillTabsProps) {
-  return <div>PillTabs</div>
+  const { contents } = props
+  return (
+    <Box>
+      {contents.map((c) => (
+        <>
+          {c.head}
+          {c.content}
+        </>
+      ))}
+    </Box>
+  )
 }
 
 export default PillTabs
