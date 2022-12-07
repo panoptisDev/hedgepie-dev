@@ -21,6 +21,8 @@ abstract contract BaseAdapterMatic is Ownable {
 
     address public stakingToken;
 
+    address public liquidityToken;
+
     address public rewardToken;
 
     address public rewardToken1;
@@ -35,24 +37,9 @@ abstract contract BaseAdapterMatic is Ownable {
 
     address public investor;
 
-    // TODO: remove after complete polygon version
-    address public wbnb;
-
     address public wmatic;
 
     string public name;
-
-    // TODO: remove after complete polygon version
-    bool public isVault;
-
-    // TODO: remove after complete polygon version
-    bool public isReward;
-
-    // TODO: remove after complete polygon version
-    bool public noDeposit;
-
-    // TODO: remove after complete polygon version
-    address public liquidityToken;
 
     // inToken => outToken => paths
     mapping(address => mapping(address => address[])) public paths;
@@ -115,8 +102,7 @@ abstract contract BaseAdapterMatic is Ownable {
         );
 
         uint8 i;
-
-        for (i = 0; i < _paths.length; i++) {
+        for (i; i < _paths.length; ++i) {
             if (i < paths[_inToken][_outToken].length) {
                 paths[_inToken][_outToken][i] = _paths[i];
             } else {
@@ -128,7 +114,7 @@ abstract contract BaseAdapterMatic is Ownable {
             for (
                 i = 0;
                 i < paths[_inToken][_outToken].length - _paths.length;
-                i++
+                ++i
             ) paths[_inToken][_outToken].pop();
     }
 
