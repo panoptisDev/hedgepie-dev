@@ -454,24 +454,22 @@ contract CurveLPAdapter is BaseAdapterMatic {
                 wmatic
             );
 
-            if (amountOut != 0) {
-                uint256 taxAmount = (amountOut *
-                    IYBNFT(IHedgepieInvestorMatic(investor).ybnft())
-                        .performanceFee(_tokenId)) / 1e4;
-                (bool success, ) = payable(
-                    IHedgepieInvestorMatic(investor).treasury()
-                ).call{value: taxAmount}("");
-                require(success, "Failed to send matic to Treasury");
+            uint256 taxAmount = (amountOut *
+                IYBNFT(IHedgepieInvestorMatic(investor).ybnft())
+                    .performanceFee(_tokenId)) / 1e4;
+            (bool success, ) = payable(
+                IHedgepieInvestorMatic(investor).treasury()
+            ).call{value: taxAmount}("");
+            require(success, "Failed to send matic to Treasury");
 
-                (success, ) = payable(_account).call{
-                    value: amountOut - taxAmount
-                }("");
-                require(success, "Failed to send matic");
+            (success, ) = payable(_account).call{
+                value: amountOut - taxAmount
+            }("");
+            require(success, "Failed to send matic");
 
-                IHedgepieAdapterInfoMatic(
-                    IHedgepieInvestorMatic(investor).adapterInfo()
-                ).updateProfitInfo(_tokenId, amountOut, true);
-            }
+            IHedgepieAdapterInfoMatic(
+                IHedgepieInvestorMatic(investor).adapterInfo()
+            ).updateProfitInfo(_tokenId, amountOut, true);
         }
     }
 

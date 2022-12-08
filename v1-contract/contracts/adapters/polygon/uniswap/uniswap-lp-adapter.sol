@@ -12,9 +12,9 @@ contract UniswapLPAdapter is BaseAdapterMatic, IERC721Receiver {
     // user => nft id => tokenID
     mapping(address => mapping(uint256 => uint256)) public liquidityNFT;
 
-    int24 public tickLower;
+    int24 public immutable tickLower;
 
-    int24 public tickUpper;
+    int24 public immutable tickUpper;
 
     receive() external payable {}
 
@@ -40,17 +40,17 @@ contract UniswapLPAdapter is BaseAdapterMatic, IERC721Receiver {
         router = _router;
         strategy = _strategy;
         stakingToken = _stakingToken;
-        name = _name;
         wmatic = _wmatic;
+        name = _name;
 
         tickLower = _lower;
         tickUpper = _upper;
     }
 
     /**
-     * @notice Swap ETH to tokens and approve
+     * @notice Swap Matic to tokens and approve
      * @param _token  address of token
-     * @param _inAmount  amount of ETH
+     * @param _inAmount  amount of Matic
      */
     function _swapAndApprove(address _token, uint256 _inAmount)
         internal
@@ -73,7 +73,7 @@ contract UniswapLPAdapter is BaseAdapterMatic, IERC721Receiver {
     }
 
     /**
-     * @notice Swap remaining tokens to ETH
+     * @notice Swap remaining tokens to Matic
      * @param _token  address of token
      * @param _amount  amount of token
      */
@@ -94,7 +94,7 @@ contract UniswapLPAdapter is BaseAdapterMatic, IERC721Receiver {
      * @notice Deposit to uniswapV3 adapter
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
-     * @param _amountIn  amount of eth
+     * @param _amountIn  amount of Matic
      */
     function deposit(
         uint256 _tokenId,
@@ -112,19 +112,19 @@ contract UniswapLPAdapter is BaseAdapterMatic, IERC721Receiver {
         // update adapter info
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         adapterInfo.totalStaked += amountIn;
-        address adapterInfoEthAddr = IHedgepieInvestorMatic(investor)
+        address adapterInfoMaticAddr = IHedgepieInvestorMatic(investor)
             .adapterInfo();
-        IHedgepieAdapterInfoMatic(adapterInfoEthAddr).updateTVLInfo(
+        IHedgepieAdapterInfoMatic(adapterInfoMaticAddr).updateTVLInfo(
             _tokenId,
             _amountIn,
             true
         );
-        IHedgepieAdapterInfoMatic(adapterInfoEthAddr).updateTradedInfo(
+        IHedgepieAdapterInfoMatic(adapterInfoMaticAddr).updateTradedInfo(
             _tokenId,
             _amountIn,
             true
         );
-        IHedgepieAdapterInfoMatic(adapterInfoEthAddr).updateParticipantInfo(
+        IHedgepieAdapterInfoMatic(adapterInfoMaticAddr).updateParticipantInfo(
             _tokenId,
             _account,
             true
@@ -159,28 +159,28 @@ contract UniswapLPAdapter is BaseAdapterMatic, IERC721Receiver {
                     1e4;
                 (success, ) = payable(IHedgepieInvestorMatic(investor).treasury())
                     .call{value: taxAmount}("");
-                require(success, "Failed to send ether to Treasury");
+                require(success, "Failed to send matic to Treasury");
             }
 
             (success, ) = payable(_account).call{value: amountOut - taxAmount}(
                 ""
             );
-            require(success, "Failed to send ether");
+            require(success, "Failed to send matic");
         }
 
-        address adapterInfoEthAddr = IHedgepieInvestorMatic(investor)
+        address adapterInfoMaticAddr = IHedgepieInvestorMatic(investor)
             .adapterInfo();
-        IHedgepieAdapterInfoMatic(adapterInfoEthAddr).updateTVLInfo(
+        IHedgepieAdapterInfoMatic(adapterInfoMaticAddr).updateTVLInfo(
             _tokenId,
             userInfo.invested,
             false
         );
-        IHedgepieAdapterInfoMatic(adapterInfoEthAddr).updateTradedInfo(
+        IHedgepieAdapterInfoMatic(adapterInfoMaticAddr).updateTradedInfo(
             _tokenId,
             userInfo.invested,
             true
         );
-        IHedgepieAdapterInfoMatic(adapterInfoEthAddr).updateParticipantInfo(
+        IHedgepieAdapterInfoMatic(adapterInfoMaticAddr).updateParticipantInfo(
             _tokenId,
             _account,
             false
@@ -198,21 +198,21 @@ contract UniswapLPAdapter is BaseAdapterMatic, IERC721Receiver {
      * @notice Deposit(internal)
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
-     * @param _amountIn  amount of eth
+     * @param _amountIn  amount of Matic
      */
     function _deposit(
         uint256 _tokenId,
         uint256 _amountIn,
         address _account
-    ) internal returns (uint256 amountOut, uint256 ethAmount) {
+    ) internal returns (uint256 amountOut, uint256 maticAmount) {
         // get underlying tokens of staking token
         address[2] memory tokens;
         tokens[0] = IPancakePair(stakingToken).token0();
         tokens[1] = IPancakePair(stakingToken).token1();
 
-        // swap eth to underlying tokens and approve strategy
+        // swap matic to underlying tokens and approve strategy
         uint256[4] memory tokenAmount;
-        uint256 ethBalBefore = address(this).balance - _amountIn;
+        uint256 maticBalBefore = address(this).balance - _amountIn;
 
         tokenAmount[0] = _swapAndApprove(tokens[0], _amountIn / 2);
         tokenAmount[1] = _swapAndApprove(tokens[1], _amountIn / 2);
@@ -263,13 +263,13 @@ contract UniswapLPAdapter is BaseAdapterMatic, IERC721Receiver {
         _removeRemain(tokens[0], tokenAmount[0] - tokenAmount[2]);
         _removeRemain(tokens[1], tokenAmount[1] - tokenAmount[3]);
 
-        uint256 ethBalAfter = address(this).balance;
-        ethAmount = _amountIn + ethBalBefore - ethBalAfter;
-        if (ethBalAfter > ethBalBefore) {
+        uint256 maticBalAfter = address(this).balance;
+        maticAmount = _amountIn + maticBalBefore - maticBalAfter;
+        if (maticBalAfter > maticBalBefore) {
             (bool success, ) = payable(_account).call{
-                value: ethBalAfter - ethBalBefore
+                value: maticBalAfter - maticBalBefore
             }("");
-            require(success, "Failed to send remained ETH");
+            require(success, "Failed to send remained matic");
         }
     }
 
@@ -277,7 +277,7 @@ contract UniswapLPAdapter is BaseAdapterMatic, IERC721Receiver {
      * @notice Withdraw(internal)
      * @param _tokenId  YBNft token id
      * @param _account  address of depositor
-     * @param _amountIn  amount of eth
+     * @param _amountIn  amount of matic
      */
     function _withdraw(
         uint256 _tokenId,

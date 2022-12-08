@@ -34,16 +34,16 @@ interface IStrategy {
 
 contract BalancerVaultAdapterEth is BaseAdapterEth {
     // Balancer Vault pool id
-    bytes32 public poolId;
-
-    // Reward tokens on Balancer
-    address[] public rewardTokens;
+    bytes32 public immutable poolId;
 
     // Token array length
-    uint256 public tokenLength;
+    uint256 public immutable tokenLength;
 
     // Reward token includes weth
     bool public isWETH;
+
+    // Reward tokens on Balancer
+    address[] public rewardTokens;
 
     /**
      * @notice Construct
@@ -73,7 +73,7 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
         name = _name;
         weth = _weth;
 
-        for (uint256 i = 0; i < _rewardTokens.length; i++) {
+        for (uint256 i; i < _rewardTokens.length; ++i) {
             if (_rewardTokens[i] == _weth) isWETH = true;
             rewardTokens.push(_rewardTokens[i]);
         }
@@ -97,7 +97,7 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
         address[] memory assets = new address[](tokenLength);
         uint256[] memory amounts = new uint256[](tokenLength);
 
-        for (uint256 i = 0; i < rewardTokens.length; i++) {
+        for (uint256 i; i < rewardTokens.length; ++i) {
             assets[i] = rewardTokens[i] == weth ? address(0) : rewardTokens[i];
             amounts[i] = rewardTokens[i] == weth ? msg.value : 0;
         }
@@ -171,7 +171,7 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
         uint256[] memory rewardAmt = new uint256[](rewardTokens.length);
         uint256 i;
-        for (i = 0; i < rewardTokens.length; i++)
+        for (i; i < rewardTokens.length; ++i)
             rewardAmt[i] = IBEP20(rewardTokens[i]).balanceOf(address(this));
 
         IBEP20(repayToken).approve(strategy, userInfo.amount);
@@ -188,12 +188,12 @@ contract BalancerVaultAdapterEth is BaseAdapterEth {
                 false
             )
         );
-        for (i = 0; i < rewardTokens.length; i++)
+        for (i = 0; i < rewardTokens.length; ++i)
             rewardAmt[i] =
                 IBEP20(rewardTokens[i]).balanceOf(address(this)) -
                 rewardAmt[i];
 
-        for (i = 0; i < rewardTokens.length; i++)
+        for (i = 0; i < rewardTokens.length; ++i)
             amountOut += HedgepieLibraryEth.swapforEth(
                 rewardAmt[i],
                 address(this),

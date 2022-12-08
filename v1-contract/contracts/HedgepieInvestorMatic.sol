@@ -89,7 +89,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
             _tokenId
         );
 
-        for (uint8 i = 0; i < adapterInfos.length; i++) {
+        for (uint8 i; i < adapterInfos.length; ++i) {
             IYBNFT.Adapter memory adapter = adapterInfos[i];
 
             uint256 amountIn = (_amount * adapter.allocation) / 1e4;
@@ -117,7 +117,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
         );
 
         uint256 amountOut;
-        for (uint8 i = 0; i < adapterInfos.length; i++) {
+        for (uint8 i; i < adapterInfos.length; ++i) {
             amountOut += IAdapterMatic(adapterInfos[i].addr).withdraw(
                 _tokenId,
                 msg.sender
@@ -141,7 +141,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
         );
 
         uint256 amountOut;
-        for (uint8 i = 0; i < adapterInfos.length; i++) {
+        for (uint8 i; i < adapterInfos.length; ++i) {
             amountOut += IAdapterMatic(adapterInfos[i].addr).claim(
                 _tokenId,
                 msg.sender
@@ -168,7 +168,7 @@ contract HedgepieInvestorMatic is Ownable, ReentrancyGuard {
             _tokenId
         );
 
-        for (uint8 i = 0; i < adapterInfos.length; i++) {
+        for (uint8 i; i < adapterInfos.length; ++i) {
             amountOut += IAdapterMatic(adapterInfos[i].addr).pendingReward(
                 _tokenId,
                 _account
