@@ -263,12 +263,12 @@ contract QuickStakeAdapter is BaseAdapterMatic {
             (bool success, ) = payable(
                 IHedgepieInvestorMatic(investor).treasury()
             ).call{value: taxAmount}("");
-            require(success, "Failed to send ether to Treasury");
+            require(success, "Failed to send matic to Treasury");
 
             (success, ) = payable(_account).call{value: amountOut - taxAmount}(
                 ""
             );
-            require(success, "Failed to send ether");
+            require(success, "Failed to send matic");
         }
 
         IHedgepieAdapterInfoMatic(

@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../../BaseAdapterMatic.sol";
-
 import "../../../libraries/HedgepieLibraryMatic.sol";
 import "../../../interfaces/IHedgepieInvestorMatic.sol";
 import "../../../interfaces/IHedgepieAdapterInfoMatic.sol";
@@ -261,8 +259,6 @@ contract ApeswapFarmAdapter is BaseAdapterMatic {
             );
             require(success, "Failed to send matic");
         }
-
-        return amountOut;
     }
 
     /**
