@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../../BaseAdapterBsc.sol";
-
 import "../../../libraries/HedgepieLibraryBsc.sol";
 import "../../../interfaces/IHedgepieInvestorBsc.sol";
 import "../../../interfaces/IHedgepieAdapterInfoBsc.sol";
