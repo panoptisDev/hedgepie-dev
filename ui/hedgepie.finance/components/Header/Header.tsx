@@ -51,7 +51,7 @@ const Header = ({ overlay = false, dark = true }: Props) => {
       }}
     >
       <Box sx={styles.header_inner_container as ThemeUICSSObject}>
-        <Link href="/">
+        <Link href="/v2/dashboard">
           <ThemeLink className="logo" mr={4} sx={{ ':hover': { cursor: 'pointer' } }}>
             <Image
               src="/images/logo.png"

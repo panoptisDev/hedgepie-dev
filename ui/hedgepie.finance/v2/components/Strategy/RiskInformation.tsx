@@ -4,6 +4,7 @@ import { useYBNFTMint } from 'hooks/useYBNFTMint'
 import { useRouter } from 'next/router'
 import React, { useEffect, useState } from 'react'
 import { Box, Image, Spinner, Text } from 'theme-ui'
+import ContentTabs from 'widgets/ContentTabs'
 import PillTabs from 'widgets/PillTabs'
 import { Strategy } from './StrategyComposition'
 
@@ -39,7 +40,17 @@ function RiskInformation(props: RiskInformationProps) {
       const adapters = await getAdapters()
       let mappings = [] as Strategy[]
       for (let allocation of allocations) {
-        let obj = { name: '', percentage: '', image: '', value: '', per: 0, protocol: '', pool: '', type: '' }
+        let obj = {
+          name: '',
+          percentage: '',
+          image: '',
+          value: '',
+          per: 0,
+          protocol: '',
+          pool: '',
+          type: '',
+          score: '',
+        }
         adapters.map((adapter) => {
           adapter.addr == allocation.addr ? (obj.name = adapter.name) : ''
         })
@@ -73,6 +84,7 @@ function RiskInformation(props: RiskInformationProps) {
         obj.protocol = split?.[0]
         obj.pool = split?.[split?.length - 1]
         obj.type = split?.[1]
+        obj.score = '8.0'
         mappings.push(obj)
       }
       setStrategies(mappings)
@@ -84,22 +96,85 @@ function RiskInformation(props: RiskInformationProps) {
 
   useEffect(() => {
     if (!strategies.length) return
+    let textContentTabs: any[] = [] // i :index,head:string,content:string
+
+    for (var i = 0; i < strategies.length; i++) {
+      const textTabs: { title: string; text: string }[] = [
+        {
+          title: 'Token Value',
+          text: 'The BNB token is.... and since this liquidity pool contains a 50% weighting of BNB tokens, that means that x% of your deposit will be exposed to price fluctuations in BNB between the time that you deposit and the time that you withdraw.',
+        },
+        {
+          title: 'Impermanence Loss',
+          text: 'The BNB token is.... and since this liquidity pool contains a 50% weighting of BNB tokens, that means that x% of your deposit will be exposed to price fluctuations in BNB between the time that you deposit and the time that you withdraw.',
+        },
+        {
+          title: 'Smart Contract',
+          text: 'The BNB token is.... and since this liquidity pool contains a 50% weighting of BNB tokens, that means that x% of your deposit will be exposed to price fluctuations in BNB between the time that you deposit and the time that you withdraw.',
+        },
+        {
+          title: 'Counter party',
+          text: 'The BNB token is.... and since this liquidity pool contains a 50% weighting of BNB tokens, that means that x% of your deposit will be exposed to price fluctuations in BNB between the time that you deposit and the time that you withdraw.',
+        },
+        {
+          title: 'Liquidation Risk',
+          text: 'The BNB token is.... and since this liquidity pool contains a 50% weighting of BNB tokens, that means that x% of your deposit will be exposed to price fluctuations in BNB between the time that you deposit and the time that you withdraw.',
+        },
+      ]
+      let contentTabsObjs: any[] = []
+      for (var j = 0; j < textTabs.length; j++) {
+        let obj: any = {}
+        obj.head = textTabs[j].title
+        obj.content = textTabs[j].text
+        contentTabsObjs.push(obj)
+      }
+      textContentTabs.push(contentTabsObjs)
+    }
     let tabsContent: any[] = []
     for (var i = 0; i < strategies.length; i++) {
       let obj: any = {}
       obj.head = (
-        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
-          <Box>
-            <Image src={strategies[i].image} />
-            <Text>{strategies[i].pool}</Text>
+        <Box sx={{ display: 'flex', flexDirection: 'column', gap: '6px', padding: '20px 20px 16px 30px' }}>
+          <Box sx={{ display: 'flex', flexDirection: 'row', gap: '5px', alignItems: 'center' }}>
+            <Image src={strategies[i].image} sx={{ width: '25px', height: '25px' }} />
+            <Text sx={{ color: '#1A1A1A', fontWeight: '500', fontSize: '16px' }}>{strategies[i].pool}</Text>
           </Box>
           <Box>
-            <Text>{strategies[i].protocol}</Text>
+            <Text sx={{ color: '#1A1A1A', fontWeight: '500', fontSize: '14px' }}>{strategies[i].protocol}</Text>
+          </Box>
+          <Box sx={{ display: 'flex', flexDirection: 'row', gap: '5px', alignItems: 'center' }}>
+            <Text sx={{ color: '#08CE04', fontWeight: '700', fontSize: '14px' }}>{strategies[i].score}</Text>
+            <Image src="/images/help-tooltip.svg" sx={{ width: '12px', height: '12px' }} />
           </Box>
         </Box>
       )
 
-      obj.content = <></>
+      obj.content = (
+        <Box
+          sx={{
+            display: 'flex',
+            flexDirection: 'column',
+            gap: '10px',
+          }}
+        >
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '5px',
+              color: '#1A1A1A',
+              fontWeight: '400',
+              fontSize: '16px',
+            }}
+          >
+            <Text>
+              {`This fund has (x%) exposure to the ${strategies[i].protocol} ${strategies[i].pool} liquidity pool`}
+            </Text>
+            <Text>The risks of this Pool are:</Text>
+          </Box>
+          <ContentTabs tabs={textContentTabs[i]} />
+        </Box>
+      )
       tabsContent.push(obj)
     }
     setPillTabsContents(tabsContent)
@@ -119,12 +194,12 @@ function RiskInformation(props: RiskInformationProps) {
         padding: '1rem 2rem',
       }}
     >
-      <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+      <Box sx={{ display: 'flex', flexDirection: 'column', gap: '20px' }}>
         <Text sx={{ color: '#14114B', fontSize: '20px', fontWeight: '600', fontFamily: 'Plus Jakarta Sans' }}>
           Risk Information
         </Text>
         {loading ? <Spinner /> : null}
-        {!loading ? <PillTabs contents={pillTabsContents} /> : null}
+        {!loading && pillTabsContents && pillTabsContents.length ? <PillTabs contents={pillTabsContents} /> : null}
       </Box>
     </Box>
   )
