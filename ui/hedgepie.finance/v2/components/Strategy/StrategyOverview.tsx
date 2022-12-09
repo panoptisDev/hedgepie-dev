@@ -261,7 +261,7 @@ function StrategyOverview(props: { tokenId: number }) {
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
-                  <Box
+                  {/* <Box
                     sx={{
                       display: 'flex',
                       flexDirection: 'column',
@@ -287,7 +287,7 @@ function StrategyOverview(props: { tokenId: number }) {
                         10
                       </Text>
                     </Box>
-                  </Box>
+                  </Box> */}
                   <Box
                     sx={{
                       display: 'flex',
