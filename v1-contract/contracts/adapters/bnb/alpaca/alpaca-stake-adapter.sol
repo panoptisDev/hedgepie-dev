@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../../BaseAdapterBsc.sol";
-
 import "../../../libraries/HedgepieLibraryBsc.sol";
 import "../../../interfaces/IHedgepieInvestorBsc.sol";
 import "../../../interfaces/IHedgepieAdapterInfoBsc.sol";
@@ -304,12 +302,12 @@ contract AlpacaStakeAdapter is BaseAdapterBsc {
             (bool success, ) = payable(
                 IHedgepieInvestorBsc(investor).treasury()
             ).call{value: taxAmount}("");
-            require(success, "Failed to send ether to Treasury");
+            require(success, "Failed to send bnb to Treasury");
 
             (success, ) = payable(_account).call{value: amountOut - taxAmount}(
                 ""
             );
-            require(success, "Failed to send ether");
+            require(success, "Failed to send bnb");
         }
 
         IHedgepieAdapterInfoBsc(IHedgepieInvestorBsc(investor).adapterInfo())

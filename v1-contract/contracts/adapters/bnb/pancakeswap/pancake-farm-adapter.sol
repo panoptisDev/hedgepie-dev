@@ -1,10 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../../BaseAdapterBsc.sol";
-
 import "../../../libraries/HedgepieLibraryBsc.sol";
-
 import "../../../interfaces/IHedgepieInvestorBsc.sol";
 import "../../../interfaces/IHedgepieAdapterInfoBsc.sol";
 
@@ -100,19 +97,19 @@ contract PancakeSwapFarmLPAdapterBsc is BaseAdapterBsc {
         userInfo.invested += _amountIn;
 
         // Update adapterInfo contract
-        address adapterInfoEthAddr = IHedgepieInvestorBsc(investor)
+        address adapterInfoBnbAddr = IHedgepieInvestorBsc(investor)
             .adapterInfo();
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTVLInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTVLInfo(
             _tokenId,
             _amountIn,
             true
         );
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTradedInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTradedInfo(
             _tokenId,
             _amountIn,
             true
         );
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateParticipantInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateParticipantInfo(
             _tokenId,
             _account,
             true
@@ -122,7 +119,7 @@ contract PancakeSwapFarmLPAdapterBsc is BaseAdapterBsc {
     }
 
     /**
-     * @notice Withdraw the deposited ETH
+     * @notice Withdraw the deposited Bnb
      * @param _tokenId YBNFT token id
      * @param _account user wallet address
      */
@@ -175,9 +172,9 @@ contract PancakeSwapFarmLPAdapterBsc is BaseAdapterBsc {
             _account
         );
 
-        uint256 rewardETH;
+        uint256 rewardBnb;
         if (reward != 0) {
-            rewardETH = HedgepieLibraryBsc.swapforBnb(
+            rewardBnb = HedgepieLibraryBsc.swapforBnb(
                 reward,
                 address(this),
                 rewardToken,
@@ -186,61 +183,55 @@ contract PancakeSwapFarmLPAdapterBsc is BaseAdapterBsc {
             );
         }
 
-        address adapterInfoEthAddr = IHedgepieInvestorBsc(investor)
+        address adapterInfoBnbAddr = IHedgepieInvestorBsc(investor)
             .adapterInfo();
-        amountOut += rewardETH;
-        if (rewardETH != 0) {
-            IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateProfitInfo(
+        if (rewardBnb != 0) {
+            amountOut += rewardBnb;
+            IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateProfitInfo(
                 _tokenId,
-                rewardETH,
+                rewardBnb,
                 true
             );
         }
 
         // Update adapterInfo contract
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTVLInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTVLInfo(
             _tokenId,
             userInfo.invested,
             false
         );
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTradedInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTradedInfo(
             _tokenId,
             userInfo.invested,
             true
         );
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateParticipantInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateParticipantInfo(
             _tokenId,
             _account,
             false
         );
 
         adapterInfo.totalStaked -= userInfo.amount;
-        userInfo.amount = 0;
-        userInfo.invested = 0;
-        userInfo.userShares = 0;
-        userInfo.userShares1 = 0;
+        delete userAdapterInfos[_account][_tokenId];
 
         if (amountOut != 0) {
             bool success;
-            uint256 taxAmount;
-            if (rewardETH != 0) {
-                taxAmount =
-                    (rewardETH *
+            if (rewardBnb != 0) {
+                rewardBnb =
+                    (rewardBnb *
                         IYBNFT(IHedgepieInvestorBsc(investor).ybnft())
                             .performanceFee(_tokenId)) /
                     1e4;
                 (success, ) = payable(IHedgepieInvestorBsc(investor).treasury())
-                    .call{value: taxAmount}("");
-                require(success, "Failed to send ether to Treasury");
+                    .call{value: rewardBnb}("");
+                require(success, "Failed to send bnb to Treasury");
             }
 
-            (success, ) = payable(_account).call{value: amountOut - taxAmount}(
+            (success, ) = payable(_account).call{value: amountOut - rewardBnb}(
                 ""
             );
-            require(success, "Failed to send ether");
+            require(success, "Failed to send bnb");
         }
-
-        return amountOut;
     }
 
     /**
@@ -285,22 +276,20 @@ contract PancakeSwapFarmLPAdapterBsc is BaseAdapterBsc {
             (bool success, ) = payable(
                 IHedgepieInvestorBsc(investor).treasury()
             ).call{value: taxAmount}("");
-            require(success, "Failed to send ether to Treasury");
+            require(success, "Failed to send bnb to Treasury");
 
             (success, ) = payable(_account).call{value: amountOut - taxAmount}(
                 ""
             );
-            require(success, "Failed to send ether");
+            require(success, "Failed to send bnb");
+
+            IHedgepieAdapterInfoBsc(IHedgepieInvestorBsc(investor).adapterInfo())
+                .updateProfitInfo(_tokenId, amountOut, true);
         }
-
-        IHedgepieAdapterInfoBsc(IHedgepieInvestorBsc(investor).adapterInfo())
-            .updateProfitInfo(_tokenId, amountOut, true);
-
-        return amountOut;
     }
 
     /**
-     * @notice Return the pending reward by ETH
+     * @notice Return the pending reward by Bnb
      * @param _tokenId YBNFT token id
      * @param _account user wallet address
      */

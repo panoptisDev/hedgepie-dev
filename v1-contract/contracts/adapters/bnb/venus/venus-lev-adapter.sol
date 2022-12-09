@@ -1,13 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../../BaseAdapterBsc.sol";
-
 import "./interface/VBep20Interface.sol";
 import "./interface/ComptrollerInterface.sol";
 
 import "../../../libraries/HedgepieLibraryBsc.sol";
-
 import "../../../interfaces/IHedgepieInvestorBsc.sol";
 import "../../../interfaces/IHedgepieAdapterInfoBsc.sol";
 
@@ -110,19 +107,19 @@ contract VenusLevAdapterBsc is BaseAdapterBsc {
         userInfo.invested += _amountIn;
 
         // Update adapterInfo contract
-        address adapterInfoEthAddr = IHedgepieInvestorBsc(investor)
+        address adapterInfoBnbAddr = IHedgepieInvestorBsc(investor)
             .adapterInfo();
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTVLInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTVLInfo(
             _tokenId,
             _amountIn,
             true
         );
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTradedInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTradedInfo(
             _tokenId,
             _amountIn,
             true
         );
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateParticipantInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateParticipantInfo(
             _tokenId,
             _account,
             true
@@ -132,7 +129,7 @@ contract VenusLevAdapterBsc is BaseAdapterBsc {
     }
 
     /**
-     * @notice Withdraw the deposited ETH
+     * @notice Withdraw the deposited Bnb
      * @param _tokenId YBNFT token id
      * @param _account user wallet address
      */
@@ -172,9 +169,9 @@ contract VenusLevAdapterBsc is BaseAdapterBsc {
             _account
         );
 
-        uint256 rewardETH;
+        uint256 rewardBnb;
         if (reward != 0) {
-            rewardETH = HedgepieLibraryBsc.swapforBnb(
+            rewardBnb = HedgepieLibraryBsc.swapforBnb(
                 reward,
                 address(this),
                 rewardToken,
@@ -183,29 +180,30 @@ contract VenusLevAdapterBsc is BaseAdapterBsc {
             );
         }
 
-        address adapterInfoEthAddr = IHedgepieInvestorBsc(investor)
+        address adapterInfoBnbAddr = IHedgepieInvestorBsc(investor)
             .adapterInfo();
-        amountOut += rewardETH;
-        if (rewardETH != 0) {
-            IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateProfitInfo(
+        
+        if (rewardBnb != 0) {
+            amountOut += rewardBnb;
+            IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateProfitInfo(
                 _tokenId,
-                rewardETH,
+                rewardBnb,
                 true
             );
         }
 
         // Update adapterInfo contract
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTVLInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTVLInfo(
             _tokenId,
             userInfo.invested,
             false
         );
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTradedInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTradedInfo(
             _tokenId,
             userInfo.invested,
             true
         );
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateParticipantInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateParticipantInfo(
             _tokenId,
             _account,
             false
@@ -219,25 +217,22 @@ contract VenusLevAdapterBsc is BaseAdapterBsc {
         
         if (amountOut != 0) {
             bool success;
-            uint256 taxAmount;
-            if (rewardETH != 0) {
-                taxAmount =
-                    (rewardETH *
+            if (rewardBnb != 0) {
+                rewardBnb =
+                    (rewardBnb *
                         IYBNFT(IHedgepieInvestorBsc(investor).ybnft())
                             .performanceFee(_tokenId)) /
                     1e4;
                 (success, ) = payable(IHedgepieInvestorBsc(investor).treasury())
-                    .call{value: taxAmount}("");
-                require(success, "Failed to send ether to Treasury");
+                    .call{value: rewardBnb}("");
+                require(success, "Failed to send bnb to Treasury");
             }
 
-            (success, ) = payable(_account).call{value: amountOut - taxAmount}(
+            (success, ) = payable(_account).call{value: amountOut - rewardBnb}(
                 ""
             );
-            require(success, "Failed to send ether");
+            require(success, "Failed to send bnb");
         }
-
-        return amountOut;
     }
 
     function _leverageAsset(

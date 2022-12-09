@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../../BaseAdapterBsc.sol";
-
 import "../../../libraries/HedgepieLibraryBsc.sol";
 import "../../../interfaces/IHedgepieInvestorBsc.sol";
 import "../../../interfaces/IHedgepieAdapterInfoBsc.sol";
@@ -150,7 +148,7 @@ contract ApeswapVaultAdapter is BaseAdapterBsc {
             amountOut
         );
 
-        address adapterInfoEthAddr = IHedgepieInvestorBsc(investor)
+        address adapterInfoBnbAddr = IHedgepieInvestorBsc(investor)
             .adapterInfo();
         if (rewardAmt != 0) {
             rewardAmt = HedgepieLibraryBsc.swapforBnb(
@@ -163,7 +161,7 @@ contract ApeswapVaultAdapter is BaseAdapterBsc {
 
             amountOut += rewardAmt;
 
-            IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateProfitInfo(
+            IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateProfitInfo(
                 _tokenId,
                 rewardAmt,
                 true
@@ -171,17 +169,17 @@ contract ApeswapVaultAdapter is BaseAdapterBsc {
         }
 
         // Update adapterInfo contract
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTVLInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTVLInfo(
             _tokenId,
             userInfo.invested,
             false
         );
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTradedInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTradedInfo(
             _tokenId,
             userInfo.invested,
             true
         );
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateParticipantInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateParticipantInfo(
             _tokenId,
             _account,
             false
@@ -203,13 +201,13 @@ contract ApeswapVaultAdapter is BaseAdapterBsc {
                     1e4;
                 (success, ) = payable(IHedgepieInvestorBsc(investor).treasury())
                     .call{value: rewardAmt}("");
-                require(success, "Failed to send ether to Treasury");
+                require(success, "Failed to send bnb to Treasury");
             }
 
             (success, ) = payable(_account).call{value: amountOut - rewardAmt}(
                 ""
             );
-            require(success, "Failed to send ether");
+            require(success, "Failed to send bnb");
         }
     }
 

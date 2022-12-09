@@ -1,14 +1,10 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../../BaseAdapterBsc.sol";
-
-import "../../../libraries/HedgepieLibraryBsc.sol";
-
-import "../../../interfaces/IYBNFT.sol";
 import "../../../interfaces/IVaultStrategy.sol";
 import "../../../interfaces/IHedgepieInvestorBsc.sol";
 import "../../../interfaces/IHedgepieAdapterInfoBsc.sol";
+import "../../../libraries/HedgepieLibraryBsc.sol";
 
 interface IStrategy {
     function pendingAUTO(uint256 pid, address user)
@@ -62,10 +58,10 @@ contract AutoVaultAdapterBsc is BaseAdapterBsc {
     }
 
     /**
-     * @notice Deposit with ETH
+     * @notice Deposit with Bnb
      * @param _tokenId YBNFT token id
      * @param _account user wallet address
-     * @param _amountIn ETH amount
+     * @param _amountIn Bnb amount
      */
     function deposit(
         uint256 _tokenId,
@@ -101,29 +97,27 @@ contract AutoVaultAdapterBsc is BaseAdapterBsc {
         userInfo.invested += _amountIn;
 
         // Update adapterInfo contract
-        address adapterInfoEthAddr = IHedgepieInvestorBsc(investor)
+        address adapterInfoBnbAddr = IHedgepieInvestorBsc(investor)
             .adapterInfo();
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTVLInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTVLInfo(
             _tokenId,
             _amountIn,
             true
         );
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTradedInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTradedInfo(
             _tokenId,
             _amountIn,
             true
         );
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateParticipantInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateParticipantInfo(
             _tokenId,
             _account,
             true
         );
-
-        return _amountIn;
     }
 
     /**
-     * @notice Withdraw the deposited ETH
+     * @notice Withdraw the deposited Bnb
      * @param _tokenId YBNFT token id
      * @param _account user wallet address
      */
@@ -154,14 +148,14 @@ contract AutoVaultAdapterBsc is BaseAdapterBsc {
             lpOut
         );
 
-        address adapterInfoEthAddr = IHedgepieInvestorBsc(investor)
+        address adapterInfoBnbAddr = IHedgepieInvestorBsc(investor)
             .adapterInfo();
 
         uint256 reward;
         if (amountOut > userInfo.invested) {
             reward = amountOut - userInfo.invested;
 
-            IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateProfitInfo(
+            IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateProfitInfo(
                 _tokenId,
                 reward,
                 true
@@ -169,17 +163,17 @@ contract AutoVaultAdapterBsc is BaseAdapterBsc {
         }
 
         // Update adapterInfo contract
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTVLInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTVLInfo(
             _tokenId,
             userInfo.invested,
             false
         );
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTradedInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTradedInfo(
             _tokenId,
             userInfo.invested,
             true
         );
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateParticipantInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateParticipantInfo(
             _tokenId,
             _account,
             false
@@ -201,11 +195,11 @@ contract AutoVaultAdapterBsc is BaseAdapterBsc {
                     1e4;
                 (success, ) = payable(IHedgepieInvestorBsc(investor).treasury())
                     .call{value: reward}("");
-                require(success, "Failed to send ether to Treasury");
+                require(success, "Failed to send bnb to Treasury");
             }
 
             (success, ) = payable(_account).call{value: amountOut - reward}("");
-            require(success, "Failed to send ether");
+            require(success, "Failed to send bnb");
         }
     }
 
