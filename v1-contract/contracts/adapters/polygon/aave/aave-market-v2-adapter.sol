@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../../BaseAdapterMatic.sol";
-
 import "../../../libraries/HedgepieLibraryMatic.sol";
-
-import "../../../interfaces/IYBNFT.sol";
 import "../../../interfaces/IHedgepieInvestorMatic.sol";
 import "../../../interfaces/IHedgepieAdapterInfoMatic.sol";
 
@@ -220,11 +216,12 @@ contract AaveMarketV2AdapterMatic is BaseAdapterMatic {
             false
         );
 
-        adapterInfo.totalStaked -= userInfo.amount;
-        lastStakedAmt -= userInfo.amount;
-        userInfo.amount = 0;
-        userInfo.invested = 0;
-        userInfo.userShares = 0;
+        unchecked {
+            adapterInfo.totalStaked -= userInfo.amount;
+            lastStakedAmt -= userInfo.amount;   
+        }
+
+        delete userAdapterInfos[_account][_tokenId];
 
         if (amountOut != 0) {
             bool success;
@@ -238,16 +235,14 @@ contract AaveMarketV2AdapterMatic is BaseAdapterMatic {
                 (success, ) = payable(
                     IHedgepieInvestorMatic(investor).treasury()
                 ).call{value: taxAmount}("");
-                require(success, "Failed to send ether to Treasury");
+                require(success, "Failed to send matic to Treasury");
             }
 
             (success, ) = payable(_account).call{value: amountOut - taxAmount}(
                 ""
             );
-            require(success, "Failed to send ether");
+            require(success, "Failed to send matic");
         }
-
-        return amountOut;
     }
 
     /**
@@ -260,7 +255,7 @@ contract AaveMarketV2AdapterMatic is BaseAdapterMatic {
         payable
         override
         onlyInvestor
-        returns (uint256)
+        returns (uint256 amountOut)
     {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
@@ -272,7 +267,6 @@ contract AaveMarketV2AdapterMatic is BaseAdapterMatic {
 
         userInfo.userShares = adapterInfos[_tokenId].accTokenPerShare;
 
-        uint256 amountOut;
         if (reward != 0 && rewardToken != address(0)) {
             uint256 withdrawAmt = IBEP20(stakingToken).balanceOf(address(this));
             IBEP20(rewardToken).approve(strategy, reward);
@@ -282,7 +276,7 @@ contract AaveMarketV2AdapterMatic is BaseAdapterMatic {
                 withdrawAmt;
             require(withdrawAmt == reward, "Error: Getting rewards failed");
 
-            amountOut += HedgepieLibraryMatic.swapforMatic(
+            amountOut = HedgepieLibraryMatic.swapforMatic(
                 reward,
                 address(this),
                 stakingToken,
@@ -300,19 +294,17 @@ contract AaveMarketV2AdapterMatic is BaseAdapterMatic {
             (bool success, ) = payable(
                 IHedgepieInvestorMatic(investor).treasury()
             ).call{value: taxAmount}("");
-            require(success, "Failed to send ether to Treasury");
+            require(success, "Failed to send matic to Treasury");
 
             (success, ) = payable(_account).call{value: amountOut - taxAmount}(
                 ""
             );
-            require(success, "Failed to send ether");
+            require(success, "Failed to send matic");
+
+            IHedgepieAdapterInfoMatic(
+                IHedgepieInvestorMatic(investor).adapterInfo()
+            ).updateProfitInfo(_tokenId, amountOut, true);
         }
-
-        IHedgepieAdapterInfoMatic(
-            IHedgepieInvestorMatic(investor).adapterInfo()
-        ).updateProfitInfo(_tokenId, amountOut, true);
-
-        return amountOut;
     }
 
     /**

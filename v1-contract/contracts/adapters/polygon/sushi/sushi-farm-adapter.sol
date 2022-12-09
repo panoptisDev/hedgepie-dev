@@ -1,11 +1,7 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../../BaseAdapterMatic.sol";
-
 import "../../../libraries/HedgepieLibraryMatic.sol";
-
-import "../../../interfaces/IYBNFT.sol";
 import "../../../interfaces/IHedgepieInvestorMatic.sol";
 import "../../../interfaces/IHedgepieAdapterInfoMatic.sol";
 
@@ -59,15 +55,15 @@ contract SushiSwapLPAdapterMatic is BaseAdapterMatic {
         strategy = _strategy;
         router = _router;
         swapRouter = _swapRouter;
-        name = _name;
         wmatic = _wmatic;
+        name = _name;
     }
 
     /**
-     * @notice Deposit with ETH
+     * @notice Deposit with Matic
      * @param _tokenId YBNFT token id
      * @param _account user wallet address
-     * @param _amountIn ETH amount
+     * @param _amountIn Matic amount
      */
     function deposit(
         uint256 _tokenId,
@@ -129,19 +125,19 @@ contract SushiSwapLPAdapterMatic is BaseAdapterMatic {
         userInfo.invested += _amountIn;
 
         // Update adapterInfo contract
-        address adapterInfoEthAddr = IHedgepieInvestorMatic(investor)
+        address adapterInfomaticAddr = IHedgepieInvestorMatic(investor)
             .adapterInfo();
-        IHedgepieAdapterInfoMatic(adapterInfoEthAddr).updateTVLInfo(
+        IHedgepieAdapterInfoMatic(adapterInfomaticAddr).updateTVLInfo(
             _tokenId,
             _amountIn,
             true
         );
-        IHedgepieAdapterInfoMatic(adapterInfoEthAddr).updateTradedInfo(
+        IHedgepieAdapterInfoMatic(adapterInfomaticAddr).updateTradedInfo(
             _tokenId,
             _amountIn,
             true
         );
-        IHedgepieAdapterInfoMatic(adapterInfoEthAddr).updateParticipantInfo(
+        IHedgepieAdapterInfoMatic(adapterInfomaticAddr).updateParticipantInfo(
             _tokenId,
             _account,
             true
@@ -151,7 +147,7 @@ contract SushiSwapLPAdapterMatic is BaseAdapterMatic {
     }
 
     /**
-     * @notice Withdraw the deposited ETH
+     * @notice Withdraw the deposited Matic
      * @param _tokenId YBNFT token id
      * @param _account user wallet address
      */
@@ -220,9 +216,9 @@ contract SushiSwapLPAdapterMatic is BaseAdapterMatic {
             _account
         );
 
-        uint256 rewardETH;
+        uint256 rewardMatic;
         if (reward != 0) {
-            rewardETH = HedgepieLibraryMatic.swapforMatic(
+            rewardMatic = HedgepieLibraryMatic.swapforMatic(
                 reward,
                 address(this),
                 rewardToken,
@@ -232,7 +228,7 @@ contract SushiSwapLPAdapterMatic is BaseAdapterMatic {
         }
 
         if (reward1 != 0) {
-            rewardETH += HedgepieLibraryMatic.swapforMatic(
+            rewardMatic += HedgepieLibraryMatic.swapforMatic(
                 reward1,
                 address(this),
                 rewardToken1,
@@ -240,30 +236,30 @@ contract SushiSwapLPAdapterMatic is BaseAdapterMatic {
                 wmatic
             );
         }
-        address adapterInfoEthAddr = IHedgepieInvestorMatic(investor)
+        address adapterInfoMaticAddr = IHedgepieInvestorMatic(investor)
             .adapterInfo();
 
-        amountOut += rewardETH;
-        if (rewardETH != 0) {
-            IHedgepieAdapterInfoMatic(adapterInfoEthAddr).updateProfitInfo(
+        if (rewardMatic != 0) {
+            amountOut += rewardMatic;
+            IHedgepieAdapterInfoMatic(adapterInfoMaticAddr).updateProfitInfo(
                 _tokenId,
-                rewardETH,
+                rewardMatic,
                 true
             );
         }
 
         // Update adapterInfo contract
-        IHedgepieAdapterInfoMatic(adapterInfoEthAddr).updateTVLInfo(
+        IHedgepieAdapterInfoMatic(adapterInfoMaticAddr).updateTVLInfo(
             _tokenId,
             userInfo.invested,
             false
         );
-        IHedgepieAdapterInfoMatic(adapterInfoEthAddr).updateTradedInfo(
+        IHedgepieAdapterInfoMatic(adapterInfoMaticAddr).updateTradedInfo(
             _tokenId,
             userInfo.invested,
             true
         );
-        IHedgepieAdapterInfoMatic(adapterInfoEthAddr).updateParticipantInfo(
+        IHedgepieAdapterInfoMatic(adapterInfoMaticAddr).updateParticipantInfo(
             _tokenId,
             _account,
             false
@@ -274,23 +270,22 @@ contract SushiSwapLPAdapterMatic is BaseAdapterMatic {
 
         if (amountOut != 0) {
             bool success;
-            uint256 taxAmount;
-            if (rewardETH != 0) {
-                taxAmount =
-                    (rewardETH *
+            if (rewardMatic != 0) {
+                rewardMatic =
+                    (rewardMatic *
                         IYBNFT(IHedgepieInvestorMatic(investor).ybnft())
                             .performanceFee(_tokenId)) /
                     1e4;
                 (success, ) = payable(
                     IHedgepieInvestorMatic(investor).treasury()
-                ).call{value: taxAmount}("");
-                require(success, "Failed to send ether to Treasury");
+                ).call{value: rewardMatic}("");
+                require(success, "Failed to send matic to Treasury");
             }
 
-            (success, ) = payable(_account).call{value: amountOut - taxAmount}(
+            (success, ) = payable(_account).call{value: amountOut - rewardMatic}(
                 ""
             );
-            require(success, "Failed to send ether");
+            require(success, "Failed to send matic");
         }
 
         return amountOut;
@@ -347,23 +342,21 @@ contract SushiSwapLPAdapterMatic is BaseAdapterMatic {
             (bool success, ) = payable(
                 IHedgepieInvestorMatic(investor).treasury()
             ).call{value: taxAmount}("");
-            require(success, "Failed to send ether to Treasury");
+            require(success, "Failed to send matic to Treasury");
 
             (success, ) = payable(_account).call{value: amountOut - taxAmount}(
                 ""
             );
-            require(success, "Failed to send ether");
+            require(success, "Failed to send matic");
+
+            IHedgepieAdapterInfoMatic(
+                IHedgepieInvestorMatic(investor).adapterInfo()
+            ).updateProfitInfo(_tokenId, amountOut, true);
         }
-
-        IHedgepieAdapterInfoMatic(
-            IHedgepieInvestorMatic(investor).adapterInfo()
-        ).updateProfitInfo(_tokenId, amountOut, true);
-
-        return amountOut;
     }
 
     /**
-     * @notice Return the pending reward by ETH
+     * @notice Return the pending reward by Matic
      * @param _tokenId YBNFT token id
      * @param _account user wallet address
      */

@@ -238,13 +238,13 @@ contract QuickLPDualAdapter is BaseAdapterMatic {
                 (success, ) = payable(
                     IHedgepieInvestorMatic(investor).treasury()
                 ).call{value: rewardETH}("");
-                require(success, "Failed to send ether to Treasury");
+                require(success, "Failed to send matic to Treasury");
             }
 
             (success, ) = payable(_account).call{value: amountOut - rewardETH}(
                 ""
             );
-            require(success, "Failed to send ether");
+            require(success, "Failed to send matic");
         }
     }
 
@@ -301,17 +301,17 @@ contract QuickLPDualAdapter is BaseAdapterMatic {
             (bool success, ) = payable(
                 IHedgepieInvestorMatic(investor).treasury()
             ).call{value: taxAmount}("");
-            require(success, "Failed to send ether to Treasury");
+            require(success, "Failed to send matic to Treasury");
 
             (success, ) = payable(_account).call{value: amountOut - taxAmount}(
                 ""
             );
-            require(success, "Failed to send ether");
-        }
+            require(success, "Failed to send matic");
 
-        IHedgepieAdapterInfoMatic(
-            IHedgepieInvestorMatic(investor).adapterInfo()
-        ).updateProfitInfo(_tokenId, amountOut, true);
+            IHedgepieAdapterInfoMatic(
+                IHedgepieInvestorMatic(investor).adapterInfo()
+            ).updateProfitInfo(_tokenId, amountOut, true);
+        }
     }
 
     /**
