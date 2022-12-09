@@ -6,10 +6,12 @@ require("@typechain/hardhat");
 require("dotenv-extended").load();
 require("hardhat-gas-reporter");
 
-if (!process.env.TESTNET_PRIVKEY)
+if (!process.env.TESTNET_PRIVKEY) {
     throw new Error("TESTNET_PRIVKEY missing from .env file");
-if (!process.env.MAINNET_PRIVKEY)
+}
+if (!process.env.MAINNET_PRIVKEY) {
     throw new Error("MAINNET_PRIVKEY missing from .env file");
+}
 
 module.exports = {
     defaultNetwork: "hardhat",
