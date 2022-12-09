@@ -102,7 +102,7 @@ abstract contract BaseAdapterMatic is Ownable {
         );
 
         uint8 i;
-        for (i; i < _paths.length; ++i) {
+        for (i; i < _paths.length; i++) {
             if (i < paths[_inToken][_outToken].length) {
                 paths[_inToken][_outToken][i] = _paths[i];
             } else {
@@ -114,7 +114,7 @@ abstract contract BaseAdapterMatic is Ownable {
             for (
                 i = 0;
                 i < paths[_inToken][_outToken].length - _paths.length;
-                ++i
+                i++
             ) paths[_inToken][_outToken].pop();
     }
 

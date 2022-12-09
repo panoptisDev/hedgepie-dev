@@ -212,7 +212,7 @@ contract VenusLevAdapterBsc is BaseAdapterBsc {
         );
 
         adapterInfo.totalStaked -= userInfo.amount;
-        for (uint256 i; i <= depth; ++i)
+        for (uint256 i; i <= depth; i++)
             delete stackWithdrawalAmounts[_account][_tokenId][i];
 
         delete userAdapterInfos[_account][_tokenId];
@@ -263,7 +263,7 @@ contract VenusLevAdapterBsc is BaseAdapterBsc {
 
         stackWithdrawalAmounts[_account][_tokenId][0] += _amount;
 
-        for (uint256 i; i < depth; ++i) {
+        for (uint256 i; i < depth; i++) {
             amounts[0] = IBEP20(stakingToken).balanceOf(address(this));
 
             IStrategy(strategy).borrow((_amount * borrowRate) / 1e4);

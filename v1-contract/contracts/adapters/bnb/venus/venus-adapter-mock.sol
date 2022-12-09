@@ -122,7 +122,7 @@ contract VenusAdapterMock is Ownable, Pausable, ReentrancyGuard {
             "Invalid array length"
         );
 
-        for (uint256 i; i < _vTokens.length; ++i) {
+        for (uint256 i; i < _vTokens.length; i++) {
             require(_vTokens[i] != address(0), "Invalid Bep20 token address");
             require(_nTokens[i] != address(0), "Invalid Bep20 token address");
 

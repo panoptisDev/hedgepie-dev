@@ -113,7 +113,7 @@ contract BeefyBalancerAdapter is BaseAdapterMatic {
 
         uint256[] memory amountsIn = new uint256[](bPool.lpCnt);
         IAsset[] memory assets = new IAsset[](bPool.lpCnt);
-        for(uint256 i = 0 ; i < bPool.lpCnt; ++i) {
+        for(uint256 i = 0 ; i < bPool.lpCnt; i++) {
             assets[i] = IAsset(address(tokens[i]));
             amountsIn[i] = address(tokens[i]) == liquidityToken ? _amountIn : 0;
         }
@@ -152,7 +152,7 @@ contract BeefyBalancerAdapter is BaseAdapterMatic {
 
         uint256[] memory amountsOut = new uint256[](bPool.lpCnt);
         IAsset[] memory assets = new IAsset[](bPool.lpCnt);
-        for(uint256 i = 0 ; i < bPool.lpCnt; ++i) {
+        for(uint256 i = 0 ; i < bPool.lpCnt; i++) {
             assets[i] = IAsset(address(tokens[i]));
         }
 
