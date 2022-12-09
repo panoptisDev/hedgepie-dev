@@ -1,8 +1,6 @@
 // SPDX-License-Identifier: MIT
 pragma solidity ^0.8.4;
 
-import "../../BaseAdapterBsc.sol";
-
 import "../../../libraries/HedgepieLibraryBsc.sol";
 import "../../../interfaces/IHedgepieInvestorBsc.sol";
 import "../../../interfaces/IHedgepieAdapterInfoBsc.sol";
@@ -160,7 +158,7 @@ contract ApeswapFarmLPAdapter is BaseAdapterBsc {
             _account
         );
 
-        address adapterInfoEthAddr = IHedgepieInvestorBsc(investor)
+        address adapterInfoBnbAddr = IHedgepieInvestorBsc(investor)
             .adapterInfo();
         if (reward != 0) {
             reward = HedgepieLibraryBsc.swapforBnb(
@@ -173,7 +171,7 @@ contract ApeswapFarmLPAdapter is BaseAdapterBsc {
 
             amountOut += reward;
 
-            IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateProfitInfo(
+            IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateProfitInfo(
                 _tokenId,
                 reward,
                 true
@@ -181,17 +179,17 @@ contract ApeswapFarmLPAdapter is BaseAdapterBsc {
         }
 
         // Update adapterInfo contract
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTVLInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTVLInfo(
             _tokenId,
             userInfo.invested,
             false
         );
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateTradedInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTradedInfo(
             _tokenId,
             userInfo.invested,
             true
         );
-        IHedgepieAdapterInfoBsc(adapterInfoEthAddr).updateParticipantInfo(
+        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateParticipantInfo(
             _tokenId,
             _account,
             false
@@ -213,13 +211,13 @@ contract ApeswapFarmLPAdapter is BaseAdapterBsc {
                     1e4;
                 (success, ) = payable(IHedgepieInvestorBsc(investor).treasury())
                     .call{value: reward}("");
-                require(success, "Failed to send ether to Treasury");
+                require(success, "Failed to send bnb to Treasury");
             }
 
             (success, ) = payable(_account).call{value: amountOut - reward}(
                 ""
             );
-            require(success, "Failed to send ether");
+            require(success, "Failed to send bnb");
         }
     }
 
@@ -233,7 +231,7 @@ contract ApeswapFarmLPAdapter is BaseAdapterBsc {
         payable
         override
         onlyInvestor
-        returns (uint256)
+        returns (uint256 amountOut)
     {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
@@ -245,18 +243,15 @@ contract ApeswapFarmLPAdapter is BaseAdapterBsc {
 
         userInfo.userShares = adapterInfos[_tokenId].accTokenPerShare;
 
-        uint256 amountOut;
         if (reward != 0) {
-            amountOut += HedgepieLibraryBsc.swapforBnb(
+            amountOut = HedgepieLibraryBsc.swapforBnb(
                 reward,
                 address(this),
                 rewardToken,
                 router,
                 wbnb
             );
-        }
-
-        if (amountOut != 0) {
+        
             uint256 taxAmount = (amountOut *
                 IYBNFT(IHedgepieInvestorBsc(investor).ybnft()).performanceFee(
                     _tokenId
@@ -264,18 +259,16 @@ contract ApeswapFarmLPAdapter is BaseAdapterBsc {
             (bool success, ) = payable(
                 IHedgepieInvestorBsc(investor).treasury()
             ).call{value: taxAmount}("");
-            require(success, "Failed to send ether to Treasury");
+            require(success, "Failed to send bnb to Treasury");
 
             (success, ) = payable(_account).call{value: amountOut - taxAmount}(
                 ""
             );
-            require(success, "Failed to send ether");
+            require(success, "Failed to send bnb");
+
+            IHedgepieAdapterInfoBsc(IHedgepieInvestorBsc(investor).adapterInfo())
+                .updateProfitInfo(_tokenId, amountOut, true);
         }
-
-        IHedgepieAdapterInfoBsc(IHedgepieInvestorBsc(investor).adapterInfo())
-            .updateProfitInfo(_tokenId, amountOut, true);
-
-        return amountOut;
     }
 
     /**
