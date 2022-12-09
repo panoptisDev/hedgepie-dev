@@ -24,6 +24,7 @@ function StrategyInfo() {
   const { onPresentConnectModal } = useWalletModal(login, logout)
 
   useEffect(() => {
+    console.log('process' + JSON.stringify(process.env))
     let key = window.localStorage.getItem(connectorLocalStorageKey) as ConnectorNames
     console.log('keyy+' + key)
     if (key) {
@@ -47,7 +48,7 @@ function StrategyInfo() {
             <>
               <StrategyOverview tokenId={tokenId} />
               <StrategyComposition tokenId={tokenId} />
-              <RiskInformation tokenId={tokenId} />
+              {process.env.NEXT_PUBLIC_RISK_INFO_ENABLED === 'true' ? <RiskInformation tokenId={tokenId} /> : null}
               <StrategyCharts tokenId={tokenId} />
             </>
           )}
