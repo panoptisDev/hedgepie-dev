@@ -25,7 +25,7 @@ export const styles = {
     }
   },
   wallet_card_text: {
-    fontFamily: 'Poppins',
+    fontFamily: 'Plus Jakarta Sans',
     fontWeight: '600',
     color: '#16103A',
     [`@media screen and (min-width: 650px)`]: {

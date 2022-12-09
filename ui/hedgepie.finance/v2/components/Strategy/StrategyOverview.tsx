@@ -19,6 +19,7 @@ function StrategyOverview(props: { tokenId: number }) {
     'Descriptive text for the Fund goes here. Any relevant information will be displayed.',
   )
   const [performanceFee, setPerformanceFee] = useState('5.15%')
+  const [rating, setRating] = useState('5.2')
   const [reward, setReward] = useState('$5,150')
   const [rewardBNB, setRewardBNB] = useState(0)
   const [stakeAmt, setStakeAmt] = useState(0)
@@ -260,6 +261,33 @@ function StrategyOverview(props: { tokenId: number }) {
               </Box>
               <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
                 <Box sx={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
+                  {/* <Box
+                    sx={{
+                      display: 'flex',
+                      flexDirection: 'column',
+                      gap: '10px',
+                      flex: 1,
+                      backgroundColor: '#FFEEC8',
+                      borderRadius: '4px',
+                      padding: '0.5rem',
+                    }}
+                  >
+                    <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                      <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>RATING</Text>
+                      <Box sx={{ marginLeft: 'auto', cursor: 'pointer' }}>
+                        <Image src="/icons/info.svg" width={15} height={15} />
+                      </Box>
+                    </Box>
+                    <Box sx={{ display: 'flex', flexDirection: 'row', gap: '2px', alignItems: 'center' }}>
+                      <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{rating}</Text>
+
+                      <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '16px' }}>/</Text>
+
+                      <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '16px', marginBottom: '-3px' }}>
+                        10
+                      </Text>
+                    </Box>
+                  </Box> */}
                   <Box
                     sx={{
                       display: 'flex',
@@ -290,7 +318,7 @@ function StrategyOverview(props: { tokenId: number }) {
                     <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                       <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>APY</Text>
                       <Box sx={{ marginLeft: 'auto', cursor: 'pointer' }}>
-                        <Image src="/icons/info.svg" width={20} height={20} />
+                        <Image src="/icons/info.svg" width={15} height={15} />
                       </Box>
                     </Box>
                     <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{apy}</Text>
@@ -328,7 +356,7 @@ function StrategyOverview(props: { tokenId: number }) {
                     <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
                       <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>TVL</Text>
                       <Box sx={{ marginLeft: 'auto', cursor: 'pointer' }}>
-                        <Image src="/icons/info.svg" width={20} height={20} />
+                        <Image src="/icons/info.svg" width={15} height={15} />
                       </Box>
                     </Box>
                     <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{tvl}</Text>
