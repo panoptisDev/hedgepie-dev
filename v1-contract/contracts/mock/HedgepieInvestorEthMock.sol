@@ -205,5 +205,23 @@ contract HedgepieInvestorEthMock is
         emit TreasuryChanged(treasury);
     }
 
+    function sgReceive(
+        uint16 _chainId,
+        bytes memory _srcAddress,
+        uint256 _nonce,
+        address _token,
+        uint256 amountLD,
+        bytes memory payload
+    ) external override {
+        emit sgReceived(
+            _chainId,
+            _srcAddress,
+            _nonce,
+            _token,
+            amountLD,
+            payload
+        );
+    }
+
     receive() external payable {}
 }

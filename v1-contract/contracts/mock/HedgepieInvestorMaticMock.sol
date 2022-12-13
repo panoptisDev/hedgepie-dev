@@ -18,6 +18,13 @@ contract HedgepieInvestorMaticMock is
 {
     using SafeBEP20 for IBEP20;
 
+    struct StargateInfo {
+        uint16 dstChainId;
+        uint256 srcPoolId;
+        uint256 dstPoolId;
+        address dstToken;
+    }
+
     // ybnft address
     address public ybnft;
 
@@ -29,6 +36,12 @@ contract HedgepieInvestorMaticMock is
 
     // adapter info
     address public adapterInfo;
+
+    // stargate router
+    address public starRouter;
+
+    // mapping for stargate information: adapter address to StargateInfo
+    mapping(address => StargateInfo) public adapterStarInfo;
 
     event DepositMATIC(
         address indexed user,
@@ -62,10 +75,15 @@ contract HedgepieInvestorMaticMock is
     constructor(
         address _ybnft,
         address _treasury,
-        address _adapterInfo
+        address _adapterInfo,
+        address _starRouter
     ) {
         require(_ybnft != address(0), "Error: YBNFT address missing");
         require(_treasury != address(0), "Error: treasury address missing");
+        require(
+            _starRouter != address(0),
+            "Error: stargate router address missing"
+        );
         require(
             _adapterInfo != address(0),
             "Error: adapterInfo address missing"
@@ -74,6 +92,7 @@ contract HedgepieInvestorMaticMock is
         ybnft = _ybnft;
         treasury = _treasury;
         adapterInfo = _adapterInfo;
+        starRouter = _starRouter;
     }
 
     /**
@@ -99,12 +118,27 @@ contract HedgepieInvestorMaticMock is
         for (uint8 i = 0; i < adapterInfos.length; i++) {
             IYBNFT.Adapter memory adapter = adapterInfos[i];
 
-            uint256 amountIn = (_amount * adapter.allocation) / 1e4;
-            IAdapterMatic(adapter.addr).deposit{value: amountIn}(
-                _tokenId,
-                amountIn,
-                msg.sender
-            );
+            if (adapterStarInfo[adapter.addr].dstToken != address(0)) {
+                uint256 amountIn = (_amount * adapter.allocation) / 1e4;
+                IAdapterMatic(adapter.addr).deposit{value: amountIn}(
+                    _tokenId,
+                    amountIn,
+                    msg.sender
+                );
+            } else {
+                // Swap Matic to dstToken
+                uint256 amountOut;
+
+                _deposit(
+                    adapter.addr,
+                    payable(address(this)),
+                    amountOut,
+                    0,
+                    IStargateRouter.lzTxObj(5e4, 10000000000000000, "0x"),
+                    abi.encode(adapter.addr),
+                    abi.encode(adapter.addr, amountOut)
+                );
+            }
         }
 
         emit DepositMATIC(msg.sender, ybnft, _tokenId, _amount);
@@ -195,6 +229,29 @@ contract HedgepieInvestorMaticMock is
     }
 
     /**
+     * @notice Set stargate info for adapter
+     * @param _adapterAddr  adapter address
+     * @param _dstChainId  destination chain id
+     * @param _srcPoolId  source pool id
+     * @param _dstChainId  destination pool id
+     * @param _dstToken  destination token address
+     */
+    function setStargateInfo(
+        address _adapterAddr,
+        uint16 _dstChainId,
+        uint256 _srcPoolId,
+        uint256 _dstPoolId,
+        address _dstToken
+    ) external onlyOwner {
+        adapterStarInfo[_adapterAddr] = StargateInfo(
+            _dstChainId,
+            _srcPoolId,
+            _dstPoolId,
+            _dstToken
+        );
+    }
+
+    /**
      * @notice Set treasury address
      * @param _treasury new treasury address
      */
@@ -203,6 +260,57 @@ contract HedgepieInvestorMaticMock is
 
         treasury = _treasury;
         emit TreasuryChanged(treasury);
+    }
+
+    function _deposit(
+        address _adapterAddr,
+        address payable _refundAddress,
+        uint256 _amountLD,
+        uint256 _minAmountLD,
+        IStargateRouter.lzTxObj memory _lzTxParams,
+        bytes memory _to,
+        bytes memory _payload
+    ) internal {
+        StargateInfo memory starInfo = adapterStarInfo[_adapterAddr];
+        // IBEP20(_tokenAddress[0]).transferFrom(
+        //     msg.sender,
+        //     address(this),
+        //     _amountLD
+        // );
+        IBEP20(starInfo.dstToken).approve(starRouter, _amountLD);
+
+        require(msg.value != 0, "Inalid deposit amount");
+        // depositAmt[msg.sender] = msg.value;
+
+        IStargateRouter(starRouter).swap{value: msg.value}(
+            starInfo.dstChainId,
+            starInfo.srcPoolId,
+            starInfo.dstPoolId,
+            _refundAddress,
+            _amountLD,
+            _minAmountLD,
+            _lzTxParams,
+            _to,
+            _payload
+        );
+    }
+
+    function sgReceive(
+        uint16 _chainId,
+        bytes memory _srcAddress,
+        uint256 _nonce,
+        address _token,
+        uint256 amountLD,
+        bytes memory payload
+    ) external override {
+        emit sgReceived(
+            _chainId,
+            _srcAddress,
+            _nonce,
+            _token,
+            amountLD,
+            payload
+        );
     }
 
     receive() external payable {}
