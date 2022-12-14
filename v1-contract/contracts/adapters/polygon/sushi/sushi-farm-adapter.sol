@@ -240,12 +240,13 @@ contract SushiSwapLPAdapterMatic is BaseAdapterMatic {
             .adapterInfo();
 
         if (rewardMatic != 0) {
-            amountOut += rewardMatic;
             IHedgepieAdapterInfoMatic(adapterInfoMaticAddr).updateProfitInfo(
                 _tokenId,
                 rewardMatic,
                 true
             );
+
+            amountOut += rewardMatic;
         }
 
         // Update adapterInfo contract

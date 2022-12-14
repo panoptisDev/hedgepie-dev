@@ -24,7 +24,7 @@ contract HedgepieAdapterManagerMatic is Ownable {
      */
     modifier onlyActiveAdapter(address _adapter) {
         bool isExisted = false;
-        for (uint256 i = 0; i < adapterInfo.length; i++) {
+        for (uint256 i; i < adapterInfo.length; i++) {
             if (
                 adapterInfo[i].addr == address(_adapter) &&
                 adapterInfo[i].status

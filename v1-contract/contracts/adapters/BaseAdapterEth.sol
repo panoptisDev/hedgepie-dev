@@ -100,8 +100,7 @@ abstract contract BaseAdapterEth is Ownable {
         );
 
         uint8 i;
-
-        for (i = 0; i < _paths.length; i++) {
+        for (i; i < _paths.length; i++) {
             if (i < paths[_inToken][_outToken].length) {
                 paths[_inToken][_outToken][i] = _paths[i];
             } else {
