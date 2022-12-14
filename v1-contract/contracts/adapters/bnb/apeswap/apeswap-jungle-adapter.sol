@@ -226,7 +226,7 @@ contract ApeswapJungleAdapter is BaseAdapterBsc {
         payable
         override
         onlyInvestor
-        returns (uint256)
+        returns (uint256 amountOut)
     {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
@@ -238,18 +238,15 @@ contract ApeswapJungleAdapter is BaseAdapterBsc {
 
         userInfo.userShares = adapterInfos[_tokenId].accTokenPerShare;
 
-        uint256 amountOut;
         if (reward != 0) {
-            amountOut += HedgepieLibraryBsc.swapforBnb(
+            amountOut = HedgepieLibraryBsc.swapforBnb(
                 reward,
                 address(this),
                 rewardToken,
                 router,
                 wbnb
             );
-        }
-
-        if (amountOut != 0) {
+        
             uint256 taxAmount = (amountOut *
                 IYBNFT(IHedgepieInvestorBsc(investor).ybnft()).performanceFee(
                     _tokenId

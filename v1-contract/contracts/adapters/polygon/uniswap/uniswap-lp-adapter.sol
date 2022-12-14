@@ -42,7 +42,6 @@ contract UniswapLPAdapter is BaseAdapterMatic, IERC721Receiver {
         stakingToken = _stakingToken;
         wmatic = _wmatic;
         name = _name;
-
         tickLower = _lower;
         tickUpper = _upper;
     }

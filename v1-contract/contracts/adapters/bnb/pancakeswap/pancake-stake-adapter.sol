@@ -240,7 +240,7 @@ contract PancakeStakeAdapterBsc is BaseAdapterBsc {
         payable
         override
         onlyInvestor
-        returns (uint256)
+        returns (uint256 amountOut)
     {
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
@@ -253,7 +253,6 @@ contract PancakeStakeAdapterBsc is BaseAdapterBsc {
         userInfo.userShares = adapterInfos[_tokenId].accTokenPerShare;
         userInfo.userShares1 = adapterInfos[_tokenId].accTokenPerShare1;
 
-        uint256 amountOut;
         if (reward != 0 && rewardToken != address(0)) {
             amountOut += HedgepieLibraryBsc.swapforBnb(
                 reward,
@@ -262,9 +261,7 @@ contract PancakeStakeAdapterBsc is BaseAdapterBsc {
                 swapRouter,
                 wbnb
             );
-        }
-
-        if (amountOut != 0) {
+        
             uint256 taxAmount = (amountOut *
                 IYBNFT(IHedgepieInvestorBsc(investor).ybnft()).performanceFee(
                     _tokenId

@@ -55,8 +55,8 @@ contract SushiSwapLPAdapterMatic is BaseAdapterMatic {
         strategy = _strategy;
         router = _router;
         swapRouter = _swapRouter;
-        name = _name;
         wmatic = _wmatic;
+        name = _name;
     }
 
     /**

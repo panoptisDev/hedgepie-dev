@@ -1,6 +1,6 @@
 export const styles = {
   connect_wallet_modal: {
-    width: ['100%','100%','100%'],
+    // width: ['100%','100%','100%'],
     maxWidth: '100%',
     height: 'max-content',
     zIndex: 99,
@@ -16,5 +16,6 @@ export const styles = {
     flexWrap: 'wrap',
     height: 'max-content',
     gap: '1rem',
+    fontFamily:"Plus Jakarta Sans"
   },
 }

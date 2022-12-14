@@ -67,13 +67,13 @@ contract AutoVaultAdapterBsc is BaseAdapterBsc {
         uint256 _tokenId,
         uint256 _amountIn,
         address _account
-    ) external payable override onlyInvestor returns (uint256) {
+    ) external payable override onlyInvestor returns (uint256 amountOut) {
         require(msg.value == _amountIn, "Error: msg.value is not correct");
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
         // get LP
-        uint256 lpOut = HedgepieLibraryBsc.getLP(
+        amountOut = HedgepieLibraryBsc.getLP(
             IYBNFT.Adapter(0, stakingToken, address(this), 0, 0),
             wbnb,
             _amountIn
@@ -84,15 +84,15 @@ contract AutoVaultAdapterBsc is BaseAdapterBsc {
             pid,
             address(this)
         );
-        IBEP20(stakingToken).approve(strategy, lpOut);
-        IStrategy(strategy).deposit(pid, lpOut);
+        IBEP20(stakingToken).approve(strategy, amountOut);
+        IStrategy(strategy).deposit(pid, amountOut);
         (uint256 afterShare, ) = IStrategy(strategy).userInfo(
             pid,
             address(this)
         );
 
-        adapterInfo.totalStaked += lpOut;
-        userInfo.amount += lpOut;
+        adapterInfo.totalStaked += amountOut;
+        userInfo.amount += amountOut;
         userInfo.userShares += afterShare - beforeShare;
         userInfo.invested += _amountIn;
 

@@ -29,7 +29,7 @@ function SidebarItem(props: SidebarItemProps) {
       case 'mint':
         return 'Create'
       case 'dashboard':
-        return 'Dashbaord'
+        return 'Dashboard'
       default:
         return type
     }

@@ -11,7 +11,7 @@ import { Modal, useModal } from 'widgets/Modal'
 import YieldStakeDoughnut from '../Dashboard/YieldStakeDoughnut'
 import chroma from 'chroma-js'
 
-type Strategy = {
+export type Strategy = {
   image: string
   name: string
   value: string
