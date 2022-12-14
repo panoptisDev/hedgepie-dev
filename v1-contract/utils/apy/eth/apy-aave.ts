@@ -1,5 +1,5 @@
 import { ethers } from "ethers";
-import LendingPoolABI from "../abis/lendingPoolABI.json";
+import LendingPoolABI from "../../abis/lendingPoolABI.json";
 import BigNumber from "bignumber.js";
 
 const LendingPool = "0x7d2768dE32b0b80b7a3454c06BdAc94A69DDc7A9";

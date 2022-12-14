@@ -1,5 +1,5 @@
 import ethers from "ethers";
-import * as AdapterEthABI from "../../artifacts/contracts/interfaces/IAdapterEth.sol/IAdapterEth.json";
+import * as AdapterEthABI from "../../../artifacts/contracts/interfaces/IAdapterEth.sol/IAdapterEth.json";
 
 import apyAave from "./apy-aave";
 import apyCompound from "./apy-compound";
