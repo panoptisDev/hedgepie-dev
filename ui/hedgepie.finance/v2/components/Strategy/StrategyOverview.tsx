@@ -3,9 +3,9 @@ import axios from 'axios'
 import BigNumber from 'bignumber.js'
 import { useInvestor } from 'hooks/useInvestor'
 import { useYBNFTMint } from 'hooks/useYBNFTMint'
-import Image from 'next/image'
+import { useRouter } from 'next/router'
 import React, { useState, useEffect } from 'react'
-import { Box, Input, Spinner, Text } from 'theme-ui'
+import { Box, Input, Spinner, Text, Image } from 'theme-ui'
 import { getBalanceInEther, getBalanceInWei } from 'utils/formatBalance'
 import { getPrice } from 'utils/getTokenPrice'
 import toast from 'utils/toast'
@@ -38,9 +38,13 @@ function StrategyOverview(props: { tokenId: number }) {
 
   const [invalidAmount, setInvalidAmount] = useState(false)
 
+  const [shareText, setShareText] = useState('')
+
   const { getNFTInfo, getYield, getBalance, onYBNFTDeposit, onYBNFTWithdraw, onYBNFTClaim } = useInvestor()
   const { getTokenUri, getPerfFee } = useYBNFTMint()
   const { account } = useWeb3React()
+
+  const router = useRouter()
 
   const fetchOverview = async () => {
     setLoading(true)
@@ -79,6 +83,8 @@ function StrategyOverview(props: { tokenId: number }) {
     setRewardBNB(getBalanceInEther(Number(reward)))
     setInvestors(totalParticipants)
     setPerformanceFee(`${perfFee / 100} %`)
+    setShareText(`I just invested in ${fundName} on HedgePie. It's currently earning ${apy} APY, has ${tvl} TVL, with
+    ${investors} participants. Come check it out here: https://hedgepie.finance/v2/strategy?tokenId=${tokenId}`)
     setLoading(false)
   }
 
@@ -197,6 +203,7 @@ function StrategyOverview(props: { tokenId: number }) {
           Strategy Details
         </Text>
       </Box>
+
       <Box
         sx={{
           borderRadius: '16px',
@@ -204,36 +211,37 @@ function StrategyOverview(props: { tokenId: number }) {
           border: '1px solid #D9D9D9',
           width: '100%',
           display: 'flex',
-          flexDirection: ['column', 'column', 'column', 'row'],
-          gap: '5px',
+          flexDirection: 'column',
+          gap: '20px',
           background: '#FFFFFF',
-          padding: '0.5rem',
+          padding: '24px',
         }}
       >
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '15px',
-            border: '1px solid #D9D9D9',
-            borderRadius: '16px',
-            padding: '0.5rem',
-            flex: 1,
-          }}
-        >
-          {loading ? (
-            <Box
-              sx={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
-            >
-              <Spinner />
-            </Box>
-          ) : (
-            <>
-              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '1rem' }}>
-                <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '20px', color: '#000000' }}>
-                  {fundName}
-                </Text>
-                {/* <Text
+        <Box sx={{ display: 'flex', flexDirection: ['column', 'column', 'column', 'row'] }}>
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '15px',
+              border: '1px solid #D9D9D9',
+              borderRadius: '16px',
+              padding: '0.5rem',
+              flex: 1,
+            }}
+          >
+            {loading ? (
+              <Box
+                sx={{ height: '100%', width: '100%', display: 'flex', alignItems: 'center', justifyContent: 'center' }}
+              >
+                <Spinner />
+              </Box>
+            ) : (
+              <>
+                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', padding: '1rem' }}>
+                  <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '600', fontSize: '20px', color: '#000000' }}>
+                    {fundName}
+                  </Text>
+                  {/* <Text
                   sx={{
                     fontFamily: 'Plus Jakarta Sans',
                     fontWeight: '500',
@@ -244,24 +252,24 @@ function StrategyOverview(props: { tokenId: number }) {
                 >
                   Created: {createdDate}
                 </Text> */}
-              </Box>
-              <Box
-                sx={{
-                  display: 'flex',
-                  flexDirection: 'row',
-                  alignItems: 'center',
-                  height: '3px',
-                  backgroundColor: '#D9D9D9',
-                }}
-              ></Box>
-              <Box sx={{ maxWidth: '28rem' }}>
-                <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '500', fontSize: '16px', color: '#4F4F4F' }}>
-                  {description}
-                </Text>
-              </Box>
-              <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
-                <Box sx={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
-                  {/* <Box
+                </Box>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    height: '3px',
+                    backgroundColor: '#D9D9D9',
+                  }}
+                ></Box>
+                <Box sx={{ maxWidth: '28rem' }}>
+                  <Text sx={{ fontFamily: 'Plus Jakarta Sans', fontWeight: '500', fontSize: '16px', color: '#4F4F4F' }}>
+                    {description}
+                  </Text>
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+                  <Box sx={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
+                    {/* <Box
                     sx={{
                       display: 'flex',
                       flexDirection: 'column',
@@ -288,97 +296,99 @@ function StrategyOverview(props: { tokenId: number }) {
                       </Text>
                     </Box>
                   </Box> */}
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '10px',
-                      flex: 1,
-                      backgroundColor: '#F3F3F3',
-                      borderRadius: '4px',
-                      padding: '0.5rem',
-                    }}
-                  >
-                    <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>
-                      Performance Fee
-                    </Text>
-                    <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{performanceFee}</Text>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '10px',
-                      flex: 1,
-                      backgroundColor: '#F3F3F3',
-                      borderRadius: '4px',
-                      padding: '0.5rem',
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                      <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>APY</Text>
-                      <Box sx={{ marginLeft: 'auto', cursor: 'pointer' }}>
-                        <Image src="/icons/info.svg" width={15} height={15} />
-                      </Box>
-                    </Box>
-                    <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{apy}</Text>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '10px',
-                      flex: 1,
-                      backgroundColor: '#F3F3F3',
-                      borderRadius: '4px',
-                      padding: '0.5rem',
-                    }}
-                  >
-                    <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>
-                      # Investors
-                    </Text>
-                    <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{investors}</Text>
-                  </Box>
-                </Box>
-
-                <Box sx={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '10px',
-                      flex: 1,
-                      backgroundColor: '#F3F3F3',
-                      borderRadius: '4px',
-                      padding: '0.5rem',
-                    }}
-                  >
-                    <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
-                      <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>TVL</Text>
-                      <Box sx={{ marginLeft: 'auto', cursor: 'pointer' }}>
-                        <Image src="/icons/info.svg" width={15} height={15} />
-                      </Box>
-                    </Box>
-                    <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{tvl}</Text>
-                  </Box>
-                  <Box
-                    sx={{
-                      display: 'flex',
-                      flexDirection: 'column',
-                      gap: '10px',
-                      flex: 1,
-                      backgroundColor: '#F3F3F3',
-                      borderRadius: '4px',
-                      padding: '0.5rem',
-                    }}
-                  >
-                    <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>Your Stake</Text>
-                    <Box sx={{ display: 'flex', flexDirection: 'column' }}>
-                      <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{stake}</Text>
-                      <Text sx={{ color: '#DF4886', fontWeight: '500', fontSize: '14px', marginLeft: '3px' }}>
-                        {stakeUSD}
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                        flex: 1,
+                        backgroundColor: '#F3F3F3',
+                        borderRadius: '4px',
+                        padding: '0.5rem',
+                      }}
+                    >
+                      <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>
+                        Performance Fee
                       </Text>
-                      {/* {stakeAmt > 0 && (
+                      <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{performanceFee}</Text>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                        flex: 1,
+                        backgroundColor: '#F3F3F3',
+                        borderRadius: '4px',
+                        padding: '0.5rem',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                        <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>APY</Text>
+                        <Box sx={{ marginLeft: 'auto', cursor: 'pointer' }}>
+                          <Image src="/icons/info.svg" width={15} height={15} />
+                        </Box>
+                      </Box>
+                      <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{apy}</Text>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                        flex: 1,
+                        backgroundColor: '#F3F3F3',
+                        borderRadius: '4px',
+                        padding: '0.5rem',
+                      }}
+                    >
+                      <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>
+                        # Investors
+                      </Text>
+                      <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{investors}</Text>
+                    </Box>
+                  </Box>
+
+                  <Box sx={{ display: 'flex', flexDirection: 'row', gap: '20px' }}>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                        flex: 1,
+                        backgroundColor: '#F3F3F3',
+                        borderRadius: '4px',
+                        padding: '0.5rem',
+                      }}
+                    >
+                      <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center' }}>
+                        <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>TVL</Text>
+                        <Box sx={{ marginLeft: 'auto', cursor: 'pointer' }}>
+                          <Image src="/icons/info.svg" width={15} height={15} />
+                        </Box>
+                      </Box>
+                      <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{tvl}</Text>
+                    </Box>
+                    <Box
+                      sx={{
+                        display: 'flex',
+                        flexDirection: 'column',
+                        gap: '10px',
+                        flex: 1,
+                        backgroundColor: '#F3F3F3',
+                        borderRadius: '4px',
+                        padding: '0.5rem',
+                      }}
+                    >
+                      <Text sx={{ color: '#475569', fontFamily: 'Plus Jakarta Sans', fontSize: '14px' }}>
+                        Your Stake
+                      </Text>
+                      <Box sx={{ display: 'flex', flexDirection: 'column' }}>
+                        <Text sx={{ color: '#1A1A1A', fontWeight: '600', fontSize: '22px' }}>{stake}</Text>
+                        <Text sx={{ color: '#DF4886', fontWeight: '500', fontSize: '14px', marginLeft: '3px' }}>
+                          {stakeUSD}
+                        </Text>
+                        {/* {stakeAmt > 0 && (
                         <Text
                           sx={{
                             color: '#1799DE',
@@ -393,25 +403,25 @@ function StrategyOverview(props: { tokenId: number }) {
                           Withdraw
                         </Text>
                       )} */}
+                      </Box>
                     </Box>
                   </Box>
                 </Box>
-              </Box>
-            </>
-          )}
-        </Box>
+              </>
+            )}
+          </Box>
 
-        <Box
-          sx={{
-            display: 'flex',
-            flexDirection: 'column',
-            gap: '10px',
-            padding: '0.5rem',
-            width: '100%',
-            flex: 1,
-          }}
-        >
-          {/* <Box
+          <Box
+            sx={{
+              display: 'flex',
+              flexDirection: 'column',
+              gap: '10px',
+              padding: '0.5rem',
+              width: '100%',
+              flex: 1,
+            }}
+          >
+            {/* <Box
             sx={{
               borderRadius: '8px',
               border: '1px solid #D9D9D9',
@@ -460,143 +470,66 @@ function StrategyOverview(props: { tokenId: number }) {
               <Box></Box>
             </Box>
           </Box> */}
-          <Box
-            sx={{
-              borderRadius: '8px',
-              backgroundColor: '#14114B',
-              padding: '1rem',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '15px',
-            }}
-          >
             <Box
               sx={{
-                backgroundColor: '#201D54',
-                borderRadius: '4px',
-                padding: '0.5rem',
+                borderRadius: '8px',
+                backgroundColor: '#14114B',
+                padding: '1rem',
                 display: 'flex',
                 flexDirection: 'column',
                 gap: '15px',
               }}
             >
-              <Text sx={{ fontSize: '16px', fontFamily: 'Plus Jakarta Sans', color: '#94A3B8' }}>
-                Stake into {fundName}
-              </Text>
               <Box
-                sx={{ display: 'flex', flexDirection: 'row', gap: '10px', alignItems: 'center', paddingRight: '1rem' }}
+                sx={{
+                  backgroundColor: '#201D54',
+                  borderRadius: '4px',
+                  padding: '0.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '15px',
+                }}
               >
-                <Input
-                  sx={{
-                    color: '#FFFFFF',
-                    fontWeight: '600',
-                    fontFamily: 'Plus Jakarta Sans',
-                    fontSize: '24px',
-                    backgroundColor: '#413d85',
-                    textAlign: 'right',
-                  }}
-                  placeholder="0.0"
-                  value={amountString}
-                  type="number"
-                  pattern="/^[0-9.]+$/"
-                  onChange={onChangeAmount}
-                  id="amount-input"
-                  onKeyPress={onInputKeyPress}
-                  onWheel={(e) => e.currentTarget.blur()}
-                />
-                <Text sx={{ color: '#FFFFFF', fontWeight: '600', fontFamily: 'Plus Jakarta Sans', fontSize: '24px' }}>
-                  BNB
+                <Text sx={{ fontSize: '16px', fontFamily: 'Plus Jakarta Sans', color: '#94A3B8' }}>
+                  Stake into {fundName}
                 </Text>
+                <Box
+                  sx={{
+                    display: 'flex',
+                    flexDirection: 'row',
+                    gap: '10px',
+                    alignItems: 'center',
+                    paddingRight: '1rem',
+                  }}
+                >
+                  <Input
+                    sx={{
+                      color: '#FFFFFF',
+                      fontWeight: '600',
+                      fontFamily: 'Plus Jakarta Sans',
+                      fontSize: '24px',
+                      backgroundColor: '#413d85',
+                      textAlign: 'right',
+                    }}
+                    placeholder="0.0"
+                    value={amountString}
+                    type="number"
+                    pattern="/^[0-9.]+$/"
+                    onChange={onChangeAmount}
+                    id="amount-input"
+                    onKeyPress={onInputKeyPress}
+                    onWheel={(e) => e.currentTarget.blur()}
+                  />
+                  <Text sx={{ color: '#FFFFFF', fontWeight: '600', fontFamily: 'Plus Jakarta Sans', fontSize: '24px' }}>
+                    BNB
+                  </Text>
+                </Box>
               </Box>
-            </Box>
-            <Box sx={{ display: 'flex', gap: '10px', flexDirection: 'row', alignItems: 'center' }}>
-              <Box
-                sx={{
-                  cursor: 'pointer',
-                  backgroundColor: '#201D54',
-                  color: '#FFFFFF',
-                  padding: '0.4rem 1rem',
-                  borderRadius: '8px',
-                  border: '2px solid #EFA3C2',
-                  flex: 1,
-                  textAlign: 'center',
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontWeight: '600',
-                  boxShadow: 'rgba(49, 59, 200, 0.8) 0px 3px 16px 0px',
-                }}
-                onClick={handleStake}
-              >
-                STAKE
-              </Box>
-              {/* <Box
-                sx={{
-                  cursor: 'pointer',
-                  background: 'linear-gradient(333.11deg, #1799DE -34.19%, #E98EB3 87.94%)',
-                  color: '#FFFFFF',
-                  padding: '0.5rem 1rem',
-                  borderRadius: '8px',
-                  flex: 1,
-                  textAlign: 'center',
-                  fontFamily: 'Plus Jakarta Sans',
-                }}
-              >
-                COMPOUND
-              </Box> */}
-            </Box>
-          </Box>
-          <Box>
-            {stakeAmt > 0 && (
-              <Box
-                sx={{
-                  cursor: 'pointer',
-                  backgroundColor: '#201D54',
-                  color: '#FFFFFF',
-                  padding: '0.4rem 1rem',
-                  borderRadius: '8px',
-                  border: '2px solid #EFA3C2',
-                  flex: 1,
-                  textAlign: 'center',
-                  fontFamily: 'Plus Jakarta Sans',
-                  fontWeight: '600',
-                  boxShadow: 'rgba(49, 59, 200, 0.8) 0px 3px 16px 0px',
-                }}
-                onClick={handleUnstake}
-              >
-                WITHDRAW
-              </Box>
-            )}
-          </Box>
-          <Box
-            sx={{
-              borderRadius: '8px',
-              backgroundColor: '#14114B',
-              padding: '1rem',
-              display: 'flex',
-              flexDirection: 'column',
-              gap: '15px',
-            }}
-          >
-            <Box
-              sx={{
-                backgroundColor: '#201D54',
-                borderRadius: '4px',
-                padding: '0.5rem',
-                display: 'flex',
-                flexDirection: 'column',
-                gap: '15px',
-              }}
-            >
-              <Text sx={{ fontSize: '16px', fontFamily: 'Plus Jakarta Sans', color: '#94A3B8' }}>Your Yield</Text>
-              <Text sx={{ color: '#EFA906', fontWeight: '600', fontFamily: 'Plus Jakarta Sans', fontSize: '24px' }}>
-                {reward}
-              </Text>
-            </Box>
-            <Box sx={{ display: 'flex', gap: '10px', flexDirection: 'row', alignItems: 'center' }}>
-              {rewardBNB > 0 && (
+              <Box sx={{ display: 'flex', gap: '10px', flexDirection: 'row', alignItems: 'center' }}>
                 <Box
                   sx={{
                     cursor: 'pointer',
-                    backgroundColor: '#14114B',
+                    backgroundColor: '#201D54',
                     color: '#FFFFFF',
                     padding: '0.4rem 1rem',
                     borderRadius: '8px',
@@ -604,13 +537,14 @@ function StrategyOverview(props: { tokenId: number }) {
                     flex: 1,
                     textAlign: 'center',
                     fontFamily: 'Plus Jakarta Sans',
+                    fontWeight: '600',
+                    boxShadow: 'rgba(49, 59, 200, 0.8) 0px 3px 16px 0px',
                   }}
-                  onClick={handleClaim}
+                  onClick={handleStake}
                 >
-                  CLAIM
+                  STAKE
                 </Box>
-              )}
-              {/* <Box
+                {/* <Box
                 sx={{
                   cursor: 'pointer',
                   background: 'linear-gradient(333.11deg, #1799DE -34.19%, #E98EB3 87.94%)',
@@ -624,6 +558,142 @@ function StrategyOverview(props: { tokenId: number }) {
               >
                 COMPOUND
               </Box> */}
+              </Box>
+            </Box>
+            <Box>
+              {stakeAmt > 0 && (
+                <Box
+                  sx={{
+                    cursor: 'pointer',
+                    backgroundColor: '#201D54',
+                    color: '#FFFFFF',
+                    padding: '0.4rem 1rem',
+                    borderRadius: '8px',
+                    border: '2px solid #EFA3C2',
+                    flex: 1,
+                    textAlign: 'center',
+                    fontFamily: 'Plus Jakarta Sans',
+                    fontWeight: '600',
+                    boxShadow: 'rgba(49, 59, 200, 0.8) 0px 3px 16px 0px',
+                  }}
+                  onClick={handleUnstake}
+                >
+                  WITHDRAW
+                </Box>
+              )}
+            </Box>
+            <Box
+              sx={{
+                borderRadius: '8px',
+                backgroundColor: '#14114B',
+                padding: '1rem',
+                display: 'flex',
+                flexDirection: 'column',
+                gap: '15px',
+              }}
+            >
+              <Box
+                sx={{
+                  backgroundColor: '#201D54',
+                  borderRadius: '4px',
+                  padding: '0.5rem',
+                  display: 'flex',
+                  flexDirection: 'column',
+                  gap: '15px',
+                }}
+              >
+                <Text sx={{ fontSize: '16px', fontFamily: 'Plus Jakarta Sans', color: '#94A3B8' }}>Your Yield</Text>
+                <Text sx={{ color: '#EFA906', fontWeight: '600', fontFamily: 'Plus Jakarta Sans', fontSize: '24px' }}>
+                  {reward}
+                </Text>
+              </Box>
+              <Box sx={{ display: 'flex', gap: '10px', flexDirection: 'row', alignItems: 'center' }}>
+                {rewardBNB > 0 && (
+                  <Box
+                    sx={{
+                      cursor: 'pointer',
+                      backgroundColor: '#14114B',
+                      color: '#FFFFFF',
+                      padding: '0.4rem 1rem',
+                      borderRadius: '8px',
+                      border: '2px solid #EFA3C2',
+                      flex: 1,
+                      textAlign: 'center',
+                      fontFamily: 'Plus Jakarta Sans',
+                    }}
+                    onClick={handleClaim}
+                  >
+                    CLAIM
+                  </Box>
+                )}
+                {/* <Box
+                sx={{
+                  cursor: 'pointer',
+                  background: 'linear-gradient(333.11deg, #1799DE -34.19%, #E98EB3 87.94%)',
+                  color: '#FFFFFF',
+                  padding: '0.5rem 1rem',
+                  borderRadius: '8px',
+                  flex: 1,
+                  textAlign: 'center',
+                  fontFamily: 'Plus Jakarta Sans',
+                }}
+              >
+                COMPOUND
+              </Box> */}
+              </Box>
+            </Box>
+          </Box>
+        </Box>
+        <Box
+          sx={{
+            dislay: 'flex',
+            flexDirection: 'row',
+            alignItems: 'center',
+            justifyContent: 'center',
+            width: '100%',
+            padding: '3px',
+            background: 'linear-gradient(333.11deg, #1799DE -34.19%, #E98EB3 87.94%)',
+            borderRadius: '8px',
+          }}
+        >
+          <Box sx={{ width: '100%', backgroundColor: '#FFFFFF', borderRadius: '6px', padding: '24px 16px' }}>
+            <Box sx={{ display: 'flex', flexDirection: 'column', gap: '10px' }}>
+              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'flex-start', gap: '5px' }}>
+                <Box
+                  sx={{
+                    backgroundColor: '#F3F3F3',
+                    border: '0.5px solid #BAB9C5',
+                    padding: '8px',
+                    display: 'flex',
+                    flexDirection: 'row',
+                    alignItems: 'center',
+                    borderRadius: '4px',
+                    flex: 3,
+                  }}
+                >
+                  <Text>{shareText}</Text>
+                </Box>
+                <Box sx={{ cursor: 'pointer' }}>
+                  <a href={`https://twitter.com/intent/tweet?text=${shareText.replace('%', '%25')}`} target="_blank">
+                    <Image src="/images/tweet.svg" sx={{ flex: 2 }} />
+                  </a>
+                </Box>
+              </Box>
+              <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
+                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', gap: '10px' }}>
+                  <Image src="/images/share.svg" />
+                  <Text sx={{}}>Share this fund:</Text>
+                </Box>
+                <Box sx={{ display: 'flex', flexDirection: 'row', alignItems: 'center', justifyContent: 'center' }}>
+                  <Image
+                    src="/images/share-link.svg"
+                    sx={{ width: '30px', height: '30px', cursor: 'pointer' }}
+                    onClick={() => {
+                      navigator.clipboard.writeText('https://hedgepie.finance' + router.asPath)
+                    }}
+                  />
+                </Box>
+              </Box>
             </Box>
           </Box>
         </Box>
