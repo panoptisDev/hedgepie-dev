@@ -10,6 +10,7 @@ import "../interfaces/IAdapterMatic.sol";
 
 import "../interfaces/IStargateRouter.sol";
 import "../interfaces/IStargateReceiver.sol";
+import "../interfaces/IPancakeRouter.sol";
 
 contract HedgepieInvestorMaticMock is
     Ownable,
@@ -39,6 +40,12 @@ contract HedgepieInvestorMaticMock is
 
     // stargate router
     address public starRouter;
+
+    // swap router address
+    address public swapRouter;
+
+    // wmatic address
+    address public wmatic;
 
     // mapping for stargate information: adapter address to StargateInfo
     mapping(address => StargateInfo) public adapterStarInfo;
@@ -76,7 +83,9 @@ contract HedgepieInvestorMaticMock is
         address _ybnft,
         address _treasury,
         address _adapterInfo,
-        address _starRouter
+        address _starRouter,
+        address _wmatic,
+        address _swapRouter
     ) {
         require(_ybnft != address(0), "Error: YBNFT address missing");
         require(_treasury != address(0), "Error: treasury address missing");
@@ -93,6 +102,8 @@ contract HedgepieInvestorMaticMock is
         treasury = _treasury;
         adapterInfo = _adapterInfo;
         starRouter = _starRouter;
+        wmatic = _wmatic;
+        swapRouter = _swapRouter;
     }
 
     /**
@@ -117,9 +128,10 @@ contract HedgepieInvestorMaticMock is
 
         for (uint8 i = 0; i < adapterInfos.length; i++) {
             IYBNFT.Adapter memory adapter = adapterInfos[i];
+            StargateInfo memory starInfo = adapterStarInfo[adapter.addr];
 
-            if (adapterStarInfo[adapter.addr].dstToken != address(0)) {
-                uint256 amountIn = (_amount * adapter.allocation) / 1e4;
+            uint256 amountIn = (_amount * adapter.allocation) / 1e4;
+            if (starInfo.dstToken == address(0)) {
                 IAdapterMatic(adapter.addr).deposit{value: amountIn}(
                     _tokenId,
                     amountIn,
@@ -127,7 +139,19 @@ contract HedgepieInvestorMaticMock is
                 );
             } else {
                 // Swap Matic to dstToken
-                uint256 amountOut;
+                uint256 amountOut = IBEP20(starInfo.dstToken).balanceOf(
+                    address(this)
+                );
+                address[] memory path = new address[](2);
+                path[0] = wmatic;
+                path[1] = starInfo.dstToken;
+                IPancakeRouter(swapRouter)
+                    .swapExactETHForTokensSupportingFeeOnTransferTokens{
+                    value: amountIn
+                }(0, path, address(this), block.timestamp + 2 hours);
+                amountOut =
+                    IBEP20(starInfo.dstToken).balanceOf(address(this)) -
+                    amountOut;
 
                 _deposit(
                     adapter.addr,

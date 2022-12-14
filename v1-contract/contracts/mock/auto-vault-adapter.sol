@@ -4,6 +4,8 @@ pragma solidity ^0.8.4;
 import "../interfaces/IVaultStrategy.sol";
 import "../interfaces/IHedgepieInvestorBsc.sol";
 import "../interfaces/IHedgepieAdapterInfoBsc.sol";
+import "../interfaces/IStargateReceiver.sol";
+
 import "../libraries/HedgepieLibraryBsc.sol";
 
 interface IStrategy {
@@ -22,9 +24,12 @@ interface IStrategy {
     function withdraw(uint256 pid, uint256 shares) external;
 }
 
-contract AutoVaultAdapterBscMock is BaseAdapterBsc {
+contract AutoVaultAdapterBscMock is BaseAdapterBsc, IStargateReceiver {
     // vStrategy address of vault
     address public vStrategy;
+
+    // Address bridge token
+    address public starToken;
 
     /**
      * @notice Construct
@@ -45,6 +50,7 @@ contract AutoVaultAdapterBscMock is BaseAdapterBsc {
         address _router,
         address _swapRouter,
         address _wbnb,
+        address _starToken,
         string memory _name
     ) {
         pid = _pid;
@@ -54,6 +60,7 @@ contract AutoVaultAdapterBscMock is BaseAdapterBsc {
         router = _router;
         swapRouter = _swapRouter;
         wbnb = _wbnb;
+        starToken = _starToken;
         name = _name;
     }
 
@@ -67,8 +74,7 @@ contract AutoVaultAdapterBscMock is BaseAdapterBsc {
         uint256 _tokenId,
         uint256 _amountIn,
         address _account
-    ) external payable override onlyInvestor returns (uint256 amountOut) {
-        require(msg.value == _amountIn, "Error: msg.value is not correct");
+    ) public payable override returns (uint256 amountOut) {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
         UserAdapterInfo storage userInfo = userAdapterInfos[_account][_tokenId];
 
@@ -125,7 +131,6 @@ contract AutoVaultAdapterBscMock is BaseAdapterBsc {
         external
         payable
         override
-        onlyInvestor
         returns (uint256 amountOut)
     {
         AdapterInfo storage adapterInfo = adapterInfos[_tokenId];
@@ -209,7 +214,7 @@ contract AutoVaultAdapterBscMock is BaseAdapterBsc {
      * @param _account user wallet address
      */
     function pendingReward(uint256 _tokenId, address _account)
-        external
+        public
         view
         override
         returns (uint256 reward)
@@ -245,6 +250,39 @@ contract AutoVaultAdapterBscMock is BaseAdapterBsc {
                 amount1,
                 getPaths(token1, wbnb)
             )[1];
+    }
+
+    function sgReceive(
+        uint16 _chainId,
+        bytes memory _srcAddress,
+        uint256 _nonce,
+        address _token,
+        uint256 amountLD,
+        bytes memory payload
+    ) external override {
+        uint256 amountOut = HedgepieLibraryBsc.swapforBnb(
+            amountLD,
+            address(this),
+            _token,
+            swapRouter,
+            wbnb
+        );
+        require(amountOut != 0, "Error: Swap for bnb failed");
+
+        address srcAddress;
+        assembly {
+            srcAddress := mload(add(_srcAddress, 20))
+        }
+        deposit(0, amountOut, srcAddress);
+
+        emit sgReceived(
+            _chainId,
+            _srcAddress,
+            _nonce,
+            _token,
+            amountLD,
+            payload
+        );
     }
 
     receive() external payable {}
