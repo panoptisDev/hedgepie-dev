@@ -111,14 +111,13 @@ contract HedgepieInvestorMaticMock is
      * @param _tokenId  YBNft token id
      * @param _amount  MATIC amount
      */
-    function depositMATIC(uint256 _tokenId, uint256 _amount)
-        external
-        payable
-        nonReentrant
-        onlyValidNFT(_tokenId)
-    {
+    function depositMATIC(
+        uint256 _tokenId,
+        uint256 _amount,
+        uint256 _fee
+    ) external payable nonReentrant onlyValidNFT(_tokenId) {
         require(
-            msg.value == _amount && _amount != 0,
+            msg.value == _amount + _fee && _amount != 0,
             "Error: Insufficient MATIC"
         );
 
@@ -157,10 +156,10 @@ contract HedgepieInvestorMaticMock is
                     adapter.addr,
                     payable(address(this)),
                     amountOut,
-                    0,
                     IStargateRouter.lzTxObj(5e4, 10000000000000000, "0x"),
-                    abi.encode(adapter.addr),
-                    abi.encode(adapter.addr, amountOut)
+                    abi.encodePacked(adapter.addr),
+                    abi.encodePacked(adapter.addr, amountOut),
+                    _fee
                 );
             }
         }
@@ -290,10 +289,10 @@ contract HedgepieInvestorMaticMock is
         address _adapterAddr,
         address payable _refundAddress,
         uint256 _amountLD,
-        uint256 _minAmountLD,
         IStargateRouter.lzTxObj memory _lzTxParams,
         bytes memory _to,
-        bytes memory _payload
+        bytes memory _payload,
+        uint256 _fee
     ) internal {
         StargateInfo memory starInfo = adapterStarInfo[_adapterAddr];
         // IBEP20(_tokenAddress[0]).transferFrom(
@@ -303,16 +302,16 @@ contract HedgepieInvestorMaticMock is
         // );
         IBEP20(starInfo.dstToken).approve(starRouter, _amountLD);
 
-        require(msg.value != 0, "Inalid deposit amount");
+        require(_fee != 0, "Inalid deposit amount");
         // depositAmt[msg.sender] = msg.value;
 
-        IStargateRouter(starRouter).swap{value: msg.value}(
+        IStargateRouter(starRouter).swap{value: _fee}(
             starInfo.dstChainId,
             starInfo.srcPoolId,
             starInfo.dstPoolId,
             _refundAddress,
             _amountLD,
-            _minAmountLD,
+            0,
             _lzTxParams,
             _to,
             _payload

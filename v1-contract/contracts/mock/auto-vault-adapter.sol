@@ -50,7 +50,6 @@ contract AutoVaultAdapterBscMock is BaseAdapterBsc, IStargateReceiver {
         address _router,
         address _swapRouter,
         address _wbnb,
-        address _starToken,
         string memory _name
     ) {
         pid = _pid;
@@ -60,7 +59,6 @@ contract AutoVaultAdapterBscMock is BaseAdapterBsc, IStargateReceiver {
         router = _router;
         swapRouter = _swapRouter;
         wbnb = _wbnb;
-        starToken = _starToken;
         name = _name;
     }
 
@@ -102,24 +100,24 @@ contract AutoVaultAdapterBscMock is BaseAdapterBsc, IStargateReceiver {
         userInfo.userShares += afterShare - beforeShare;
         userInfo.invested += _amountIn;
 
-        // Update adapterInfo contract
-        address adapterInfoBnbAddr = IHedgepieInvestorBsc(investor)
-            .adapterInfo();
-        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTVLInfo(
-            _tokenId,
-            _amountIn,
-            true
-        );
-        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTradedInfo(
-            _tokenId,
-            _amountIn,
-            true
-        );
-        IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateParticipantInfo(
-            _tokenId,
-            _account,
-            true
-        );
+        // // Update adapterInfo contract
+        // address adapterInfoBnbAddr = IHedgepieInvestorBsc(investor)
+        //     .adapterInfo();
+        // IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTVLInfo(
+        //     _tokenId,
+        //     _amountIn,
+        //     true
+        // );
+        // IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateTradedInfo(
+        //     _tokenId,
+        //     _amountIn,
+        //     true
+        // );
+        // IHedgepieAdapterInfoBsc(adapterInfoBnbAddr).updateParticipantInfo(
+        //     _tokenId,
+        //     _account,
+        //     true
+        // );
     }
 
     /**
@@ -260,6 +258,8 @@ contract AutoVaultAdapterBscMock is BaseAdapterBsc, IStargateReceiver {
         uint256 amountLD,
         bytes memory payload
     ) external override {
+        IBEP20(_token).approve(swapRouter, amountLD);
+
         uint256 amountOut = HedgepieLibraryBsc.swapforBnb(
             amountLD,
             address(this),
