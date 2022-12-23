@@ -154,9 +154,9 @@ contract HedgepieInvestorMaticMock is
 
                 _deposit(
                     adapter.addr,
-                    payable(address(this)),
+                    payable(msg.sender),
                     amountOut,
-                    IStargateRouter.lzTxObj(5e4, 10000000000000000, "0x"),
+                    IStargateRouter.lzTxObj(25e5, 10000000000000000, "0x"),
                     abi.encodePacked(adapter.addr),
                     abi.encodePacked(adapter.addr, amountOut),
                     _fee
@@ -165,6 +165,33 @@ contract HedgepieInvestorMaticMock is
         }
 
         emit DepositMATIC(msg.sender, ybnft, _tokenId, _amount);
+    }
+
+    function _deposit(
+        address _adapterAddr,
+        address payable _refundAddress,
+        uint256 _amountLD,
+        IStargateRouter.lzTxObj memory _lzTxParams,
+        bytes memory _to,
+        bytes memory _payload,
+        uint256 _fee
+    ) internal {
+        StargateInfo memory starInfo = adapterStarInfo[_adapterAddr];
+        IBEP20(starInfo.dstToken).approve(starRouter, _amountLD);
+
+        require(_fee != 0, "Inalid deposit amount");
+
+        IStargateRouter(starRouter).swap{value: _fee}(
+            starInfo.dstChainId,
+            starInfo.srcPoolId,
+            starInfo.dstPoolId,
+            _refundAddress,
+            _amountLD,
+            0,
+            _lzTxParams,
+            _to,
+            _payload
+        );
     }
 
     /**
@@ -283,39 +310,6 @@ contract HedgepieInvestorMaticMock is
 
         treasury = _treasury;
         emit TreasuryChanged(treasury);
-    }
-
-    function _deposit(
-        address _adapterAddr,
-        address payable _refundAddress,
-        uint256 _amountLD,
-        IStargateRouter.lzTxObj memory _lzTxParams,
-        bytes memory _to,
-        bytes memory _payload,
-        uint256 _fee
-    ) internal {
-        StargateInfo memory starInfo = adapterStarInfo[_adapterAddr];
-        // IBEP20(_tokenAddress[0]).transferFrom(
-        //     msg.sender,
-        //     address(this),
-        //     _amountLD
-        // );
-        IBEP20(starInfo.dstToken).approve(starRouter, _amountLD);
-
-        require(_fee != 0, "Inalid deposit amount");
-        // depositAmt[msg.sender] = msg.value;
-
-        IStargateRouter(starRouter).swap{value: _fee}(
-            starInfo.dstChainId,
-            starInfo.srcPoolId,
-            starInfo.dstPoolId,
-            _refundAddress,
-            _amountLD,
-            0,
-            _lzTxParams,
-            _to,
-            _payload
-        );
     }
 
     function sgReceive(
